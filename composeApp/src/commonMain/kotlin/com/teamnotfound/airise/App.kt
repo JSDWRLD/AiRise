@@ -15,7 +15,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import airise.composeapp.generated.resources.Res
 import airise.composeapp.generated.resources.compose_multiplatform
+import androidx.compose.material.TabRowDefaults.Divider
 
+// This is basically your main function.
 @Composable
 @Preview
 fun App() {
@@ -29,7 +31,10 @@ fun App() {
                 val greeting = remember { Greeting().greet() }
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+                    greeting.forEach { greeting ->
+                        Text(greeting)
+                        Divider()
+                    }
                 }
             }
         }
