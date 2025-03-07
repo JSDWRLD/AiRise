@@ -1,8 +1,13 @@
 ## Repository Rules
-1. You must clone this repository and do git checkout -b "Branch Name" to get your own branch for development.
-2. All changes to the code base cannot be pushed to the main branch but sent as a pull request from your branch.
+1. Branching: Always create a new branch for each task (git checkout -b branch-name).
+2. Pull Requests: Submit pull requests for review, never push directly to main.
 3. Pull requests are subject to review to ensure that the main branch does not break.
-4. Ping the discord server if you need your pull request reviewed. At least 2 people must review your pr before it can be pushed into main.
+4. Code Reviews: Ensure at least 2 reviewers approve before merging. Ping the discord server with @everyone.
+5. Commit Messages: Use clear, concise commit messages in the format type: message.
+6. No Large PRs: Keep pull requests small and focused on a single task.
+7. No Sensitive Data: Never commit passwords or API keys to the repository.
+8. Documentation: Update documentation when making changes to code or features.
+9. **IMPORTANT - Rebasing**: Rebase your branch on main before submitting a pull request.
 
 ## Set up the environment
 
