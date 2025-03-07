@@ -48,8 +48,6 @@ Otherwise, KDoctor will highlight which parts of your setup still need to be con
 
 Open the project in Android Studio and switch the view from **Android** to **Project** to see all the files and targets belonging to the project:
 
-<img src="readme_images/open_project_view.png" height="300px">
-
 Your Compose Multiplatform project includes 3 modules:
 
 ### shared
