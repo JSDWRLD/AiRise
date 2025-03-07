@@ -6,7 +6,7 @@
 
 To work with this template, you need the following:
 
-* A machine running a recent version of macOS
+* A machine running a recent version of macOS is required to run iOS code, if you are a windows user, please focus on developing in the common and android package.
 * [Xcode](https://apps.apple.com/us/app/xcode/id497799835)
 * [Android Studio](https://developer.android.com/studio)
 * The [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile)
