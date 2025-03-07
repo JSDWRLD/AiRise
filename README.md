@@ -1,3 +1,9 @@
+## Repository Rules
+1. You must clone this repository and do git checkout -b "Branch Name" to get your own branch for development.
+2. All changes to the code base cannot be pushed to the main branch but sent as a pull request from your branch.
+3. Pull requests are subject to review to ensure that the main branch does not break.
+4. Ping the discord server if you need your pull request reviewed. At least 2 people must review your pr before it can be pushed into main.
+
 ## Set up the environment
 
 > **Warning**
