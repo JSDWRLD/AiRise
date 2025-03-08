@@ -1,5 +1,7 @@
 *.iml
 Frontend/.kotlin
+Frontend/.gradle
+Frontend/local.properties
 .gradle
 **/build/
 xcuserdata
