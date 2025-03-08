@@ -34,7 +34,24 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun App(client: DemoClient) {
+    var showContent by remember { mutableStateOf(false) }
     MaterialTheme {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = { showContent = !showContent }) {
+                Text("Click me!")
+            }
+            AnimatedVisibility(showContent) {
+                val greeting = remember { Greeting().greet() }
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painterResource(Res.drawable.compose_multiplatform), null)
+                    greeting.forEach { greeting ->
+                        Text(greeting)
+                        Divider()
+                    }
+                }
+            }
+        }
+        /*
         var censoredText by remember {
             mutableStateOf<String?>(null)
         }
@@ -101,23 +118,8 @@ fun App(client: DemoClient) {
                 )
             }
         }
-        /*
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    greeting.forEach { greeting ->
-                        Text(greeting)
-                        Divider()
-                    }
-                }
-            }
-        }
 
          */
+
     }
 }
