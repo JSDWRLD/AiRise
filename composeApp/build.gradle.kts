@@ -52,10 +52,13 @@ kotlin {
             implementation(libs.runtime)
             implementation(libs.kotlinx.datetime)
             implementation(libs.koin.core)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.client.logging)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
             implementation(libs.android.driver)
+            implementation(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -95,6 +98,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.ui.graphics.android)
     debugImplementation(compose.uiTooling)
 }
+
 
