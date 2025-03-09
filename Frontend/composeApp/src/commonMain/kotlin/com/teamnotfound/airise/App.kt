@@ -35,6 +35,8 @@ import kotlinx.coroutines.launch
 @Preview
 fun App(client: DemoClient) {
     var showContent by remember { mutableStateOf(false) }
+    var showHeightSelection by remember { mutableStateOf(false) }
+    val newUser = remember {UserProfile()}
     MaterialTheme {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Button(onClick = { showContent = !showContent }) {
@@ -49,6 +51,12 @@ fun App(client: DemoClient) {
                         Divider()
                     }
                 }
+            }
+            Button(onClick = { showHeightSelection = true }) {
+                Text("Go to Height Selection")
+            }
+            AnimatedVisibility(visible = showHeightSelection) {
+                HeightSelectionScreen(newUser)
             }
         }
         /*
