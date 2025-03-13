@@ -32,6 +32,44 @@ import kotlinx.coroutines.launch
 
 // This is basically your main function.
 @Composable
+fun App(client: DemoClient) {
+    var currentScreen by remember { mutableStateOf("login") }
+
+    MaterialTheme {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+        ) {
+            when (currentScreen) {
+                "login" -> LoginScreen(
+                    onLoginClick = { /* Login */ },
+                    onForgotPasswordClick = { /*currentScreen = "recover_account"*/ },
+                    onSignUpClick = { /*currentScreen = "signup"*/ },
+                    onGoogleSignInClick = { /* Google */ }
+                )
+
+                /*
+                "signup" -> SignUpScreen(
+                    onSignUpClick = { /* Sign-Up */ },
+                    onLoginClick = { currentScreen = "login" },
+                    onForgotPasswordClick = { currentScreen = "recover_account" },
+                    onGoogleSignUpClick = { /* Google */ },
+                    onBackClick = { currentScreen = "login" }
+                )
+
+                "recover_account" -> RecoverAccountScreen(
+                    onSendEmailClick = { currentScreen = "recovery_sent" },
+                    onBackClick = { currentScreen = "login" }
+                )
+
+                "recovery_sent" -> RecoverySentScreen(
+                    onBackToLoginClick = { currentScreen = "login" },
+                    onBackClick = { currentScreen = "recover_account" }
+                )
+                */
+            }
+        }
+
+/*
 @Preview
 fun App(client: DemoClient) {
     var showContent by remember { mutableStateOf(false) }
@@ -51,6 +89,8 @@ fun App(client: DemoClient) {
                 }
             }
         }
+ */
+
         /*
         var censoredText by remember {
             mutableStateOf<String?>(null)
