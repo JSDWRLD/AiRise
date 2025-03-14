@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
+            implementation(libs.androidx.nav)
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
             implementation(libs.androidx.nav)
         }
