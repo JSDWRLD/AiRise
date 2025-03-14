@@ -47,7 +47,11 @@ fun App(client: DemoClient) {
     val navController = rememberNavController()
 
     MaterialTheme {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+
             NavHost(
                 navController = navController,
                 startDestination = AppScreen.LOGIN.name
