@@ -183,7 +183,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.width(3.dp))
 
 
-                TextButton(onClick = { /* onSignUpClick() */ }, contentPadding = PaddingValues(0.dp)) {
+                TextButton(onClick = { onSignUpClick() }, contentPadding = PaddingValues(0.dp)) {
                     Text("Sign up", color = Color.White, fontSize = 12.sp)
                 }
             }

@@ -1,5 +1,7 @@
 package com.teamnotfound.airise
 
+import com.teamnotfound.airise.LoginScreen
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -28,33 +30,48 @@ import com.teamnotfound.airise.network.DemoClient
 import com.teamnotfound.airise.util.NetworkError
 import com.teamnotfound.airise.util.onError
 import com.teamnotfound.airise.util.onSuccess
-import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+
+enum class AppScreen {
+    LOGIN,
+    //SIGNUP
+}
 
 // This is basically your main function.
 @Composable
 fun App(client: DemoClient) {
-    var currentScreen by remember { mutableStateOf("login") }
+    val navController = rememberNavController()
 
     MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        ) {
-            when (currentScreen) {
-                "login" -> LoginScreen(
-                    onLoginClick = { /* Login */ },
-                    onForgotPasswordClick = { /*currentScreen = "recover_account"*/ },
-                    onSignUpClick = { /*currentScreen = "signup"*/ },
-                    onGoogleSignInClick = { /* Google */ }
-                )
-
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            NavHost(
+                navController = navController,
+                startDestination = AppScreen.LOGIN.name
+            ) {
+                //login screen
+                composable(route = AppScreen.LOGIN.name) {
+                    LoginScreen(
+                        onLoginClick = { /* login */ },
+                        onForgotPasswordClick = { /* forgot password */ },
+                        onSignUpClick = { /*navController.navigate(AppScreen.SIGNUP.name) */},
+                        onGoogleSignInClick = { /* google Sign-In */ }
+                    )
+                }
                 /*
-                "signup" -> SignUpScreen(
-                    onSignUpClick = { /* Sign-Up */ },
-                    onLoginClick = { currentScreen = "login" },
-                    onForgotPasswordClick = { currentScreen = "recover_account" },
-                    onGoogleSignUpClick = { /* Google */ },
-                    onBackClick = { currentScreen = "login" }
-                )
+                // sign up screen
+                composable(route = AppScreen.SIGNUP.name) {
+                    SignUpScreen(
+                        onSignUpClick = { /* Sign-Up */ },
+                        onLoginClick = { navController.popBackStack() },
+                        onForgotPasswordClick = { /* Forgot Password */ },
+                        onGoogleSignUpClick = { /* Google Sign-Up */ },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
 
                 "recover_account" -> RecoverAccountScreen(
                     onSendEmailClick = { currentScreen = "recovery_sent" },
