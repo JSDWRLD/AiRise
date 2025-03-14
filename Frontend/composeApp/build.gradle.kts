@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
+            implementation(libs.androidx.nav)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
