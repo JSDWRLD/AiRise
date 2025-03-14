@@ -62,7 +62,7 @@ fun App(client: DemoClient) {
                     )
                 }
                 /*
-                // sign up screen
+                // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
                     SignUpScreen(
                         onSignUpClick = { /* Sign-Up */ },

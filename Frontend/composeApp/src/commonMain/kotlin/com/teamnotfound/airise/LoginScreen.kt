@@ -169,7 +169,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(3.dp))
 
-            //sign up button
+            //sign up buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
