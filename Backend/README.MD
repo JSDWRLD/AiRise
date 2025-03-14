@@ -1,4 +1,4 @@
-# .NET Web API with MongoDB Backend
+# .NET Web API
 
 ## Prerequisites
 

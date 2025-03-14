@@ -1,14 +1,3 @@
-## Repository Rules
-1. Branching: Always create a new branch for each task (git checkout -b branch-name).
-2. Pull Requests: Submit pull requests for review by pushing your branch to this repository, never push directly to main.
-   - Pull requests are subject to review to ensure that the main branch does not break.
-3. Code Reviews: Ensure at least 2 reviewers approve before merging. Ping the discord server with @everyone.
-4. Commit Messages: Use clear, concise commit messages in the format type: message.
-5. No Large PRs: Keep pull requests small and focused on a single task.
-6. No Sensitive Data: Never commit passwords or API keys to the repository.
-7. Documentation: Update documentation when making changes to code or features.
-8. **IMPORTANT - Rebasing**: Rebase your branch on main before submitting a pull request.
-
 ## Set up the environment
 
 > **Warning**
