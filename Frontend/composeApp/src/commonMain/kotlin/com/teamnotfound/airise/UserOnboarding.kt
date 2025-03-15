@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class UserOnboarding {
+    var firstName: MutableState<String> = mutableStateOf("")
+    var lastName: MutableState<String> = mutableStateOf("")
+    var middleName: MutableState<String> = mutableStateOf("")
     var workoutGoal: MutableState<String> = mutableStateOf("")
     var fitnessLevel: MutableState<String> = mutableStateOf("")
     var workoutLength: MutableState<Int> = mutableStateOf(0)
@@ -48,6 +51,9 @@ class UserOnboarding {
 
 @Serializable
 data class UserOnboardingData(
+    val firstName: String, 
+    val lastName: String, 
+    val middleName: String,
     val workoutGoal: String,
     val fitnessLevel: String,
     val workoutLength: Int,
