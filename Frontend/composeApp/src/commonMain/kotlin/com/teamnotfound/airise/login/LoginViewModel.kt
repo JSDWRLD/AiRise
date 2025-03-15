@@ -17,7 +17,7 @@ class LoginViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(password = uiEvent.password)
             }
             else -> {
-
+                // Nothing here for now
             }
         }
     }
