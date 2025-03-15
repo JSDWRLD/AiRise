@@ -1,5 +1,4 @@
 namespace AiRise.Models;
-
 public class MongoDBSettings
 {
     public string ConnectionURI { get; set; } = null!;

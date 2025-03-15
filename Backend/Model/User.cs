@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace AiRise.Models;
 
@@ -7,14 +8,17 @@ public class User
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [BsonElement("username")]
-    public string Username { get; set; }
+    [JsonPropertyName("username")]
+    public string Username { get; set; } = null!;
 
     [BsonElement("password")] // TODO: Hash this with bcrypt later on
-    public string Password { get; set; }
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = null!;
 
     [BsonElement("email")]
-    public string Email { get; set; }
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = null!;
 }

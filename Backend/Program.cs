@@ -1,3 +1,6 @@
+using AiRise.Models;
+using AiRise.Services;
+
 namespace AiRise;
 
 public class Program
@@ -6,11 +9,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Create singleton service
+        builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
+        builder.Services.AddSingleton<MongoDBService>();
+
         builder.Services.AddControllers();
         // FOR DEVELOPMENT API TESTING
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(); 
-        //
+        // ENV
+        DotNetEnv.Env.Load(); // Load .env file
+        builder.Configuration.AddEnvironmentVariables(); // Add environment variables
+
         var app = builder.Build();
 
 
