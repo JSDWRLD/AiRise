@@ -1,5 +1,6 @@
 package com.teamnotfound.airise
 
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,13 +59,13 @@ fun LoginScreen(
                     Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
                 modifier = Modifier
                     .width(300.dp)
-                    .height(50.dp)
+                    .height(60.dp)
                     .background(Color(0xFF1B263B), RoundedCornerShape(8.dp)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = Color(0xFFE0E0E0),
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.Gray,
-                    textColor = Color.White
+                    textColor = Color.Gray,
                 )
             )
 
@@ -76,15 +77,16 @@ fun LoginScreen(
                 onValueChange = { password = it },
                 label = { Text("Password", color = Color.Gray) },
                 singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier
                     .width(300.dp)
-                    .height(50.dp)
+                    .height(60.dp)
                     .background(Color(0xFF1B263B), RoundedCornerShape(8.dp)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = Color(0xFFE0E0E0),
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.Gray,
-                    textColor = Color.White
+                    textColor = Color.Gray,
                 )
             )
 
