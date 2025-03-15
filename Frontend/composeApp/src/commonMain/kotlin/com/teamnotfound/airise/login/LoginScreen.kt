@@ -117,16 +117,25 @@ fun Login(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // login button
+            // Login button with loading state
             Button(
-                onClick = onLoginClick,
+                onClick = { onEvent(LoginUiEvent.Login) },
+                enabled = !uiState.isLoading,
                 modifier = Modifier
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
             ) {
-                Text("Login", color = Color.White)
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Login", color = Color.White)
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
