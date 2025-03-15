@@ -30,6 +30,9 @@ class UserOnboarding {
     
     // Convert to a serializable data class for MongoDB storage
     fun toData(): UserOnboardingData = UserOnboardingData(
+        firstName = firstName.value, 
+        lastName = lastName.value, 
+        middleName = middleName.value,
         workoutGoal = workoutGoal.value,
         fitnessLevel = fitnessLevel.value,
         workoutLength = workoutLength.value,
