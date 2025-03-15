@@ -10,6 +10,8 @@ import com.teamnotfound.airise.network.DemoClient
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
 import com.teamnotfound.airise.login.SignUpScreen
@@ -39,7 +41,9 @@ fun App(client: DemoClient) {
             ) {
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
+                    val loginViewModel = viewModel<LoginViewModel>()
                     LoginScreen(
+                        viewModel = loginViewModel,
                         onLoginClick = { /* login */ },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
