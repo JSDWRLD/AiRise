@@ -1,5 +1,7 @@
 package com.teamnotfound.airise
 
+import com.teamnotfound.airise.LoginScreen
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -28,10 +30,67 @@ import com.teamnotfound.airise.network.DemoClient
 import com.teamnotfound.airise.util.NetworkError
 import com.teamnotfound.airise.util.onError
 import com.teamnotfound.airise.util.onSuccess
-import kotlinx.coroutines.launch
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+
+enum class AppScreen {
+    LOGIN,
+    //SIGNUP
+}
 
 // This is basically your main function.
 @Composable
+fun App(client: DemoClient) {
+    val navController = rememberNavController()
+
+    MaterialTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+
+            NavHost(
+                navController = navController,
+                startDestination = AppScreen.LOGIN.name
+            ) {
+                //login screen
+                composable(route = AppScreen.LOGIN.name) {
+                    LoginScreen(
+                        onLoginClick = { /* login */ },
+                        onForgotPasswordClick = { /* forgot password */ },
+                        onSignUpClick = { /*navController.navigate(AppScreen.SIGNUP.name) */},
+                        onGoogleSignInClick = { /* google Sign-In */ }
+                    )
+                }
+                /*
+                // sign up screens
+                composable(route = AppScreen.SIGNUP.name) {
+                    SignUpScreen(
+                        onSignUpClick = { /* Sign-Up */ },
+                        onLoginClick = { navController.popBackStack() },
+                        onForgotPasswordClick = { /* Forgot Password */ },
+                        onGoogleSignUpClick = { /* Google Sign-Up */ },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                "recover_account" -> RecoverAccountScreen(
+                    onSendEmailClick = { currentScreen = "recovery_sent" },
+                    onBackClick = { currentScreen = "login" }
+                )
+
+                "recovery_sent" -> RecoverySentScreen(
+                    onBackToLoginClick = { currentScreen = "login" },
+                    onBackClick = { currentScreen = "recover_account" }
+                )
+                */
+            }
+        }
+
+/*
 @Preview
 fun App(client: DemoClient) {
     var showContent by remember { mutableStateOf(false) }
@@ -51,6 +110,10 @@ fun App(client: DemoClient) {
                 }
             }
         }
+
+
+ */
+
 
 
         /*
