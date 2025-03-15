@@ -1,8 +1,13 @@
 package com.teamnotfound.airise
 
 import airise.composeapp.generated.resources.Res
+import airise.composeapp.generated.resources.allStringResources
+import airise.composeapp.generated.resources.app_name
 import airise.composeapp.generated.resources.compose_multiplatform
+import airise.composeapp.generated.resources.welcome_account
 import airise.composeapp.generated.resources.welcome_screen
+import airise.composeapp.generated.resources.welcome_start
+import airise.composeapp.generated.resources.welcome_to
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,11 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
-fun WelcomeScreen(){
+fun WelcomeScreen(
+    onStartClick: () -> Unit,
+    onAlreadyHaveAnAccountClick: () -> Unit
+){
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val circleSize = maxWidth * 0.4f //Circle size is 40% of screen width
         val padding = 16.dp
@@ -49,7 +58,7 @@ fun WelcomeScreen(){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Welcome To",
+                text = stringResource(Res.string.welcome_to),
                 color = Orange,
                 modifier = Modifier.padding(bottom = padding),
                 fontSize = 26.sp,
@@ -87,7 +96,7 @@ fun WelcomeScreen(){
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Button(
-                onClick = {/* on click go to create account page */},
+                onClick = {onStartClick()},
                 modifier = Modifier
                     .width(buttonWidth)
                     .height(buttonHeight),
@@ -95,18 +104,18 @@ fun WelcomeScreen(){
                 colors = ButtonDefaults.buttonColors(Orange)
             ){
                 Text(
-                    text = "Start",
+                    text = stringResource(Res.string.welcome_start),
                     color = White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
             }
             Button(
-                onClick = {/* on click go to login page*/},
+                onClick = {onAlreadyHaveAnAccountClick()},
                 colors = ButtonDefaults.buttonColors(Transparent),
             ){
                 Text(
-                    text = "Already have an account?",
+                    text = stringResource(Res.string.welcome_account),
                     color = White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
