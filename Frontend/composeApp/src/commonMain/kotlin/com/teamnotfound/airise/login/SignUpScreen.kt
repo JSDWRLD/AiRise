@@ -1,4 +1,4 @@
-package com.teamnotfound.airise
+package com.teamnotfound.airise.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.navigation.NavController
 
 @Composable
 fun SignUpScreen(

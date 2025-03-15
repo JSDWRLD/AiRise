@@ -1,5 +1,5 @@
 
-package com.teamnotfound.airise
+package com.teamnotfound.airise.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

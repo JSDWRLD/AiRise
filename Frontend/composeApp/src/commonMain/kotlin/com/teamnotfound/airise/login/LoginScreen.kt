@@ -1,4 +1,4 @@
-package com.teamnotfound.airise
+package com.teamnotfound.airise.login
 
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.background
