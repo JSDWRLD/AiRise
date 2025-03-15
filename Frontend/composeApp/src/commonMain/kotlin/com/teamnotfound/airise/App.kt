@@ -38,7 +38,9 @@ import androidx.navigation.compose.rememberNavController
 
 enum class AppScreen {
     LOGIN,
-    //SIGNUP
+    SIGNUP,
+    RECOVER_ACCOUNT,
+    RECOVERY_SENT
 }
 
 // This is basically your main function.
@@ -60,33 +62,43 @@ fun App(client: DemoClient) {
                 composable(route = AppScreen.LOGIN.name) {
                     LoginScreen(
                         onLoginClick = { /* login */ },
-                        onForgotPasswordClick = { /* forgot password */ },
-                        onSignUpClick = { /*navController.navigate(AppScreen.SIGNUP.name) */},
+                        onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
+                        onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onGoogleSignInClick = { /* google Sign-In */ }
                     )
                 }
-                /*
+
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
                     SignUpScreen(
                         onSignUpClick = { /* Sign-Up */ },
                         onLoginClick = { navController.popBackStack() },
-                        onForgotPasswordClick = { /* Forgot Password */ },
+                        onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onGoogleSignUpClick = { /* Google Sign-Up */ },
                         onBackClick = { navController.popBackStack() }
                     )
                 }
 
-                "recover_account" -> RecoverAccountScreen(
-                    onSendEmailClick = { currentScreen = "recovery_sent" },
-                    onBackClick = { currentScreen = "login" }
-                )
+                // recover account screen
+                composable(route = AppScreen.RECOVER_ACCOUNT.name) {
+                    RecoverAccountScreen(
+                        onSendEmailClick = { navController.navigate(AppScreen.RECOVERY_SENT.name) },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
 
-                "recovery_sent" -> RecoverySentScreen(
-                    onBackToLoginClick = { currentScreen = "login" },
-                    onBackClick = { currentScreen = "recover_account" }
-                )
-                */
+                // recovery email sent screen
+                composable(route = AppScreen.RECOVERY_SENT.name) {
+                    RecoverySentScreen(
+                        onBackToLoginClick = {
+                            navController.popBackStack(
+                                AppScreen.LOGIN.name,
+                                inclusive = false
+                            )
+                        },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
         }
 
