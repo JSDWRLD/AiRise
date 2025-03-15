@@ -1,12 +1,10 @@
 package com.teamnotfound.airise
 
 import com.teamnotfound.airise.login.LoginScreen
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-
 import androidx.compose.foundation.layout.fillMaxSize
 import com.teamnotfound.airise.network.DemoClient
 import androidx.navigation.compose.NavHost
