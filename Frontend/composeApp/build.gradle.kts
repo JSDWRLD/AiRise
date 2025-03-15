@@ -56,7 +56,6 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.8.0-alpha10")
-            implementation(libs.androidx.nav)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
