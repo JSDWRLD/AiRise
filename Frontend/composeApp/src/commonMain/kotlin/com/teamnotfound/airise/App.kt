@@ -16,6 +16,7 @@ import com.teamnotfound.airise.login.SignUpScreen
 
 
 enum class AppScreen {
+    WELCOME,
     LOGIN,
     SIGNUP,
     RECOVER_ACCOUNT,
@@ -35,8 +36,15 @@ fun App(client: DemoClient) {
 
             NavHost(
                 navController = navController,
-                startDestination = AppScreen.LOGIN.name
+                startDestination = AppScreen.WELCOME.name
             ) {
+                //Welcome Screen
+                composable(route = AppScreen.WELCOME.name){
+                    WelcomeScreen(
+                        onStartClick = {navController.navigate(AppScreen.LOGIN.name)}, //Needs to be changed to signup instead of login
+                        onAlreadyHaveAnAccountClick = {navController.navigate(AppScreen.LOGIN.name)}
+                    )
+                }
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
                     LoginScreen(
