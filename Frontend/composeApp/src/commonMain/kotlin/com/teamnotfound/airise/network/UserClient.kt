@@ -12,7 +12,7 @@ import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-class DemoClient(
+class UserClient(
     private val httpClient: HttpClient
 ) {
 //    suspend fun censorWords(uncensored: String): Result<String, NetworkError> {
@@ -109,7 +109,7 @@ class DemoClient(
      * API call to insert or update user onboarding data.
      * Sends a PUT request with the onboarding data in JSON format.
      */
-    suspend fun insertUserOnboarding(userOnboardingData: UserOnboardingData): Result<UserOnboardingData, NetworkError> {
+        suspend fun insertUserOnboarding(userOnboardingData: UserOnboardingData): Result<UserOnboardingData, NetworkError> {
         val response = try {
             //This is just a place holder for now.
             httpClient.put("http://localhost:5249/user/onboarding") {
