@@ -17,6 +17,7 @@ import androidx.compose.material.icons.outlined.Email
 
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
