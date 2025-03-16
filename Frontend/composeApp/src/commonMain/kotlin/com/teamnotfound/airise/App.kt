@@ -6,7 +6,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import com.teamnotfound.airise.network.DemoClient
+import com.teamnotfound.airise.network.UserClient
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -29,7 +29,7 @@ enum class AppScreen {
 
 // This is basically your main function.
 @Composable
-fun App(client: DemoClient) {
+fun App(client: UserClient) {
     val navController = rememberNavController()
 
     MaterialTheme {

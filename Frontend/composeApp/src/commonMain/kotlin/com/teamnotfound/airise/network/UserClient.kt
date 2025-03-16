@@ -1,5 +1,7 @@
 package com.teamnotfound.airise.network
 
+import com.teamnotfound.airise.serializable.UserAuthData
+import com.teamnotfound.airise.serializable.UserOnboardingData
 import com.teamnotfound.airise.util.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -9,6 +11,9 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import com.teamnotfound.airise.util.*
 import io.ktor.client.request.post
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
