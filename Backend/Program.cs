@@ -23,6 +23,16 @@ public class Program
         DotNetEnv.Env.Load(); // Load .env file
         builder.Configuration.AddEnvironmentVariables(); // Add environment variables
 
+
+        builder.Services.AddCors(options =>
+        {
+        options.AddPolicy("AllowAll",
+            builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+        });
+
         var app = builder.Build();
 
 
@@ -35,6 +45,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseCors("AllowAll");
         app.MapControllers();
         app.Run();
     }
