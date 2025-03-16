@@ -2,6 +2,7 @@
 Frontend/.kotlin
 Frontend/.gradle
 Frontend/local.properties
+Frontend/.fleet
 .gradle/
 .kotlin/
 **/build/
@@ -19,4 +20,8 @@ captures
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
-
+Backend/bin
+Backend/obj
+Backend/.env
+Backend/appsettings.json
+Backend/publish
