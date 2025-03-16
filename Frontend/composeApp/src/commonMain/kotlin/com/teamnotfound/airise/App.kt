@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamnotfound.airise.login.LoginViewModel
+import com.teamnotfound.airise.login.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
 import com.teamnotfound.airise.login.SignUpScreen
@@ -20,6 +21,7 @@ import com.teamnotfound.airise.login.SignUpScreen
 enum class AppScreen {
     LOGIN,
     SIGNUP,
+    PRIVACY_POLICY,
     RECOVER_ACCOUNT,
     RECOVERY_SENT
 }
@@ -44,7 +46,7 @@ fun App(client: DemoClient) {
                     val loginViewModel = viewModel<LoginViewModel>()
                     LoginScreen(
                         viewModel = loginViewModel,
-                        onLoginClick = { /* login */ },
+                        onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onGoogleSignInClick = { /* google Sign-In */ }
@@ -79,6 +81,12 @@ fun App(client: DemoClient) {
                                 inclusive = false
                             )
                         },
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+                // Privacy Policy Screens
+                composable(route = AppScreen.PRIVACY_POLICY.name) {
+                    PrivacyPolicyScreen(
                         onBackClick = { navController.popBackStack() }
                     )
                 }

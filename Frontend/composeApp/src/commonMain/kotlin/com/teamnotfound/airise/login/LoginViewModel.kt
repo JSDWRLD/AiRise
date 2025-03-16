@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
-class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
+// Removing HTTP client and login function until it can be accepted.
+// class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
+class LoginViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -27,11 +28,11 @@ class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
                 _uiState.value = _uiState.value.copy(password = uiEvent.password, errorMessage = null)
             }
             is LoginUiEvent.Login -> {
-                login()
+                simulateLogin()
             }
         }
     }
-
+    /*
     private fun login() {
         viewModelScope.launch {
             // Validate inputs before making the request
@@ -70,6 +71,31 @@ class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Login failed: ${e ?: "Unknown error"}"
+                )
+            }
+        }
+    }
+     */
+    private fun simulateLogin() {
+        viewModelScope.launch {
+            if (_uiState.value.email.isEmpty() || _uiState.value.password.isEmpty()) {
+                _uiState.value =
+                    _uiState.value.copy(errorMessage = "Email or password cannot be empty")
+                return@launch
+            }
+
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+            // Simple validation
+            if (_uiState.value.email.contains("@") && _uiState.value.password.length >= 6) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isLoggedIn = true
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Invalid email or password"
                 )
             }
         }

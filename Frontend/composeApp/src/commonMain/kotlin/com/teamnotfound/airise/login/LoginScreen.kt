@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onLoginClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     onGoogleSignInClick: () -> Unit
@@ -28,7 +28,7 @@ fun LoginScreen(
     Login(
         uiState = uiState.value,
         onEvent = { viewModel.onEvent(it) },
-        onLoginClick = onLoginClick,
+        onPrivacyPolicyClick = onPrivacyPolicyClick,
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
         onGoogleSignInClick = onGoogleSignInClick
@@ -39,7 +39,7 @@ fun LoginScreen(
 fun Login(
     uiState: LoginUiState,
     onEvent: (LoginUiEvent) -> Unit,
-    onLoginClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     onGoogleSignInClick: () -> Unit
@@ -195,7 +195,7 @@ fun Login(
                 TextButton(onClick = { /* Terms to be added */ }, contentPadding = PaddingValues(0.dp)) {
                     Text("Terms & Conditions", color = Color(0xFFFFA500), fontSize = 12.sp)
                 }
-                TextButton(onClick = { /* Policy to be added */ }, contentPadding = PaddingValues(0.dp)) {
+                TextButton(onClick = onPrivacyPolicyClick, contentPadding = PaddingValues(0.dp)) {
                     Text("Privacy Policy", color = Color(0xFFFFA500), fontSize = 12.sp)
                 }
             }
