@@ -4,11 +4,11 @@
 
 ### For Mac
 - .NET SDK (Install via [dotnet website](https://dotnet.microsoft.com/download))
-- MongoDB Community Server (Install via [MongoDB website](https://www.mongodb.com/try/download/community))
+- MongoDB Atlas (Install via [MongoDB website](https://www.mongodb.com/))
 
 ### For Windows
 - .NET SDK (Install via [dotnet website](https://dotnet.microsoft.com/download))
-- MongoDB Community Server (Install via [MongoDB website](https://www.mongodb.com/try/download/community))
+- MongoDB Atlas (Install via [MongoDB website](https://www.mongodb.com/))
 
 ## Project Setup
 

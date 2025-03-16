@@ -1,41 +1,41 @@
-var builder = WebApplication.CreateBuilder(args);
+using AiRise.Models;
+using AiRise.Services;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+namespace AiRise;
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.MapOpenApi();
-}
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-app.UseHttpsRedirection();
+        // Create singleton service
+        builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
+        builder.Services.AddSingleton<MongoDBService>();
+        builder.Services.AddSingleton<UserService>();
+        builder.Services.AddSingleton<AuthService>();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+        builder.Services.AddControllers();
+        // FOR DEVELOPMENT API TESTING
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(); 
+        // ENV
+        DotNetEnv.Env.Load(); // Load .env file
+        builder.Configuration.AddEnvironmentVariables(); // Add environment variables
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+        var app = builder.Build();
 
-app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        // Configure the HTTP request pipeline.
+        // ONLY DURING DEVELOPMENT
+        if (app.Environment.IsDevelopment()) 
+        {
+            app.UseSwagger(); 
+            app.UseSwaggerUI(); 
+        }
+
+        app.UseHttpsRedirection();
+        app.MapControllers();
+        app.Run();
+    }
 }
