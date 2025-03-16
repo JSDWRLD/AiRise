@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 // Removing HTTP client and login function until it can be accepted.
+// This class is ready to handle login and signup screen
 // class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
 class LoginViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -30,10 +31,14 @@ class LoginViewModel() : ViewModel() {
             is LoginUiEvent.Login -> {
                 simulateLogin()
             }
+            is LoginUiEvent.Signup -> {
+                simulateLogin()
+            }
         }
     }
     /*
-    private fun login() {
+    // Login method
+    fun login(username: String, password: String) {
         viewModelScope.launch {
             // Validate inputs before making the request
             if (_uiState.value.email.isEmpty() || _uiState.value.password.isEmpty()) {
@@ -75,9 +80,53 @@ class LoginViewModel() : ViewModel() {
             }
         }
     }
+    // Registration method
+    fun register(username: String, email: String, password: String, confirmPassword: String) {
+        viewModelScope.launch {
+            // Validate input
+            val validationResult = validateRegistrationInput(username, email, password, confirmPassword)
+            if (!validationResult.isValid) {
+                _uiState.value = _uiState.value.copy(errorMessage = validationResult.errorMessage)
+                return@launch
+            }
+
+            // Set loading state
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+            try {
+                // Make a POST request
+                val response = httpClient.post("https://api-endpoint/signup") {
+                    contentType(ContentType.Application.Json)
+                    setBody(RegisterRequest(username, email, password))
+                }
+                // Request successful
+                if (response.status == HttpStatusCode.Created) {
+                    // Handle successful registration
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        isRegistered = true,
+                        successMessage = "Registration successful! Please verify your email."
+                    )
+                    // Handle unsucessful requests
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Registration failed: ${response.status.description}"
+                    )
+                }
+            } catch (e: Exception) {
+                // Handle network or other errors
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Registration failed: ${e.message ?: "Unknown error"}"
+                )
+            }
+        }
+    }
      */
     private fun simulateLogin() {
         viewModelScope.launch {
+            // Checking for invalid credentials
             if (_uiState.value.email.isEmpty() || _uiState.value.password.isEmpty()) {
                 _uiState.value =
                     _uiState.value.copy(errorMessage = "Email or password cannot be empty")
@@ -86,13 +135,14 @@ class LoginViewModel() : ViewModel() {
 
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            // Simple validation
+            // Validating
             if (_uiState.value.email.contains("@") && _uiState.value.password.length >= 6) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     isLoggedIn = true
                 )
             } else {
+                // Else invalid
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = "Invalid email or password"
