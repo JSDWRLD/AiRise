@@ -12,18 +12,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
-
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit,
+    viewModel: LoginViewModel,
+    onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     onGoogleSignInClick: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    Login(
+        uiState = uiState.value,
+        onEvent = { viewModel.onEvent(it) },
+        onPrivacyPolicyClick = onPrivacyPolicyClick,
+        onForgotPasswordClick = onForgotPasswordClick,
+        onSignUpClick = onSignUpClick,
+        onGoogleSignInClick = onGoogleSignInClick
+    )
+}
+
+@Composable
+fun Login(
+    uiState: LoginUiState,
+    onEvent: (LoginUiEvent) -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onGoogleSignInClick: () -> Unit
+) {
+    // Removed redundant local state variables since we're using uiState
 
     //screen arrangement
     Box(
@@ -50,22 +71,23 @@ fun LoginScreen(
 
             // email input
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.email,
+                onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
                 label = { Text("Email Address", color = Color.Gray) },
                 singleLine = true,
                 // email icon
                 leadingIcon = {
-                    Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
+                    Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray)
+                },
                 modifier = Modifier
                     .width(300.dp)
-                    .height(60.dp)
-                    .background(Color(0xFF1B263B), RoundedCornerShape(8.dp)),
+                    .height(60.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = Color(0xFFE0E0E0),
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    textColor = Color.Gray
                 )
             )
 
@@ -73,45 +95,55 @@ fun LoginScreen(
 
             // password input
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.password,
+                onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
                 label = { Text("Password", color = Color.Gray) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                leadingIcon = {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray)
+                },
                 modifier = Modifier
                     .width(300.dp)
-                    .height(60.dp)
-                    .background(Color(0xFF1B263B), RoundedCornerShape(8.dp)),
+                    .height(60.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = Color(0xFFE0E0E0),
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    textColor = Color.Gray
                 )
             )
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // login button
+            // Login button with loading state
             Button(
-                onClick = onLoginClick,
+                onClick = { onEvent(LoginUiEvent.Login) },
+                enabled = !uiState.isLoading,
                 modifier = Modifier
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
             ) {
-                Text("Login", color = Color.White)
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Login", color = Color.White)
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-
             // forgot password button
-            TextButton(onClick = { onForgotPasswordClick() }) {
+            TextButton(onClick = onForgotPasswordClick) {
                 Text("Forgot password?", color = Color.White, fontSize = 12.sp)
             }
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -127,7 +159,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // google sign in button and apple removed for android ui
+            // google sign in button
             Button(
                 onClick = onGoogleSignInClick,
                 modifier = Modifier
@@ -136,7 +168,6 @@ fun LoginScreen(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
             ) {
-
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Continue with Google", color = Color.White)
             }
@@ -164,7 +195,7 @@ fun LoginScreen(
                 TextButton(onClick = { /* Terms to be added */ }, contentPadding = PaddingValues(0.dp)) {
                     Text("Terms & Conditions", color = Color(0xFFFFA500), fontSize = 12.sp)
                 }
-                TextButton(onClick = { /* Policy to be added */ }, contentPadding = PaddingValues(0.dp)) {
+                TextButton(onClick = onPrivacyPolicyClick, contentPadding = PaddingValues(0.dp)) {
                     Text("Privacy Policy", color = Color(0xFFFFA500), fontSize = 12.sp)
                 }
             }
@@ -178,14 +209,13 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Don’t have an account?",
+                    "Don't have an account?",
                     color = Color.White,
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.width(3.dp))
 
-
-                TextButton(onClick = { onSignUpClick() }, contentPadding = PaddingValues(0.dp)) {
+                TextButton(onClick = onSignUpClick, contentPadding = PaddingValues(0.dp)) {
                     Text("Sign up", color = Color.White, fontSize = 12.sp)
                 }
             }
