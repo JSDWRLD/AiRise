@@ -21,4 +21,6 @@ public class User
     [BsonElement("email")]
     [JsonPropertyName("email")]
     public string Email { get; set; } = null!;
+
+    // Store id for userdata collection reference
 }

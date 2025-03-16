@@ -22,5 +22,5 @@ captures
 Backend/bin
 Backend/obj
 Backend/.env
-Backend/appsetings.json
+Backend/appsettings.json
 

@@ -12,6 +12,8 @@ public class Program
         // Create singleton service
         builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
         builder.Services.AddSingleton<MongoDBService>();
+        builder.Services.AddSingleton<UserService>();
+        builder.Services.AddSingleton<AuthService>();
 
         builder.Services.AddControllers();
         // FOR DEVELOPMENT API TESTING
