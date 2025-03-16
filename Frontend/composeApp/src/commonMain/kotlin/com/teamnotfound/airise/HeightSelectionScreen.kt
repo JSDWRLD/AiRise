@@ -27,67 +27,87 @@ fun HeightSelectionScreen(newUser: UserProfile) {
     //
     val showDialog = remember { mutableStateOf(false) }
     // body
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF121212)), 
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF121212))
     ) {
-        // title
-        Text(
-            text = "What Is Your Height?",
-            fontSize = 22.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-        // metric select
-        Row(
-            modifier = Modifier.padding(16.dp).background(Color.Gray, RoundedCornerShape(16.dp)),
-            horizontalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // inches
-            Box(
+            // title
+            Text(
+                text = "What Is Your Height?",
+                fontSize = 22.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 24.dp)
+            )
+            // metric select
+            Row(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-                    .clickable { newUser.heightMetric.value = false }
-                    .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp)
+                    .background(Color.Gray, RoundedCornerShape(16.dp)),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "IN",
-                    color = if (!newUser.heightMetric.value) Color.Black else Color.White,
-                    fontSize = 18.sp
-                )
+                // inches
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                        .clickable {
+                            newUser.heightMetric.value = false
+                            newUser.heightValue.value = 0
+                        }
+                        .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "IN",
+                        color = if (!newUser.heightMetric.value) Color.Black else Color.White,
+                        fontSize = 18.sp
+                    )
+                }
+                // centimeters
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                        .clickable {
+                            newUser.heightMetric.value = true
+                            newUser.heightValue.value = 0
+                        }
+                        .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "CM",
+                        color = if (newUser.heightMetric.value) Color.Black else Color.White,
+                        fontSize = 18.sp
+                    )
+                }
             }
-            // centimeters
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-                    .clickable { newUser.heightMetric.value = true }
-                    .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "CM",
-                    color = if (newUser.heightMetric.value) Color.Black else Color.White,
-                    fontSize = 18.sp
-                )
-            }
+            // height scroll
+            ScrollableColumnSelection(
+                label = null,
+                items = heightRange.toList(),
+                selectedItem = newUser.heightValue.value,
+                onItemSelected = { newUser.heightValue.value = it }
+            )
         }
-        // height scroll
-        ScrollableColumnSelection(
-            label = null,
-            items = heightRange.toList(),
-            selectedItem = newUser.heightValue.value,
-            onItemSelected = { newUser.heightValue.value = it }
-        )
         // continue button
         Button(
             onClick = { showDialog.value = true },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f),
-            enabled = newUser.heightValue.value != 0
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(0.8f)
+                .padding(16.dp),
+            enabled = newUser.heightValue.value != 0,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }

@@ -72,7 +72,7 @@ fun ScrollableColumnSelection(
                         text = item.toString(),
                         fontSize = if (isSelected) 32.sp else 24.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Color.Yellow else Color.White,
+                        color = if (isSelected) Color(0xFFCE5100) else Color.White,
                         modifier = Modifier
                             .padding(4.dp)
                             .clickable { onItemSelected(item) }

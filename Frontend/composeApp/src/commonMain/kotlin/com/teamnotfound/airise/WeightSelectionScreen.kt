@@ -27,67 +27,87 @@ fun WeightSelectionScreen(newUser: UserProfile) {
     //
     val showDialog = remember { mutableStateOf(false) }
     // body
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF121212)),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF121212))
     ) {
-        // title
-        Text(
-            text = "What Is Your Weight?",
-            fontSize = 22.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-        // metric select
-        Row(
-            modifier = Modifier.padding(16.dp).background(Color.Gray, RoundedCornerShape(16.dp)),
-            horizontalArrangement = Arrangement.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // pounds
-            Box(
+            // title
+            Text(
+                text = "What Is Your Weight?",
+                fontSize = 22.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 24.dp)
+            )
+            // metric select
+            Row(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-                    .clickable { newUser.weightMetric.value = false }
-                    .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp)
+                    .background(Color.Gray, RoundedCornerShape(16.dp)),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "LB",
-                    color = if (!newUser.weightMetric.value) Color.Black else Color.White,
-                    fontSize = 18.sp
-                )
+                // pounds
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                        .clickable {
+                            newUser.weightMetric.value = false
+                            newUser.weightValue.value = 0
+                        }
+                        .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "LB",
+                        color = if (!newUser.weightMetric.value) Color.Black else Color.White,
+                        fontSize = 18.sp
+                    )
+                }
+                // kilos
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                        .clickable {
+                            newUser.weightMetric.value = true
+                            newUser.weightValue.value = 0
+                        }
+                        .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "KG",
+                        color = if (newUser.weightMetric.value) Color.Black else Color.White,
+                        fontSize = 18.sp
+                    )
+                }
             }
-            // kilos
-            Box(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-                    .clickable { newUser.weightMetric.value = true }
-                    .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "KG",
-                    color = if (newUser.weightMetric.value) Color.Black else Color.White,
-                    fontSize = 18.sp
-                )
-            }
+            // weight scroll
+            ScrollableColumnSelection(
+                label = null,
+                items = weightRange.toList(),
+                selectedItem = newUser.weightValue.value,
+                onItemSelected = { newUser.weightValue.value = it },
+            )
         }
-        // weight scroll
-        ScrollableColumnSelection(
-            label = null,
-            items = weightRange.toList(),
-            selectedItem = newUser.weightValue.value,
-            onItemSelected = { newUser.weightValue.value = it }
-        )
         // continue button
         Button(
             onClick = { showDialog.value = true },
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f),
-            enabled = newUser.weightValue.value != 0
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(0.8f)
+                .padding(16.dp),
+            enabled = newUser.weightValue.value != 0,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }

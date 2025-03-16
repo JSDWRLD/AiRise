@@ -18,65 +18,79 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AgeSelectionScreen(newUser: UserProfile) {
     // list ranges
-    val monthRange = (1 .. 12).toList()
-    val yearRange = (1900 .. 2025).toList().reversed()
+    val monthRange = (1..12).toList()
+    val yearRange = (1900..2025).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
-        newUser.dobMonth.value?.let { month ->
-            newUser.dobYear.value?.let { year ->
+        newUser.dobMonth.value.let { month ->
+            newUser.dobYear.value.let { year ->
                 getDayRange(month, year).toList()
             }
-        } ?: emptyList()
+        }
     }
     //
     val showDialog = remember { mutableStateOf(false) }
     // body
-    Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF121212)),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF121212))
     ) {
-        // title
-        Text(
-            text = "What Is Your Date of Birth?",
-            fontSize = 22.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 24.dp)
-        )
-        // date of birth scrolls
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // year scroll
-            ScrollableColumnSelection(
-                label = "Year",
-                items = yearRange,
-                selectedItem = newUser.dobYear.value,
-                onItemSelected = { newUser.dobYear.value = it }
+            // title
+            Text(
+                text = "What Is Your Date of Birth?",
+                fontSize = 22.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 24.dp)
             )
-            // month scroll
-            ScrollableColumnSelection(
-                label = "Month",
-                items = monthRange,
-                selectedItem = newUser.dobMonth.value,
-                onItemSelected = { newUser.dobMonth.value = it }
-            )
-            // day scroll
-            ScrollableColumnSelection(
-                label = "Day",
-                items = dayRange,
-                selectedItem = newUser.dobDay.value,
-                onItemSelected = { newUser.dobDay.value = it }
-            )
+            // spacing
+            Spacer(modifier = Modifier.height(16.dp))
+            // date of birth scrolls
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // year scroll
+                ScrollableColumnSelection(
+                    label = "Year",
+                    items = yearRange,
+                    selectedItem = newUser.dobYear.value,
+                    onItemSelected = { newUser.dobYear.value = it }
+                )
+                // month scroll
+                ScrollableColumnSelection(
+                    label = "Month",
+                    items = monthRange,
+                    selectedItem = newUser.dobMonth.value,
+                    onItemSelected = { newUser.dobMonth.value = it }
+                )
+                // day scroll
+                ScrollableColumnSelection(
+                    label = "Day",
+                    items = dayRange,
+                    selectedItem = newUser.dobDay.value,
+                    onItemSelected = { newUser.dobDay.value = it }
+                )
+            }
         }
         // continue button
         Button(
             onClick = { showDialog.value = true },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(0.8f),
-            enabled = newUser.dobYear.value in yearRange && newUser.dobMonth.value in monthRange && newUser.dobDay.value in dayRange
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(0.8f)
+                .padding(16.dp),
+            enabled = newUser.dobYear.value in yearRange &&
+                    newUser.dobMonth.value in monthRange &&
+                    newUser.dobDay.value in dayRange,
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }
@@ -104,7 +118,7 @@ fun getDayRange(month: Int, year: Int): IntRange {
     return when (month) {
         4, 6, 9, 11 -> 1..30  // months with 30 days
         2 -> if (isLeapYear(year)) 1..29 else 1..28  // february logic
-        else -> 1..31  // Months with 31 days
+        else -> 1..31  // months with 31 days
     }
 }
 
