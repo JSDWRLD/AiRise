@@ -1,7 +1,5 @@
 package com.teamnotfound.airise
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
@@ -10,124 +8,49 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import airise.composeapp.generated.resources.Res
-import airise.composeapp.generated.resources.compose_multiplatform
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.TabRowDefaults.Divider
-import androidx.compose.material.TextField
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.composable
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.network.DemoClient
-import com.teamnotfound.airise.util.NetworkError
-import com.teamnotfound.airise.util.onError
-import com.teamnotfound.airise.util.onSuccess
-import kotlinx.coroutines.launch
 
-// This is basically your main function.
+// main
 @Composable
 @Preview
 fun App(client: DemoClient) {
-    var showContent by remember { mutableStateOf(false) }
-    var showHeightSelection by remember { mutableStateOf(false) }
-    val newUser = remember {UserProfile()}
     MaterialTheme {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    greeting.forEach { greeting ->
-                        Text(greeting)
-                        Divider()
-                    }
-                }
-            }
-            Button(onClick = { showHeightSelection = true }) {
-                Text("Go to Height Selection")
-            }
-            AnimatedVisibility(visible = showHeightSelection) {
-                HeightSelectionScreen(newUser)
-            }
-        }
-        /*
-        var censoredText by remember {
-            mutableStateOf<String?>(null)
-        }
-        var uncensoredText by remember {
-            mutableStateOf("")
-        }
-        var isLoading by remember {
-            mutableStateOf(false)
-        }
-        var errorMessage by remember {
-            mutableStateOf<NetworkError?>(null)
-        }
-        val scope = rememberCoroutineScope()
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
-        ) {
-            TextField(
-                value = uncensoredText,
-                onValueChange = { uncensoredText = it },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                placeholder = {
-                    Text("Uncensored text")
-                }
-            )
-            Button(onClick = {
-                scope.launch {
-                    isLoading = true
-                    errorMessage = null
+        OnBoardNavHost()
+    }
+}
 
-                    client.censorWords(uncensoredText)
-                        .onSuccess {
-                            censoredText = it
-                        }
-                        .onError {
-                            errorMessage = it
-                        }
-                    isLoading = false
-                }
-            }) {
-                if(isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(15.dp),
-                        strokeWidth = 1.dp,
-                        color = Color.White
-                    )
-                } else {
-                    Text("Censor!")
-                }
-            }
-            censoredText?.let {
-                Text(it)
-            }
-            errorMessage?.let {
-                Text(
-                    text = it.name,
-                    color = Color.Red
-                )
-            }
+@Composable
+fun OnBoardNavHost() {
+    val navController = rememberNavController()
+    val newUser = remember {UserProfile()}
+
+    NavHost(navController = navController, startDestination = "onboard") {
+        composable("onboard") { OnBoardScreen(navController) }
+        composable("height_selection") { HeightSelectionScreen(newUser) }
+        composable("weight_selection") { WeightSelectionScreen(newUser) }
+        composable("age_selection") { AgeSelectionScreen(newUser) }
+    }
+}
+
+@Composable
+fun OnBoardScreen(navController: NavController) {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        // height selection button
+        Button(onClick = { navController.navigate("height_selection") }) {
+            Text("Go to Height Selection")
         }
-
-         */
-
+        // weight selection button
+        Button(onClick = { navController.navigate("weight_selection") }) {
+            Text("Go to Weight Selection")
+        }
+        // age selection button
+        Button(onClick = { navController.navigate("age_selection") }) {
+            Text("Go to Age Selection")
+        }
     }
 }

@@ -14,26 +14,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /*
- * Page to select user height
+ * Page to select user weight
  */
 @Composable
-fun HeightSelectionScreen(newUser: UserProfile) {
-    // height ranges
-    val heightRange = if (newUser.heightMetric.value) {
-        (140..210 step 5)
+fun WeightSelectionScreen(newUser: UserProfile) {
+    // weight ranges
+    val weightRange = if (newUser.weightMetric.value) {
+        (45..150 step 5)
     } else {
-        (50..80 step 1)
+        (100..330 step 5)
     }
     //
     val showDialog = remember { mutableStateOf(false) }
     // body
     Column(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF121212)), 
+        modifier = Modifier.fillMaxSize().background(Color(0xFF121212)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // title
         Text(
-            text = "What Is Your Height?",
+            text = "What Is Your Weight?",
             fontSize = 22.sp,
             color = Color.White,
             fontWeight = FontWeight.Bold,
@@ -44,62 +44,62 @@ fun HeightSelectionScreen(newUser: UserProfile) {
             modifier = Modifier.padding(16.dp).background(Color.Gray, RoundedCornerShape(16.dp)),
             horizontalArrangement = Arrangement.Center
         ) {
-            // inches
+            // pounds
             Box(
                 modifier = Modifier
                     .padding(8.dp)
                     .weight(1f)
-                    .clickable { newUser.heightMetric.value = false }
-                    .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
+                    .clickable { newUser.weightMetric.value = false }
+                    .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "IN",
-                    color = if (!newUser.heightMetric.value) Color.Black else Color.White,
+                    text = "LB",
+                    color = if (!newUser.weightMetric.value) Color.Black else Color.White,
                     fontSize = 18.sp
                 )
             }
-            // centimeters
+            // kilos
             Box(
                 modifier = Modifier
                     .padding(8.dp)
                     .weight(1f)
-                    .clickable { newUser.heightMetric.value = true }
-                    .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
+                    .clickable { newUser.weightMetric.value = true }
+                    .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "CM",
-                    color = if (newUser.heightMetric.value) Color.Black else Color.White,
+                    text = "KG",
+                    color = if (newUser.weightMetric.value) Color.Black else Color.White,
                     fontSize = 18.sp
                 )
             }
         }
-        // height scroll
+        // weight scroll
         ScrollableColumnSelection(
             label = null,
-            items = heightRange.toList(),
-            selectedItem = newUser.heightValue.value,
-            onItemSelected = { newUser.heightValue.value = it }
+            items = weightRange.toList(),
+            selectedItem = newUser.weightValue.value,
+            onItemSelected = { newUser.weightValue.value = it }
         )
         // continue button
         Button(
             onClick = { showDialog.value = true },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.padding(16.dp).fillMaxWidth(0.8f),
-            enabled = newUser.heightValue.value != 0
+            enabled = newUser.weightValue.value != 0
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }
     }
 
-    // temp display to show values actually saves to newUser
+    // temp display to show values actually saved to newUser
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = { Text("Your Height Selection") },
+            title = { Text("Your Weight Selection") },
             text = {
-                Text("Height: ${newUser.heightValue.value} ${if (newUser.heightMetric.value) "CM" else "IN"}")
+                Text("Weight: ${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}")
             },
             confirmButton = {
                 Button(onClick = { showDialog.value = false }) {
