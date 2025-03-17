@@ -1,4 +1,4 @@
-package com.teamnotfound.airise
+package com.teamnotfound.airise.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.UserProfile
 
 /*
  * Page to select user date of birth
