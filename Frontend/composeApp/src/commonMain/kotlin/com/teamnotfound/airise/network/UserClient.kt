@@ -106,7 +106,7 @@ class UserClient(
      */
     suspend fun register(userAuthData: UserAuthData): Result<UserAuthData, NetworkError> {
         val response = try {
-            httpClient.post("http://localhost:5249/user/register") {
+            httpClient.post("https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api/Auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(userAuthData)
             }
