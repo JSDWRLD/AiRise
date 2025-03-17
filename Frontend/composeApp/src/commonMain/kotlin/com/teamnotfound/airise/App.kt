@@ -45,7 +45,7 @@ fun App(client: UserClient) {
                 //Welcome Screen
                 composable(route = AppScreen.WELCOME.name){
                     WelcomeScreen(
-                        onStartClick = {navController.navigate(AppScreen.LOGIN.name)}, //Needs to be changed to signup instead of login
+                        onStartClick = {navController.navigate(AppScreen.SIGNUP.name)},
                         onAlreadyHaveAnAccountClick = {navController.navigate(AppScreen.LOGIN.name)}
                     )
                 }
