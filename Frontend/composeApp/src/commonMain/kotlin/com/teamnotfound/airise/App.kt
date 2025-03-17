@@ -6,18 +6,18 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import com.teamnotfound.airise.network.UserClient
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamnotfound.airise.login.LoginViewModel
-import com.teamnotfound.airise.login.PrivacyPolicyScreen
+import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
-import com.teamnotfound.airise.login.SignUpScreen
-import com.teamnotfound.airise.login.SignUpViewModel
+import com.teamnotfound.airise.onboarding.signup.SignUpScreen
+import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
 import com.teamnotfound.airise.network.AppContainer
+import com.teamnotfound.airise.onboarding.WelcomeScreen
 
 
 enum class AppScreen {

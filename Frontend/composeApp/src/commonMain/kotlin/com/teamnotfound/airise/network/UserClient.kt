@@ -1,7 +1,7 @@
 package com.teamnotfound.airise.network
 
-import com.teamnotfound.airise.serializable.UserAuthData
-import com.teamnotfound.airise.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserOnboardingData
 import com.teamnotfound.airise.util.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
