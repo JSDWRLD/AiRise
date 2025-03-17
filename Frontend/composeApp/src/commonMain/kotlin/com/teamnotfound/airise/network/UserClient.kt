@@ -100,4 +100,29 @@ class UserClient(
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
+    /**
+     * API call to register a new user.
+     * Sends the user authentication data (UserAuthData) to our /user/register endpoint.
+     */
+    suspend fun register(userAuthData: UserAuthData): Result<UserAuthData, NetworkError> {
+        val response = try {
+            httpClient.post("http://localhost:5249/user/register") {
+                contentType(ContentType.Application.Json)
+                setBody(userAuthData)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            in 200..299 -> {
+                val registeredUser = response.body<UserAuthData>()
+                Result.Success(registeredUser)
+            }
+            409 -> Result.Error(NetworkError.CONFLICT)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
 }
