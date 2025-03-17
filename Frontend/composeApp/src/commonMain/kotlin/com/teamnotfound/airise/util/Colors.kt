@@ -1,4 +1,4 @@
-package com.teamnotfound.airise
+package com.teamnotfound.airise.util
 
 import androidx.compose.ui.graphics.Color
 

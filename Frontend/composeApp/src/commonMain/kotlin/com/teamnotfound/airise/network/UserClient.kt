@@ -1,7 +1,7 @@
 package com.teamnotfound.airise.network
 
-import com.teamnotfound.airise.serializable.UserAuthData
-import com.teamnotfound.airise.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserOnboardingData
 import com.teamnotfound.airise.util.NetworkError
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -106,7 +106,7 @@ class UserClient(
      */
     suspend fun register(userAuthData: UserAuthData): Result<UserAuthData, NetworkError> {
         val response = try {
-            httpClient.post("http://localhost:5249/user/register") {
+            httpClient.post("https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api/Auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(userAuthData)
             }

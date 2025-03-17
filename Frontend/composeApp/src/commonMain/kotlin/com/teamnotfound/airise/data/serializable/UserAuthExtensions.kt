@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.serializable
+package com.teamnotfound.airise.data.serializable
 
 //Translating UserAuth to UserAuthData to store plain data in MongoDB
 fun UserAuth.toUserAuthData(): UserAuthData {

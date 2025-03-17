@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding
+package com.teamnotfound.airise.onboarding.onboardingQuestions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,18 +12,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.UserProfile
+import com.teamnotfound.airise.data.UserProfile
 
 /*
- * Page to select user weight
+ * Page to select user height
  */
 @Composable
-fun WeightSelectionScreen(newUser: UserProfile) {
-    // weight ranges
-    val weightRange = if (newUser.weightMetric.value) {
-        (45..150 step 5)
+fun HeightSelectionScreen(newUser: UserProfile) {
+    // height ranges
+    val heightRange = if (newUser.heightMetric.value) {
+        (140..210 step 5)
     } else {
-        (100..330 step 5)
+        (50..80 step 1)
     }
     //
     val showDialog = remember { mutableStateOf(false) }
@@ -41,7 +41,7 @@ fun WeightSelectionScreen(newUser: UserProfile) {
         ) {
             // title
             Text(
-                text = "What Is Your Weight?",
+                text = "What Is Your Height?",
                 fontSize = 22.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
@@ -54,49 +54,49 @@ fun WeightSelectionScreen(newUser: UserProfile) {
                     .background(Color.Gray, RoundedCornerShape(16.dp)),
                 horizontalArrangement = Arrangement.Center
             ) {
-                // pounds
+                // inches
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
                         .weight(1f)
                         .clickable {
-                            newUser.weightMetric.value = false
-                            newUser.weightValue.value = 0
+                            newUser.heightMetric.value = false
+                            newUser.heightValue.value = 0
                         }
-                        .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
+                        .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "LB",
-                        color = if (!newUser.weightMetric.value) Color.Black else Color.White,
+                        text = "IN",
+                        color = if (!newUser.heightMetric.value) Color.Black else Color.White,
                         fontSize = 18.sp
                     )
                 }
-                // kilos
+                // centimeters
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
                         .weight(1f)
                         .clickable {
-                            newUser.weightMetric.value = true
-                            newUser.weightValue.value = 0
+                            newUser.heightMetric.value = true
+                            newUser.heightValue.value = 0
                         }
-                        .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
+                        .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "KG",
-                        color = if (newUser.weightMetric.value) Color.Black else Color.White,
+                        text = "CM",
+                        color = if (newUser.heightMetric.value) Color.Black else Color.White,
                         fontSize = 18.sp
                     )
                 }
             }
-            // weight scroll
+            // height scroll
             ScrollableColumnSelection(
                 label = null,
-                items = weightRange.toList(),
-                selectedItem = newUser.weightValue.value,
-                onItemSelected = { newUser.weightValue.value = it },
+                items = heightRange.toList(),
+                selectedItem = newUser.heightValue.value,
+                onItemSelected = { newUser.heightValue.value = it }
             )
         }
         // continue button
@@ -107,20 +107,20 @@ fun WeightSelectionScreen(newUser: UserProfile) {
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth(0.8f)
                 .padding(16.dp),
-            enabled = newUser.weightValue.value != 0,
+            enabled = newUser.heightValue.value != 0,
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }
     }
 
-    // temp display to show values actually saved to newUser
+    // temp display to show values actually saves to newUser
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = { Text("Your Weight Selection") },
+            title = { Text("Your Height Selection") },
             text = {
-                Text("Weight: ${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}")
+                Text("Height: ${newUser.heightValue.value} ${if (newUser.heightMetric.value) "CM" else "IN"}")
             },
             confirmButton = {
                 Button(onClick = { showDialog.value = false }) {

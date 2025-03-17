@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.onboarding.signup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,10 +14,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.teamnotfound.airise.data.serializable.UserAuthData
 
 @Composable
 fun SignUpScreen(
-    onSignUpClick: () -> Unit,
+    viewModel: SignUpViewModel,
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onGoogleSignUpClick: () -> Unit,
@@ -137,7 +138,14 @@ fun SignUpScreen(
 
             // create account button
             Button(
-                onClick = onSignUpClick,
+                onClick = {
+                    val userAuthData = UserAuthData(
+                        email = email,
+                        username = email, // or you can make a dedicated username field
+                        password = password
+                    )
+                    viewModel.register(userAuthData) // make a register
+                },
                 modifier = Modifier
                     .width(300.dp)
                     .height(50.dp),

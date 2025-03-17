@@ -6,16 +6,18 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
-import com.teamnotfound.airise.network.UserClient
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teamnotfound.airise.login.LoginViewModel
-import com.teamnotfound.airise.login.PrivacyPolicyScreen
+import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
-import com.teamnotfound.airise.login.SignUpScreen
+import com.teamnotfound.airise.onboarding.signup.SignUpScreen
+import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
+import com.teamnotfound.airise.network.AppContainer
+import com.teamnotfound.airise.onboarding.WelcomeScreen
 
 
 enum class AppScreen {
@@ -29,7 +31,7 @@ enum class AppScreen {
 
 // This is basically your main function.
 @Composable
-fun App(client: UserClient) {
+fun App(container: AppContainer) {
     val navController = rememberNavController()
 
     MaterialTheme {
@@ -63,8 +65,9 @@ fun App(client: UserClient) {
 
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
+                    val signUpViewModel = viewModel { SignUpViewModel(container.userClient) }
                     SignUpScreen(
-                        onSignUpClick = { /* Sign-Up */ },
+                        viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onGoogleSignUpClick = { /* Google Sign-Up */ },

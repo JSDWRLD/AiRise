@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.serializable
+package com.teamnotfound.airise.data.serializable
 
 import kotlinx.serialization.Serializable
 

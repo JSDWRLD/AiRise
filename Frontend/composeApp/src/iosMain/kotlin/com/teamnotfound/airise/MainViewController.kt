@@ -14,10 +14,12 @@ fun MainViewController() = ComposeUIViewController {
     CompositionLocalProvider(
         LocalDensity provides platformConfig.density
     ) {
-        App(
-            client = remember {
-                UserClient(createHttpClient(Darwin.create()))
-            }
-        )
+            App(
+                container = AppContainer(
+                    userClient = remember {
+                        UserClient(createHttpClient(Darwin.create()))
+                    }
+                )
+            )
     }
 }

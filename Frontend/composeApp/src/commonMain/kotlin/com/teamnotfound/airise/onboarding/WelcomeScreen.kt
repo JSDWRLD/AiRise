@@ -1,9 +1,6 @@
-package com.teamnotfound.airise
+package com.teamnotfound.airise.onboarding
 
 import airise.composeapp.generated.resources.Res
-import airise.composeapp.generated.resources.allStringResources
-import airise.composeapp.generated.resources.app_name
-import airise.composeapp.generated.resources.compose_multiplatform
 import airise.composeapp.generated.resources.welcome_account
 import airise.composeapp.generated.resources.welcome_screen
 import airise.composeapp.generated.resources.welcome_start
@@ -14,9 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +29,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.util.Orange
+import com.teamnotfound.airise.util.Transparent
+import com.teamnotfound.airise.util.White
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview

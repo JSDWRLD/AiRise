@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding
+package com.teamnotfound.airise.onboarding.onboardingQuestions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
