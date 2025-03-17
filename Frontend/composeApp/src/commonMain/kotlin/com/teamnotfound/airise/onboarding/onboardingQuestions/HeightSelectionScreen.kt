@@ -12,13 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.data.UserProfile
+import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user height
  */
 @Composable
-fun HeightSelectionScreen(newUser: UserProfile) {
+fun HeightSelectionScreen(newUser: UserOnboarding) {
     // height ranges
     val heightRange = if (newUser.heightMetric.value) {
         (140..210 step 5)
