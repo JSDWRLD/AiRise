@@ -3,7 +3,8 @@ Frontend/.kotlin
 Frontend/.gradle
 Frontend/local.properties
 Frontend/.fleet
-.gradle
+.gradle/
+.kotlin/
 **/build/
 xcuserdata
 !src/**/build/
