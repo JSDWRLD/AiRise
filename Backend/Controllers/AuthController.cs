@@ -40,12 +40,12 @@ public class AuthController : Controller
         }
     }
     
-    [HttpGet("login")]
-    public async Task<ActionResult<User>> login(string email, string password)
+    [HttpPost("login")]
+    public async Task<ActionResult<User>> login([FromBody] LoginRequest obj)
     {
         try 
         {
-            var user = await _authService.login(email, password);
+            var user = await _authService.login(obj.Email, obj.Password);
             if (user == null)
             {
                 return Unauthorized("Invalid credentials");
@@ -63,6 +63,12 @@ public class AuthController : Controller
         }
 
     }
+}
+
+public class LoginRequest
+{
+    public string Email { get; set; }
+    public string Password { get; set; }
 }
 
     
