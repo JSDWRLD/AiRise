@@ -20,6 +20,7 @@ import io.ktor.http.contentType
 class UserClient(
     private val httpClient: HttpClient
 ) {
+
     /**
      * API call for user login.
      * Sends the user authentication data (email and password) to our /user/login endpoint.
@@ -78,7 +79,7 @@ class UserClient(
      * API call to insert or update user onboarding data.
      * Sends a PUT request with the onboarding data in JSON format.
      */
-        suspend fun insertUserOnboarding(userOnboardingData: UserOnboardingData): Result<UserOnboardingData, NetworkError> {
+    suspend fun insertUserOnboarding(userOnboardingData: UserOnboardingData): Result<UserOnboardingData, NetworkError> {
         val response = try {
             //This is just a place holder for now.
             httpClient.put("http://localhost:5249/user/onboarding") {
@@ -104,6 +105,10 @@ class UserClient(
      * API call to register a new user.
      * Sends the user authentication data (UserAuthData) to our /user/register endpoint.
      */
+    /**
+     * API call to register a new user.
+     * Sends the user authentication data (username, email, and password) to /Auth/register.
+     */
     suspend fun register(userAuthData: UserAuthData): Result<UserAuthData, NetworkError> {
         val response = try {
             httpClient.post("https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api/Auth/register") {
@@ -116,11 +121,13 @@ class UserClient(
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
+        // TODO: Handle responses on ui inside of viewmodel
         return when (response.status.value) {
-            in 200..299 -> {
+            201 -> {
                 val registeredUser = response.body<UserAuthData>()
                 Result.Success(registeredUser)
             }
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
             409 -> Result.Error(NetworkError.CONFLICT)
             else -> Result.Error(NetworkError.UNKNOWN)
         }

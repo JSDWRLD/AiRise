@@ -22,8 +22,21 @@ fun SignUpScreen(
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onGoogleSignUpClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onSignUpSuccess: () -> Unit
 ) {
+    // Observe the UI state from the view model
+    val uiState by viewModel.uiState.collectAsState()
+
+    // If sign up is successful, trigger navigation or any other success action.
+    if (uiState.isSuccess && uiState.registeredUser != null) {
+        // Using LaunchedEffect to perform a side-effect (navigation)
+        LaunchedEffect(uiState.registeredUser) {
+            // Continue to onboard screen
+            onSignUpSuccess()
+        }
+    }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -235,5 +248,16 @@ fun SignUpScreen(
                 }
             }
         }
+
+        // Display error message from UI state, if any
+        uiState.errorMessage?.let { errorMsg ->
+            Text(
+                text = errorMsg,
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
     }
 }

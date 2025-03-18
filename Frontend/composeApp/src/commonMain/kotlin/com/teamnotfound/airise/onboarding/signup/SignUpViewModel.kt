@@ -48,6 +48,7 @@ class SignUpViewModel(private val client: UserClient): ViewModel() {
             NetworkError.TOO_MANY_REQUESTS -> TODO()
             NetworkError.PAYLOAD_TOO_LARGE -> TODO()
             NetworkError.SERVER_ERROR -> TODO()
+            NetworkError.BAD_REQUEST -> TODO()
         }
     }
 }
