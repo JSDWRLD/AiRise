@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
@@ -20,16 +21,6 @@ import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.onboarding.WelcomeScreen
 import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
 
-
-enum class AppScreen {
-    WELCOME,
-    LOGIN,
-    SIGNUP,
-    PRIVACY_POLICY,
-    RECOVER_ACCOUNT,
-    RECOVERY_SENT,
-    ONBOARD
-}
 
 // This is basically your main function.
 @Composable
@@ -73,7 +64,8 @@ fun App(container: AppContainer) {
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onGoogleSignInClick = { /* google Sign-In */ }
+                        onGoogleSignInClick = { /* google Sign-In */ },
+                        onLoginSuccess = { navController.navigate(AppScreen.HOMESCREEN.name) },
                     )
                 }
 
@@ -121,7 +113,23 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.ONBOARD.name) {
                     OnboardingScreen()
                 }
+
+                // Home Screen
+                composable(route = AppScreen.HOMESCREEN.name) {
+                    HomeScreen()
+                }
             }
         }
     }
+}
+
+enum class AppScreen {
+    WELCOME,
+    LOGIN,
+    SIGNUP,
+    PRIVACY_POLICY,
+    RECOVER_ACCOUNT,
+    RECOVERY_SENT,
+    ONBOARD,
+    HOMESCREEN
 }

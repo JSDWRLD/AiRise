@@ -74,6 +74,15 @@ fun SignUpScreen(
                 .padding(top = 50.dp)
                 .padding(24.dp)
         ) {
+            // Display error message from UI state, if any
+            uiState.errorMessage?.let { errorMsg ->
+                Text(
+                    text = errorMsg,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -248,16 +257,5 @@ fun SignUpScreen(
                 }
             }
         }
-
-        // Display error message from UI state, if any
-        uiState.errorMessage?.let { errorMsg ->
-            Text(
-                text = errorMsg,
-                color = Color.Red,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
-
     }
 }

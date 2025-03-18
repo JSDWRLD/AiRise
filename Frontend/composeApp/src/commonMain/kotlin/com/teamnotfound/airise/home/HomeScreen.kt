@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen(username: String) {
+fun HomeScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -21,7 +21,7 @@ fun HomeScreen(username: String) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Welcome, $username!",
+                text = "Welcome!",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White

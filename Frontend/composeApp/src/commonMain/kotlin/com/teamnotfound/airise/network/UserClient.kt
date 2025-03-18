@@ -121,7 +121,6 @@ class UserClient(
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        // TODO: Handle responses on ui inside of viewmodel
         return when (response.status.value) {
             201 -> {
                 val registeredUser = response.body<UserAuthData>()
