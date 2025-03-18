@@ -14,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserModel
 
 @Composable
 fun SignUpScreen(
@@ -161,12 +161,12 @@ fun SignUpScreen(
             // create account button
             Button(
                 onClick = {
-                    val userAuthData = UserAuthData(
+                    val userModel = UserModel(
                         email = email,
                         username = email, // or you can make a dedicated username field
                         password = password
                     )
-                    viewModel.register(userAuthData) // make a register
+                    viewModel.register(userModel) // make a register
                 },
                 modifier = Modifier
                     .width(300.dp)

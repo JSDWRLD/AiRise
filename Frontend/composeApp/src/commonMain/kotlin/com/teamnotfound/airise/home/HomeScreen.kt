@@ -12,16 +12,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(email: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF062022)),
         contentAlignment = Alignment.Center
     ) {
+        val username = email.substringBefore("@")
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Welcome!",
+                text = "Welcome $username!",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -30,7 +31,7 @@ fun HomeScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "You have successfully signed up.",
+                text = "You have successfully signed in.",
                 fontSize = 16.sp,
                 color = Color.Gray
             )

@@ -10,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
@@ -58,14 +60,16 @@ fun App(container: AppContainer) {
                 }
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel<LoginViewModel>()
+                    val loginViewModel = viewModel { LoginViewModel(container.userClient) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onGoogleSignInClick = { /* google Sign-In */ },
-                        onLoginSuccess = { navController.navigate(AppScreen.HOMESCREEN.name) },
+                        onLoginSuccess = { email ->
+                            navController.navigate("${AppScreen.WELCOME.name}/$email")
+                        }
                     )
                 }
 
@@ -115,8 +119,12 @@ fun App(container: AppContainer) {
                 }
 
                 // Home Screen
-                composable(route = AppScreen.HOMESCREEN.name) {
-                    HomeScreen()
+                composable(
+                    route = "${AppScreen.WELCOME.name}/{email}",
+                    arguments = listOf(navArgument("email") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val email = backStackEntry.arguments?.getString("email")
+                    HomeScreen(email.toString())
                 }
             }
         }

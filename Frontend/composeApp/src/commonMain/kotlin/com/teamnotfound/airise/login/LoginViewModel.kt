@@ -2,16 +2,9 @@ package com.teamnotfound.airise.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserLogin
 import com.teamnotfound.airise.network.UserClient
 import com.teamnotfound.airise.util.NetworkError
-import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.utils.EmptyContent.contentType
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -49,10 +42,8 @@ class LoginViewModel(private val client: UserClient) : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             // Attempt login
-            when (val result = client.login(UserAuthData(
-                id = null,
+            when (val result = client.login(UserLogin(
                 email = _uiState.value.email,
-                username = "TRIM EMAIL FIRST CHARS",
                 password = _uiState.value.password
             ))) {
                 is Result.Success -> {
@@ -73,8 +64,8 @@ class LoginViewModel(private val client: UserClient) : ViewModel() {
                     )
                 }
 
-                is com.teamnotfound.airise.network.Result.Error<*> -> TODO()
-                is com.teamnotfound.airise.network.Result.Success<*> -> TODO()
+                is Result.Error<*> -> TODO()
+                is Result.Success<*> -> TODO()
             }
         }
     }
