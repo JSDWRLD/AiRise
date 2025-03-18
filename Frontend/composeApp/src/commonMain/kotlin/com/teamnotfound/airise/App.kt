@@ -10,6 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
@@ -18,21 +21,25 @@ import com.teamnotfound.airise.onboarding.signup.SignUpScreen
 import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
 import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.onboarding.WelcomeScreen
+import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
 
-
-enum class AppScreen {
-    WELCOME,
-    LOGIN,
-    SIGNUP,
-    PRIVACY_POLICY,
-    RECOVER_ACCOUNT,
-    RECOVERY_SENT
-}
 
 // This is basically your main function.
 @Composable
 fun App(container: AppContainer) {
     val navController = rememberNavController()
+    val appViewModel: AppViewModel = viewModel { AppViewModel(container.userClient) }
+    val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
+
+    /* Once we make home screen
+    LaunchedEffect(isUserLoggedIn) {
+        if (isUserLoggedIn) {
+            navController.navigate(AppScreen.HOME.name) { popUpTo(0) }
+        } else {
+            navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
+        }
+    }
+     */
 
     MaterialTheme {
         Column(
@@ -53,13 +60,16 @@ fun App(container: AppContainer) {
                 }
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel<LoginViewModel>()
+                    val loginViewModel = viewModel { LoginViewModel(container.userClient) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onGoogleSignInClick = { /* google Sign-In */ }
+                        onGoogleSignInClick = { /* google Sign-In */ },
+                        onLoginSuccess = { email ->
+                            navController.navigate("${AppScreen.WELCOME.name}/$email")
+                        }
                     )
                 }
 
@@ -71,7 +81,8 @@ fun App(container: AppContainer) {
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onGoogleSignUpClick = { /* Google Sign-Up */ },
-                        onBackClick = { navController.popBackStack() }
+                        onBackClick = { navController.popBackStack() },
+                        onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
                     )
                 }
 
@@ -101,104 +112,32 @@ fun App(container: AppContainer) {
                         onBackClick = { navController.popBackStack() }
                     )
                 }
-            }
-        }
 
-/*
-@Preview
-fun App(client: DemoClient) {
-    var showContent by remember { mutableStateOf(false) }
-    MaterialTheme {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    greeting.forEach { greeting ->
-                        Text(greeting)
-                        Divider()
-                    }
+                // Onboarding Screen
+                composable(route = AppScreen.ONBOARD.name) {
+                    OnboardingScreen()
+                }
+
+                // Home Screen
+                composable(
+                    route = "${AppScreen.WELCOME.name}/{email}",
+                    arguments = listOf(navArgument("email") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val email = backStackEntry.arguments?.getString("email")
+                    HomeScreen(email.toString())
                 }
             }
         }
-
-
- */
-
-
-
-        /*
-        var censoredText by remember {
-            mutableStateOf<String?>(null)
-        }
-        var uncensoredText by remember {
-            mutableStateOf("")
-        }
-        var isLoading by remember {
-            mutableStateOf(false)
-        }
-        var errorMessage by remember {
-            mutableStateOf<NetworkError?>(null)
-        }
-        val scope = rememberCoroutineScope()
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
-        ) {
-            TextField(
-                value = uncensoredText,
-                onValueChange = { uncensoredText = it },
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
-                placeholder = {
-                    Text("Uncensored text")
-                }
-            )
-            Button(onClick = {
-                scope.launch {
-                    isLoading = true
-                    errorMessage = null
-
-                    client.censorWords(uncensoredText)
-                        .onSuccess {
-                            censoredText = it
-                        }
-                        .onError {
-                            errorMessage = it
-                        }
-                    isLoading = false
-                }
-            }) {
-                if(isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(15.dp),
-                        strokeWidth = 1.dp,
-                        color = Color.White
-                    )
-                } else {
-                    Text("Censor!")
-                }
-            }
-            censoredText?.let {
-                Text(it)
-            }
-            errorMessage?.let {
-                Text(
-                    text = it.name,
-                    color = Color.Red
-                )
-            }
-        }
-
-         */
-
     }
+}
+
+enum class AppScreen {
+    WELCOME,
+    LOGIN,
+    SIGNUP,
+    PRIVACY_POLICY,
+    RECOVER_ACCOUNT,
+    RECOVERY_SENT,
+    ONBOARD,
+    HOMESCREEN
 }
