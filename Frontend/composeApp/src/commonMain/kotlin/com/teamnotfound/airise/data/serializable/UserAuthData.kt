@@ -1,14 +1,13 @@
 package com.teamnotfound.airise.data.serializable
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.Serializable
 
 @Serializable
-
-// We will use this to properly serialize the data for network transfer
-// That way we can simply send plain data without UI features.
-data class UserAuthData(
-    val id: String? = null, // For MongoDB
-    val email: String,
-    val username: String,
-    val password: String
-)
+class UserAuthData {
+    // ADD JWT TOKEN LATER HERE
+    var email: MutableState<String> = mutableStateOf("")
+    var username: MutableState<String> = mutableStateOf("")
+    var password: MutableState<String> = mutableStateOf("")
+}

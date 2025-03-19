@@ -14,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserModel
 
 @Composable
 fun SignUpScreen(
@@ -22,8 +22,21 @@ fun SignUpScreen(
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onGoogleSignUpClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onSignUpSuccess: () -> Unit
 ) {
+    // Observe the UI state from the view model
+    val uiState by viewModel.uiState.collectAsState()
+
+    // If sign up is successful, trigger navigation or any other success action.
+    if (uiState.isSuccess && uiState.registeredUser != null) {
+        // Using LaunchedEffect to perform a side-effect (navigation)
+        LaunchedEffect(uiState.registeredUser) {
+            // Continue to onboard screen
+            onSignUpSuccess()
+        }
+    }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -61,6 +74,15 @@ fun SignUpScreen(
                 .padding(top = 50.dp)
                 .padding(24.dp)
         ) {
+            // Display error message from UI state, if any
+            uiState.errorMessage?.let { errorMsg ->
+                Text(
+                    text = errorMsg,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -139,12 +161,12 @@ fun SignUpScreen(
             // create account button
             Button(
                 onClick = {
-                    val userAuthData = UserAuthData(
+                    val userModel = UserModel(
                         email = email,
                         username = email, // or you can make a dedicated username field
                         password = password
                     )
-                    viewModel.register(userAuthData) // make a register
+                    viewModel.register(userModel) // make a register
                 },
                 modifier = Modifier
                     .width(300.dp)

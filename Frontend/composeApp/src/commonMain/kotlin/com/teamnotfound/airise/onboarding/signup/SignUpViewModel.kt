@@ -3,7 +3,7 @@ package com.teamnotfound.airise.onboarding.signup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.network.UserClient
-import com.teamnotfound.airise.data.serializable.UserAuthData
+import com.teamnotfound.airise.data.serializable.UserModel
 import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +15,11 @@ class SignUpViewModel(private val client: UserClient): ViewModel() {
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
 
-    fun register(userAuthData: UserAuthData) {
+    fun register(userModel: UserModel) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            when (val result = client.register(userAuthData)) {
+            when (val result = client.register(userModel)) {
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -48,6 +48,7 @@ class SignUpViewModel(private val client: UserClient): ViewModel() {
             NetworkError.TOO_MANY_REQUESTS -> TODO()
             NetworkError.PAYLOAD_TOO_LARGE -> TODO()
             NetworkError.SERVER_ERROR -> TODO()
+            NetworkError.BAD_REQUEST -> TODO()
         }
     }
 }
