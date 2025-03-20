@@ -10,10 +10,15 @@ import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.network.UserClient
 import com.teamnotfound.airise.network.createHttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import com.khealth.KHealth
 
 class MainActivity : ComponentActivity() {
+    private val kHealth = KHealth(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // This is REQUIRED for the library to work properly (on Android only)
+        kHealth.initialise()
 
         setContent {
             App(
