@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.teamnotfound.airise.home.HomeScreen
+import com.teamnotfound.airise.home.AccountSettingScreen
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
@@ -124,7 +125,17 @@ fun App(container: AppContainer) {
                     arguments = listOf(navArgument("email") { type = NavType.StringType })
                 ) { backStackEntry ->
                     val email = backStackEntry.arguments?.getString("email")
-                    HomeScreen(email.toString())
+                    HomeScreen(
+                        email.toString(),
+                        onAccountSettingsClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS.name) }
+                    )
+                }
+
+                // account setting screen
+                composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
+                    AccountSettingScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
                 }
             }
         }
@@ -139,5 +150,6 @@ enum class AppScreen {
     RECOVER_ACCOUNT,
     RECOVERY_SENT,
     ONBOARD,
-    HOMESCREEN
+    HOMESCREEN,
+    ACCOUNT_SETTINGS
 }

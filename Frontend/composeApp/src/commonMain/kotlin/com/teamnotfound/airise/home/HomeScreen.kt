@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HomeScreen(email: String) {
+fun HomeScreen(email: String, onAccountSettingsClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -35,6 +35,12 @@ fun HomeScreen(email: String) {
                 fontSize = 16.sp,
                 color = Color.Gray
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = onAccountSettingsClick) {
+                Text(text = "Go to Account Settings")
+            }
         }
     }
 }
