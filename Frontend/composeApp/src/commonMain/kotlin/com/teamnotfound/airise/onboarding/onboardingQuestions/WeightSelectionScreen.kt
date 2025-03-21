@@ -12,13 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user weight
  */
 @Composable
-fun WeightSelectionScreen(newUser: UserOnboarding) {
+fun WeightSelectionScreen(newUser: UserOnboarding, navController: NavController) {
     // weight ranges
     val weightRange = if (newUser.weightMetric.value) {
         (45..150 step 5)
@@ -123,7 +124,12 @@ fun WeightSelectionScreen(newUser: UserOnboarding) {
                 Text("Weight: ${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}")
             },
             confirmButton = {
-                Button(onClick = { showDialog.value = false }) {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                        navController.popBackStack()
+                    }
+                ) {
                     Text("OK")
                 }
             }

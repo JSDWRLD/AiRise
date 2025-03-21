@@ -13,7 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.teamnotfound.airise.home.HomeScreen
-import com.teamnotfound.airise.home.AccountSettingScreen
+import com.teamnotfound.airise.home.AccountSettings
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
@@ -131,11 +131,9 @@ fun App(container: AppContainer) {
                     )
                 }
 
-                // account setting screen
+                // account settings
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
-                    AccountSettingScreen(
-                        onBackClick = { navController.popBackStack() }
-                    )
+                    AccountSettings()
                 }
             }
         }

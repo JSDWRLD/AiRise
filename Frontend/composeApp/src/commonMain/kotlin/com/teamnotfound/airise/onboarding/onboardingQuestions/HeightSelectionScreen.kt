@@ -12,13 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user height
  */
 @Composable
-fun HeightSelectionScreen(newUser: UserOnboarding) {
+fun HeightSelectionScreen(newUser: UserOnboarding, navController: NavController) {
     // height ranges
     val heightRange = if (newUser.heightMetric.value) {
         (140..210 step 5)
@@ -123,7 +124,12 @@ fun HeightSelectionScreen(newUser: UserOnboarding) {
                 Text("Height: ${newUser.heightValue.value} ${if (newUser.heightMetric.value) "CM" else "IN"}")
             },
             confirmButton = {
-                Button(onClick = { showDialog.value = false }) {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                        navController.popBackStack()
+                    }
+                ) {
                     Text("OK")
                 }
             }

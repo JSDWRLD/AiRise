@@ -11,13 +11,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user date of birth
  */
 @Composable
-fun AgeSelectionScreen(newUser: UserOnboarding) {
+fun AgeSelectionScreen(newUser: UserOnboarding, navController: NavController) {
     // list ranges
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
@@ -34,7 +35,8 @@ fun AgeSelectionScreen(newUser: UserOnboarding) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(Color(0xFF121212)),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
@@ -106,7 +108,12 @@ fun AgeSelectionScreen(newUser: UserOnboarding) {
                 Text("Date of Birth: ${newUser.dobYear.value}/${newUser.dobMonth.value}/${newUser.dobDay.value}")
             },
             confirmButton = {
-                Button(onClick = { showDialog.value = false }) {
+                Button(
+                    onClick = {
+                        showDialog.value = false
+                        navController.popBackStack()
+                    }
+                ) {
                     Text("OK")
                 }
             }
