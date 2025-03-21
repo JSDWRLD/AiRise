@@ -17,6 +17,7 @@ import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
+import com.teamnotfound.airise.navigationBar.NavBar
 import com.teamnotfound.airise.onboarding.signup.SignUpScreen
 import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
 import com.teamnotfound.airise.network.AppContainer
@@ -124,7 +125,15 @@ fun App(container: AppContainer) {
                     arguments = listOf(navArgument("email") { type = NavType.StringType })
                 ) { backStackEntry ->
                     val email = backStackEntry.arguments?.getString("email")
-                    HomeScreen(email.toString())
+                    HomeScreen(
+                        email.toString(),
+                        onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
+                }
+
+                //Navigation Bar and overview screen
+                composable(route = AppScreen.NAVBAR.name) {
+                    val bottomNavController = rememberNavController()
+                    NavBar(navController = bottomNavController)
                 }
             }
         }
@@ -139,5 +148,6 @@ enum class AppScreen {
     RECOVER_ACCOUNT,
     RECOVERY_SENT,
     ONBOARD,
-    HOMESCREEN
+    HOMESCREEN,
+    NAVBAR
 }

@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,13 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user weight
  */
 @Composable
-fun WeightSelectionScreen(newUser: UserOnboarding) {
+fun WeightSelectionScreen(navController: NavController, newUser: UserOnboarding) {
     // weight ranges
     val weightRange = if (newUser.weightMetric.value) {
         (45..150 step 5)
@@ -27,6 +30,8 @@ fun WeightSelectionScreen(newUser: UserOnboarding) {
     }
     //
     val showDialog = remember { mutableStateOf(false) }
+    val nextScreen = OnboardingScreens.AgeSelection.route
+
     // body
     Box(
         modifier = Modifier
@@ -39,6 +44,25 @@ fun WeightSelectionScreen(newUser: UserOnboarding) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TopAppBar(
+                backgroundColor = Color(0xFF091819),
+                contentColor = Color.White,
+                title = {Text("Fitness Goal (11/13)")},
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFFCE5100)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate(nextScreen) }) {
+                        Text("Skip", color = Color(0xFFCE5100))
+                    }
+                }
+            )
             // title
             Text(
                 text = "What Is Your Weight?",
@@ -101,7 +125,9 @@ fun WeightSelectionScreen(newUser: UserOnboarding) {
         }
         // continue button
         Button(
-            onClick = { showDialog.value = true },
+            onClick = {
+                showDialog.value = true
+                navController.navigate(nextScreen)},
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
