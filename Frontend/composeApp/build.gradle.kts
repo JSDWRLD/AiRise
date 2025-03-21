@@ -1,6 +1,10 @@
+
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,6 +13,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -56,6 +61,7 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
+            implementation(libs.generativeai.google)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -71,6 +77,7 @@ kotlin {
         }
     }
 }
+
 
 android {
     namespace = "com.teamnotfound.airise"
@@ -99,6 +106,7 @@ android {
     }
 }
 
+
 dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.navigation.runtime.ktx)
@@ -107,3 +115,23 @@ dependencies {
 }
 
 
+buildkonfig {
+    packageName = "com.teamnotfound.airise"
+
+    val localPropsFile = rootProject.file("local.properties")
+    val localProperties = Properties()
+    if(localPropsFile.exists()) {
+        runCatching {
+            localProperties.load(localPropsFile.inputStream())
+        }.getOrElse {
+            it.printStackTrace()
+        }
+    }
+    defaultConfigs {
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "GEMINI_API_KEY",
+            localProperties["gemini_api_key"]?.toString() ?: ""
+        )
+    }
+}
