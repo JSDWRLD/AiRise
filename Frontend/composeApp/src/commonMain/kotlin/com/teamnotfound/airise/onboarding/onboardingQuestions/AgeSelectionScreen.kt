@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,13 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserOnboarding
 
 /*
  * Page to select user date of birth
  */
 @Composable
-fun AgeSelectionScreen(newUser: UserOnboarding) {
+fun AgeSelectionScreen(navController: NavController, newUser: UserOnboarding) {
     // list ranges
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
@@ -30,6 +33,8 @@ fun AgeSelectionScreen(newUser: UserOnboarding) {
     }
     //
     val showDialog = remember { mutableStateOf(false) }
+    val nextScreen = OnboardingScreens.ActivityLevel.route
+
     // body
     Box(
         modifier = Modifier
@@ -42,6 +47,25 @@ fun AgeSelectionScreen(newUser: UserOnboarding) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TopAppBar(
+                backgroundColor = Color(0xFF091819),
+                contentColor = Color.White,
+                title = {Text("Fitness Goal (12/13)")},
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFFCE5100)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate(nextScreen) }) {
+                        Text("Skip", color = Color(0xFFCE5100))
+                    }
+                }
+            )
             // title
             Text(
                 text = "What Is Your Date of Birth?",
@@ -82,7 +106,9 @@ fun AgeSelectionScreen(newUser: UserOnboarding) {
         }
         // continue button
         Button(
-            onClick = { showDialog.value = true },
+            onClick = {
+                showDialog.value = true
+                navController.navigate(nextScreen)},
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)

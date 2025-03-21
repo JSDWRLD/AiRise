@@ -103,6 +103,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.androidx.runtime.android)
     debugImplementation(compose.uiTooling)
 }
 
