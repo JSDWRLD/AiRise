@@ -6,5 +6,6 @@ data class SignUpUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val registeredUser: UserModel? = null
+    val registeredUser: UserModel? = null,
+    val passwordMatch: Boolean = true
 )

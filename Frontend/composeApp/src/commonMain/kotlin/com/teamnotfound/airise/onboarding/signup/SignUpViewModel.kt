@@ -16,6 +16,7 @@ class SignUpViewModel(private val client: UserClient): ViewModel() {
     val uiState: StateFlow<SignUpUiState> = _uiState
 
     fun register(userModel: UserModel) {
+        if(!_uiState.value.passwordMatch) return //stops registration if password does not match
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 

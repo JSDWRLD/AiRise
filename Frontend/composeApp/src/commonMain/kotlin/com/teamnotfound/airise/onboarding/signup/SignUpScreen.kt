@@ -40,6 +40,7 @@ fun SignUpScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    val passwordsMatch = password == confirmPassword //password validation
 
     //screen placement
     Box(
@@ -156,6 +157,16 @@ fun SignUpScreen(
                 )
             )
 
+            //shows message if password does not match
+            if(!passwordsMatch){
+                Text(
+                    text = "Passwords do not match",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(30.dp))
 
             // create account button
@@ -172,7 +183,8 @@ fun SignUpScreen(
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B)),
+                enabled = passwordsMatch //disable button when passwords do not match
             ) {
                 Text("Create Account", color = Color.White)
             }

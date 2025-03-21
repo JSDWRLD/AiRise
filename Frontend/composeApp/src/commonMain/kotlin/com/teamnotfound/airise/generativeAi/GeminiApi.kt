@@ -28,8 +28,8 @@ class GeminiApi {
         apiKey = apiKey
     )
 
-    fun generateContent(prompt: String): Flow<GenerateContentResponse> {
-        return generativeModel.generateContentStream(prompt)
+    suspend fun generateContent(prompt: String): GenerateContentResponse {
+        return generativeModel.generateContent(prompt)
     }
 
     fun generateContent(prompt: String, imageData: ByteArray): Flow<GenerateContentResponse> {

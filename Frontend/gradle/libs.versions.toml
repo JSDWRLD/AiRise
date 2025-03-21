@@ -30,7 +30,7 @@ foundationAndroid = "1.7.8"
 navigationComposeVersion = "2.8.9"
 navigationRuntimeKtxVersion = "2.8.9"
 navigation = "2.8.0-alpha10"
-generativeai-google = "0.9.0-1.0.1"
+generativeai-google = "0.9.0-1.0.1-wasm"
 buildkonfig = "0.17.0"
 
 [libraries]

@@ -1,9 +1,7 @@
 
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import java.util.Properties
 
 plugins {
@@ -133,5 +131,21 @@ buildkonfig {
             "GEMINI_API_KEY",
             localProperties["gemini_api_key"]?.toString() ?: ""
         )
+    }
+    /*
+    When you wanna set different values for each platform
+    It will override the value set in defaultConfigs
+    * */
+    targetConfigs {
+        /*this the general format*/
+//        // names in create should be the same as target names you specified
+//        create("android") {
+//            buildConfigField(STRING, "name2", "value2")
+//            buildConfigField(STRING, "nullableField", "NonNull-value", nullable = true)
+//        }
+//
+//        create("ios") {
+//            buildConfigField(STRING, "name", "valueForNative")
+//        }
     }
 }
