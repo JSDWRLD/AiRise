@@ -25,10 +25,10 @@ public class UserService
         return await _userCollection.Find(new BsonDocument()).ToListAsync();
     }
 
-    public async Task UpdateUsernameAsync(string id, string username)
+    public async Task UpdateFirebaseUidAsync(string id, string firebaseUid)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Id, id);
-        var update = Builders<User>.Update.Set(u => u.Username, username);
+        var update = Builders<User>.Update.Set(u => u.FirebaseUid, firebaseUid);
         await _userCollection.UpdateOneAsync(filter, update);
     }
 
@@ -39,22 +39,14 @@ public class UserService
         return;
     }
 
+    public async Task<User?> GetUserByFirebaseUidAsync(string firebaseUid)
+    {
+        return await _userCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
+    }
+
+
     public async Task<User?> GetUserByIdAsync(string id)
     {
         return await _userCollection.Find(u => u.Id == id).FirstOrDefaultAsync();
-    }
-
-    public async Task<User?> GetUserByEmailAsync(string email)
-    {
-        return await _userCollection.Find(u => u.Email == email).FirstOrDefaultAsync();
-    }
-
-    public async Task<bool> UpdateEmailAsync(string id, string newEmail)
-    {
-        var filter = Builders<User>.Filter.Eq(u => u.Id, id);
-        var update = Builders<User>.Update.Set(u => u.Email, newEmail);
-        var result = await _userCollection.UpdateOneAsync(filter, update);
-
-        return result.ModifiedCount > 0;
     }
 }

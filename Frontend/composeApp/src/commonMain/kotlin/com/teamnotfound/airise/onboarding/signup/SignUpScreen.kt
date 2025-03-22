@@ -14,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.teamnotfound.airise.data.serializable.UserModel
+import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
 
 @Composable
 fun SignUpScreen(
@@ -29,9 +29,9 @@ fun SignUpScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     // If sign up is successful, trigger navigation or any other success action.
-    if (uiState.isSuccess && uiState.registeredUser != null) {
+    if (uiState.isSuccess) {
         // Using LaunchedEffect to perform a side-effect (navigation)
-        LaunchedEffect(uiState.registeredUser) {
+        LaunchedEffect(uiState) {
             // Continue to onboard screen
             onSignUpSuccess()
         }
@@ -172,9 +172,8 @@ fun SignUpScreen(
             // create account button
             Button(
                 onClick = {
-                    val userModel = UserModel(
+                    val userModel = RegisterUserDTO(
                         email = email,
-                        username = email, // or you can make a dedicated username field
                         password = password
                     )
                     viewModel.register(userModel) // make a register
