@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.khealth
+package com.teamnotfound.airise.health
 
 import com.khealth.KHealth
 

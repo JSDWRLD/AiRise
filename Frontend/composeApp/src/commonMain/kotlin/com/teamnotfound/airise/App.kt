@@ -22,7 +22,7 @@ import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
 import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.onboarding.WelcomeScreen
 import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
-
+import com.teamnotfound.airise.health.HealthDashboardScreen
 
 // This is basically your main function.
 @Composable
@@ -80,7 +80,7 @@ fun App(container: AppContainer) {
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
-                        onGoogleSignUpClick = { /* Google Sign-Up */ },
+                        onGoogleSignUpClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD) }, //TODO: Replace with /* Google Sign-Up */
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
                     )
@@ -126,6 +126,11 @@ fun App(container: AppContainer) {
                     val email = backStackEntry.arguments?.getString("email")
                     HomeScreen(email.toString())
                 }
+
+                // Health Dashboard
+                composable(route = AppScreen.HEALTH_DASHBOARD.name) {
+                    HealthDashboardScreen()
+                }
             }
         }
     }
@@ -139,5 +144,6 @@ enum class AppScreen {
     RECOVER_ACCOUNT,
     RECOVERY_SENT,
     ONBOARD,
-    HOMESCREEN
+    HOMESCREEN,
+    HEALTH_DASHBOARD
 }

@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.khealth
+package com.teamnotfound.airise.health
 
 import com.khealth.KHCervicalMucusAppearance
 import com.khealth.KHCyclingPedalingCadenceSample
@@ -73,7 +73,7 @@ val permissions = arrayOf(
     KHPermission.WheelChairPushes(read = true, write = true),
 )
 
-private val coroutineScope = MainScope()
+val coroutineScope = MainScope()
 
 fun sampleCheckAllPerms(kHealth: KHealth) {
     coroutineScope.launch {
