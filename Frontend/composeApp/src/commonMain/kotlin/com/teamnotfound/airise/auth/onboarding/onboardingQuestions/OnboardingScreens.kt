@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding.onboardingQuestions
+package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
 //Define the different onboarding screens
 sealed class OnboardingScreens(val route: String){

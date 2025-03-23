@@ -1,10 +1,9 @@
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.auth.login
 
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.BaseViewModel
 import com.teamnotfound.airise.data.auth.AuthResult
 import com.teamnotfound.airise.data.auth.AuthService
-import com.teamnotfound.airise.data.network.clients.UserClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
