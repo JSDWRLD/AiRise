@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.data.serializable
+package com.teamnotfound.airise.data
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
