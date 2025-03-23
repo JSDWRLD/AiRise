@@ -2,9 +2,11 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using AiRise.Services;
 using AiRise.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AiRise.Controllers;
 
+[Authorize]
 [Controller]
 [Route("api/[controller]")]
 public class UserController : Controller
@@ -18,47 +20,54 @@ public class UserController : Controller
         _logger = logger;
     }
 
-    // Get List of Users
-    [HttpGet]
-    public async Task<List<User>> Get() 
-    {
-        return await _userService.GetAsync();
-    }
-
-    // Get User by id
+    // // Get User by id
     [HttpGet("id/{id}")]
     public async Task<User> GetById(string id) 
     {
         return await _userService.GetUserByIdAsync(id);
     }
 
-    // Get User by email
-    [HttpGet("email/{email}")]
-    public async Task<User> GetByEmail(string email) 
+    // Get User by FirebaseUid
+    [HttpGet("firebaseUid/{firebaseUid}")]
+    public async Task<User> GetByFirebaseUid(string firebaseUid) 
     {
-        return await _userService.GetUserByEmailAsync(email);
+        return await _userService.GetUserByFirebaseUidAsync(firebaseUid);
     }
     
     // Create a User
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] User user) 
+    public async Task<IActionResult> Post([FromBody] CreateUserRequest request) 
     {
-        await _userService.CreateAsync(user);
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+        if (request == null)
+        {
+            return BadRequest("Invalid request body.");
+        }
+
+        if (string.IsNullOrEmpty(request.FirebaseUid))
+        {
+            return BadRequest("FirebaseUid is required.");
+        }
+
+        try
+        {
+            var user = new User
+            {
+                FirebaseUid = request.FirebaseUid
+            };
+
+            await _userService.CreateAsync(user);
+            return CreatedAtAction(nameof(Post), new { id = user.Id }, user); // corrected to use nameof(Post)
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred while creating the user: {ex.Message}");
+        }
     }
 
-    // Get ID of specific update
-    [HttpPut("{id}/username")]
-    public async Task<IActionResult> UpdateUsername(string id, [FromBody] string username) 
+    [HttpPut("{id}/firebaseUid")]
+    public async Task<IActionResult> UpdateFirebaseUid(string id, [FromBody] string firebaseUid) 
     {
-        await _userService.UpdateUsernameAsync(id, username);
-        return NoContent();
-    }
-    
-    [HttpPut("{id}/email")]
-    public async Task<IActionResult> UpdateEmail(string id, [FromBody] string email) 
-    {
-        await _userService.UpdateEmailAsync(id, email);
+        await _userService.UpdateFirebaseUidAsync(id, firebaseUid);
         return NoContent();
     }
 
@@ -68,4 +77,11 @@ public class UserController : Controller
         await _userService.DeleteAsync(id);
         return NoContent();
     }
+
+    // // Get List of Users
+    // [HttpGet]
+    // public async Task<List<User>> Get() 
+    // {
+    //     return await _userService.GetAsync();
+    // }
 }
