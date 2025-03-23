@@ -23,32 +23,36 @@ fun QuestionScreen(
     questionText: String,
     options: List<String>,
     nextScreen: OnboardingScreens,
-    navController: NavController
+    navController: NavController,
+    questionCount: Int,
+    onSelection: (String) -> Unit
 ) {
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF062022))
+            .background(Color(0xFF091819))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF062022),
+                backgroundColor = Color(0xFF091819),
                 contentColor = Color.White,
-                title = {},
+                title = {Text("Fitness Goal ($questionCount/13)")},
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFFFA500)
-                        )
+                    if (questionCount != 1) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFCE5100)
+                            )
+                        }
                     }
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(nextScreen.route) }) {
-                        Text("Skip", color = Color.White)
+                        Text("Skip", color = Color(0xFFCE5100))
                     }
                 }
             )
@@ -57,7 +61,7 @@ fun QuestionScreen(
 
             Text(
                 text = questionText,
-                style = TextStyle(fontSize = 24.sp, color = Color.White),
+                style = TextStyle(fontSize = 30.sp, color = Color.White),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -87,9 +91,13 @@ fun QuestionScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { navController.navigate(nextScreen.route) },
+                onClick = {
+                    onSelection(selectedOption!!)
+                    navController.navigate(nextScreen.route) },
                 enabled = selectedOption != null,
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF21565C),
+                    disabledBackgroundColor = Color(0xFF21565C)),
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -108,30 +116,36 @@ fun MultiSelectQuestionScreen(
     options: List<String>,
     selectedOptions: MutableState<Set<String>>,
     nextScreen: OnboardingScreens,
-    navController: NavController
+    navController: NavController,
+    questionCount: Int,
+    onSelection: (Set<String>) -> Unit
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF062022))
+            .background(Color(0xFF091819))
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF062022),
+                backgroundColor = Color(0xFF091819),
                 contentColor = Color.White,
-                title = {},
+                title = {Text("Fitness Goal ($questionCount/13)")},
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFFFA500)
-                        )
+                    if (questionCount != 1) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFCE5100)
+                            )
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen.route) }) {
-                        Text("Skip", color = Color.White)
+                    IconButton(onClick = {
+                        navController.navigate(nextScreen.route) }) {
+                        Text("Skip", color = Color(0xFFCE5100))
                     }
                 }
             )
@@ -140,7 +154,7 @@ fun MultiSelectQuestionScreen(
 
             Text(
                 text = questionText,
-                style = TextStyle(fontSize = 24.sp, color = Color.White),
+                style = TextStyle(fontSize = 30.sp, color = Color.White),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -186,113 +200,13 @@ fun MultiSelectQuestionScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { navController.navigate(nextScreen.route) },
+                onClick = {
+                    onSelection(selectedOptions.value)
+                    navController.navigate(nextScreen.route) },
                 enabled = selectedOptions.value.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B)),
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text("Continue", color = Color.White)
-            }
-        }
-    }
-}
-
-// Text input question screen (e.g., for specifying additional details)
-@Composable
-fun TextInputQuestionScreen(
-    questionText: String,
-    options: List<String>,
-    nextScreen: OnboardingScreens,
-    navController: NavController
-) {
-    var selectedOption by remember { mutableStateOf<String?>(null) }
-    var textInput by remember { mutableStateOf("") }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF062022))
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                backgroundColor = Color(0xFF062022),
-                contentColor = Color.White,
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFFFA500)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen.route) }) {
-                        Text("Skip", color = Color.White)
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = questionText,
-                style = TextStyle(fontSize = 24.sp, color = Color.White),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            options.forEach { option ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { selectedOption = option }
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = selectedOption == option,
-                        onClick = { selectedOption = option },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = Color(0xFFFFA500),
-                            unselectedColor = Color.White
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = option, color = Color.White)
-                }
-            }
-
-            if (selectedOption == "Yes") {
-                OutlinedTextField(
-                    value = textInput,
-                    onValueChange = { textInput = it },
-                    label = { Text("Enter here - Specify any unique limitations or concerns") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        backgroundColor = Color(0xFFE0E0E0),
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        textColor = Color.Gray,
-                        cursorColor = Color.Gray,
-                        focusedLabelColor = Color.Gray
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { navController.navigate(nextScreen.route) },
-                enabled = selectedOption != null || textInput.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B)),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF21565C),
+                    disabledBackgroundColor = Color(0xFF21565C)),
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier
                     .fillMaxWidth()

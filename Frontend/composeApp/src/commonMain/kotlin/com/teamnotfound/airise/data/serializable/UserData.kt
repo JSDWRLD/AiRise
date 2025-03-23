@@ -11,11 +11,9 @@ class UserOnboarding {
     var middleName: MutableState<String> = mutableStateOf("")
     var workoutGoal: MutableState<String> = mutableStateOf("")
     var fitnessLevel: MutableState<String> = mutableStateOf("")
-    var workoutLength: MutableState<Int> = mutableStateOf(0)
-    var workoutEquipment: MutableState<String> = mutableStateOf("")
-    var workoutDays: MutableState<List<Boolean>> = mutableStateOf(
-        listOf(false, false, false, false, false, false, false)
-    )
+    var workoutLength: MutableState<String> = mutableStateOf("")
+    var equipmentAccess: MutableState<String> = mutableStateOf("")
+    var workoutDays: MutableState<String> = mutableStateOf("")
     var workoutTime: MutableState<String> = mutableStateOf("")
     var dietaryGoal: MutableState<String> = mutableStateOf("")
     var workoutRestrictions: MutableState<String> = mutableStateOf("")
@@ -36,7 +34,7 @@ class UserOnboarding {
         workoutGoal = workoutGoal.value,
         fitnessLevel = fitnessLevel.value,
         workoutLength = workoutLength.value,
-        workoutEquipment = workoutEquipment.value,
+        workoutEquipment = equipmentAccess.value,
         workoutDays = workoutDays.value,
         workoutTime = workoutTime.value,
         dietaryGoal = dietaryGoal.value,
@@ -59,9 +57,9 @@ data class UserOnboardingData(
     val middleName: String,
     val workoutGoal: String,
     val fitnessLevel: String,
-    val workoutLength: Int,
+    val workoutLength: String,
     val workoutEquipment: String,
-    val workoutDays: List<Boolean>,
+    val workoutDays: String,
     val workoutTime: String,
     val dietaryGoal: String,
     val workoutRestrictions: String,

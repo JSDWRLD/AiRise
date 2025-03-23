@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.network
+package com.teamnotfound.airise.data.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine

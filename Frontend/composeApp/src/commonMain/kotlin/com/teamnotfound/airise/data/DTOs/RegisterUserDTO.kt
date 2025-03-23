@@ -1,9 +1,8 @@
-package com.teamnotfound.airise.data.serializable
+package com.teamnotfound.airise.data.DTOs
 
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class UserLogin(
+data class RegisterUserDTO (
     val email: String,
     val password: String
 )
