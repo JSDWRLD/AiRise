@@ -15,13 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 
 /*
  * Page to select user weight
  */
 @Composable
-fun WeightSelectionScreen(navController: NavController, newUser: UserOnboarding) {
+fun WeightSelectionScreen(navController: NavController, newUser: UserData) {
     // weight ranges
     val weightRange = if (newUser.weightMetric.value) {
         (45..150 step 5)

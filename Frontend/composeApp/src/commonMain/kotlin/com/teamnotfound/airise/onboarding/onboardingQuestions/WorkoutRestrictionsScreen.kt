@@ -36,11 +36,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 
 // Text input question screen for any workout restrictions
 @Composable
-fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserOnboarding) {
+fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) {
     val questionText = "Do you have any restrictions or injuries?"
     val options = listOf("Yes", "No")
     var selectedOption by remember { mutableStateOf<String?>(null) }

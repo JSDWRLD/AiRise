@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserOnboarding {
+class UserData {
     var firstName: MutableState<String> = mutableStateOf("")
     var lastName: MutableState<String> = mutableStateOf("")
     var middleName: MutableState<String> = mutableStateOf("")

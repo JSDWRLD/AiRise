@@ -3,20 +3,20 @@ package com.teamnotfound.airise.onboarding.onboardingQuestions
 import androidx.compose.runtime.*
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 
 //Creates entry point for onboarding screens
 @Composable
 fun OnboardingScreen() {
     val navController = rememberNavController()
     //Create a new user onboarding object
-    val newUser = remember {UserOnboarding()}
+    val newUser = remember {UserData()}
     NavigateQuestions(navController = navController, newUser)
 }
 
 //Defines different navigation routes for onboarding screens
 @Composable
-fun NavigateQuestions(navController: NavHostController, newUser: UserOnboarding){
+fun NavigateQuestions(navController: NavHostController, newUser: UserData){
     NavHost(navController = navController, startDestination = OnboardingScreens.NameInput.route) {
         composable(OnboardingScreens.NameInput.route) { NameInputScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutGoal.route) { WorkoutGoalScreen(navController, newUser) }

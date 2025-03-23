@@ -14,13 +14,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 
 /*
  * Page to select user date of birth
  */
 @Composable
-fun AgeSelectionScreen(navController: NavController, newUser: UserOnboarding) {
+fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
     // list ranges
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()

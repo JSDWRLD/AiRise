@@ -10,11 +10,11 @@ import androidx.compose.material.Text
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 import kotlinx.coroutines.delay
 
 @Composable
-fun ThankYouScreen(navController: NavController, newUser: UserOnboarding){
+fun ThankYouScreen(navController: NavController, newUser: UserData){
     var showUserDetails by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit){

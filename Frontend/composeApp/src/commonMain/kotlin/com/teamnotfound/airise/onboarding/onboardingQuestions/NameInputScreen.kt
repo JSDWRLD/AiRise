@@ -12,11 +12,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 
 // Name input screen
 @Composable
-fun NameInputScreen(navController: NavController, newUser: UserOnboarding){
+fun NameInputScreen(navController: NavController, newUser: UserData){
     val nextScreen = OnboardingScreens.WorkoutGoal.route
     var firstName by remember { mutableStateOf("") }
     var middleName by remember { mutableStateOf("") }
