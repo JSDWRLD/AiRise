@@ -56,6 +56,8 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
+            implementation(libs.peekaboo.ui)
+            implementation(libs.peekaboo.image.picker)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -103,6 +105,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
 }
 

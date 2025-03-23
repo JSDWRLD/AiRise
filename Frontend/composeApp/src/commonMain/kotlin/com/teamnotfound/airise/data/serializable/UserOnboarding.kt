@@ -2,6 +2,7 @@ package com.teamnotfound.airise.data.serializable
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,6 +28,7 @@ class UserOnboarding {
     var dobMonth: MutableState<Int> = mutableStateOf(0)
     var dobYear: MutableState<Int> = mutableStateOf(0)
     var activityLevel: MutableState<String> = mutableStateOf("")
+    var profilePicture: MutableState<List<ImageBitmap>> = mutableStateOf(listOf())
     
     // Convert to a serializable data class for MongoDB storage
     fun toData(): UserOnboardingData = UserOnboardingData(
