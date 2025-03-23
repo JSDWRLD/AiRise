@@ -18,9 +18,9 @@ import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
 import com.teamnotfound.airise.login.RecoverAccountScreen
 import com.teamnotfound.airise.login.RecoverySentScreen
+import com.teamnotfound.airise.navigationBar.NavBar
 import com.teamnotfound.airise.onboarding.signup.SignUpScreen
 import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
-import com.teamnotfound.airise.AppContainer
 import com.teamnotfound.airise.onboarding.WelcomeScreen
 import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
 import dev.gitlive.firebase.Firebase
@@ -32,8 +32,8 @@ import dev.gitlive.firebase.auth.auth
 fun App(container: AppContainer) {
     val navController = rememberNavController()
     val authService = AuthService(
-        auth = Firebase.auth,
-        userClient = container.userClient
+            auth = Firebase.auth,
+    userClient = container.userClient
     )
 
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
@@ -66,6 +66,7 @@ fun App(container: AppContainer) {
                         onAlreadyHaveAnAccountClick = {navController.navigate(AppScreen.LOGIN.name)}
                     )
                 }
+
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
                     val loginViewModel = viewModel { LoginViewModel(authService) }
@@ -128,9 +129,19 @@ fun App(container: AppContainer) {
 
                 // Home Screen
                 composable(
-                    route = AppScreen.HOMESCREEN.name,
-                ) {
-                    HomeScreen("TESTING")
+                    route = "${AppScreen.WELCOME.name}/{email}",
+                    arguments = listOf(navArgument("email") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val email = backStackEntry.arguments?.getString("email")
+                    HomeScreen(
+                        email.toString(),
+                        onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
+                }
+
+                //Navigation Bar and overview screen
+                composable(route = AppScreen.NAVBAR.name) {
+                    val bottomNavController = rememberNavController()
+                    NavBar(navController = bottomNavController)
                 }
             }
         }
@@ -145,5 +156,6 @@ enum class AppScreen {
     RECOVER_ACCOUNT,
     RECOVERY_SENT,
     ONBOARD,
-    HOMESCREEN
+    HOMESCREEN,
+    NAVBAR
 }
