@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.login.LoginViewModel
 import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
@@ -20,27 +21,33 @@ import com.teamnotfound.airise.login.RecoverySentScreen
 import com.teamnotfound.airise.navigationBar.NavBar
 import com.teamnotfound.airise.onboarding.signup.SignUpScreen
 import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
-import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.onboarding.WelcomeScreen
 import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 
 
 // This is basically your main function.
 @Composable
 fun App(container: AppContainer) {
     val navController = rememberNavController()
-    val appViewModel: AppViewModel = viewModel { AppViewModel(container.userClient) }
+    val authService = AuthService(
+            auth = Firebase.auth,
+    userClient = container.userClient
+    )
+
+    val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
-    /* Once we make home screen
     LaunchedEffect(isUserLoggedIn) {
+        authService.signOut()
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.HOME.name) { popUpTo(0) }
+            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
     }
-     */
+
 
     MaterialTheme {
         Column(
@@ -59,9 +66,10 @@ fun App(container: AppContainer) {
                         onAlreadyHaveAnAccountClick = {navController.navigate(AppScreen.LOGIN.name)}
                     )
                 }
+
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel { LoginViewModel(container.userClient) }
+                    val loginViewModel = viewModel { LoginViewModel(authService) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -69,14 +77,14 @@ fun App(container: AppContainer) {
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onGoogleSignInClick = { /* google Sign-In */ },
                         onLoginSuccess = { email ->
-                            navController.navigate("${AppScreen.WELCOME.name}/$email")
+                            navController.navigate("${AppScreen.HOMESCREEN.name}/$email")
                         }
                     )
                 }
 
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(container.userClient) }
+                    val signUpViewModel = viewModel { SignUpViewModel(authService) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },

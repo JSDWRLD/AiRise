@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.network
+package com.teamnotfound.airise.data.network
 
 sealed class Result<out T, out E> {
     data class Success<out T>(val data: T) : Result<T, Nothing>()

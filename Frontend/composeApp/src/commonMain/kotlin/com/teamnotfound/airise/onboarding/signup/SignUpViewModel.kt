@@ -2,37 +2,34 @@ package com.teamnotfound.airise.onboarding.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.network.UserClient
-import com.teamnotfound.airise.data.serializable.UserModel
+import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
+import com.teamnotfound.airise.data.auth.AuthResult
+import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.teamnotfound.airise.network.Result
 
-class SignUpViewModel(private val client: UserClient): ViewModel() {
+class SignUpViewModel(private val authService: AuthService): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
 
-    fun register(userModel: UserModel) {
+    fun register(registerUserDTO: RegisterUserDTO) {
         if(!_uiState.value.passwordMatch) return //stops registration if password does not match
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            when (val result = client.register(userModel)) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        registeredUser = result.data
-                    )
+            val authResult = authService.createUser(registerUserDTO.email, registerUserDTO.password)
+
+            _uiState.value = _uiState.value.copy(isLoading = false)
+
+            when (authResult) {
+                is AuthResult.Success -> {
+                    _uiState.value = _uiState.value.copy(isSuccess = true)
                 }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = mapError(result.error)
-                    )
+                is AuthResult.Failure -> {
+                    _uiState.value = _uiState.value.copy(errorMessage = authResult.errorMessage)
                 }
             }
         }

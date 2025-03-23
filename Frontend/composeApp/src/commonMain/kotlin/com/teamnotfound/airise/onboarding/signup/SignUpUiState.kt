@@ -1,11 +1,11 @@
 package com.teamnotfound.airise.onboarding.signup
 
-import com.teamnotfound.airise.data.serializable.UserModel
+import com.teamnotfound.airise.data.serializable.User
 
 data class SignUpUiState(
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
-    val registeredUser: UserModel? = null,
+    val currentUser: User? = null,
     val passwordMatch: Boolean = true
 )
