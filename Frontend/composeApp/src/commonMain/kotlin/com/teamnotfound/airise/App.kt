@@ -77,7 +77,7 @@ fun App(container: AppContainer) {
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onGoogleSignInClick = { /* google Sign-In */ },
                         onLoginSuccess = { email ->
-                            navController.navigate("${AppScreen.HOMESCREEN.name}/$email")
+                            navController.navigate(AppScreen.HOMESCREEN.name)
                         }
                     )
                 }
@@ -129,12 +129,10 @@ fun App(container: AppContainer) {
 
                 // Home Screen
                 composable(
-                    route = "${AppScreen.WELCOME.name}/{email}",
-                    arguments = listOf(navArgument("email") { type = NavType.StringType })
-                ) { backStackEntry ->
-                    val email = backStackEntry.arguments?.getString("email")
+                    route = AppScreen.HOMESCREEN.name,
+                ) {
                     HomeScreen(
-                        email.toString(),
+                        "User",
                         onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
                 }
 

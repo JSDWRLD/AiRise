@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
 
 @Composable
-fun HomeScreen(email: String) {
+fun HomeScreen(email: String,  onContinue: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
