@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding.onboardingQuestions
+package com.teamnotfound.airise.auth.onboarding
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier

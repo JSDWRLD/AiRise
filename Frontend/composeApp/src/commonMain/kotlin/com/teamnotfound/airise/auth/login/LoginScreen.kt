@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.auth.login
 
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.background
@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun LoginScreen(
@@ -23,7 +23,8 @@ fun LoginScreen(
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
     onGoogleSignInClick: () -> Unit,
-    onLoginSuccess: (email: String) -> Unit
+    onLoginSuccess: (email: String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
@@ -41,7 +42,8 @@ fun LoginScreen(
         onPrivacyPolicyClick = onPrivacyPolicyClick,
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
-        onGoogleSignInClick = onGoogleSignInClick
+        onGoogleSignInClick = onGoogleSignInClick,
+        onBackClick = onBackClick
     )
 }
 
@@ -52,20 +54,35 @@ fun Login(
     onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit
+    onGoogleSignInClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF062022))
-            .padding(24.dp)
     ) {
+        // Back button at the top-left corner (consistent with SignUpScreen)
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = "Back",
+                tint = Color(0xFFFFA500)
+            )
+        }
+
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 90.dp)
+                .padding(top = 50.dp) // Match SignUpScreen top padding
+                .padding(24.dp)
         ) {
             Text("Welcome back!", fontSize = 24.sp, color = Color.White)
             Spacer(modifier = Modifier.height(24.dp))
@@ -158,7 +175,6 @@ fun Login(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
             ) {
-                Spacer(modifier = Modifier.width(8.dp))
                 Text("Continue with Google", color = Color.White)
             }
 

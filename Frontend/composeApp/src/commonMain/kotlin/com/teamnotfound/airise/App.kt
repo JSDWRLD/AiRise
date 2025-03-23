@@ -1,6 +1,6 @@
 package com.teamnotfound.airise
 
-import com.teamnotfound.airise.login.LoginScreen
+import com.teamnotfound.airise.auth.login.LoginScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -10,19 +10,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
-import com.teamnotfound.airise.login.LoginViewModel
-import com.teamnotfound.airise.onboarding.signup.PrivacyPolicyScreen
-import com.teamnotfound.airise.login.RecoverAccountScreen
-import com.teamnotfound.airise.login.RecoverySentScreen
+import com.teamnotfound.airise.auth.login.LoginViewModel
+import com.teamnotfound.airise.auth.signup.PrivacyPolicyScreen
+import com.teamnotfound.airise.auth.recovery.RecoverAccountScreen
+import com.teamnotfound.airise.auth.recovery.RecoverySentScreen
 import com.teamnotfound.airise.navigationBar.NavBar
-import com.teamnotfound.airise.onboarding.signup.SignUpScreen
-import com.teamnotfound.airise.onboarding.signup.SignUpViewModel
-import com.teamnotfound.airise.onboarding.WelcomeScreen
-import com.teamnotfound.airise.onboarding.onboardingQuestions.OnboardingScreen
+import com.teamnotfound.airise.auth.signup.SignUpScreen
+import com.teamnotfound.airise.auth.signup.SignUpViewModel
+import com.teamnotfound.airise.auth.WelcomeScreen
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
+import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 
@@ -78,7 +77,8 @@ fun App(container: AppContainer) {
                         onGoogleSignInClick = { /* google Sign-In */ },
                         onLoginSuccess = { email ->
                             navController.navigate(AppScreen.HOMESCREEN.name)
-                        }
+                        },
+                        onBackClick = { navController.popBackStack() }
                     )
                 }
 
@@ -97,7 +97,9 @@ fun App(container: AppContainer) {
 
                 // recover account screen
                 composable(route = AppScreen.RECOVER_ACCOUNT.name) {
+                    val recoveryViewModel = viewModel { RecoveryViewModel(authService) }
                     RecoverAccountScreen(
+                        viewModel = recoveryViewModel,
                         onSendEmailClick = { navController.navigate(AppScreen.RECOVERY_SENT.name) },
                         onBackClick = { navController.popBackStack() }
                     )

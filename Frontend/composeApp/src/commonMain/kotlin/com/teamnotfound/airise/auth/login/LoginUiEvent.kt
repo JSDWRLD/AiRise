@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.auth.login
 // Login UI Event
 sealed class LoginUiEvent {
     data class EmailChanged(val email: String) : LoginUiEvent()

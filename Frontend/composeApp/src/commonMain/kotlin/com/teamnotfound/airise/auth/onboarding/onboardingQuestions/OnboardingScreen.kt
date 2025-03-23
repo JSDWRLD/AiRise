@@ -1,8 +1,9 @@
-package com.teamnotfound.airise.onboarding.onboardingQuestions
+package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
 import androidx.compose.runtime.*
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserData
 
 //Creates entry point for onboarding screens

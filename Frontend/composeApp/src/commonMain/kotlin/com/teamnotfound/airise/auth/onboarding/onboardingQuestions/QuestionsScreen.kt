@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding.onboardingQuestions
+package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,8 +13,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavController
 
 // Single selection question screen

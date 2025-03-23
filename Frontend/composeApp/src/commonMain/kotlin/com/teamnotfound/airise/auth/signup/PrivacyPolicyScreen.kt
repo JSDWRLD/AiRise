@@ -1,9 +1,7 @@
-
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.auth.signup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,8 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 
 @Composable
-fun RecoverySentScreen(
-    onBackToLoginClick: () -> Unit,
+fun PrivacyPolicyScreen(
     onBackClick: () -> Unit
 ) {
     Box(
@@ -25,7 +22,7 @@ fun RecoverySentScreen(
             .fillMaxSize()
             .background(Color(0xFF0A1E22))
     ) {
-        // back arrow
+        // Back Arrow
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -44,7 +41,7 @@ fun RecoverySentScreen(
             }
         }
 
-        // centers the screen
+        // Center the screen
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,14 +51,21 @@ fun RecoverySentScreen(
                 .padding(24.dp)
         ) {
 
-            Text("Recovery Email Sent", fontSize = 24.sp, color = Color.White)
+            Text("AiRise Terms of Use", fontSize = 24.sp, color = Color.White)
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            //description under sent
+            // Terms of use test
             Text(
-                "We've sent you an email.\nFollow the instructions to access your AiRise account.",
-                fontSize = 14.sp,
+                "Effective as of Match 24, 2025\n" +
+                        "1. Introduction\n" +
+                        "2. The AiRise Service\n" +
+                        "3. Your Use of the AiRise Service\n" +
+                        "4. Content and Intellectual Property Rights\n" +
+                        "5. Customer Support Information, Questions and Complaints\n" +
+                        "6. Problems and Disputes\n" +
+                        "7. About these terms\n",
+                fontSize = 20.sp,
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -69,20 +73,6 @@ fun RecoverySentScreen(
                     .wrapContentWidth(Alignment.CenterHorizontally),
                 lineHeight = 18.sp
             )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            // back to login button
-            Button(
-                onClick = onBackToLoginClick,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
-            ) {
-                Text("Back to Login", color = Color.White)
-            }
         }
     }
 }

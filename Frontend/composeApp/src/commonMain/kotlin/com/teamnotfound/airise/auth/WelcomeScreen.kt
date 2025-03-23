@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding
+package com.teamnotfound.airise.auth
 
 import airise.composeapp.generated.resources.Res
 import airise.composeapp.generated.resources.welcome_account

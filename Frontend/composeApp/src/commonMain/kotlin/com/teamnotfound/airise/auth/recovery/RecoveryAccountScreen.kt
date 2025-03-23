@@ -1,5 +1,4 @@
-
-package com.teamnotfound.airise.login
+package com.teamnotfound.airise.auth.recovery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,8 +16,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun RecoverAccountScreen(
+    viewModel: RecoveryViewModel,
     onBackClick: () -> Unit,
-    onSendEmailClick: () -> Unit
+    onSendEmailClick: () -> Unit,
 ) {
     var email by remember { mutableStateOf("") }
 
@@ -95,7 +95,10 @@ fun RecoverAccountScreen(
 
             // send email button
             Button(
-                onClick = onSendEmailClick,
+                onClick = {
+                    viewModel.sendEmail(email)
+                    onSendEmailClick()
+                },
                 modifier = Modifier
                     .width(300.dp)
                     .height(50.dp),

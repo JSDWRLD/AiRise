@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.onboarding.signup
+package com.teamnotfound.airise.auth.signup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
