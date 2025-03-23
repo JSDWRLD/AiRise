@@ -27,7 +27,7 @@ class AuthService(
 
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {
-            auth.signInWithEmailAndPassword(email, password)
+            val result = auth.signInWithEmailAndPassword(email, password)
             AuthResult.Success
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Authentication failed")

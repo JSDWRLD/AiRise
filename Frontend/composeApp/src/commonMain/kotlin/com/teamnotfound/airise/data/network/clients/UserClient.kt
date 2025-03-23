@@ -36,7 +36,7 @@ class UserClient(
             httpClient.post("$baseUrl/User") {
                 contentType(ContentType.Application.Json)
                 setBody(CreateUserDTO(firebaseUid))
-                // bearerAuth(token)
+                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)

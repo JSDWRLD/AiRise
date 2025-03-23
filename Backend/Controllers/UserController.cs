@@ -2,9 +2,11 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using AiRise.Services;
 using AiRise.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AiRise.Controllers;
 
+[Authorize]
 [Controller]
 [Route("api/[controller]")]
 public class UserController : Controller
