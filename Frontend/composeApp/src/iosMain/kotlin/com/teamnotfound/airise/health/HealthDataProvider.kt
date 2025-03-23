@@ -1,34 +1,49 @@
 package com.teamnotfound.airise.health
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import com.khealth.KHPermission
+import com.khealth.KHReadRequest
 import com.khealth.KHealth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import platform.Foundation.NSDate
-import platform.Foundation.NSCalendar
-import platform.Foundation.NSCalendarUnit
+import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.days
+
 
 actual class HealthDataProvider {
 
     private val kHealth = KHealth()
 
+    actual suspend fun requestPermissions(): Boolean {
+        val permissions = setOf(
+            KHPermission.StepCount(read = true),
+            KHPermission.HeartRate(read = true)
+        )
+
+        val result = kHealth.requestPermissions(*permissions.toTypedArray())
+
+        return result.any { it is KHPermission.HeartRate && it.read == true }
+    }
+
     actual suspend fun getHealthData(): HealthData = withContext(Dispatchers.Default) {
-        val now = NSDate()
-        val startOfDay = NSCalendar.currentCalendar.dateBySettingHour(
-            0, 0, 0, 0, now, NSCalendarUnit.NSCalendarUnitDay
-        ) ?: now
+        val startTime = Clock.System.now().minus(1.days)
+        val endTime = Clock.System.now()
 
-        val steps = kHealth.readSteps(startOfDay, now)
-        val heartRate = kHealth.readHeartRate(startOfDay, now)
+        val steps = kHealth.readRecords(KHReadRequest.StepCount(startTime, endTime))
+        val heartRate = kHealth.readRecords(KHReadRequest.HeartRate(startTime, endTime))
 
-        return@withContext object : HealthData {
-            override val steps = steps
-            override val heartRate = heartRate
+        val totalSteps = steps.toString().toInt()
+        val totalHeartRate = heartRate.toString().toInt()
+
+        object : HealthData {
+            override val steps = totalSteps
+            override val heartRate = totalHeartRate
         }
     }
 }
 
-actual suspend fun requestPermissions(): Boolean {
-    return withContext(Dispatchers.Main) {
-        kHealth.requestPermissions()
-    }
+@Composable
+actual fun rememberHealthDataProvider(): HealthDataProvider {
+    return remember { HealthDataProvider() }
 }

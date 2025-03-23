@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun HealthDashboardScreen() {
-    val permissionGranted = rememberHealthPermissionState()
     val provider = rememberHealthDataProvider()
 
     val viewModel = remember { HealthDashboardViewModel(provider) }
@@ -18,11 +17,8 @@ fun HealthDashboardScreen() {
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    LaunchedEffect(permissionGranted.value) {
-        if (permissionGranted.value) {
-            viewModel.requestAndLoadData()
-        }
-    }
+    viewModel.requestAndLoadData()
+
 
     Column(
         modifier = Modifier
@@ -45,7 +41,7 @@ fun HealthDashboardScreen() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { viewModel.loadHealthData() }) {
+        Button(onClick = { viewModel.requestAndLoadData() }) {
             Text("Refresh")
         }
     }

@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // This is REQUIRED for the library to work properly (on Android only)
+        //This is REQUIRED for the library to work properly (on Android only)
         kHealth.initialise()
 
         setContent {

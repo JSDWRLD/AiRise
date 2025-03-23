@@ -80,7 +80,7 @@ fun App(container: AppContainer) {
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
-                        onGoogleSignUpClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD) }, //TODO: Replace with /* Google Sign-Up */
+                        onGoogleSignUpClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD.name) }, //TODO: Replace with /* Google Sign-Up */
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
                     )
