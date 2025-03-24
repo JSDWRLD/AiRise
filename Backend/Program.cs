@@ -16,6 +16,7 @@ public class Program
         builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
         builder.Services.AddSingleton<MongoDBService>();
         builder.Services.AddSingleton<UserService>();
+        builder.Services.AddSingleton<UserDataService>();
 
         builder.Services.AddControllers();
 
@@ -23,7 +24,7 @@ public class Program
         DotNetEnv.Env.Load();
         builder.Configuration.AddEnvironmentVariables();
 
-        // Enable JWT Authentication
+        // Enable JWT Authentication Google
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {

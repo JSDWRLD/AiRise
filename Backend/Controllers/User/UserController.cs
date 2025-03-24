@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using AiRise.Services;
-using AiRise.Models;
+using AiRise.Models.User;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AiRise.Controllers;
@@ -74,7 +74,7 @@ public class UserController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id) 
     {
-        await _userService.DeleteAsync(id);
+        await _userService.DeleteUserAsync(id);
         return NoContent();
     }
 
