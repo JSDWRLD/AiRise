@@ -32,25 +32,31 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.navigation.NavController
+import androidx.compose.material.Scaffold
+import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
 @Composable
-fun HomeScreen(email: String,  onContinue: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF062022)),
-        contentAlignment = Alignment.Center
-    ) {
-        val username = email.substringBefore("@")
+fun HomeScreen(email: String) {
+    val bottomNavController = rememberNavController()
 
+    Scaffold(
+        backgroundColor = Color(0xFF062022),
+        bottomBar = {
+            BottomNavigationBar(navController = bottomNavController)
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            val username = email.substringBefore("@")
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Welcome $username!",
@@ -68,12 +74,14 @@ fun HomeScreen(email: String,  onContinue: () -> Unit) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(250.dp))
 
             FitnessSummarySection()
         }
     }
 }
+
+
 
 //displays stats based on user time selection and includes dropdown
 @Composable
