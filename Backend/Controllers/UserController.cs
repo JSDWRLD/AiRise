@@ -71,10 +71,22 @@ public class UserController : Controller
         return NoContent();
     }
 
+    [HttpPut("{firebaseUid}")]
+    public async Task<IActionResult> UpdateUserData(string firebaseUid, [FromBody] UserData updatedData)
+    {
+        bool success = await _userService.UpdateUserDataAsync(firebaseUid, updatedData);
+
+        if (!success)
+            return NotFound(new { message = "UserData not found or update failed" });
+
+        return Ok(new { message = "UserData updated successfully" });
+    }
+
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id) 
     {
-        await _userService.DeleteAsync(id);
+        await _userService.DeleteUserAsync(id);
         return NoContent();
     }
 
