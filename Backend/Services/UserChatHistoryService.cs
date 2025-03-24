@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userChatHistoryCollection = mongoDBService.GetCollection<UserChatHistory>("user.chathistory");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userChatHistory = new UserChatHistory();
+            userChatHistory.FirebaseUid = firebaseUid;
             await _userChatHistoryCollection.InsertOneAsync(userChatHistory);
             return userChatHistory.Id;
         }

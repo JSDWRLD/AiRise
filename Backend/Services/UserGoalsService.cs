@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userGoalsCollection = mongoDBService.GetCollection<UserGoals>("user.goals");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userGoals = new UserGoals();
+            userGoals.FirebaseUid = firebaseUid;
             await _userGoalsCollection.InsertOneAsync(userGoals);
             return userGoals.Id;
         }

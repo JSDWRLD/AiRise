@@ -14,6 +14,10 @@ namespace AiRise.Models.User
         [JsonPropertyName("firebaseUid")]
         public string FirebaseUid { get; set; } = null!;
 
+        [BsonElement("email")]
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = null!;
+
         [BsonElement("streak")]
         [JsonPropertyName("streak")]
         public int Streak { get; set; } = 0;

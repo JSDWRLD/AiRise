@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userMealPlanCollection = mongoDBService.GetCollection<UserMealPlan>("user.mealplans");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userMealPlan = new UserMealPlan();
+            userMealPlan.FirebaseUid = firebaseUid;
             await _userMealPlanCollection.InsertOneAsync(userMealPlan);
             return userMealPlan.Id;
         }

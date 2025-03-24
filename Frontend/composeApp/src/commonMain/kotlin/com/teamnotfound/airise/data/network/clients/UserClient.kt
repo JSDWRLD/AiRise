@@ -3,6 +3,7 @@ package com.teamnotfound.airise.data.network.clients
 import com.teamnotfound.airise.data.DTOs.CreateUserDTO
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.User
+import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserOnboardingData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -28,14 +29,14 @@ class UserClient(
      * API call to register a new user.
      * We simply send the firebaseUid in the createUserRequest.
      */
-    suspend fun insertUser(firebaseUser: FirebaseUser): Result<User, NetworkError> {
+    suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.post("$baseUrl/User") {
                 contentType(ContentType.Application.Json)
-                setBody(CreateUserDTO(firebaseUid))
+                setBody(CreateUserDTO(firebaseUid, email))
                 bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
@@ -47,6 +48,34 @@ class UserClient(
         return when (response.status.value) {
             201 -> {
                 val registeredUser = response.body<User>()
+                Result.Success(registeredUser)
+            }
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    suspend fun insertUserData(firebaseUser: FirebaseUser, userData: UserData): Result<UserData, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.put("$baseUrl/UserData") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+                parameter("firebaseUid", firebaseUid)
+                setBody(userData)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            201 -> {
+                val registeredUser = response.body<UserData>()
                 Result.Success(registeredUser)
             }
             400 -> Result.Error(NetworkError.BAD_REQUEST)

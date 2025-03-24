@@ -10,6 +10,10 @@ namespace AiRise.Models.User
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
+        [BsonElement("firebaseUid")]
+        [JsonPropertyName("firebaseUid")]
+        public string FirebaseUid { get; set; } = null!;
+
         [BsonElement("message_history")]
         [JsonPropertyName("message_history")]
         public List<ChatMessage> MessageHistory { get; set; } = new List<ChatMessage>();

@@ -17,9 +17,10 @@ namespace AiRise.Services
             _userDataCollection = mongoDBService.GetCollection<UserData>("user.data");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userData = new UserData();
+            userData.FirebaseUid = firebaseUid;
             await _userDataCollection.InsertOneAsync(userData);
             return userData.Id;
         }
@@ -32,13 +33,7 @@ namespace AiRise.Services
 
         public async Task<bool> UpdateUserDataAsync(string firebaseUid, UserData updatedData)
         {
-            var user = await _userCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
-            if (user == null || string.IsNullOrEmpty(user.Data))
-            {
-                return false; // User not found or no UserData reference
-            }
-
-            var filter = Builders<UserData>.Filter.Eq(u => u.Id, user.Data);
+            var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
             var update = Builders<UserData>.Update
                 .Set(u => u.FirstName, updatedData.FirstName)
                 .Set(u => u.LastName, updatedData.LastName)

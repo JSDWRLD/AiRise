@@ -17,9 +17,10 @@ namespace AiRise.Services
             _userFriendsCollection = mongoDBService.GetCollection<UserFriends>("user.friends");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userFriends = new UserFriends();
+            userFriends.FirebaseUid = firebaseUid;
             await _userFriendsCollection.InsertOneAsync(userFriends);
             return userFriends.Id;
         }

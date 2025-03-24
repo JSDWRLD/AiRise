@@ -40,7 +40,7 @@ class AuthService(
 
             val firebaseUser = result.user
             if (firebaseUser != null) {
-                userClient.insertUser(firebaseUser)
+                userClient.insertUser(firebaseUser, email)
             }
 
             AuthResult.Success

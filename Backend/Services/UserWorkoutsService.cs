@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userWorkoutsCollection = mongoDBService.GetCollection<UserWorkouts>("user.workouts");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userWorkouts = new UserWorkouts();
+            userWorkouts.FirebaseUid = firebaseUid;
             await _userWorkoutsCollection.InsertOneAsync(userWorkouts);
             return userWorkouts.Id;
         }

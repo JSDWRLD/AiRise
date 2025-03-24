@@ -52,7 +52,8 @@ public class UserController : Controller
         {
             var user = new User
             {
-                FirebaseUid = request.FirebaseUid
+                FirebaseUid = request.FirebaseUid,
+                Email = request.Email
             };
 
             await _userService.CreateAsync(user);
