@@ -17,9 +17,10 @@ namespace AiRise.Services
             _userSettingsCollection = mongoDBService.GetCollection<UserSettings>("user.settings");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userSettings = new UserSettings();
+            userSettings.FirebaseUid = firebaseUid;
             await _userSettingsCollection.InsertOneAsync(userSettings);
             return userSettings.Id;
         }

@@ -49,16 +49,16 @@ namespace AiRise.Services
 
         public async Task CreateAsync(User user)
         {
-            user.Friends = await _userFriendsService.CreateAsync();
-            user.Data = await _userDataService.CreateAsync();
-            user.Settings = await _userSettingsService.CreateAsync();
-            user.Goals = await _userGoalsService.CreateAsync();
-            user.Workouts = await _userWorkoutsService.CreateAsync();
-            user.MealPlan = await _userMealPlanService.CreateAsync();
-            user.Progress = await _userProgressService.CreateAsync();
-            user.Challenges = await _userChallengesService.CreateAsync();
-            user.HealthData = await _userHealthDataService.CreateAsync();
-            user.ChatHistory = await _userChatHistoryService.CreateAsync();
+            user.Friends = await _userFriendsService.CreateAsync(user.FirebaseUid);
+            user.Data = await _userDataService.CreateAsync(user.FirebaseUid);
+            user.Settings = await _userSettingsService.CreateAsync(user.FirebaseUid);
+            user.Goals = await _userGoalsService.CreateAsync(user.FirebaseUid);
+            user.Workouts = await _userWorkoutsService.CreateAsync(user.FirebaseUid);
+            user.MealPlan = await _userMealPlanService.CreateAsync(user.FirebaseUid);
+            user.Progress = await _userProgressService.CreateAsync(user.FirebaseUid);
+            user.Challenges = await _userChallengesService.CreateAsync(user.FirebaseUid);
+            user.HealthData = await _userHealthDataService.CreateAsync(user.FirebaseUid);
+            user.ChatHistory = await _userChatHistoryService.CreateAsync(user.FirebaseUid);
 
             await _userCollection.InsertOneAsync(user);
             

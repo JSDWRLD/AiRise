@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userProgressCollection = mongoDBService.GetCollection<UserProgress>("user.progress");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userProgress = new UserProgress();
+            userProgress.FirebaseUid = firebaseUid;
             await _userProgressCollection.InsertOneAsync(userProgress);
             return userProgress.Id;
         }

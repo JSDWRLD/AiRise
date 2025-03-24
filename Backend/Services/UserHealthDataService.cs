@@ -13,9 +13,10 @@ namespace AiRise.Services
             _userHealthDataCollection = mongoDBService.GetCollection<UserHealthData>("user.healthdata");
         }
 
-        public async Task<string> CreateAsync()
+        public async Task<string> CreateAsync(string firebaseUid)
         {
             var userHealthData = new UserHealthData();
+            userHealthData.FirebaseUid = firebaseUid;
             await _userHealthDataCollection.InsertOneAsync(userHealthData);
             return userHealthData.Id;
         }

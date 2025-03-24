@@ -10,6 +10,10 @@ namespace AiRise.Models.User
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
+        [BsonElement("firebaseUid")]
+        [JsonPropertyName("firebaseUid")]
+        public string FirebaseUid { get; set; } = null!;
+
         [BsonElement("profile_picture_url")]
         [JsonPropertyName("profile_picture_url")]
         public string PictureUrl { get; set; } = string.Empty;
