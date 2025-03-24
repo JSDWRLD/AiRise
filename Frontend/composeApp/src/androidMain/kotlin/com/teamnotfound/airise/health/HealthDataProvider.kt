@@ -17,14 +17,16 @@ actual class HealthDataProvider(private val activity: ComponentActivity) {
     private val kHealth = KHealth(activity)
 
     actual suspend fun requestPermissions(): Boolean {
-        val permissions = setOf(
-            KHPermission.StepCount(read = true),
-            KHPermission.HeartRate(read = true)
+
+        val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
+            KHPermission.ActiveCaloriesBurned(read = true, write = false),
+            KHPermission.HeartRate(read = true, write = false),
+            KHPermission.StepCount(read = true, write = false)
+            // Add as many requests as you want
         )
 
-        val result = kHealth.requestPermissions(*permissions.toTypedArray())
-
-        return result.any { it is KHPermission.HeartRate && it.read == true }
+        // Return true if at least one permission was granted
+        return permissionResponse.isNotEmpty()
     }
 
     actual suspend fun getHealthData(): HealthData = withContext(Dispatchers.Default) {
