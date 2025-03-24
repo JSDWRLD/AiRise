@@ -1,7 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using AiRise.Services;
-using AiRise.Models;
+using AiRise.Models.User;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AiRise.Controllers;
@@ -70,18 +70,6 @@ public class UserController : Controller
         await _userService.UpdateFirebaseUidAsync(id, firebaseUid);
         return NoContent();
     }
-
-    [HttpPut("{firebaseUid}")]
-    public async Task<IActionResult> UpdateUserData(string firebaseUid, [FromBody] UserData updatedData)
-    {
-        bool success = await _userService.UpdateUserDataAsync(firebaseUid, updatedData);
-
-        if (!success)
-            return NotFound(new { message = "UserData not found or update failed" });
-
-        return Ok(new { message = "UserData updated successfully" });
-    }
-
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(string id) 

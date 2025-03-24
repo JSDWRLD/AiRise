@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace AiRise.Models
+namespace AiRise.Models.User
 {
     public class UserProgress
     {

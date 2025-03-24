@@ -2,7 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 
-namespace AiRise.Models
+namespace AiRise.Models.User
 {
     public class User
     {
