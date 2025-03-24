@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 // Shared viewmodel for IOS and Android
 class HealthDashboardViewModel(
-    // Saving provider and scope
+    // Define provider here, will determine IOS or Android
     private val provider: HealthDataProvider,
     private val scope: CoroutineScope = MainScope()
 ) {
@@ -23,10 +23,12 @@ class HealthDashboardViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    // Main logic for requesting permissions
     fun requestAndLoadData() {
         _isLoading.value = true
         scope.launch {
             try {
+                // Will call requestPermissions function dependant on OS
                 val granted = provider.requestPermissions()
                 if (!granted) {
                     _error.value = "Permission denied by user."

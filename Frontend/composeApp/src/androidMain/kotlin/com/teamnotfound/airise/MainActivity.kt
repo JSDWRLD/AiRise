@@ -25,13 +25,15 @@ class MainActivity : ComponentActivity() {
                 container = AppContainer(
                     userClient = remember {
                         UserClient(createHttpClient(OkHttp.create()))
-                    }
+                    },
+                    kHealth = kHealth
                 )
             )
         }
     }
 }
 
+/*
 @Preview
 @Composable
 fun AppAndroidPreview() {
@@ -39,8 +41,9 @@ fun AppAndroidPreview() {
         container = AppContainer(
             userClient = remember {
                 UserClient(createHttpClient(io.ktor.client.engine.okhttp.OkHttp.create()))
-            }
+            },
+            kHealth = KHealthPreview()
         )
     )
-
 }
+*/

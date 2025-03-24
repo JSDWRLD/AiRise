@@ -129,7 +129,7 @@ fun App(container: AppContainer) {
 
                 // Health Dashboard
                 composable(route = AppScreen.HEALTH_DASHBOARD.name) {
-                    HealthDashboardScreen()
+                    HealthDashboardScreen(kHealth = container.kHealth)
                 }
             }
         }

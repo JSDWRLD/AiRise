@@ -6,11 +6,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.khealth.KHealth
 
 @Composable
-fun HealthDashboardScreen() {
-    val provider = rememberHealthDataProvider()
-
+fun HealthDashboardScreen(kHealth: KHealth) {
+    val provider = remember { HealthDataProvider(kHealth) }
     val viewModel = remember { HealthDashboardViewModel(provider) }
 
     val healthData by viewModel.healthData.collectAsState()
@@ -19,6 +19,9 @@ fun HealthDashboardScreen() {
 
     viewModel.requestAndLoadData()
 
+    LaunchedEffect(Unit) {
+        viewModel.requestAndLoadData()
+    }
 
     Column(
         modifier = Modifier
