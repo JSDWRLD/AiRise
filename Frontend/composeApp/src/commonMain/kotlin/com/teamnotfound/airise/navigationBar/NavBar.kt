@@ -1,11 +1,17 @@
 package com.teamnotfound.airise.navigationBar
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 
@@ -42,13 +48,42 @@ fun BottomNavigationBar(navController: NavHostController){
         backgroundColor = Color.Black,
         contentColor = Color.White,
         elevation = 5.dp,
-        modifier = Modifier.height(55.dp)
+        modifier = Modifier
+            .height(90.dp)
+            .drawBehind {
+                drawLine(
+                    color = Color(0xFFFFA500),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 4f
+                )
+            }
     ){
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         items.forEach { screen ->
             BottomNavigationItem(
-                icon = { Icon(screen.icon, contentDescription = screen.title) },
-                label = { Text(screen.title) },
+                icon = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(top = 20.dp)
+                    ) {
+                        Icon(
+                            imageVector = screen.icon,
+                            contentDescription = screen.title,
+                            modifier = Modifier.size(30.dp) //icon sizing
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = screen.title,
+                            fontSize = 11.sp, //label sizing
+                            maxLines = 1
+                        )
+                    }
+                },
+
                 selected = currentRoute == screen.route,
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,

@@ -133,9 +133,7 @@ fun App(container: AppContainer) {
                 composable(
                     route = AppScreen.HOMESCREEN.name,
                 ) {
-                    HomeScreen(
-                        "User",
-                        onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
+                    HomeScreen(email = "User")
                 }
 
                 //Navigation Bar and overview screen
