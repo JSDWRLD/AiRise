@@ -11,10 +11,9 @@ import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 
 
-actual class HealthDataProvider {
+actual class HealthDataProvider actual constructor(private val kHealth: KHealth) {
 
-    private val kHealth = KHealth()
-
+    // Request perm logic
     actual suspend fun requestPermissions(): Boolean {
 
         val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
@@ -29,23 +28,22 @@ actual class HealthDataProvider {
     }
 
     actual suspend fun getHealthData(): HealthData = withContext(Dispatchers.Default) {
+        // Init Start and End time
         val startTime = Clock.System.now().minus(1.days)
         val endTime = Clock.System.now()
 
+        // Reading Records
         val steps = kHealth.readRecords(KHReadRequest.StepCount(startTime, endTime))
         val heartRate = kHealth.readRecords(KHReadRequest.HeartRate(startTime, endTime))
 
+        // changing KHRecord to int
         val totalSteps = steps.toString().toInt()
         val totalHeartRate = heartRate.toString().toInt()
 
+        // Passing to Health Data object for UI
         object : HealthData {
             override val steps = totalSteps
             override val heartRate = totalHeartRate
         }
     }
-}
-
-@Composable
-actual fun rememberHealthDataProvider(): HealthDataProvider {
-    return remember { HealthDataProvider() }
 }

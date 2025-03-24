@@ -14,8 +14,7 @@ import kotlin.time.Duration.Companion.days
 
 actual class HealthDataProvider actual constructor(private val kHealth: KHealth) {
 
-    //private val kHealth = KHealth(activity)
-
+    // Request perm logic
     actual suspend fun requestPermissions(): Boolean {
 
         val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
