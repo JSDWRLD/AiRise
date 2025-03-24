@@ -1,5 +1,4 @@
 using AiRise.Models.User;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Bson;
 

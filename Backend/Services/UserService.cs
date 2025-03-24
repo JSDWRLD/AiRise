@@ -2,9 +2,10 @@ using AiRise.Models.User;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using AiRise.Services;
 
-namespace AiRise.Services{
-
+namespace AiRise.Services
+{
     public class UserService 
     {
         private readonly IMongoCollection<User> _userCollection;
