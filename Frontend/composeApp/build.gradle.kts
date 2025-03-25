@@ -57,6 +57,7 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
+
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
             implementation(libs.peekaboo.ui)
@@ -110,6 +111,7 @@ dependencies {
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.ui.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.firebase.common.ktx)
     debugImplementation(compose.uiTooling)
