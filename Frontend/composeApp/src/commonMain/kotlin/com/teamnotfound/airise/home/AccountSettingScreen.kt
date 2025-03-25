@@ -37,12 +37,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
-import com.teamnotfound.airise.data.serializable.UserOnboarding
+import com.teamnotfound.airise.data.serializable.UserData
 import androidx.compose.ui.layout.ContentScale
 import com.preat.peekaboo.image.picker.toImageBitmap
 
 @Composable
-fun AccountSettingScreen(user: UserOnboarding, navController: NavController) {
+fun AccountSettingScreen(user: UserData, navController: NavController) {
     val scope = rememberCoroutineScope()
     val singleImagePicker = rememberImagePickerLauncher(
         selectionMode = SelectionMode.Single,

@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.googleGmsGoogleServices)
 }
 
 kotlin {
@@ -56,6 +57,8 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
+            implementation(libs.googleid)
+            implementation(libs.firebase.auth)
             implementation(libs.peekaboo.ui)
             implementation(libs.peekaboo.image.picker)
         }
@@ -75,6 +78,7 @@ kotlin {
 }
 
 android {
+    // Update in firebase if change
     namespace = "com.teamnotfound.airise"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
@@ -105,7 +109,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.firebase.common.ktx)
     debugImplementation(compose.uiTooling)
 }
 
