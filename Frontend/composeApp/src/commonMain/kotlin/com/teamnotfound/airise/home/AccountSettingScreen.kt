@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,21 +36,27 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import com.teamnotfound.airise.data.serializable.UserData
 import androidx.compose.ui.layout.ContentScale
 import com.preat.peekaboo.image.picker.toImageBitmap
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 
 @Composable
 fun AccountSettingScreen(user: UserData, navController: NavController) {
     val scope = rememberCoroutineScope()
+    var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val singleImagePicker = rememberImagePickerLauncher(
         selectionMode = SelectionMode.Single,
         scope = scope,
         onResult = { byteArrays ->
             byteArrays.firstOrNull()?.let {
-                user.profilePicture.value = listOf(it.toImageBitmap())
+                images = listOf(it.toImageBitmap())
             }
         }
     )
@@ -105,7 +112,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     .size(200.dp)
                     .clip(RoundedCornerShape(12.dp))
             ) {
-                if (user.profilePicture.value.isEmpty()) {
+                if (images.isEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "No Profile Picture",
@@ -120,7 +127,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp),
                     ) {
-                        items(user.profilePicture.value) { image ->
+                        items(images) { image ->
                             Image(
                                 bitmap = image,
                                 contentDescription = "Selected Image",

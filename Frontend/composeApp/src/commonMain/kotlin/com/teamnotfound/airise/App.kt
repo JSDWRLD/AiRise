@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-//import com.google.firebase.Firebase
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.auth.login.LoginViewModel

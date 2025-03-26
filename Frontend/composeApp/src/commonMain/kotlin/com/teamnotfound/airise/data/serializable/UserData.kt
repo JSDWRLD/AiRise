@@ -26,8 +26,7 @@ class UserData {
     var dobMonth: MutableState<Int> = mutableStateOf(0)
     var dobYear: MutableState<Int> = mutableStateOf(0)
     var activityLevel: MutableState<String> = mutableStateOf("")
-    var profilePicture: MutableState<List<ImageBitmap>> = mutableStateOf(listOf())
-    
+
     // Convert to a serializable data class for MongoDB storage
     fun toData(): UserOnboardingData = UserOnboardingData(
         firstName = firstName.value, 
