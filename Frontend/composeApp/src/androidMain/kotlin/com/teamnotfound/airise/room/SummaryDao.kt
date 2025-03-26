@@ -7,10 +7,10 @@ import androidx.room.Query
 @Dao
 interface SummaryDao{
     @Insert
-    suspend fun insertSummary(summary: SummaryEntitiy): long
+    fun insertSummary(summary: SummaryEntity): Long
 
-    @Query("SELECT * FROM Summaries WHERE userId = :userId ORDER BY timestamp DESC")
-    suspend fun getSummariesForUser(userId: Int): List<SummaryEntity>
+    @Query("SELECT * FROM summaries WHERE userId = :userId ORDER BY timestamp DESC")
+    fun getSummariesForUser(userId: Int): List<SummaryEntity>
 
 
 
