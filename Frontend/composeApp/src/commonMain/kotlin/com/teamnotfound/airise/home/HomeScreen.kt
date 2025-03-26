@@ -35,28 +35,26 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
+import androidx.navigation.NavController
+import androidx.compose.material.Scaffold
+import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel,
-    email: String,
-    onContinue: () -> Unit
-) {
-    LaunchedEffect(Unit){
-        viewModel.onEvent(HomeUiEvent.GenerateOverview)
-    }
+fun HomeScreen(viewModel: HomeViewModel, email: String) {
     val uiState = viewModel.uiState.collectAsState()
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF062022)),
-        contentAlignment = Alignment.Center
-    ) {
-        val username = email.substringBefore("@")
+    val bottomNavController = rememberNavController()
 
+    Scaffold(
+        backgroundColor = Color(0xFF062022),
+        bottomBar = {
+            BottomNavigationBar(navController = bottomNavController)
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(innerPadding)
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -67,12 +65,6 @@ fun HomeScreen(
                     isLoading = uiState.value.isOverviewLoading
                 )
 
-                uiState.value.errorMessage?.let { error ->
-                    Text(
-                        text = error
-                    )
-                }
-            }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Welcome $username!",
@@ -90,7 +82,7 @@ fun HomeScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(250.dp))
 
             FitnessSummarySection(
                 selectedTimeframe = uiState.value.selectedTimeFrame,
@@ -129,6 +121,8 @@ fun TodaysOverview(overview: String, isLoading: Boolean) {
         }
     }
 }
+
+
 
 //displays stats based on user time selection and includes dropdown
 @Composable
@@ -189,14 +183,14 @@ fun FitnessSummarySection(
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(DeepBlue)
+                    modifier = Modifier.background(Color(0xFF1B424B))
                 ) {
                     listOf("Daily", "Weekly", "Monthly", "Yearly").forEach { timeframe ->
                         DropdownMenuItem(onClick = {
                             onTimeFrameSelected(timeframe)
                             expanded = false
                         }) {
-                            Text(text = timeframe, color = White)
+                            Text(text = timeframe, color = Color.White)
                         }
                     }
                 }
@@ -209,7 +203,7 @@ fun FitnessSummarySection(
         Text(
             text = formattedDate,
             fontSize = 14.sp,
-            color = Silver
+            color = Color.Gray
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -236,7 +230,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Silver, RoundedCornerShape(16.dp))
+            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
             .background(Color(0xFF062022))
             .padding(16.dp),
         horizontalAlignment = Alignment.Start

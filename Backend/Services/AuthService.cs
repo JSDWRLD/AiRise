@@ -1,4 +1,4 @@
-using AiRise.Models;
+using AiRise.Models.User;
 using MongoDB.Driver;
 using BCrypt.Net;
 using System.Text.RegularExpressions;

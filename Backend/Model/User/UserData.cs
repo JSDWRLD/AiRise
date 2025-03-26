@@ -2,13 +2,17 @@ using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace AiRise.Models
+namespace AiRise.Models.User
 {
     public class UserData
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
+
+        [BsonElement("firebaseUid")]
+        [JsonPropertyName("firebaseUid")]
+        public string FirebaseUid { get; set; } = null!;
 
         [BsonElement("firstName")]
         [JsonPropertyName("firstName")]

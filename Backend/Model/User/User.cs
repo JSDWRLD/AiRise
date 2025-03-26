@@ -2,7 +2,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 
-namespace AiRise.Models
+namespace AiRise.Models.User
 {
     public class User
     {
@@ -14,18 +14,27 @@ namespace AiRise.Models
         [JsonPropertyName("firebaseUid")]
         public string FirebaseUid { get; set; } = null!;
 
+        [BsonElement("email")]
+        [JsonPropertyName("email")]
+        public string Email { get; set; } = null!;
+
         [BsonElement("streak")]
         [JsonPropertyName("streak")]
         public int Streak { get; set; } = 0;
 
         // Store references to other collection objects via their id
+        [BsonElement("user_friends_ref")]
+        [JsonPropertyName("user_friends_ref")]
+        public string? Friends { get; set; } = null;
+
+        // Store references to other collection objects via their id
         [BsonElement("user_data_ref")]
         [JsonPropertyName("user_data_ref")]
-        public string? UserData { get; set; } = null;
+        public string? Data { get; set; } = null;
 
         [BsonElement("user_settings_ref")]
         [JsonPropertyName("user_settings_ref")]
-        public string? UserSettings { get; set; } = null;
+        public string? Settings { get; set; } = null;
 
         [BsonElement("goals_ref")]
         [JsonPropertyName("goals_ref")]

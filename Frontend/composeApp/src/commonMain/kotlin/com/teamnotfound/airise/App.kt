@@ -136,7 +136,7 @@ fun App(container: AppContainer) {
                 ) {
                     HomeScreen(
                         HomeViewModel(),
-                        "User",
+                        email = "User",
                         onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
                 }
 

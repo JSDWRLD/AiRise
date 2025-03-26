@@ -16,6 +16,16 @@ public class Program
         builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
         builder.Services.AddSingleton<MongoDBService>();
         builder.Services.AddSingleton<UserService>();
+        builder.Services.AddSingleton<UserDataService>();
+        builder.Services.AddSingleton<UserFriendsService>();
+        builder.Services.AddSingleton<UserSettingsService>();
+        builder.Services.AddSingleton<UserGoalsService>();
+        builder.Services.AddSingleton<UserWorkoutsService>();
+        builder.Services.AddSingleton<UserMealPlanService>();
+        builder.Services.AddSingleton<UserProgressService>();
+        builder.Services.AddSingleton<UserChallengesService>();
+        builder.Services.AddSingleton<UserHealthDataService>();
+        builder.Services.AddSingleton<UserChatHistoryService>();
 
         builder.Services.AddControllers();
 
@@ -23,7 +33,7 @@ public class Program
         DotNetEnv.Env.Load();
         builder.Configuration.AddEnvironmentVariables();
 
-        // Enable JWT Authentication
+        // Enable JWT Authentication Google
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {

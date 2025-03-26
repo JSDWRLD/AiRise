@@ -47,7 +47,7 @@ fun ThankYouScreen(navController: NavController, newUser: UserData){
             Text(text = "Fitness Level: ${newUser.fitnessLevel.value}", fontSize = 20.sp)
             Text(text = "Workout Length: ${newUser.workoutLength.value}", fontSize = 20.sp)
             Text(text = "Equipment Access: ${newUser.equipmentAccess.value}", fontSize = 20.sp)
-            Text(text = "Workout Days: ${newUser.workoutDays.value}", fontSize = 20.sp)
+            Text(text = "Workout Days: ${newUser.workoutDays.toString()}", fontSize = 20.sp)
             Text(text = "Workout Time: ${newUser.workoutTime.value}", fontSize = 20.sp)
             Text(text = "Dietary Goal: ${newUser.dietaryGoal.value}", fontSize = 20.sp)
             Text(text = "Workout Restrictions: ${newUser.workoutRestrictions.value}", fontSize = 20.sp)

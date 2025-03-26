@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateUserDTO (
-    val firebaseUid: String
+    val firebaseUid: String,
+    val email: String
 )
