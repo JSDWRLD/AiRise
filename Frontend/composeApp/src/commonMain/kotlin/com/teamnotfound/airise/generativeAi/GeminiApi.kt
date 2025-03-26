@@ -10,11 +10,7 @@ import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.Flow
 
 class GeminiApi {
-    companion object {
-        const val PROMPT_TODAYS_OVERVIEW = "Wrtie a 5 sentence fitness summary for today to a user using fake data from the perspective a of a coach."
-    }
-
-
+    private val PROMPT_TODAYS_OVERVIEW = "With a 100 word limit and , write a fitness summary for today to a user using fake data from the perspective a of a coach."
     private val apiKey = BuildKonfig.GEMINI_API_KEY
 
 
@@ -30,6 +26,9 @@ class GeminiApi {
 
     suspend fun generateContent(prompt: String): GenerateContentResponse {
         return generativeModel.generateContent(prompt)
+    }
+    suspend fun generateTodaysOverview(): GenerateContentResponse {
+        return  generativeModel.generateContent(PROMPT_TODAYS_OVERVIEW)
     }
 
     fun generateContent(prompt: String, imageData: ByteArray): Flow<GenerateContentResponse> {

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.teamnotfound.airise.util.White
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
@@ -32,9 +33,19 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.Fill
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun HomeScreen(email: String,  onContinue: () -> Unit) {
+fun HomeScreen(
+    viewModel: HomeViewModel,
+    email: String,
+    onContinue: () -> Unit
+) {
+    LaunchedEffect(Unit){
+        viewModel.onEvent(HomeUiEvent.GenerateOverview)
+    }
+    val uiState = viewModel.uiState.collectAsState()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,7 +61,18 @@ fun HomeScreen(email: String,  onContinue: () -> Unit) {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Column {
+                TodaysOverview(
+                    overview = uiState.value.overview,
+                    isLoading = uiState.value.isOverviewLoading
+                )
 
+                uiState.value.errorMessage?.let { error ->
+                    Text(
+                        text = error
+                    )
+                }
+            }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Welcome $username!",
@@ -70,51 +92,54 @@ fun HomeScreen(email: String,  onContinue: () -> Unit) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            FitnessSummarySection()
+            FitnessSummarySection(
+                selectedTimeframe = uiState.value.selectedTimeFrame,
+                formattedDate = uiState.value.formattedDateRange,
+                calories = uiState.value.calories,
+                steps = uiState.value.steps,
+                heartRate = uiState.value.heartRate,
+                onTimeFrameSelected = { timeFrame ->
+                    viewModel.onEvent(HomeUiEvent.SelectedTimeFrameChanged(timeFrame))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun TodaysOverview(overview: String, isLoading: Boolean) {
+    Column {
+        Text(
+            text = "Today's Overview",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = White
+        )
+        if(isLoading){
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                color = DeepBlue)
+        }else{
+            Text(
+                text = overview,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Silver
+            )
         }
     }
 }
 
 //displays stats based on user time selection and includes dropdown
 @Composable
-fun FitnessSummarySection() {
-    var selectedTimeframe by remember { mutableStateOf("Daily") }
-    val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-
-    //fill in with API info???
-    var calories by remember { mutableStateOf("--") }
-    var steps by remember { mutableStateOf("--") }
-    var heartRate by remember { mutableStateOf("--") }
-
-    //fill in with API info???
-    LaunchedEffect(selectedTimeframe) {
-        calories = ""   // API data??
-        steps = ""      // API data??
-        heartRate = ""  // API data??
-    }
-
-    // date Formatting based on time selected
-    val formattedDate = when (selectedTimeframe) {
-        "Daily" -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-
-        "Weekly" -> {
-            val weekStart = currentDate.minus(DatePeriod(days = 6))
-            "${weekStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${weekStart.dayOfMonth} - ${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-        }
-
-        "Monthly" -> {
-            val monthStart = LocalDate(currentDate.year, currentDate.month, 1)
-            "${monthStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${monthStart.dayOfMonth} - ${currentDate.dayOfMonth}, ${currentDate.year}"
-        }
-
-        "Yearly" -> {
-            val yearStart = LocalDate(currentDate.year, Month.JANUARY, 1)
-            "${yearStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${yearStart.dayOfMonth} - ${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-        }
-
-        else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-    }
-
+fun FitnessSummarySection(
+    selectedTimeframe: String,
+    formattedDate: String,
+    calories: Int,
+    steps: Int,
+    heartRate: Int,
+    onTimeFrameSelected: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,14 +189,14 @@ fun FitnessSummarySection() {
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(Color(0xFF1B424B))
+                    modifier = Modifier.background(DeepBlue)
                 ) {
                     listOf("Daily", "Weekly", "Monthly", "Yearly").forEach { timeframe ->
                         DropdownMenuItem(onClick = {
-                            selectedTimeframe = timeframe
+                            onTimeFrameSelected(timeframe)
                             expanded = false
                         }) {
-                            Text(text = timeframe, color = Color.White)
+                            Text(text = timeframe, color = White)
                         }
                     }
                 }
@@ -184,7 +209,7 @@ fun FitnessSummarySection() {
         Text(
             text = formattedDate,
             fontSize = 14.sp,
-            color = Color.Gray
+            color = Silver
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -211,7 +236,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
+            .border(1.dp, Silver, RoundedCornerShape(16.dp))
             .background(Color(0xFF062022))
             .padding(16.dp),
         horizontalAlignment = Alignment.Start

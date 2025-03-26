@@ -22,6 +22,7 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 
@@ -134,6 +135,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
+                        HomeViewModel(),
                         "User",
                         onContinue = {navController.navigate(AppScreen.NAVBAR.name)})
                 }
