@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.googleGmsGoogleServices)
+    alias(libs.plugins.kapt)
 }
 
 kotlin {
@@ -111,6 +112,10 @@ dependencies {
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.android)
     debugImplementation(compose.uiTooling)
+
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+    "kapt"("androidx.room:room-compiler:2.5.2")
 }
 
 
