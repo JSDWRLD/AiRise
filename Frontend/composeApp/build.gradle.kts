@@ -113,9 +113,9 @@ dependencies {
     implementation(libs.androidx.ui.android)
     debugImplementation(compose.uiTooling)
 
-    implementation("androidx.room:room-runtime:2.5.2")
-    implementation("androidx.room:room-ktx:2.5.2")
-    "kapt"("androidx.room:room-compiler:2.5.2")
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    "kapt"(libs.room.compiler)
 }
 
 
