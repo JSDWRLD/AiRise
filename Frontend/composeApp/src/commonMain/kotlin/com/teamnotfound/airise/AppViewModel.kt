@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.teamnotfound.airise.cache.UserCache
 
-class AppViewModel(private val authService: AuthService) : ViewModel() {
+class AppViewModel(private val authService: AuthService, private val userCache: UserCache) : ViewModel() {
     private val _isUserLoggedIn = MutableStateFlow(false)
     val isUserLoggedIn = _isUserLoggedIn.asStateFlow()
 
@@ -26,6 +27,7 @@ class AppViewModel(private val authService: AuthService) : ViewModel() {
         viewModelScope.launch {
             val result = authService.authenticate(email, password)
             if (result is AuthResult.Success) {
+                userCache.cacheUserData(result)
                 _isUserLoggedIn.update { true }
             }
         }

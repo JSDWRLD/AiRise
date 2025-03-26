@@ -35,7 +35,7 @@ fun App(container: AppContainer) {
     userClient = container.userClient
     )
 
-    val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
+    val appViewModel: AppViewModel = viewModel { AppViewModel(authService, container.userCache) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
     LaunchedEffect(isUserLoggedIn) {
