@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.googleGmsGoogleServices)
 }
 
 kotlin {
@@ -56,6 +57,8 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
+            implementation(libs.googleid)
+            implementation(libs.firebase.auth)
             implementation(libs.khealth)
         }
         androidMain.dependencies {
@@ -76,6 +79,7 @@ kotlin {
 }
 
 android {
+    // Update in firebase if change
     namespace = "com.teamnotfound.airise"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
@@ -107,6 +111,8 @@ dependencies {
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.khealth)
+    implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.ui.android)
     debugImplementation(compose.uiTooling)
 }
 
