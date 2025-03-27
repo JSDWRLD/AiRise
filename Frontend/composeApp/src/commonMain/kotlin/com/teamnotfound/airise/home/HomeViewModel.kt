@@ -2,6 +2,7 @@ package com.teamnotfound.airise.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,14 +14,18 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.random.Random
 
-class HomeViewModel() :  ViewModel(){
+class HomeViewModel(private val email: String) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
-    private val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    private val todaysHealthData = HealthData(450, 7550, 115) //use api when ready to get real data
+    private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     init {
+        generateGreeting()
+        getUsername()
         generateOverview()
         loadFitnessSummary()
     }
@@ -37,11 +42,26 @@ class HomeViewModel() :  ViewModel(){
             }
         }
     }
+    private fun getUsername(){
+        _uiState.value = _uiState.value.copy(username = email.substringBefore("@"))
+    }
+    private fun generateGreeting(){
+        val generalGreetings = arrayOf(
+            "Hello",
+            "Hi",
+            "Hey",
+            "Welcome",
+            "Greetings",
+            "Howdy",
+        )
+        val randomIndex = Random.nextInt(generalGreetings.size)
+        _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
+    }
     private fun generateOverview() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isOverviewLoading = true, errorMessage = null)
             try {
-                val result = geminiApi.generateTodaysOverview()
+                val result = geminiApi.generateTodaysOverview(healthData = todaysHealthData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoading = false,
@@ -58,6 +78,7 @@ class HomeViewModel() :  ViewModel(){
     }
     private fun loadFitnessSummary() {
         // date Formatting based on time selected
+        val currentDate = currentDateTime.date
         val formattedDate = when (_uiState.value.selectedTimeFrame) {
             "Daily" -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
 
@@ -79,11 +100,10 @@ class HomeViewModel() :  ViewModel(){
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
+        val updatedHealthData = HealthData(450, 7550, 115)
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
-            calories = 500,
-            steps = 4200,
-            heartRate = 120,
+            healthData = updatedHealthData,
             isFitnessSummaryLoading = false
         )
     }
