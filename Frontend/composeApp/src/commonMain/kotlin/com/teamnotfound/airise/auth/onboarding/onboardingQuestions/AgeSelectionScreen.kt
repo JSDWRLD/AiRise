@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +18,7 @@ import com.teamnotfound.airise.data.serializable.UserData
  * Page to select user date of birth
  */
 @Composable
-fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
+fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
     // list ranges
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
@@ -31,10 +29,6 @@ fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
             }
         }
     }
-    //
-    val showDialog = remember { mutableStateOf(false) }
-    val nextScreen = OnboardingScreens.ActivityLevel.route
-
     // body
     Box(
         modifier = Modifier
@@ -48,25 +42,6 @@ fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
-                title = {Text("Fitness Goal (12/13)")},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFCE5100)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen) }) {
-                        Text("Skip", color = Color(0xFFCE5100))
-                    }
-                }
-            )
             // title
             Text(
                 text = "What Is Your Date of Birth?",
@@ -107,9 +82,7 @@ fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
         }
         // continue button
         Button(
-            onClick = {
-                showDialog.value = true
-                navController.navigate(nextScreen)},
+            onClick = { navController.navigate(nextRoute) },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -122,27 +95,6 @@ fun AgeSelectionScreen(navController: NavController, newUser: UserData) {
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }
-    }
-
-    // Temp display to show selected Date of Birth
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showDialog.value = false },
-            title = { Text("Your Date of Birth Selection") },
-            text = {
-                Text("Date of Birth: ${newUser.dobYear.value}/${newUser.dobMonth.value}/${newUser.dobDay.value}")
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDialog.value = false
-                        navController.popBackStack()
-                    }
-                ) {
-                    Text("OK")
-                }
-            }
-        )
     }
 }
 

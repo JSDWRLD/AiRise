@@ -21,9 +21,9 @@ fun AccountSettings() {
 fun AccountSetting(navController: NavHostController, user: UserData) {
     NavHost(navController = navController, startDestination = AccountSettingScreens.AccountSettings.route) {
         composable(AccountSettingScreens.AccountSettings.route) { AccountSettingScreen(user, navController) }
-        composable(AccountSettingScreens.DOBSelect.route) { AgeSelectionScreen(navController, user) }
-        composable(AccountSettingScreens.WeightSelect.route) { WeightSelectionScreen(navController, user) }
-        composable(AccountSettingScreens.HeightSelect.route) { HeightSelectionScreen(navController, user) }
+        composable(AccountSettingScreens.DOBSelect.route) { AgeSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
+        composable(AccountSettingScreens.WeightSelect.route) { WeightSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
+        composable(AccountSettingScreens.HeightSelect.route) { HeightSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
         composable(AccountSettingScreens.AiPersonality.route) { AiPersonalityScreen(user, navController) }
     }
 }
