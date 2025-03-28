@@ -22,6 +22,7 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.home.AccountSettings
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 
@@ -141,6 +142,11 @@ fun App(container: AppContainer) {
                     val bottomNavController = rememberNavController()
                     NavBar(navController = bottomNavController)
                 }
+
+                // account settings
+                composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
+                    AccountSettings()
+                }
             }
         }
     }
@@ -155,5 +161,6 @@ enum class AppScreen {
     RECOVERY_SENT,
     ONBOARD,
     HOMESCREEN,
-    NAVBAR
+    NAVBAR,
+    ACCOUNT_SETTINGS
 }

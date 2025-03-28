@@ -61,6 +61,8 @@ kotlin {
 
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
+            implementation(libs.peekaboo.ui)
+            implementation(libs.peekaboo.image.picker)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -111,6 +113,9 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.android)
+    implementation(libs.androidx.ui.text.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
