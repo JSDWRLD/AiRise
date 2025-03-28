@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
-import com.teamnotfound.airise.network.AppContainer
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.network.createHttpClient
 import io.ktor.client.engine.okhttp.OkHttp

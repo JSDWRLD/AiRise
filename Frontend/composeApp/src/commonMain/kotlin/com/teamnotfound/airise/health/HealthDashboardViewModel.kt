@@ -1,47 +1,57 @@
 package com.teamnotfound.airise.health
 
-import com.teamnotfound.airise.health.HealthData
-import com.teamnotfound.airise.health.HealthDataProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 
-// Shared viewmodel for IOS and Android
 class HealthDashboardViewModel(
-    // Define provider here, will determine IOS or Android
-    private val provider: HealthDataProvider,
-    private val scope: CoroutineScope = MainScope()
-) {
+    private val provider: HealthDataProvider
+) : ViewModel() {
+
     private val _healthData = MutableStateFlow<HealthData?>(null)
     val healthData: StateFlow<HealthData?> = _healthData
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // Main logic for requesting permissions
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
+    private var hasRequestedPermissions = false
+
     fun requestAndLoadData() {
-        _isLoading.value = true
-        scope.launch {
+        if (_isLoading.value) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
             try {
-                // Will call requestPermissions function dependant on OS
-                val granted = provider.requestPermissions()
-                if (!granted) {
-                    _error.value = "Permission denied by user."
-                    return@launch
+                // Only request permissions once
+                if (!hasRequestedPermissions) {
+                    val granted = provider.requestPermissions()
+                    hasRequestedPermissions = true
+
+                    if (!granted) {
+                        _error.value = "Permissions not granted"
+                        _isLoading.value = false
+                        return@launch
+                    }
                 }
 
                 val data = provider.getHealthData()
                 _healthData.value = data
+
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+    suspend fun writeHealthData(): Boolean {
+        return provider.writeHealthData()
     }
 }

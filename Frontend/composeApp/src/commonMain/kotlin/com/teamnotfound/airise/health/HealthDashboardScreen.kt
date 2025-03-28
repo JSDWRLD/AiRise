@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.khealth.KHealth
+import kotlinx.coroutines.launch
 
 @Composable
 fun HealthDashboardScreen(kHealth: KHealth) {
@@ -16,8 +17,7 @@ fun HealthDashboardScreen(kHealth: KHealth) {
     val healthData by viewModel.healthData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-
-    viewModel.requestAndLoadData()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.requestAndLoadData()
@@ -37,6 +37,7 @@ fun HealthDashboardScreen(kHealth: KHealth) {
             isLoading -> CircularProgressIndicator()
             error != null -> Text("Error: $error", color = MaterialTheme.colors.error)
             healthData != null -> {
+                Text("Active Calories Burned: ${healthData!!.activeCalories}")
                 Text("Steps: ${healthData!!.steps}")
                 Text("Heart Rate: ${healthData!!.heartRate} bpm")
             }
@@ -44,8 +45,22 @@ fun HealthDashboardScreen(kHealth: KHealth) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = { viewModel.requestAndLoadData() }) {
             Text("Refresh")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = {
+            coroutineScope.launch {
+                val success = viewModel.writeHealthData()
+                if (!success) {
+                    println("Failed to write sample data.")
+                }
+            }
+        }) {
+            Text("Write Test Data")
         }
     }
 }
