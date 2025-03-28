@@ -1,7 +1,12 @@
 package com.teamnotfound.airise
 
 import com.teamnotfound.airise.data.network.clients.UserClient
+import com.teamnotfound.airise.cache.UserCache
+import com.teamnotfound.airise.cache.SummaryCache
+
 
 class AppContainer (
     val userClient: UserClient,
+    val userCache: UserCache,
+    val summaryCache: SummaryCache
 )
