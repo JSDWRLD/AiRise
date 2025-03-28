@@ -77,6 +77,12 @@ fun HomeScreen(email: String) {
             Spacer(modifier = Modifier.height(250.dp))
 
             FitnessSummarySection()
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {}) {
+                Text(text = "Go to Account Settings")
+            }
         }
     }
 }
