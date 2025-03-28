@@ -10,7 +10,7 @@ interface SummaryDao{
     fun insertSummary(summary: SummaryEntity): Long
 
     @Query("SELECT * FROM summaries WHERE userId = :userId ORDER BY timestamp DESC")
-    fun getSummariesForUser(userId: Int): List<SummaryEntity>
+    fun getSummariesForUser(userId: String): List<SummaryEntity>
 
 
 
