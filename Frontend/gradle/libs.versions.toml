@@ -39,6 +39,7 @@ peekaboo = "0.5.2"
 core = "1.15.0"
 firebaseCommonKtx = "21.0.0"
 uiAndroid = "1.7.8"
+uiTextAndroid = "1.7.8"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -86,6 +87,7 @@ googleid = { group = "com.google.android.libraries.identity.googleid", name = "g
 peekaboo-ui = { module = "io.github.onseok:peekaboo-ui", version.ref = "peekaboo" }
 peekaboo-image-picker = { module = "io.github.onseok:peekaboo-image-picker", version.ref = "peekaboo" }
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
