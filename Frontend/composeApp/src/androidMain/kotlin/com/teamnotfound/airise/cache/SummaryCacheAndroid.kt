@@ -73,6 +73,7 @@ class SummaryCacheAndroid(private val context: Context) : SummaryCache {
                     workoutEquipment = entity.equipmentAccess,
                     workoutDays = entity.daysSelected,
                     workoutTime = entity.workoutTimes,
+                    workoutRestrictions = "", //will keep it empty for now, seems like there is no data passed in to it, but it is initialiez in UserOnboarding so..
                     dietaryGoal = entity.dietaryGoal,
                     heightMetric = entity.isHeightMetric,
                     heightValue = entity.height.toInt(),
