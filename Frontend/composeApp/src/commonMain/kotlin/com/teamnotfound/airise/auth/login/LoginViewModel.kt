@@ -7,12 +7,14 @@ import com.teamnotfound.airise.data.auth.AuthService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import com.teamnotfound.airise.cache.UserCache
 
 // Removing HTTP client and login function until it can be accepted.
 // This class is ready to handle login and signup screen
 // class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
 class LoginViewModel(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val userCache: UserCache
 ) : BaseViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
@@ -60,6 +62,7 @@ class LoginViewModel(
 
             when (authResult) {
                 is AuthResult.Success -> {
+                    userCache.cacheUserData(authResult.data)
                     _uiState.value = _uiState.value.copy(isLoggedIn = true)
                 }
 
