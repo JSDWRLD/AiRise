@@ -35,7 +35,7 @@ fun App(container: AppContainer) {
     userClient = container.userClient
     )
 
-    val appViewModel: AppViewModel = viewModel { AppViewModel(authService, container.userCache) }
+    val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
     LaunchedEffect(isUserLoggedIn) {
@@ -68,7 +68,7 @@ fun App(container: AppContainer) {
 
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel { LoginViewModel(authService) }
+                    val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -84,7 +84,7 @@ fun App(container: AppContainer) {
 
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(authService) }
+                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
@@ -126,7 +126,7 @@ fun App(container: AppContainer) {
 
                 // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
-                    OnboardingScreen()
+                    OnboardingScreen(summaryCache = container.summaryCache)
                 }
 
                 // Home Screen
