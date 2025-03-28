@@ -68,7 +68,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
     }
 
     // Writing health data using Health Connect
-    actual suspend fun writeHealthData(): Boolean = withContext(Dispatchers.IO) {
+    actual suspend fun writeHealthData(): Boolean = withContext(Dispatchers.Default) {
 
         val sampleActiveCalories = KHRecord.ActiveCaloriesBurned(
             unit = KHUnit.Energy.Calorie,
@@ -90,7 +90,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         )
         // Add more sample data here
 
-        val result = kHealth.writeRecords(sampleSteps, sampleHeartRate)
+        val result = kHealth.writeRecords(sampleSteps, sampleHeartRate, sampleActiveCalories)
         return@withContext result is com.khealth.KHWriteResponse.Success
     }
 }
