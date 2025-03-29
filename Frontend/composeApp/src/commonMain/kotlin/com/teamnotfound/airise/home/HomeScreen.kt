@@ -49,7 +49,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                DailyProgressSection()
+                DailyProgressSection(healthData = uiState.value.healthData)
 
                 Spacer(modifier = Modifier.height(10.dp))
 

@@ -16,16 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.geometry.Size
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 
 //Displays the daily progress section
 @Composable
-fun DailyProgressSection() {
-    val sleepPercentage = 80f
-    val workoutPercentage = 75f
-    val hydrationPercentage = 60f
+fun DailyProgressSection(healthData: HealthData) {
+    val sleepPercentage = healthData.sleep
+    val workoutPercentage = healthData.workout
+    val hydrationPercentage = healthData.hydration
     val totalProgress = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3
 
     Column(
@@ -125,7 +126,7 @@ fun Legend(color: Color, label: String, percentage: Int) {
 //Helper function to draw the progress arcs
 fun DrawScope.drawProgressArc(
     color: Color,
-    percentage: Float,
+    percentage: Int,
     index: Int,
     strokeWidth: Float,
     gap: Float
