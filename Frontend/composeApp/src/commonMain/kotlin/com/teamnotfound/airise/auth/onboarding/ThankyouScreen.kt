@@ -15,13 +15,13 @@ import kotlinx.coroutines.delay
 import com.teamnotfound.airise.data.cache.SummaryCache
 
 @Composable
-fun ThankYouScreen(navController: NavController, newUser: UserData){
+fun ThankYouScreen(navController: NavController, newUser: UserData, summaryCache: SummaryCache){
     var showUserDetails by remember { mutableStateOf(false) }
 
     val summaryData = newUser.toData()
 
     LaunchedEffect(Unit){
-        // summaryCache.cacheSummary(summaryData)
+        summaryCache.cacheSummary(summaryData)
         delay(1000)
         showUserDetails = true
     }
