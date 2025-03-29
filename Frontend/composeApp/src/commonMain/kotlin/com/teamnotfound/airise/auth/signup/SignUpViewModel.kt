@@ -9,9 +9,9 @@ import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.teamnotfound.airise.cache.UserCache
+import com.teamnotfound.airise.data.cache.UserCache
 
-class SignUpViewModel(private val authService: AuthService, private val userCache: UserCache): ViewModel() {
+class SignUpViewModel(private val authService: AuthService): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
@@ -27,7 +27,7 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
 
             when (authResult) {
                 is AuthResult.Success -> {
-                    userCache.cacheUserData(authResult.data)
+                    // userCache.cacheUserData(authResult.data)
                     _uiState.value = _uiState.value.copy(isSuccess = true)
                 }
                 is AuthResult.Failure -> {

@@ -1,6 +1,7 @@
 package com.teamnotfound.airise.cache
 
 import com.teamnotfound.airise.data.auth.User
+import com.teamnotfound.airise.data.cache.UserCache
 
 //This is our dummy user client for the preview instance in MainActivity.kt
 class FakeUserCache : UserCache {

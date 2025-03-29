@@ -12,16 +12,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.teamnotfound.airise.data.serializable.UserData
 import kotlinx.coroutines.delay
-import com.teamnotfound.airise.cache.SummaryCache
+import com.teamnotfound.airise.data.cache.SummaryCache
 
 @Composable
-fun ThankYouScreen(navController: NavController, newUser: UserData, summaryCache: SummaryCache){
+fun ThankYouScreen(navController: NavController, newUser: UserData){
     var showUserDetails by remember { mutableStateOf(false) }
 
     val summaryData = newUser.toData()
 
     LaunchedEffect(Unit){
-        summaryCache.cacheSummary(summaryData)
+        // summaryCache.cacheSummary(summaryData)
         delay(1000)
         showUserDetails = true
     }

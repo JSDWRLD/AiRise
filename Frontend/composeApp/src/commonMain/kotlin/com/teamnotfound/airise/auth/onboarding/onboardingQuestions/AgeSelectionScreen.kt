@@ -33,7 +33,7 @@ fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser:
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212)),
+            .background(Color(0xFF091819)),
         contentAlignment = Alignment.Center
     ) {
         Column(

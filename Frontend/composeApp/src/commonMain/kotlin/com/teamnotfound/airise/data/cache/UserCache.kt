@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.cache
+package com.teamnotfound.airise.data.cache
 
 import com.teamnotfound.airise.data.auth.User
 

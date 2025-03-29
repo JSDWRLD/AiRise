@@ -20,20 +20,20 @@ import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.cache.SummaryCache
+import com.teamnotfound.airise.data.cache.SummaryCache
 
 //Creates entry point for onboarding screens
 @Composable
-fun OnboardingScreen(summaryCache: SummaryCache) {
+fun OnboardingScreen() {
     val navController = rememberNavController()
     //Create a new user onboarding object
     val newUser = remember {UserData()}
-    NavigateQuestions(navController = navController, newUser, summaryCache = summaryCache)
+    NavigateQuestions(navController = navController, newUser)
 }
 
 //Defines different navigation routes for onboarding screens
 @Composable
-fun NavigateQuestions(navController: NavHostController, newUser: UserData,summaryCache: SummaryCache){
+fun NavigateQuestions(navController: NavHostController, newUser: UserData){
     NavHost(navController = navController, startDestination = OnboardingScreens.NameInput.route) {
         composable(OnboardingScreens.NameInput.route) { NameInputScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutGoal.route) { WorkoutGoalScreen(navController, newUser) }
@@ -162,6 +162,6 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData,summar
             }
         }
         composable(OnboardingScreens.ActivityLevel.route) { ActivityLevelScreen(navController, newUser) }
-        composable(OnboardingScreens.ThankYou.route) { ThankYouScreen(navController, newUser,  summaryCache = summaryCache) }
+        composable(OnboardingScreens.ThankYou.route) { ThankYouScreen(navController, newUser) }
     }
 }
