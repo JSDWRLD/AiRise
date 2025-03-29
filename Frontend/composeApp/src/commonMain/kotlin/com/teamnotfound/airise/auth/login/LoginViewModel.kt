@@ -14,6 +14,7 @@ import com.teamnotfound.airise.data.cache.UserCache
 // class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
 class LoginViewModel(
     private val authService: AuthService,
+    private val userCache: UserCache
 ) : BaseViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
@@ -61,7 +62,7 @@ class LoginViewModel(
 
             when (authResult) {
                 is AuthResult.Success -> {
-                    // userCache.cacheUserData(authResult.data)
+                    userCache.cacheUserData(authResult.data)
                     _uiState.value = _uiState.value.copy(isLoggedIn = true)
                 }
 
