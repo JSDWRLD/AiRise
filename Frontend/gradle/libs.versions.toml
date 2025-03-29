@@ -35,6 +35,8 @@ firebaseAuth = "2.1.0"
 credentials = "1.5.0"
 credentialsPlayServicesAuth = "1.5.0"
 googleid = "1.1.1"
+generativeai-google = "0.9.0-1.0.1-wasm"
+buildkonfig = "0.17.0"
 peekaboo = "0.5.2"
 core = "1.15.0"
 firebaseCommonKtx = "21.0.0"
@@ -85,6 +87,7 @@ firebase-auth = { group = "dev.gitlive", name = "firebase-auth", version.ref = "
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+generativeai-google = { module = "dev.shreyaspatil.generativeai:generativeai-google", version.ref = "generativeai-google" }
 peekaboo-ui = { module = "io.github.onseok:peekaboo-ui", version.ref = "peekaboo" }
 peekaboo-image-picker = { module = "io.github.onseok:peekaboo-image-picker", version.ref = "peekaboo" }
 androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
@@ -102,4 +105,5 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 googleGmsGoogleServices = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig"}
 kapt = { id = "org.jetbrains.kotlin.kapt"}
