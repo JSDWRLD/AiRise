@@ -20,6 +20,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.cache.SummaryCache
 
 //Creates entry point for onboarding screens
 @Composable

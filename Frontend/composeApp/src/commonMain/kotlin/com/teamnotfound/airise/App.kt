@@ -32,8 +32,8 @@ import dev.gitlive.firebase.auth.auth
 fun App(container: AppContainer) {
     val navController = rememberNavController()
     val authService = AuthService(
-            auth = Firebase.auth,
-    userClient = container.userClient
+        auth = Firebase.auth,
+        userClient = container.userClient
     )
 
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
