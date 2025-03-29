@@ -6,5 +6,7 @@ import com.teamnotfound.airise.data.cache.SummaryCache
 
 
 class AppContainer (
-    val userClient: UserClient
+    val userClient: UserClient,
+    val userCache: UserCache,
+    val summaryCache: SummaryCache
 )

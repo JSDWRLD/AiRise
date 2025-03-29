@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,21 +41,22 @@ fun AiPersonalityScreen(user: UserData, navController: NavController){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF062022))
+            .background(Color(0xFF091819))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(40.dp))
             // title
             Text(
                 text = "Customize Ai Personality",
-                fontSize = 22.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 24.dp)
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             // list
@@ -81,13 +84,15 @@ fun AiPersonalityScreen(user: UserData, navController: NavController){
         // continue button
         Button(
             onClick = { navController.popBackStack() },
-            shape = RoundedCornerShape(8.dp),
+            enabled = personalityOption != null,
+            border = BorderStroke(1.dp, Color(0xFFCE5100)),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(0.8f)
-                .padding(16.dp),
-            enabled = personalityOption != null,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
         ) {
             Text("Continue", fontSize = 18.sp, color = Color.White)
         }

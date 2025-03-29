@@ -41,24 +41,6 @@ fun HomeScreen(viewModel: HomeViewModel) {
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "${uiState.value.greeting}, ${uiState.value.username}!",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "You have successfully signed in.",
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                }
-                Spacer(modifier = Modifier.height(30.dp))
                 TodaysOverview(
                     overview = uiState.value.overview,
                     isLoading = uiState.value.isOverviewLoading
