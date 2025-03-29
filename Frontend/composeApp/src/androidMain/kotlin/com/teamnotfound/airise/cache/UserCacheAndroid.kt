@@ -7,6 +7,7 @@ import com.teamnotfound.airise.data.auth.User
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import android.util.Log
+import com.teamnotfound.airise.data.cache.UserCache
 
 class UserCacheAndroid(private val context: Context) : UserCache {
     private val db = DatabaseProvider.getDatabase(context)

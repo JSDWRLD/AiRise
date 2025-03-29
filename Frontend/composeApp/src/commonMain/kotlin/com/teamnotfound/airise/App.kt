@@ -33,8 +33,8 @@ import dev.gitlive.firebase.auth.auth
 fun App(container: AppContainer) {
     val navController = rememberNavController()
     val authService = AuthService(
-            auth = Firebase.auth,
-    userClient = container.userClient
+        auth = Firebase.auth,
+        userClient = container.userClient
     )
 
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
@@ -70,7 +70,7 @@ fun App(container: AppContainer) {
 
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
+                    val loginViewModel = viewModel { LoginViewModel(authService) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -86,7 +86,7 @@ fun App(container: AppContainer) {
 
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
+                    val signUpViewModel = viewModel { SignUpViewModel(authService) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
@@ -128,7 +128,7 @@ fun App(container: AppContainer) {
 
                 // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
-                    OnboardingScreen(summaryCache = container.summaryCache)
+                    OnboardingScreen()
                 }
 
                 // Home Screen
