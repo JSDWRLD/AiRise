@@ -91,8 +91,9 @@ fun Login(
             OutlinedTextField(
                 value = uiState.email,
                 onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
-                label = { Text("Email Address", color = Color.Gray) },
-                singleLine = true,
+                placeholder = {
+                    Text("Email Address", color = Color.Gray)
+                },                singleLine = true,
                 leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
                 modifier = Modifier.width(300.dp).height(60.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -110,8 +111,9 @@ fun Login(
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
-                label = { Text("Password", color = Color.Gray) },
-                singleLine = true,
+                placeholder = {
+                    Text("Password", color = Color.Gray)
+                },                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
                 modifier = Modifier.width(300.dp).height(60.dp),
@@ -124,7 +126,7 @@ fun Login(
                 )
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             // Display error message if login fails
             if (uiState.errorMessage != null) {
@@ -134,7 +136,11 @@ fun Login(
 
             // Login Button with loading indicator
             Button(
-                onClick = { onEvent(LoginUiEvent.Login) },
+                onClick = {
+                    if (!uiState.isLoading) {
+                        onEvent(LoginUiEvent.Login)
+                    }
+                },
                 enabled = !uiState.isLoading,
                 modifier = Modifier.width(300.dp).height(50.dp),
                 shape = RoundedCornerShape(20.dp),
