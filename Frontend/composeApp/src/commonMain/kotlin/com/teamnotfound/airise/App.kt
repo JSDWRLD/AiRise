@@ -22,6 +22,7 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.home.AccountSettings
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -69,7 +70,7 @@ fun App(container: AppContainer) {
 
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel { LoginViewModel(authService) }
+                    val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -85,7 +86,7 @@ fun App(container: AppContainer) {
 
                 // sign up screens
                 composable(route = AppScreen.SIGNUP.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(authService) }
+                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
@@ -127,7 +128,7 @@ fun App(container: AppContainer) {
 
                 // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
-                    OnboardingScreen()
+                    OnboardingScreen(summaryCache = container.summaryCache)
                 }
 
                 // Home Screen
@@ -141,6 +142,11 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
                     NavBar(navController = bottomNavController)
+                }
+
+                // account settings
+                composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
+                    AccountSettings()
                 }
             }
         }
@@ -156,5 +162,6 @@ enum class AppScreen {
     RECOVERY_SENT,
     ONBOARD,
     HOMESCREEN,
-    NAVBAR
+    NAVBAR,
+    ACCOUNT_SETTINGS
 }

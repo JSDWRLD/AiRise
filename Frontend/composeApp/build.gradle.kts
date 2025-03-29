@@ -1,5 +1,5 @@
-
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.googleGmsGoogleServices)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.kapt)
 }
 
 kotlin {
@@ -63,6 +64,8 @@ kotlin {
 
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
+            implementation(libs.peekaboo.ui)
+            implementation(libs.peekaboo.image.picker)
             implementation(libs.generativeai.google)
         }
         androidMain.dependencies {
@@ -114,7 +117,13 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.android)
+    implementation(libs.androidx.ui.text.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    "kapt"(libs.room.compiler)
 }
 
 
