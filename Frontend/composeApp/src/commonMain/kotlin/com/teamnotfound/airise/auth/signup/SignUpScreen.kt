@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
 
@@ -100,8 +101,9 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email Address", color = Color.Gray) },
-                singleLine = true,
+                placeholder = {
+                    Text("Email Address", color = Color.Gray)
+                },                singleLine = true,
                 leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
                 modifier = Modifier
                     .width(300.dp)
@@ -121,9 +123,11 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password", color = Color.Gray) },
-                singleLine = true,
+                placeholder = {
+                    Text("Password", color = Color.Gray)
+                },                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp)
@@ -142,9 +146,11 @@ fun SignUpScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password", color = Color.Gray) },
-                singleLine = true,
+                placeholder = {
+                    Text("Confirm Password", color = Color.Gray)
+                },                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp)
@@ -158,7 +164,7 @@ fun SignUpScreen(
             )
 
             //shows message if password does not match
-            if(!passwordsMatch){
+            if(confirmPassword.isNotBlank() && !passwordsMatch){
                 Text(
                     text = "Passwords do not match",
                     color = Color.Red,
