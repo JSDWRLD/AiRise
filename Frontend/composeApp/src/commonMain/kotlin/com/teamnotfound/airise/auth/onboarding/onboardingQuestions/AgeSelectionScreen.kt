@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,21 +36,18 @@ fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser:
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF091819)),
-        contentAlignment = Alignment.Center
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.height(40.dp))
             // title
             Text(
                 text = "What Is Your Date of Birth?",
-                fontSize = 22.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 24.dp)
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             // spacing
             Spacer(modifier = Modifier.height(16.dp))
@@ -83,17 +82,19 @@ fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser:
         // continue button
         Button(
             onClick = { navController.navigate(nextRoute) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth(0.8f)
-                .padding(16.dp),
             enabled = newUser.dobYear.value in yearRange &&
                     newUser.dobMonth.value in monthRange &&
                     newUser.dobDay.value in dayRange,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
+            border = BorderStroke(1.dp, Color(0xFFCE5100)),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
         ) {
-            Text("Continue", fontSize = 18.sp, color = Color.White)
+            Text("Continue", color = Color.White)
         }
     }
 }
