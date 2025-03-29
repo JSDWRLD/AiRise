@@ -20,7 +20,7 @@ class HomeViewModel(private val email: String) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
-    private val todaysHealthData = HealthData(450, 7550, 115) //use api when ready to get real data
+    private val todaysHealthData = HealthData(450, 7550, 115, 80, 75, 60) //use api when ready to get real data
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     init {

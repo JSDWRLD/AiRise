@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.ui.geometry.android)
     debugImplementation(compose.uiTooling)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
