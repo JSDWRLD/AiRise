@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,13 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun HeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
+fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
     val heightRange = remember(newUser.heightMetric.value) {
         if (newUser.heightMetric.value) {
             (140..210 step 5).toList()
@@ -36,8 +37,33 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
@@ -108,11 +134,11 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextScreen) },
+                onClick = { navController.navigate(nextRoute) },
                 enabled = newUser.heightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
-                    disabledBackgroundColor = DeepBlue
+                    disabledBackgroundColor = Silver
                 ),
                 border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),

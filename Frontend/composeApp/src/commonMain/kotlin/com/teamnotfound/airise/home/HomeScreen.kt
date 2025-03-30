@@ -5,31 +5,30 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
-import com.teamnotfound.airise.navigationBar.TopNavBar
+import com.teamnotfound.airise.util.BgBlack
 
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
 
     Scaffold(
-        backgroundColor = Color(0xFF062022),
+        backgroundColor = BgBlack,
         bottomBar = {
             BottomNavigationBar(navController = bottomNavController)
         },
-            topBar = {
-                TopNavBar(navController = bottomNavController )
-            }
-
+        topBar = {
+            TopNavBar(navController = navController )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier

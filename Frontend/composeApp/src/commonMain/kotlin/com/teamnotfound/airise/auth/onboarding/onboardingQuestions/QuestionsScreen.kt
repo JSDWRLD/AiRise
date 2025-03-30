@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
 // Single selection question screen
 @Composable
@@ -38,7 +41,7 @@ fun QuestionScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
+                backgroundColor = BgBlack,
                 contentColor = Color.White,
                 elevation = 0.dp
             ) {
@@ -318,8 +321,8 @@ fun MultiSelectQuestionScreen(
                 },
                 enabled = selectedOptions.value.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF21565C),
-                    disabledBackgroundColor = Color(0xFF21565C)
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),

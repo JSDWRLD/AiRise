@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -26,6 +30,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,10 +51,30 @@ import com.preat.peekaboo.image.picker.toImageBitmap
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
 
 
 @Composable
-fun AccountSettingScreen(user: UserData, navController: NavController) {
+fun AccountSettingScreen(
+    user: UserData,
+    navController: NavController,
+    localNavController: NavHostController,
+    accountSettingViewModel: AccountSettingsViewModel
+) {
+    val uiState by accountSettingViewModel.uiState.collectAsState()
+
+    // If user is signed out successfully we route to welcome screen
+    if (uiState.isSignedOut) {
+        // Using LaunchedEffect to perform a side-effect (navigation)
+        LaunchedEffect(uiState) {
+            navController.navigate(AppScreen.WELCOME.name)
+        }
+    }
+
     val scope = rememberCoroutineScope()
     var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val singleImagePicker = rememberImagePickerLauncher(
@@ -64,7 +90,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212)),
+            .background(BgBlack),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -82,7 +108,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // back button
-                IconButton(onClick = {navController.popBackStack()}) { // onclick not working
+                IconButton(onClick = { navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo("home") { inclusive = true } } }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIosNew,
                         contentDescription = "Settings Icon",
@@ -174,13 +200,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                 singleLine = true,
                 textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             )
+
             // dob
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.DOBSelect.route)
+                        localNavController.navigate(AccountSettingScreens.DOBSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -196,13 +223,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // height
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.HeightSelect.route)
+                        localNavController.navigate(AccountSettingScreens.HeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -218,13 +246,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // weight
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.WeightSelect.route)
+                        localNavController.navigate(AccountSettingScreens.WeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -240,6 +269,29 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        localNavController.navigate(AccountSettingScreens.Notifications.route)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Edit Notifications",
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Settings Icon",
+                    tint = Color.White
+                )
+            }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // connect device
             Row(
                 modifier = Modifier
@@ -262,13 +314,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // ai personality
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.AiPersonality.route)
+                        localNavController.navigate(AccountSettingScreens.AiPersonality.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -283,6 +336,17 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     contentDescription = "Settings Icon",
                     tint = Color.White
                 )
+            }
+            Divider(color = DeepBlue, thickness = 1.dp)
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = {
+                    accountSettingViewModel.signout()
+                },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+            ) {
+                Text(text = "Sign Out", color = Color.White, fontSize = 18.sp)
             }
         }
     }

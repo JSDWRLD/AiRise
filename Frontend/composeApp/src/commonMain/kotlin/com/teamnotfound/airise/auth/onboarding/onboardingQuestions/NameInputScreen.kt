@@ -17,6 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
 // Name input screen
 @Composable
@@ -29,11 +32,11 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
+                backgroundColor = BgBlack,
                 contentColor = Color.White,
                 elevation = 0.dp
             ) {
@@ -160,8 +163,8 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
                 },
                 enabled = firstName.isNotBlank() && lastName.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF21565C),
-                    disabledBackgroundColor = Color(0xFF21565C)
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),

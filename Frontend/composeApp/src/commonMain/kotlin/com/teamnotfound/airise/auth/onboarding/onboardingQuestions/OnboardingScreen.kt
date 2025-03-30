@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.cache.SummaryCache
+import com.teamnotfound.airise.util.BgBlack
 
 //Creates entry point for onboarding screens
 @Composable
@@ -166,11 +167,11 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF091819))
+                    .background(BgBlack)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
-                        backgroundColor = Color(0xFF091819),
+                        backgroundColor = BgBlack,
                         contentColor = Color.White,
                         elevation = 0.dp
                     ) {
