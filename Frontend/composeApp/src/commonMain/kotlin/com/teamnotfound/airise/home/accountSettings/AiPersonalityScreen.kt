@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,7 +21,6 @@ import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
-import com.teamnotfound.airise.util.Transparent
 
 @Composable
 fun AiPersonalityScreen(user: UserData, navController: NavController) {

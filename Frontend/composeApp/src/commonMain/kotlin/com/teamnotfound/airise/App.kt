@@ -22,13 +22,12 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
-import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
-import com.teamnotfound.airise.home.AccountSettingScreen
-import com.teamnotfound.airise.home.AccountSettings
+import com.teamnotfound.airise.home.accountSettings.AccountSettings
+import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 
 // This is basically your main function.
 @Composable
@@ -156,8 +155,10 @@ fun App(container: AppContainer) {
 
                 // Account Settings Screen
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService) }
                     // TODO: Fill with actual user data
-                    AccountSettings(navController = navController)
+                    AccountSettings(navController = navController, accountSettingViewModel)
+
                 }
             }
         }

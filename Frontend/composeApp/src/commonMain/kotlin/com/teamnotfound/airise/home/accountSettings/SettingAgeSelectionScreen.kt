@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -16,13 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
+fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
@@ -33,8 +34,34 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
@@ -61,13 +88,13 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextScreen) },
+                onClick = { navController.navigate(nextRoute) },
                 enabled = newUser.dobYear.value in yearRange &&
                         newUser.dobMonth.value in monthRange &&
                         newUser.dobDay.value in dayRange,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
-                    disabledBackgroundColor = DeepBlue
+                    disabledBackgroundColor = Silver
                 ),
                 border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),

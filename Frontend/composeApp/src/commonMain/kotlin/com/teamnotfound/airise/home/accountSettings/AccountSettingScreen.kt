@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -27,6 +30,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +51,7 @@ import com.preat.peekaboo.image.picker.toImageBitmap
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.BgBlack
@@ -56,8 +62,19 @@ import com.teamnotfound.airise.util.DeepBlue
 fun AccountSettingScreen(
     user: UserData,
     navController: NavController,
-    localNavController: NavHostController
+    localNavController: NavHostController,
+    accountSettingViewModel: AccountSettingsViewModel
 ) {
+    val uiState by accountSettingViewModel.uiState.collectAsState()
+
+    // If user is signed out successfully we route to welcome screen
+    if (uiState.isSignedOut) {
+        // Using LaunchedEffect to perform a side-effect (navigation)
+        LaunchedEffect(uiState) {
+            navController.navigate(AppScreen.WELCOME.name)
+        }
+    }
+
     val scope = rememberCoroutineScope()
     var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val singleImagePicker = rememberImagePickerLauncher(
@@ -321,6 +338,16 @@ fun AccountSettingScreen(
                 )
             }
             Divider(color = DeepBlue, thickness = 1.dp)
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = {
+                    accountSettingViewModel.signout()
+                },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+            ) {
+                Text(text = "Sign Out", color = Color.White, fontSize = 18.sp)
+            }
         }
     }
 }

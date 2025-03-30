@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 sealed class AccountSettingScreens(val route: String){
     data object AccountSettings : AccountSettingScreens("accountScreen")

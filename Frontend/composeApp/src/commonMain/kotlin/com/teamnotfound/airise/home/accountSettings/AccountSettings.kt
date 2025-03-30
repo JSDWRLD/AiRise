@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -11,7 +11,10 @@ import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.WeightSelecti
 import com.teamnotfound.airise.data.serializable.UserData
 
 @Composable
-fun AccountSettings(navController: NavHostController) {
+fun AccountSettings(
+    navController: NavHostController,
+    accountSettingViewModel: AccountSettingsViewModel
+) {
     val localNavController = rememberNavController()  // Use a local NavController for account settings
     val user = UserData()
 
@@ -21,16 +24,16 @@ fun AccountSettings(navController: NavHostController) {
     ) {
         composable(AccountSettingScreens.AccountSettings.route) {
             // Pass parent navController
-            AccountSettingScreen(user, navController, localNavController)
+            AccountSettingScreen(user, navController, localNavController, accountSettingViewModel)
         }
         composable(AccountSettingScreens.DOBSelect.route) {
-            AgeSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+            SettingAgeSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
         }
         composable(AccountSettingScreens.WeightSelect.route) {
-            WeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+            SettingWeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
         }
         composable(AccountSettingScreens.HeightSelect.route) {
-            HeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+            SettingHeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
         }
         composable(AccountSettingScreens.AiPersonality.route) {
             AiPersonalityScreen(user, localNavController)

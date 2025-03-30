@@ -23,7 +23,7 @@ import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
+fun WeightSelectionScreen(navController: NavController,  nextScreen: String, newUser: UserData) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()
@@ -36,33 +36,8 @@ fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUs
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
-            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = Color.White,
-                elevation = 0.dp,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color(0xFFFFA500)
-                            )
-                        }
-                    }
-                }
-            }
-
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
@@ -133,11 +108,11 @@ fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUs
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextRoute) },
+                onClick = { navController.navigate(nextScreen) },
                 enabled = newUser.weightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
-                    disabledBackgroundColor = Silver
+                    disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),
