@@ -25,7 +25,7 @@ import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-
+import com.teamnotfound.airise.health.HealthDashboardScreen
 
 // This is basically your main function.
 @Composable
@@ -90,7 +90,7 @@ fun App(container: AppContainer) {
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
-                        onGoogleSignUpClick = { /* Google Sign-Up */ },
+                        onGoogleSignUpClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD.name) }, //TODO: Replace with /* Google Sign-Up */
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
                     )
@@ -142,6 +142,11 @@ fun App(container: AppContainer) {
                     val bottomNavController = rememberNavController()
                     NavBar(navController = bottomNavController)
                 }
+
+                // Health Dashboard
+                composable(route = AppScreen.HEALTH_DASHBOARD.name) {
+                    HealthDashboardScreen(kHealth = container.kHealth)
+                }
             }
         }
     }
@@ -156,5 +161,6 @@ enum class AppScreen {
     RECOVERY_SENT,
     ONBOARD,
     HOMESCREEN,
-    NAVBAR
+    NAVBAR,
+    HEALTH_DASHBOARD
 }

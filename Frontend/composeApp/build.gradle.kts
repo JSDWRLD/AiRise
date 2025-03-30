@@ -61,17 +61,19 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.androidx.nav)
-
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
             implementation(libs.peekaboo.ui)
             implementation(libs.peekaboo.image.picker)
             implementation(libs.generativeai.google)
+            implementation(libs.khealth)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
             implementation(libs.android.driver)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.material3.android)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -115,6 +117,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.navigation.runtime.ktx)
     implementation(libs.navigation.compose)
+    implementation(libs.khealth)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.android)
     implementation(libs.androidx.ui.text.android)
