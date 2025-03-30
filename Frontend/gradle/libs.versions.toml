@@ -43,6 +43,7 @@ firebaseCommonKtx = "21.0.0"
 uiAndroid = "1.7.8"
 room = "2.5.2"
 uiTextAndroid = "1.7.8"
+uiGeometryAndroid = "1.7.8"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -95,6 +96,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime" , version.ref= "
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room"}
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room"}
 androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
+androidx-ui-geometry-android = { group = "androidx.compose.ui", name = "ui-geometry-android", version.ref = "uiGeometryAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,7 @@
 package com.teamnotfound.airise.home
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
@@ -16,11 +17,16 @@ import com.teamnotfound.airise.util.White
 
 @Composable
 fun TodaysOverview (overview: String, isLoading: Boolean) {
-    Column {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 10.dp),
+        horizontalAlignment = Alignment.Start
+
+    ){
         Text(
             text = "Today's Overview",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
             color = White
         )
         if(isLoading){

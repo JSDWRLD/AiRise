@@ -21,6 +21,8 @@ import com.teamnotfound.airise.cache.FakeSummaryCache
 
 //Just for testing purposes for now
 import androidx.lifecycle.lifecycleScope
+import com.teamnotfound.airise.home.HomeScreen
+import com.teamnotfound.airise.home.HomeViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 
@@ -55,15 +57,15 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(
-        container = AppContainer(
-            userClient = remember {
-                UserClient(createHttpClient(OkHttp.create()))
-            },
-            //Just placeholders for now
-            userCache = FakeUserCache(),
-            summaryCache = FakeSummaryCache()
-        )
-    )
-
+//    App(
+//        container = AppContainer(
+//            userClient = remember {
+//                UserClient(createHttpClient(OkHttp.create()))
+//            },
+//            //Just placeholders for now
+//            userCache = FakeUserCache(),
+//            summaryCache = FakeSummaryCache()
+//        )
+//    )
+    HomeScreen(HomeViewModel("user"))
 }
