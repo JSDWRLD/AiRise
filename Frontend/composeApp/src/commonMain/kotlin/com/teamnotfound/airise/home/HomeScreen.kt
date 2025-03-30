@@ -12,17 +12,24 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import com.teamnotfound.airise.navigationBar.TopNavBar
+
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
+
     Scaffold(
         backgroundColor = Color(0xFF062022),
         bottomBar = {
             BottomNavigationBar(navController = bottomNavController)
-        }
+        },
+            topBar = {
+                TopNavBar(navController = bottomNavController )
+            }
+
     ) { innerPadding ->
         Column(
             modifier = Modifier
