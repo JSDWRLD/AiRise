@@ -20,6 +20,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,51 +58,112 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
             TopAppBar(
                 backgroundColor = Color(0xFF091819),
                 contentColor = Color.White,
-                title = { Text("Fitness Goal (9/13)") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                elevation = 0.dp,
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                ) {
+                    // Center title
+                    Text(
+                        "Fitness Goal (9/13)",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = "Back",
                             tint = Color(0xFFCE5100)
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen) }) {
-                        Text("Skip", color = Color(0xFFCE5100))
+
+                    TextButton(
+                        onClick = { navController.navigate(nextScreen) },
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
+                        Text(
+                            "Skip",
+                            color = Color(0xFFCE5100),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
-            )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //question formatting
             Text(
                 text = questionText,
-                style = TextStyle(fontSize = 30.sp, color = Color.White),
+                style = TextStyle(fontSize = 30.sp, color = Color.White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            options.forEach { option ->
-                Row(
+            val optionSubtext = mapOf(
+                "Yes" to "You have an injury or condition that affects your workouts.",
+                "No" to "No injuries or restrictions that limit your exercise."
+            )
+
+            options.forEachIndexed { index, option ->
+                val subtext = optionSubtext[option] ?: ""
+
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { selectedOption = option }
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
                 ) {
-                    RadioButton(
-                        selected = selectedOption == option,
-                        onClick = { selectedOption = option },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = Color(0xFFFFA500),
-                            unselectedColor = Color.White
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedOption = option }
+                            .padding(start = 24.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selectedOption == option,
+                            onClick = { selectedOption = option },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = Color(0xFFFFA500),
+                                unselectedColor = Color.White
+                            )
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = option,
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                //formatting for subtext
+                if (subtext.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(1.dp))
+                    Text(
+                        text = subtext,
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 40.dp)
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = option, color = Color.White)
+                }
+                //divider
+                if (index != options.lastIndex) {
+                    androidx.compose.material.Divider(
+                        color = Color.DarkGray.copy(alpha = 0.5f),
+                        thickness = 0.8.dp
+                    )
                 }
             }
 
@@ -134,9 +197,11 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                     backgroundColor = Color(0xFF21565C),
                     disabledBackgroundColor = Color(0xFF21565C)
                 ),
-                shape = MaterialTheme.shapes.medium,
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCE5100)),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
                 Text("Continue", color = Color.White)

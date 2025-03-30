@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
 class AppViewModel(private val authService: AuthService) : ViewModel() {
     private val _isUserLoggedIn = MutableStateFlow(false)
     val isUserLoggedIn = _isUserLoggedIn.asStateFlow()

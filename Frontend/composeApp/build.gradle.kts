@@ -1,6 +1,8 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,6 +12,8 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.googleGmsGoogleServices)
+    alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.kapt)
 }
 
 kotlin {
@@ -59,6 +63,9 @@ kotlin {
             implementation(libs.androidx.nav)
             implementation(libs.googleid)
             implementation(libs.firebase.auth)
+            implementation(libs.peekaboo.ui)
+            implementation(libs.peekaboo.image.picker)
+            implementation(libs.generativeai.google)
             implementation(libs.khealth)
         }
         androidMain.dependencies {
@@ -113,7 +120,50 @@ dependencies {
     implementation(libs.khealth)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.ui.android)
+    implementation(libs.androidx.ui.text.android)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.ui.geometry.android)
     debugImplementation(compose.uiTooling)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    "kapt"(libs.room.compiler)
 }
 
 
+buildkonfig {
+    packageName = "com.teamnotfound.airise"
+
+    val localPropsFile = rootProject.file("local.properties")
+    val localProperties = Properties()
+    if(localPropsFile.exists()) {
+        runCatching {
+            localProperties.load(localPropsFile.inputStream())
+        }.getOrElse {
+            it.printStackTrace()
+        }
+    }
+    defaultConfigs {
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "GEMINI_API_KEY",
+            localProperties["gemini_api_key"]?.toString() ?: ""
+        )
+    }
+    /*
+    When you wanna set different values for each platform
+    It will override the value set in defaultConfigs
+    * */
+    targetConfigs {
+        /*this the general format*/
+//        // names in create should be the same as target names you specified
+//        create("android") {
+//            buildConfigField(STRING, "name2", "value2")
+//            buildConfigField(STRING, "nullableField", "NonNull-value", nullable = true)
+//        }
+//
+//        create("ios") {
+//            buildConfigField(STRING, "name", "valueForNative")
+//        }
+    }
+}

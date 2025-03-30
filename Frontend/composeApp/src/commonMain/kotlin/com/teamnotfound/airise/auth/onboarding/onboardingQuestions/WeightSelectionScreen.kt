@@ -1,16 +1,16 @@
 package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,55 +21,33 @@ import com.teamnotfound.airise.data.serializable.UserData
  * Page to select user weight
  */
 @Composable
-fun WeightSelectionScreen(navController: NavController, newUser: UserData) {
+fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
     // weight ranges
     val weightRange = if (newUser.weightMetric.value) {
         (45..150 step 5)
     } else {
         (100..330 step 5)
     }
-    //
-    val showDialog = remember { mutableStateOf(false) }
-    val nextScreen = OnboardingScreens.AgeSelection.route
-
     // body
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(Color(0xFF091819))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
-                title = {Text("Fitness Goal (11/13)")},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFCE5100)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen) }) {
-                        Text("Skip", color = Color(0xFFCE5100))
-                    }
-                }
-            )
+            Spacer(modifier = Modifier.height(40.dp))
             // title
             Text(
                 text = "What Is Your Weight?",
-                fontSize = 22.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 24.dp)
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             // metric select
             Row(
@@ -125,34 +103,18 @@ fun WeightSelectionScreen(navController: NavController, newUser: UserData) {
         }
         // continue button
         Button(
-            onClick = {
-                showDialog.value = true
-                navController.navigate(nextScreen)},
-            shape = RoundedCornerShape(8.dp),
+            onClick = { navController.navigate(nextRoute) },
+            enabled = newUser.weightValue.value != 0,
+            border = BorderStroke(1.dp, Color(0xFFCE5100)),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(0.8f)
-                .padding(16.dp),
-            enabled = newUser.weightValue.value != 0,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
         ) {
-            Text("Continue", fontSize = 18.sp, color = Color.White)
+            Text("Continue", color = Color.White)
         }
-    }
-
-    // temp display to show values actually saved to newUser
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showDialog.value = false },
-            title = { Text("Your Weight Selection") },
-            text = {
-                Text("Weight: ${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}")
-            },
-            confirmButton = {
-                Button(onClick = { showDialog.value = false }) {
-                    Text("OK")
-                }
-            }
-        )
     }
 }

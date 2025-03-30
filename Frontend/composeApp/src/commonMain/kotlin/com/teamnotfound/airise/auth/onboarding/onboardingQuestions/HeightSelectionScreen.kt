@@ -1,16 +1,16 @@
 package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,54 +21,33 @@ import com.teamnotfound.airise.data.serializable.UserData
  * Page to select user height
  */
 @Composable
-fun HeightSelectionScreen(navController: NavController, newUser: UserData) {
+fun HeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
     // height ranges
     val heightRange = if (newUser.heightMetric.value) {
         (140..210 step 5)
     } else {
         (50..80 step 1)
     }
-    //
-    val showDialog = remember { mutableStateOf(false) }
-    val nextScreen = OnboardingScreens.WeightSelection.route
     // body
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(Color(0xFF091819))
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
-                title = {Text("Fitness Goal (10/13)")},
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFFCE5100)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { navController.navigate(nextScreen) }) {
-                        Text("Skip", color = Color(0xFFCE5100))
-                    }
-                }
-            )
+            Spacer(modifier = Modifier.height(40.dp))
             // title
             Text(
                 text = "What Is Your Height?",
-                fontSize = 22.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 24.dp)
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
             // metric select
             Row(
@@ -124,34 +103,18 @@ fun HeightSelectionScreen(navController: NavController, newUser: UserData) {
         }
         // continue button
         Button(
-            onClick = {
-                showDialog.value = true
-                navController.navigate(nextScreen)},
-            shape = RoundedCornerShape(8.dp),
+            onClick = { navController.navigate(nextRoute) },
+            enabled = newUser.heightValue.value != 0,
+            border = BorderStroke(1.dp, Color(0xFFCE5100)),
+            shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(0.8f)
-                .padding(16.dp),
-            enabled = newUser.heightValue.value != 0,
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21565C))
+                .fillMaxWidth()
+                .height(50.dp)
+                .padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
         ) {
-            Text("Continue", fontSize = 18.sp, color = Color.White)
+            Text("Continue", color = Color.White)
         }
-    }
-
-    // temp display to show values actually saves to newUser
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showDialog.value = false },
-            title = { Text("Your Height Selection") },
-            text = {
-                Text("Height: ${newUser.heightValue.value} ${if (newUser.heightMetric.value) "CM" else "IN"}")
-            },
-            confirmButton = {
-                Button(onClick = { showDialog.value = false }) {
-                    Text("OK")
-                }
-            }
-        )
     }
 }

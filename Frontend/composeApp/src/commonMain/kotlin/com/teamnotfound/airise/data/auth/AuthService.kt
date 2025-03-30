@@ -23,12 +23,18 @@ class AuthService(
         get() = auth.currentUser != null
 
     override val currentUser: Flow<User> =
-        auth.authStateChanged.map { it?.let { User(it.uid) } ?: User() }
+        auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
 
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password)
-            AuthResult.Success
+            val firebaseUser = result.user
+            if (firebaseUser != null) {
+                val user = User(id = firebaseUser.uid, email = firebaseUser.email)
+                AuthResult.Success(user)
+            } else {
+                AuthResult.Failure("Authentication failed: user is null")
+            }
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Authentication failed")
         }
@@ -41,9 +47,12 @@ class AuthService(
             val firebaseUser = result.user
             if (firebaseUser != null) {
                 userClient.insertUser(firebaseUser, email)
+                val user = User(id = firebaseUser.uid, email = email)
+                AuthResult.Success(user)
+            } else {
+                AuthResult.Failure("User creation failed: user is null")
             }
 
-            AuthResult.Success
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "User creation failed")
         }
@@ -52,7 +61,9 @@ class AuthService(
     override suspend fun sendPasswordResetEmail(email: String): AuthResult {
         return try {
             auth.sendPasswordResetEmail(email)
-            AuthResult.Success
+            val firebaseUser = auth.currentUser
+            val user = firebaseUser?.let { User(it.uid, it.email) } ?: User()
+            AuthResult.Success(user)
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Failed to send password reset email")
         }
@@ -62,7 +73,12 @@ class AuthService(
         return try {
             val user = auth.currentUser
             user?.verifyBeforeUpdateEmail(newEmail)
-            AuthResult.Success
+            if (user != null) {
+                val userAdd = User(user.uid, newEmail)
+                AuthResult.Success(userAdd)
+            } else {
+                AuthResult.Failure("Failed to update email: no current user")
+            }
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Failed to update email")
         }
@@ -72,7 +88,12 @@ class AuthService(
         return try {
             val user = auth.currentUser
             user?.updatePassword(newPassword)
-            AuthResult.Success
+            if (user != null) {
+                val userAdd = User(user.uid, user.email)
+                AuthResult.Success(userAdd)
+            } else {
+                AuthResult.Failure("Failed to update password: no current user")
+            }
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Failed to update password")
         }
@@ -81,7 +102,7 @@ class AuthService(
     override suspend fun signOut(): AuthResult {
         return try {
             auth.signOut()
-            AuthResult.Success
+            AuthResult.Success(User())
         } catch (e: Exception) {
             AuthResult.Failure(e.message ?: "Failed to update password")
         }

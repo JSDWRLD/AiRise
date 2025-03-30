@@ -9,9 +9,17 @@ import com.teamnotfound.airise.data.serializable.UserData
 //Defines different onboarding questions and options
 @Composable
 fun WorkoutGoalScreen(navController: NavController, newUser: UserData){
+    //description of each of the options
+    val optionDescriptions = mapOf(
+        "Maintenance" to "Keep your current fitness level and stay active.",
+        "Muscle Gain" to "Build strength and increase muscle mass.",
+        "Weight Loss" to "Burn calories and shed excess fat."
+    )
+
     QuestionScreen(
         questionText = "What is your workout goal?",
-        options = listOf("Maintenance", "Muscle Gain", "Weight Loss"),
+        options = optionDescriptions.keys.toList(),
+        optionSubtext = optionDescriptions,
         nextScreen = OnboardingScreens.FitnessLevel,
         navController = navController,
         questionCount = 2,
@@ -21,9 +29,17 @@ fun WorkoutGoalScreen(navController: NavController, newUser: UserData){
 
 @Composable
 fun FitnessLevelScreen(navController: NavController, newUser: UserData){
+    //description of each of the options
+    val optionDescriptions = mapOf(
+        "Novice" to "New to working out or returning after a long break.",
+        "Intermediate" to "Regularly active with some experience in fitness.",
+        "Advanced" to "Consistently training with intensity and experience."
+    )
+
     QuestionScreen(
         questionText = "What is your current fitness level?",
-        options = listOf("Novice", "Intermediate", "Advanced"),
+        options = optionDescriptions.keys.toList(),
+        optionSubtext = optionDescriptions,
         nextScreen = OnboardingScreens.WorkoutLength,
         navController = navController,
         questionCount = 3,
@@ -50,6 +66,12 @@ fun EquipmentAccessScreen(navController: NavController, newUser: UserData){
     MultiSelectQuestionScreen(
         questionText = "What equipment do you have access to?",
         options = listOf("Gym", "Home", "Body Weight", "Other Equipment"),
+        optionSubtext = mapOf(
+            "Gym" to "Full range of machines and free weights.",
+            "Home" to "Basic equipment like dumbbells or resistance bands",
+            "Body Weight" to "Exercises that rely on your own body only.",
+            "Other Equipment" to "Any special or unique gear you have."
+        ),
         selectedOptions = selectedOptions,
         nextScreen = OnboardingScreens.WorkoutDays,
         navController = navController,
@@ -90,9 +112,17 @@ fun WorkoutTimeScreen(navController: NavController, newUser: UserData){
 
 @Composable
 fun DietaryGoalScreen(navController: NavController, newUser: UserData){
+    //description of each of the options
+    val optionDescriptions = mapOf(
+        "Lose Weight" to "Reduce calorie intake to burn fat and achieve a learner body.",
+        "Maintain" to "Balance calorie intake to sustain your current weight.",
+        "Gain Weight" to "Increase calorie intake to build muscles or add mass."
+    )
+
     QuestionScreen(
         questionText = "What is your dietary goal?",
-        options = listOf("Lose weight", "Maintain", "Gain weight"),
+        options = optionDescriptions.keys.toList(),
+        optionSubtext = optionDescriptions,
         nextScreen = OnboardingScreens.WorkoutRestrictions,
         navController = navController,
         questionCount = 8,
@@ -102,9 +132,18 @@ fun DietaryGoalScreen(navController: NavController, newUser: UserData){
 
 @Composable
 fun ActivityLevelScreen(navController: NavController, newUser: UserData){
+    //description of each of the options
+    val optionDescriptions = mapOf(
+        "Sedentary" to "Minimal physical activity, mostly sitting or inactive.",
+        "Lightly Active" to "Occasional movement, light exercise or walking.",
+        "Active" to "Regular exercise and moderate daily movements.",
+        "Very Active" to "Intense workouts and high daily activity levels."
+    )
+
     QuestionScreen(
         questionText = "What is your preferred active level?",
-        options = listOf("Sendentary", "Lightly Active", "Active", "Very Active"),
+        options = optionDescriptions.keys.toList(),
+        optionSubtext = optionDescriptions,
         nextScreen = OnboardingScreens.ThankYou,
         navController = navController,
         questionCount = 13,
