@@ -2,6 +2,7 @@ package com.teamnotfound.airise.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,13 +21,15 @@ class HomeViewModel(private val email: String) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
-    private val todaysHealthData = HealthData(450, 7550, 115, 80, 75, 60) //use api when ready to get real data
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    private lateinit var todaysHealthData: HealthData
 
     init {
         generateGreeting()
         getUsername()
+        getTodaysHealthData()
         generateOverview()
+        loadDailyProgress()
         loadFitnessSummary()
     }
 
@@ -57,6 +60,17 @@ class HomeViewModel(private val email: String) :  ViewModel(){
         val randomIndex = Random.nextInt(generalGreetings.size)
         _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
     }
+    private fun getTodaysHealthData(){
+        //Get from database once available
+        todaysHealthData = HealthData(
+                caloriesBurned = 450,
+        steps = 7550,
+        avgHeartRate = 115,
+        sleep = 6.5f,
+        workout = 3,
+        hydration = 2850f
+        )
+    }
     private fun generateOverview() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isOverviewLoading = true, errorMessage = null)
@@ -75,6 +89,25 @@ class HomeViewModel(private val email: String) :  ViewModel(){
                 )
             }
         }
+    }
+    private fun loadDailyProgress(){
+        _uiState.value = _uiState.value.copy(isDailyProgressLoading = true)
+        /* Needs to use respective goal to determine percentage,
+         * instead of hard coded value */
+        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
+        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
+        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
+        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
+        val progressData = DailyProgressData(
+            sleepProgress = sleepPercentage,
+            workoutProgress = workoutPercentage,
+            hydrationProgress = hydrationPercentage,
+            totalProgress = totalPercentage
+        )
+        _uiState.value = _uiState.value.copy(
+            dailyProgressData = progressData,
+            isDailyProgressLoading = false
+        )
     }
     private fun loadFitnessSummary() {
         // date Formatting based on time selected
@@ -100,7 +133,14 @@ class HomeViewModel(private val email: String) :  ViewModel(){
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
-        val updatedHealthData = HealthData(450, 7550, 115)
+        val updatedHealthData = HealthData(
+            caloriesBurned = 450,
+            steps = 7550,
+            avgHeartRate = 115,
+            sleep = todaysHealthData.sleep,
+            workout = todaysHealthData.workout,
+            hydration = todaysHealthData.hydration
+            )
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
             healthData = updatedHealthData,

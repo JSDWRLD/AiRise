@@ -62,7 +62,7 @@ fun FitnessSummarySection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(10.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Transparent)
     ) {

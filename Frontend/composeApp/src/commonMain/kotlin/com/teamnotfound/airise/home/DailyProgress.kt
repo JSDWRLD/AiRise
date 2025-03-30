@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,24 +17,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.geometry.Size
-import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.DailyProgressData
+import com.teamnotfound.airise.util.Cyan
 import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.NeonGreen
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 
 //Displays the daily progress section
 @Composable
-fun DailyProgressSection(healthData: HealthData) {
-    val sleepPercentage = healthData.sleep
-    val workoutPercentage = healthData.workout
-    val hydrationPercentage = healthData.hydration
-    val totalProgress = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3
+fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoading: Boolean) {
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .padding(horizontal = 5.dp)
+            .clip(RoundedCornerShape(25.dp))
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
@@ -59,44 +58,50 @@ fun DailyProgressSection(healthData: HealthData) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(70.dp)
         ) {
-            Box(
-                modifier = Modifier.size(140.dp)
-            ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val strokeWidth = 30f
-                    val gap = 8f
+            if(isLoading){
+                CircularProgressIndicator(
+                    color = DeepBlue
+                )
+            }else{
+                Box(
+                    modifier = Modifier.size(140.dp)
+                ) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        val strokeWidth = 30f
+                        val gap = 8f
 
-                    listOf(0, 1, 2).forEach { index ->
-                        drawCircle(
-                            color = Color.LightGray,
-                            radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
-                            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                        )
+                        listOf(0, 1, 2).forEach { index ->
+                            drawCircle(
+                                color = Silver,
+                                radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
+                                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                            )
+                        }
+
+                        drawProgressArc(NeonGreen, dailyProgressData.sleepProgress, 0, strokeWidth, gap)
+                        drawProgressArc(Orange, dailyProgressData.workoutProgress, 1, strokeWidth, gap)
+                        drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
                     }
 
-                    drawProgressArc(Color.Green, sleepPercentage, 0, strokeWidth, gap)
-                    drawProgressArc(color = Orange, workoutPercentage, 1, strokeWidth, gap)
-                    drawProgressArc(Color.Blue, hydrationPercentage, 2, strokeWidth, gap)
+                    Text(
+                        text = "${dailyProgressData.totalProgress.toInt()}%",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Silver,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
-
-                Text(
-                    text = "${totalProgress.toInt()}%",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Silver,
-                    modifier = Modifier.align(Alignment.Center)
-                )
             }
 
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                Legend(Color.Green, "Sleep: ", sleepPercentage.toInt())
+                Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
                 Spacer(modifier = Modifier.height(6.dp))
-                Legend(color = Orange, "Workouts: ", workoutPercentage.toInt())
+                Legend(Orange, "Workouts: ", dailyProgressData.workoutProgress.toInt())
                 Spacer(modifier = Modifier.height(6.dp))
-                Legend(Color.Blue, "Hydration: ", hydrationPercentage.toInt())
+                Legend(Cyan, "Hydration: ", dailyProgressData.hydrationProgress.toInt())
             }
         }
     }
@@ -126,7 +131,7 @@ fun Legend(color: Color, label: String, percentage: Int) {
 //Helper function to draw the progress arcs
 fun DrawScope.drawProgressArc(
     color: Color,
-    percentage: Int,
+    percentage: Float,
     index: Int,
     strokeWidth: Float,
     gap: Float

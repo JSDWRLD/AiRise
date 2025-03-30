@@ -1,19 +1,15 @@
 package com.teamnotfound.airise.home
 
 import androidx.compose.foundation.layout.*
-
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.unit.dp
-
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
-
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
@@ -32,7 +28,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,7 +45,10 @@ fun HomeScreen(viewModel: HomeViewModel) {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                DailyProgressSection(healthData = uiState.value.healthData)
+                DailyProgressSection(
+                    dailyProgressData = uiState.value.dailyProgressData,
+                    isLoading = uiState.value.isDailyProgressLoading
+                    )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
