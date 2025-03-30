@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,33 +17,54 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
-/*
- * Page to select user date of birth
- */
 @Composable
 fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
-    // list ranges
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
-        newUser.dobMonth.value.let { month ->
-            newUser.dobYear.value.let { year ->
-                getDayRange(month, year).toList()
-            }
-        }
+        getDayRange(newUser.dobMonth.value, newUser.dobYear.value).toList()
     }
-    // body
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819)),
+            .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
-            // title
+
             Text(
-                text = "What Is Your Date of Birth?",
+                text = "Select Your Date of Birth",
                 style = TextStyle(
                     fontSize = 30.sp,
                     color = Color.White,
@@ -49,66 +72,52 @@ fun AgeSelectionScreen(navController: NavController, nextRoute: String, newUser:
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-            // spacing
+
             Spacer(modifier = Modifier.height(16.dp))
-            // date of birth scrolls
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // year scroll
-                ScrollableColumnSelection(
-                    label = "Year",
-                    items = yearRange,
-                    selectedItem = newUser.dobYear.value,
-                    onItemSelected = { newUser.dobYear.value = it }
-                )
-                // month scroll
-                ScrollableColumnSelection(
-                    label = "Month",
-                    items = monthRange,
-                    selectedItem = newUser.dobMonth.value,
-                    onItemSelected = { newUser.dobMonth.value = it }
-                )
-                // day scroll
-                ScrollableColumnSelection(
-                    label = "Day",
-                    items = dayRange,
-                    selectedItem = newUser.dobDay.value,
-                    onItemSelected = { newUser.dobDay.value = it }
-                )
+                ScrollableColumnSelection("Year", yearRange, newUser.dobYear.value) { newUser.dobYear.value = it }
+                ScrollableColumnSelection("Month", monthRange, newUser.dobMonth.value) { newUser.dobMonth.value = it }
+                ScrollableColumnSelection("Day", dayRange, newUser.dobDay.value) { newUser.dobDay.value = it }
             }
-        }
-        // continue button
-        Button(
-            onClick = { navController.navigate(nextRoute) },
-            enabled = newUser.dobYear.value in yearRange &&
-                    newUser.dobMonth.value in monthRange &&
-                    newUser.dobDay.value in dayRange,
-            border = BorderStroke(1.dp, Color(0xFFCE5100)),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
-        ) {
-            Text("Continue", color = Color.White)
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { navController.navigate(nextRoute) },
+                enabled = newUser.dobYear.value in yearRange &&
+                        newUser.dobMonth.value in monthRange &&
+                        newUser.dobDay.value in dayRange,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = Silver
+                ),
+                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
-// get day range based on month
 fun getDayRange(month: Int, year: Int): IntRange {
     return when (month) {
-        4, 6, 9, 11 -> 1..30  // months with 30 days
-        2 -> if (isLeapYear(year)) 1..29 else 1..28  // february logic
-        else -> 1..31  // months with 31 days
+        4, 6, 9, 11 -> 1..30
+        2 -> if (isLeapYear(year)) 1..29 else 1..28
+        else -> 1..31
     }
 }
 
-// get leap year
 fun isLeapYear(year: Int): Boolean {
     return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
 }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,30 +18,53 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
-/*
- * Page to select user height
- */
 @Composable
 fun HeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
-    // height ranges
-    val heightRange = if (newUser.heightMetric.value) {
-        (140..210 step 5)
-    } else {
-        (50..80 step 1)
+    val heightRange = remember(newUser.heightMetric.value) {
+        if (newUser.heightMetric.value) {
+            (140..210 step 5).toList()
+        } else {
+            (50..80 step 1).toList()
+        }
     }
-    // body
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
-            // title
+
             Text(
                 text = "What Is Your Height?",
                 style = TextStyle(
@@ -49,14 +74,15 @@ fun HeightSelectionScreen(navController: NavController, nextRoute: String, newUs
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-            // metric select
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
                 modifier = Modifier
                     .padding(16.dp)
                     .background(Color.Gray, RoundedCornerShape(16.dp)),
                 horizontalArrangement = Arrangement.Center
             ) {
-                // inches
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
@@ -74,7 +100,6 @@ fun HeightSelectionScreen(navController: NavController, nextRoute: String, newUs
                         fontSize = 18.sp
                     )
                 }
-                // centimeters
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
@@ -93,28 +118,38 @@ fun HeightSelectionScreen(navController: NavController, nextRoute: String, newUs
                     )
                 }
             }
-            // height scroll
-            ScrollableColumnSelection(
-                label = null,
-                items = heightRange.toList(),
-                selectedItem = newUser.heightValue.value,
-                onItemSelected = { newUser.heightValue.value = it }
-            )
-        }
-        // continue button
-        Button(
-            onClick = { navController.navigate(nextRoute) },
-            enabled = newUser.heightValue.value != 0,
-            border = BorderStroke(1.dp, Color(0xFFCE5100)),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
-        ) {
-            Text("Continue", color = Color.White)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ScrollableColumnSelection(null, heightRange, newUser.heightValue.value) {
+                    newUser.heightValue.value = it
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { navController.navigate(nextRoute) },
+                enabled = newUser.heightValue.value != 0,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = Silver
+                ),
+                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

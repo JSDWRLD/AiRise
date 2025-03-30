@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -45,10 +46,18 @@ import com.preat.peekaboo.image.picker.toImageBitmap
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavHostController
+import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
 
 
 @Composable
-fun AccountSettingScreen(user: UserData, navController: NavController) {
+fun AccountSettingScreen(
+    user: UserData,
+    navController: NavController,
+    localNavController: NavHostController
+) {
     val scope = rememberCoroutineScope()
     var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val singleImagePicker = rememberImagePickerLauncher(
@@ -64,7 +73,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212)),
+            .background(BgBlack),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -82,7 +91,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // back button
-                IconButton(onClick = {navController.popBackStack()}) { // onclick not working
+                IconButton(onClick = { navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo("home") { inclusive = true } } }) {
                     Icon(
                         imageVector = Icons.Default.ArrowBackIosNew,
                         contentDescription = "Settings Icon",
@@ -174,13 +183,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                 singleLine = true,
                 textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
             )
+
             // dob
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.DOBSelect.route)
+                        localNavController.navigate(AccountSettingScreens.DOBSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -196,13 +206,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // height
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.HeightSelect.route)
+                        localNavController.navigate(AccountSettingScreens.HeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -218,13 +229,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // weight
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.WeightSelect.route)
+                        localNavController.navigate(AccountSettingScreens.WeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -240,6 +252,29 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        localNavController.navigate(AccountSettingScreens.Notifications.route)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Edit Notifications",
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Settings Icon",
+                    tint = Color.White
+                )
+            }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // connect device
             Row(
                 modifier = Modifier
@@ -262,13 +297,14 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
             // ai personality
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
-                        navController.navigate(AccountSettingScreens.AiPersonality.route)
+                        localNavController.navigate(AccountSettingScreens.AiPersonality.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -284,6 +320,7 @@ fun AccountSettingScreen(user: UserData, navController: NavController) {
                     tint = Color.White
                 )
             }
+            Divider(color = DeepBlue, thickness = 1.dp)
         }
     }
 }

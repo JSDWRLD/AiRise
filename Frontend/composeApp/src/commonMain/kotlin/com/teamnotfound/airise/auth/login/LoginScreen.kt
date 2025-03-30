@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
+import com.teamnotfound.airise.util.BgBlack
 
 @Composable
 fun LoginScreen(
@@ -60,7 +61,7 @@ fun Login(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF062022))
+            .background(BgBlack)
     ) {
         // Back button at the top-left corner (consistent with SignUpScreen)
         IconButton(

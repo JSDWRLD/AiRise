@@ -11,19 +11,32 @@ import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.WeightSelecti
 import com.teamnotfound.airise.data.serializable.UserData
 
 @Composable
-fun AccountSettings() {
-    val navController = rememberNavController()
+fun AccountSettings(navController: NavHostController) {
+    val localNavController = rememberNavController()  // Use a local NavController for account settings
     val user = UserData()
-    AccountSetting(navController = navController, user = user)
-}
 
-@Composable
-fun AccountSetting(navController: NavHostController, user: UserData) {
-    NavHost(navController = navController, startDestination = AccountSettingScreens.AccountSettings.route) {
-        composable(AccountSettingScreens.AccountSettings.route) { AccountSettingScreen(user, navController) }
-        composable(AccountSettingScreens.DOBSelect.route) { AgeSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
-        composable(AccountSettingScreens.WeightSelect.route) { WeightSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
-        composable(AccountSettingScreens.HeightSelect.route) { HeightSelectionScreen(navController, AccountSettingScreens.AccountSettings.route, user) }
-        composable(AccountSettingScreens.AiPersonality.route) { AiPersonalityScreen(user, navController) }
+    NavHost(
+        navController = localNavController,
+        startDestination = AccountSettingScreens.AccountSettings.route
+    ) {
+        composable(AccountSettingScreens.AccountSettings.route) {
+            // Pass parent navController
+            AccountSettingScreen(user, navController, localNavController)
+        }
+        composable(AccountSettingScreens.DOBSelect.route) {
+            AgeSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+        }
+        composable(AccountSettingScreens.WeightSelect.route) {
+            WeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+        }
+        composable(AccountSettingScreens.HeightSelect.route) {
+            HeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
+        }
+        composable(AccountSettingScreens.AiPersonality.route) {
+            AiPersonalityScreen(user, localNavController)
+        }
+        composable(AccountSettingScreens.Notifications.route) {
+            NotificationSettingsScreen(localNavController)
+        }
     }
 }

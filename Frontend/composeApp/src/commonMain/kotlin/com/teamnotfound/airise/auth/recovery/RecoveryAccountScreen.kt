@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.util.BgBlack
 
 @Composable
 fun RecoverAccountScreen(
@@ -26,7 +27,7 @@ fun RecoverAccountScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A1E22))
+            .background(BgBlack)
     ) {
         // back arrow icon
         Box(

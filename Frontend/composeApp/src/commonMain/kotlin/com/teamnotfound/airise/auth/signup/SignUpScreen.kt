@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
+import com.teamnotfound.airise.util.BgBlack
 
 @Composable
 fun SignUpScreen(
@@ -47,7 +48,7 @@ fun SignUpScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF062022))
+            .background(BgBlack)
     ) {
         //back arrow in the left top corner
         Box(

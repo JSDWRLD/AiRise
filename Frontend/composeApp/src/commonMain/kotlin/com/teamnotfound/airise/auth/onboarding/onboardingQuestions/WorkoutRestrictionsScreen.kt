@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.BgBlack
 
 // Text input question screen for any workout restrictions
 @Composable
@@ -52,11 +53,11 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
+                backgroundColor = BgBlack,
                 contentColor = Color.White,
                 elevation = 0.dp,
             ) {

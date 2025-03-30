@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import com.teamnotfound.airise.util.BgBlack
 
 @Composable
 fun RecoverySentScreen(
@@ -22,7 +23,7 @@ fun RecoverySentScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A1E22))
+            .background(BgBlack)
     ) {
         // back arrow
         Box(

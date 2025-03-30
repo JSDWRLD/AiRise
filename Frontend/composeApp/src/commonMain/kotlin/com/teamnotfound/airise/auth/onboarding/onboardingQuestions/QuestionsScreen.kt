@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import com.teamnotfound.airise.util.BgBlack
 
 // Single selection question screen
 @Composable
@@ -38,7 +39,7 @@ fun QuestionScreen(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
+                backgroundColor = BgBlack,
                 contentColor = Color.White,
                 elevation = 0.dp
             ) {

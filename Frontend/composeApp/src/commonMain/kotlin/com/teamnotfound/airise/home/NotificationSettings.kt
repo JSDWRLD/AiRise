@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.util
+package com.teamnotfound.airise.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,33 +13,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.navigationBar.TopNavBar
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
 
 
 @Composable
 fun NotificationSettingsScreen(navController: NavController) {
-    val bottomNavController = rememberNavController()
 
-    Scaffold(
-        backgroundColor = Color(0xFF0D1F20),
-        topBar = {
-            TopNavBar(navController = navController)
-        },
-        bottomBar = {
-            BottomNavigationBar(navController = bottomNavController)
-        }
-    ) { innerPadding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BgBlack)
+            .padding(top = 15.dp)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
         ) {
             // Edit Notifications header with back and check buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF0D1F20))
+                    .background(BgBlack)
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -69,15 +65,16 @@ fun NotificationSettingsScreen(navController: NavController) {
 
             // Notification toggle items
             NotificationToggleItem("Challenge Notifications")
-            Divider(color = Color(0xFF1E3A3A), thickness = 1.dp)
+            Divider(color = DeepBlue, thickness = 1.dp)
 
             NotificationToggleItem("Friend Request Notifications")
-            Divider(color = Color(0xFF1E3A3A), thickness = 1.dp)
+            Divider(color = DeepBlue, thickness = 1.dp)
 
             NotificationToggleItem("Streak Notifications")
-            Divider(color = Color(0xFF1E3A3A), thickness = 1.dp)
+            Divider(color = DeepBlue, thickness = 1.dp)
 
             NotificationToggleItem("Mealtime Notifications")
+            Divider(color = DeepBlue, thickness = 1.dp)
         }
     }
 }
