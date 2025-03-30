@@ -93,7 +93,8 @@ fun Login(
                 onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
                 placeholder = {
                     Text("Email Address", color = Color.Gray)
-                },                singleLine = true,
+                },
+                singleLine = true,
                 leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
                 modifier = Modifier.width(300.dp).height(60.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -113,7 +114,8 @@ fun Login(
                 onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
                 placeholder = {
                     Text("Password", color = Color.Gray)
-                },                singleLine = true,
+                },
+                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
                 modifier = Modifier.width(300.dp).height(60.dp),
