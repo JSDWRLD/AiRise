@@ -88,7 +88,9 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("First Name") },
+                placeholder = {
+                    Text("First Name", color = Color.Gray)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -108,7 +110,9 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = middleName,
                 onValueChange = { middleName = it },
-                label = { Text("Middle Name (Optional)") },
+                placeholder = {
+                    Text("Middle Name (Optional)", color = Color.Gray)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -128,7 +132,9 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Last Name") },
+                placeholder = {
+                    Text("Last Name", color = Color.Gray)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
