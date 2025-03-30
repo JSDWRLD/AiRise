@@ -23,10 +23,15 @@ import com.teamnotfound.airise.cache.FakeSummaryCache
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import com.khealth.KHealth
 
 class MainActivity : ComponentActivity() {
+    private val kHealth = KHealth(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //This is REQUIRED for the library to work properly (on Android only)
+        kHealth.initialise()
 
         val userClient = UserClient(createHttpClient(OkHttp.create()))
         val userCache = UserCacheAndroid(applicationContext)
@@ -34,8 +39,9 @@ class MainActivity : ComponentActivity() {
 
         val container = AppContainer(
             userClient = userClient,
+            kHealth = kHealth,
             userCache = userCache,
-            summaryCache = summaryCache
+            summaryCache = summaryCache,
         )
         //For debugging
 //        lifecycleScope.launch(Dispatchers.IO) {
@@ -52,6 +58,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*
 @Preview
 @Composable
 fun AppAndroidPreview() {
@@ -67,3 +74,4 @@ fun AppAndroidPreview() {
     )
 
 }
+*/
