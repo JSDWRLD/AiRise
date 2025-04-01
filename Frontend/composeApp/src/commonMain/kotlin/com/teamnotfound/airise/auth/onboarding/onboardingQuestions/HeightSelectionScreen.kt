@@ -18,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
-import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun HeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
@@ -44,7 +42,7 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                 text = "What Is Your Height?",
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = Color.White,
+                    color = White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -55,7 +53,7 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
             Row(
                 modifier = Modifier
                     .padding(16.dp)
-                    .background(Color.Gray, RoundedCornerShape(16.dp)),
+                    .background(Silver, RoundedCornerShape(16.dp)),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Box(
@@ -66,12 +64,12 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                             newUser.heightMetric.value = false
                             newUser.heightValue.value = 0
                         }
-                        .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
+                        .background(if (!newUser.heightMetric.value) White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "IN",
-                        color = if (!newUser.heightMetric.value) Color.Black else Color.White,
+                        color = if (!newUser.heightMetric.value) Color.Black else White,
                         fontSize = 18.sp
                     )
                 }
@@ -83,12 +81,12 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                             newUser.heightMetric.value = true
                             newUser.heightValue.value = 0
                         }
-                        .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
+                        .background(if (newUser.heightMetric.value) White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "CM",
-                        color = if (newUser.heightMetric.value) Color.Black else Color.White,
+                        color = if (newUser.heightMetric.value) Color.Black else White,
                         fontSize = 18.sp
                     )
                 }
@@ -114,14 +112,14 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                     backgroundColor = DeepBlue,
                     disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Continue", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.util.*
 
 //Defines navigation routes for bottom navigation bar
 @Composable
@@ -45,14 +46,14 @@ fun BottomNavigationBar(navController: NavHostController){
         NavBarItems.Progress
     )
     BottomNavigation(
-        backgroundColor = Color.Black,
+        backgroundColor = Transparent,
         contentColor = Color.White,
         elevation = 5.dp,
         modifier = Modifier
             .height(90.dp)
             .drawBehind {
                 drawLine(
-                    color = Color(0xFFFFA500),
+                    color = Orange,
                     start = Offset(0f, 0f),
                     end = Offset(size.width, 0f),
                     strokeWidth = 4f

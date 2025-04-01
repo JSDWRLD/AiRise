@@ -205,7 +205,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
 fun HeartRateBox(label: String, value: String, unit: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .height(240.dp)
+            .height(255.dp)
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, Silver, RoundedCornerShape(16.dp))
             .background(Transparent)
