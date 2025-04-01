@@ -16,7 +16,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
-import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun SignUpScreen(
@@ -63,7 +63,7 @@ fun SignUpScreen(
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFFFFA500)
+                    tint = Orange
                 )
             }
         }
@@ -93,7 +93,7 @@ fun SignUpScreen(
             Text(
                 "Create your account",
                 fontSize = 24.sp,
-                color = Color.White
+                color = White
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -103,18 +103,18 @@ fun SignUpScreen(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = {
-                    Text("Email Address", color = Color.Gray)
+                    Text("Email Address", color = Silver)
                 },                singleLine = true,
-                leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Silver) },
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp)
-                    .background(Color(0xFF1B263B), RoundedCornerShape(20.dp)),
+                    .background(White, RoundedCornerShape(20.dp)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
                 )
             )
 
@@ -125,19 +125,19 @@ fun SignUpScreen(
                 value = password,
                 onValueChange = { password = it },
                 placeholder = {
-                    Text("Password", color = Color.Gray)
+                    Text("Password", color = Silver)
                 },                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Silver) },
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp)
-                    .background(Color(0xFF1B263B), RoundedCornerShape(20.dp)),
+                    .background(White, RoundedCornerShape(20.dp)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
                 )
             )
 
@@ -148,19 +148,19 @@ fun SignUpScreen(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 placeholder = {
-                    Text("Confirm Password", color = Color.Gray)
+                    Text("Confirm Password", color = Silver)
                 },                singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Silver) },
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp)
-                    .background(Color(0xFF1B263B), RoundedCornerShape(20.dp)),
+                    .background(White, RoundedCornerShape(20.dp)),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
                 )
             )
 
@@ -189,17 +189,17 @@ fun SignUpScreen(
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
                 enabled = passwordsMatch //disable button when passwords do not match
             ) {
-                Text("Create Account", color = Color.White)
+                Text("Create Account", color = White)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             // forgot password button
             TextButton(onClick = onForgotPasswordClick) {
-                Text("Forgot password?", color = Color.White, fontSize = 12.sp)
+                Text("Forgot password?", color = White, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -209,9 +209,9 @@ fun SignUpScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Divider(modifier = Modifier.weight(1f), color = Color.Gray, thickness = 1.dp)
+                Divider(modifier = Modifier.weight(1f), color = Silver, thickness = 1.dp)
                 Text("  or  ", color = Color.Gray)
-                Divider(modifier = Modifier.weight(1f), color = Color.Gray, thickness = 1.dp)
+                Divider(modifier = Modifier.weight(1f), color = Silver, thickness = 1.dp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -223,9 +223,9 @@ fun SignUpScreen(
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
             ) {
-                Text("Continue with Google", color = Color.White)
+                Text("Continue with Google", color = White)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -237,7 +237,7 @@ fun SignUpScreen(
             ) {
                 Text(
                     "By registering, you agree to our:",
-                    color = Color.White,
+                    color = White,
                     fontSize = 12.sp
                 )
             }
@@ -249,10 +249,10 @@ fun SignUpScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 TextButton(onClick = { /* Terms */ }, contentPadding = PaddingValues(0.dp)) {
-                    Text("Terms & Conditions", color = Color(0xFFFFA500), fontSize = 12.sp)
+                    Text("Terms & Conditions", color = Orange, fontSize = 12.sp)
                 }
                 TextButton(onClick = { /* Policy */ }, contentPadding = PaddingValues(0.dp)) {
-                    Text("Privacy Policy", color = Color(0xFFFFA500), fontSize = 12.sp)
+                    Text("Privacy Policy", color = Orange, fontSize = 12.sp)
                 }
             }
 
@@ -266,12 +266,12 @@ fun SignUpScreen(
             ) {
                 Text(
                     "Already have an account?",
-                    color = Color.White,
+                    color = White,
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 TextButton(onClick = onLoginClick, contentPadding = PaddingValues(0.dp)) {
-                    Text("Log in", color = Color.White, fontSize = 12.sp)
+                    Text("Log in", color = White, fontSize = 12.sp)
                 }
             }
         }

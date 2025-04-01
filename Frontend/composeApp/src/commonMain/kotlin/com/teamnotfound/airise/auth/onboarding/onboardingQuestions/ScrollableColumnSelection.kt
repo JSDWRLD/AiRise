@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.util.*
+
 
 /*
  * Generic scrollable colum
@@ -50,16 +52,16 @@ fun ScrollableColumnSelection(
             Text(
                 text = label,
                 fontSize = 16.sp,
-                color = Color.White,
+                color = White,
                 fontWeight = FontWeight.SemiBold
             )
         }
         // list wheel
         Box(
             modifier = Modifier
-                .height(200.dp)
+                .height(300.dp)
                 .width(100.dp)
-                .background(Color.DarkGray, RoundedCornerShape(8.dp)),
+                .background(DeepBlue, RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
             LazyColumn(
@@ -72,7 +74,7 @@ fun ScrollableColumnSelection(
                         text = item.toString(),
                         fontSize = if (isSelected) 32.sp else 24.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Color(0xFFCE5100) else Color.White,
+                        color = if (isSelected) Orange else White,
                         modifier = Modifier
                             .padding(4.dp)
                             .clickable { onItemSelected(item) }

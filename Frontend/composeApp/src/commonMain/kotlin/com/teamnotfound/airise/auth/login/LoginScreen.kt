@@ -15,7 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
-import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun LoginScreen(
@@ -73,7 +73,7 @@ fun Login(
             Icon(
                 Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = "Back",
-                tint = Color(0xFFFFA500)
+                tint = Orange
             )
         }
 
@@ -85,7 +85,7 @@ fun Login(
                 .padding(top = 50.dp) // Match SignUpScreen top padding
                 .padding(24.dp)
         ) {
-            Text("Welcome back!", fontSize = 24.sp, color = Color.White)
+            Text("Welcome back!", fontSize = 24.sp, color = White)
             Spacer(modifier = Modifier.height(24.dp))
 
             // Email Input
@@ -93,17 +93,17 @@ fun Login(
                 value = uiState.email,
                 onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
                 placeholder = {
-                    Text("Email Address", color = Color.Gray)
+                    Text("Email Address", color = Silver)
                 },
                 singleLine = true,
-                leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = "Email Icon", tint = Silver) },
                 modifier = Modifier.width(300.dp).height(60.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver
                 )
             )
 
@@ -114,18 +114,18 @@ fun Login(
                 value = uiState.password,
                 onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
                 placeholder = {
-                    Text("Password", color = Color.Gray)
+                    Text("Password", color = Silver)
                 },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Color.Gray) },
+                leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = "Password Icon", tint = Silver) },
                 modifier = Modifier.width(300.dp).height(60.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver
                 )
             )
 
@@ -147,12 +147,12 @@ fun Login(
                 enabled = !uiState.isLoading,
                 modifier = Modifier.width(300.dp).height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
             ) {
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = White, strokeWidth = 2.dp)
                 } else {
-                    Text("Login", color = Color.White)
+                    Text("Login", color = White)
                 }
             }
 
@@ -160,7 +160,7 @@ fun Login(
 
             // Forgot Password Button
             TextButton(onClick = onForgotPasswordClick) {
-                Text("Forgot password?", color = Color.White, fontSize = 12.sp)
+                Text("Forgot password?", color = White, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -170,9 +170,9 @@ fun Login(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Divider(modifier = Modifier.weight(1f), color = Color.Gray, thickness = 1.dp)
+                Divider(modifier = Modifier.weight(1f), color = Silver, thickness = 1.dp)
                 Text("  or  ", color = Color.Gray)
-                Divider(modifier = Modifier.weight(1f), color = Color.Gray, thickness = 1.dp)
+                Divider(modifier = Modifier.weight(1f), color = Silver, thickness = 1.dp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -182,9 +182,9 @@ fun Login(
                 onClick = onGoogleSignInClick,
                 modifier = Modifier.width(300.dp).height(50.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
             ) {
-                Text("Continue with Google", color = Color.White)
+                Text("Continue with Google", color = White)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -194,7 +194,7 @@ fun Login(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("By registering, you agree to our:", color = Color.White, fontSize = 12.sp)
+                Text("By registering, you agree to our:", color = White, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(3.dp))
@@ -204,10 +204,10 @@ fun Login(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 TextButton(onClick = { /* TODO: Add Terms */ }, contentPadding = PaddingValues(0.dp)) {
-                    Text("Terms & Conditions", color = Color(0xFFFFA500), fontSize = 12.sp)
+                    Text("Terms & Conditions", color = Orange, fontSize = 12.sp)
                 }
                 TextButton(onClick = onPrivacyPolicyClick, contentPadding = PaddingValues(0.dp)) {
-                    Text("Privacy Policy", color = Color(0xFFFFA500), fontSize = 12.sp)
+                    Text("Privacy Policy", color = Orange, fontSize = 12.sp)
                 }
             }
 
@@ -219,11 +219,11 @@ fun Login(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Don't have an account?", color = Color.White, fontSize = 12.sp)
+                Text("Don't have an account?", color = White, fontSize = 12.sp)
                 Spacer(modifier = Modifier.width(3.dp))
 
                 TextButton(onClick = onSignUpClick, contentPadding = PaddingValues(0.dp)) {
-                    Text("Sign up", color = Color.White, fontSize = 12.sp)
+                    Text("Sign up", color = White, fontSize = 12.sp)
                 }
             }
         }

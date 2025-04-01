@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun RecoverAccountScreen(
@@ -42,7 +42,7 @@ fun RecoverAccountScreen(
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFFFFA500)
+                    tint = Orange
                 )
             }
         }
@@ -75,20 +75,20 @@ fun RecoverAccountScreen(
                     Icon(
                         imageVector = Icons.Outlined.Email,
                         contentDescription = "Email",
-                        tint = Color.Gray
+                        tint = Silver
                     )
                 },
-                label = { Text("Email Address", color = Color.Gray) },
+                label = { Text("Email Address", color = Silver) },
                 singleLine = true,
                 modifier = Modifier
                     .width(300.dp)
                     .height(60.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
                 )
             )
 
@@ -104,7 +104,7 @@ fun RecoverAccountScreen(
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
             ) {
                 Text("Send Email", color = Color.White)
             }

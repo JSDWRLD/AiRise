@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun PrivacyPolicyScreen(
@@ -37,7 +37,7 @@ fun PrivacyPolicyScreen(
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFFFFA500)
+                    tint = Orange
                 )
             }
         }
@@ -52,7 +52,7 @@ fun PrivacyPolicyScreen(
                 .padding(24.dp)
         ) {
 
-            Text("AiRise Terms of Use", fontSize = 24.sp, color = Color.White)
+            Text("AiRise Terms of Use", fontSize = 24.sp, color = White)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -67,7 +67,7 @@ fun PrivacyPolicyScreen(
                         "6. Problems and Disputes\n" +
                         "7. About these terms\n",
                 fontSize = 20.sp,
-                color = Color.White,
+                color = White,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth(0.85f)

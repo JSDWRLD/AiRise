@@ -39,9 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
-import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.*
 
 // Text input question screen for any workout restrictions
 @Composable
@@ -60,7 +58,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 backgroundColor = BgBlack,
-                contentColor = Color.White,
+                contentColor = White,
                 elevation = 0.dp,
             ) {
                 Box(
@@ -71,7 +69,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                     // Center title
                     Text(
                         "Fitness Goal (9/13)",
-                        color = Color.White,
+                        color = White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.align(Alignment.Center)
@@ -84,7 +82,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFCE5100)
+                            tint = Orange
                         )
                     }
 
@@ -94,7 +92,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                     ) {
                         Text(
                             "Skip",
-                            color = Color(0xFFCE5100),
+                            color = Orange,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -107,7 +105,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
             //question formatting
             Text(
                 text = questionText,
-                style = TextStyle(fontSize = 30.sp, color = Color.White, fontWeight = FontWeight.Bold),
+                style = TextStyle(fontSize = 30.sp, color = White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -138,14 +136,14 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                             selected = selectedOption == option,
                             onClick = { selectedOption = option },
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = Color(0xFFFFA500),
-                                unselectedColor = Color.White
+                                selectedColor = Orange,
+                                unselectedColor = White
                             )
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = option,
-                            color = Color.White,
+                            color = White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -156,7 +154,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                     Spacer(modifier = Modifier.height(1.dp))
                     Text(
                         text = subtext,
-                        color = Color.Gray,
+                        color = Silver,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(start = 40.dp)
                     )
@@ -164,7 +162,7 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                 //divider
                 if (index != options.lastIndex) {
                     androidx.compose.material.Divider(
-                        color = Color.DarkGray.copy(alpha = 0.5f),
+                        color = Silver.copy(alpha = 0.5f),
                         thickness = 0.8.dp
                     )
                 }
@@ -174,17 +172,19 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                 OutlinedTextField(
                     value = textInput,
                     onValueChange = { textInput = it },
-                    label = { Text("Enter here - Specify any unique limitations or concerns") },
+                    placeholder = {
+                        Text("Enter here - Specify any unique limitation and/or concerns", color = Silver)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        backgroundColor = Color(0xFFE0E0E0),
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray,
-                        textColor = Color.Gray,
-                        cursorColor = Color.Gray,
-                        focusedLabelColor = Color.Gray
+                        backgroundColor = White,
+                        focusedBorderColor = Silver,
+                        unfocusedBorderColor = Silver,
+                        textColor = Silver,
+                        cursorColor = Silver,
+                        focusedLabelColor = Silver
                     )
                 )
             }
@@ -200,14 +200,14 @@ fun WorkoutRestrictionsScreen( navController: NavController, newUser: UserData) 
                     backgroundColor = DeepBlue,
                     disabledBackgroundColor = DeepBlue
                 ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Orange),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White)
+                Text("Continue", color = White)
             }
         }
     }

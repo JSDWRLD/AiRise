@@ -17,9 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
-import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
@@ -41,7 +39,7 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                 text = "Select Your Date of Birth",
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = Color.White,
+                    color = White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -69,14 +67,14 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                     backgroundColor = DeepBlue,
                     disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Continue", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
