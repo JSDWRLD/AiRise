@@ -51,9 +51,75 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ScrollableColumnSelection("Year", yearRange, newUser.dobYear.value) { newUser.dobYear.value = it }
-                ScrollableColumnSelection("Month", monthRange, newUser.dobMonth.value) { newUser.dobMonth.value = it }
-                ScrollableColumnSelection("Day", dayRange, newUser.dobDay.value) { newUser.dobDay.value = it }
+
+                //year section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobYear.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Year",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        yearRange,
+                        newUser.dobYear.value
+                    ) { newUser.dobYear.value = it }
+                }
+
+                //month section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobMonth.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Month",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        monthRange,
+                        newUser.dobMonth.value
+                    ) { newUser.dobMonth.value = it }
+                }
+
+                //day section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobDay.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Day",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        dayRange,
+                        newUser.dobDay.value
+                    ) { newUser.dobDay.value = it }
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))

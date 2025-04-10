@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -52,14 +53,17 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
 
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(56.dp)
                     .background(Silver, RoundedCornerShape(16.dp)),
-                horizontalArrangement = Arrangement.Center
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
                         .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             newUser.heightMetric.value = false
                             newUser.heightValue.value = 0
@@ -70,13 +74,16 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                     Text(
                         text = "IN",
                         color = if (!newUser.heightMetric.value) Color.Black else White,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
+
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
                         .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             newUser.heightMetric.value = true
                             newUser.heightValue.value = 0
@@ -87,9 +94,23 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                     Text(
                         text = "CM",
                         color = if (newUser.heightMetric.value) Color.Black else White,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            //show selected value
+            if (newUser.heightValue.value != 0) {
+                Text(
+                    text = "${newUser.heightValue.value} ${if (newUser.heightMetric.value) "CM" else "IN"}",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = White,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
