@@ -1,28 +1,14 @@
-package com.teamnotfound.airise.home
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.RadioButton
-import androidx.compose.material.RadioButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,23 +18,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun AiPersonalityScreen(user: UserData, navController: NavController){
-    // temp until placed in UserOnboarding
+fun AiPersonalityScreen(user: UserData, navController: NavController) {
     var personalityOption by remember { mutableStateOf<String?>(null) }
-    // body
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
-            // title
+
             Text(
                 text = "Customize Ai Personality",
                 style = TextStyle(
@@ -58,14 +71,15 @@ fun AiPersonalityScreen(user: UserData, navController: NavController){
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+
             Spacer(modifier = Modifier.height(16.dp))
-            // list
+
             listOf("Strong & Energetic", "Tough & No-Nonsense", "Supportive & Compassionate", "Science-Based & Analytical").forEach { option ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { personalityOption = option }
-                        .padding(10.dp),
+                        .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
@@ -77,24 +91,31 @@ fun AiPersonalityScreen(user: UserData, navController: NavController){
                         )
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(text = option, color = Color.White)
+                    Text(text = option, color = Color.White, fontSize = 18.sp)
                 }
+                Divider(color = DeepBlue, thickness = 1.dp)
             }
         }
-        // continue button
+
+        // Continue button
         Button(
             onClick = { navController.popBackStack() },
             enabled = personalityOption != null,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = DeepBlue,
+                disabledBackgroundColor = Silver
+            ),
             border = BorderStroke(1.dp, Color(0xFFCE5100)),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(50.dp)
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                .padding(horizontal = 16.dp)
         ) {
-            Text("Continue", fontSize = 18.sp, color = Color.White)
+            Text("Continue", fontSize = 18.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

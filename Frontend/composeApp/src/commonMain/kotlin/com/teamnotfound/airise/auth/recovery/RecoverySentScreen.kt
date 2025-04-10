@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun RecoverySentScreen(
@@ -22,7 +23,7 @@ fun RecoverySentScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A1E22))
+            .background(BgBlack)
     ) {
         // back arrow
         Box(
@@ -38,7 +39,7 @@ fun RecoverySentScreen(
                 Icon(
                     Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFFFFA500)
+                    tint = Orange
                 )
             }
         }
@@ -61,7 +62,7 @@ fun RecoverySentScreen(
             Text(
                 "We've sent you an email.\nFollow the instructions to access your AiRise account.",
                 fontSize = 14.sp,
-                color = Color.White,
+                color = Silver,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth(0.85f)
@@ -78,7 +79,7 @@ fun RecoverySentScreen(
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
             ) {
                 Text("Back to Login", color = Color.White)
             }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,47 +18,44 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.*
 
-/*
- * Page to select user weight
- */
 @Composable
-fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
-    // weight ranges
-    val weightRange = if (newUser.weightMetric.value) {
-        (45..150 step 5)
-    } else {
-        (100..330 step 5)
+fun WeightSelectionScreen(navController: NavController,  nextScreen: String, newUser: UserData) {
+    val weightRange = remember(newUser.weightMetric.value) {
+        if (newUser.weightMetric.value) {
+            (45..150 step 5).toList()
+        } else {
+            (100..330 step 5).toList()
+        }
     }
-    // body
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(40.dp))
-            // title
+
             Text(
                 text = "What Is Your Weight?",
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = Color.White,
+                    color = White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-            // metric select
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
                 modifier = Modifier
                     .padding(16.dp)
-                    .background(Color.Gray, RoundedCornerShape(16.dp)),
+                    .background(Silver, RoundedCornerShape(16.dp)),
                 horizontalArrangement = Arrangement.Center
             ) {
-                // pounds
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
@@ -65,16 +64,15 @@ fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUs
                             newUser.weightMetric.value = false
                             newUser.weightValue.value = 0
                         }
-                        .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
+                        .background(if (!newUser.weightMetric.value) White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "LB",
-                        color = if (!newUser.weightMetric.value) Color.Black else Color.White,
+                        color = if (!newUser.weightMetric.value) Color.Black else White,
                         fontSize = 18.sp
                     )
                 }
-                // kilos
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
@@ -83,38 +81,48 @@ fun WeightSelectionScreen(navController: NavController, nextRoute: String, newUs
                             newUser.weightMetric.value = true
                             newUser.weightValue.value = 0
                         }
-                        .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
+                        .background(if (newUser.weightMetric.value) White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "KG",
-                        color = if (newUser.weightMetric.value) Color.Black else Color.White,
+                        color = if (newUser.weightMetric.value) Color.Black else White,
                         fontSize = 18.sp
                     )
                 }
             }
-            // weight scroll
-            ScrollableColumnSelection(
-                label = null,
-                items = weightRange.toList(),
-                selectedItem = newUser.weightValue.value,
-                onItemSelected = { newUser.weightValue.value = it },
-            )
-        }
-        // continue button
-        Button(
-            onClick = { navController.navigate(nextRoute) },
-            enabled = newUser.weightValue.value != 0,
-            border = BorderStroke(1.dp, Color(0xFFCE5100)),
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1B424B))
-        ) {
-            Text("Continue", color = Color.White)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                ScrollableColumnSelection(null, weightRange, newUser.weightValue.value) {
+                    newUser.weightValue.value = it
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { navController.navigate(nextScreen) },
+                enabled = newUser.weightValue.value != 0,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
+                ),
+                border = BorderStroke(1.dp, Orange),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text("Continue", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

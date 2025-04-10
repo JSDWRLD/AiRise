@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
+package com.teamnotfound.airise.home.accountSettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,16 +17,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.*
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun HeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
-    val heightRange = remember(newUser.heightMetric.value) {
-        if (newUser.heightMetric.value) {
-            (140..210 step 5).toList()
+fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
+    val weightRange = remember(newUser.weightMetric.value) {
+        if (newUser.weightMetric.value) {
+            (45..150 step 5).toList()
         } else {
-            (50..80 step 1).toList()
+            (100..330 step 5).toList()
         }
     }
 
@@ -34,15 +37,40 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                backgroundColor = BgBlack,
+                contentColor = Color.White,
+                elevation = 0.dp,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFFFFA500)
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = "What Is Your Height?",
+                text = "What Is Your Weight?",
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = White,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -53,7 +81,7 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
             Row(
                 modifier = Modifier
                     .padding(16.dp)
-                    .background(Silver, RoundedCornerShape(16.dp)),
+                    .background(Color.Gray, RoundedCornerShape(16.dp)),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Box(
@@ -61,15 +89,15 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                         .padding(8.dp)
                         .weight(1f)
                         .clickable {
-                            newUser.heightMetric.value = false
-                            newUser.heightValue.value = 0
+                            newUser.weightMetric.value = false
+                            newUser.weightValue.value = 0
                         }
-                        .background(if (!newUser.heightMetric.value) White else Color.Transparent),
+                        .background(if (!newUser.weightMetric.value) Color.White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "IN",
-                        color = if (!newUser.heightMetric.value) Color.Black else White,
+                        text = "LB",
+                        color = if (!newUser.weightMetric.value) Color.Black else Color.White,
                         fontSize = 18.sp
                     )
                 }
@@ -78,15 +106,15 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                         .padding(8.dp)
                         .weight(1f)
                         .clickable {
-                            newUser.heightMetric.value = true
-                            newUser.heightValue.value = 0
+                            newUser.weightMetric.value = true
+                            newUser.weightValue.value = 0
                         }
-                        .background(if (newUser.heightMetric.value) White else Color.Transparent),
+                        .background(if (newUser.weightMetric.value) Color.White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "CM",
-                        color = if (newUser.heightMetric.value) Color.Black else White,
+                        text = "KG",
+                        color = if (newUser.weightMetric.value) Color.Black else Color.White,
                         fontSize = 18.sp
                     )
                 }
@@ -98,28 +126,28 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                ScrollableColumnSelection(null, heightRange, newUser.heightValue.value) {
-                    newUser.heightValue.value = it
+                ScrollableColumnSelection(null, weightRange, newUser.weightValue.value) {
+                    newUser.weightValue.value = it
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextScreen) },
-                enabled = newUser.heightValue.value != 0,
+                onClick = { navController.navigate(nextRoute) },
+                enabled = newUser.weightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
-                    disabledBackgroundColor = DeepBlue
+                    disabledBackgroundColor = Silver
                 ),
-                border = BorderStroke(1.dp, Orange),
+                border = BorderStroke(1.dp, Color(0xFFCE5100)),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
+import com.teamnotfound.airise.util.*
 
 // Single selection question screen
 @Composable
@@ -34,12 +35,12 @@ fun QuestionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
+                backgroundColor = BgBlack,
+                contentColor = White,
                 elevation = 0.dp
             ) {
                 Box(
@@ -50,7 +51,7 @@ fun QuestionScreen(
 
                     Text(
                         "Fitness Goal ($questionCount/13)",
-                        color = Color.White,
+                        color = White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.align(Alignment.Center)
@@ -65,7 +66,7 @@ fun QuestionScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFCE5100)
+                                    tint = Orange
                                 )
                             }
                         }
@@ -77,7 +78,7 @@ fun QuestionScreen(
                     ) {
                         Text(
                             "Skip",
-                            color = Color(0xFFCE5100),
+                            color = Orange,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -91,7 +92,7 @@ fun QuestionScreen(
                 text = questionText,
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = Color.White,
+                    color = White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(
@@ -122,14 +123,14 @@ fun QuestionScreen(
                             selected = selectedOption == option,
                             onClick = { selectedOption = option },
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = Color(0xFFFFA500),
-                                unselectedColor = Color.White
+                                selectedColor = Orange,
+                                unselectedColor = White
                             )
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = option,
-                            color = Color.White,
+                            color = White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -138,13 +139,13 @@ fun QuestionScreen(
                     //formats sub descriptions if there are any
                     if (subtext.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = subtext, color = Color.Gray, fontSize = 12.sp)
+                        Text(text = subtext, color = Silver, fontSize = 12.sp)
                     }
                 }
 
                 //divider inbetween each option for styling
                 if (index != options.lastIndex) {
-                    Divider(color = Color.DarkGray.copy(alpha = 0.5f), thickness = 0.8.dp)
+                    Divider(color = DeepBlue.copy(alpha = 0.5f), thickness = 0.8.dp)
                 }
             }
 
@@ -155,17 +156,17 @@ fun QuestionScreen(
                 },
                 enabled = selectedOption != null,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF1B424B),
-                    disabledBackgroundColor = Color(0xFF1B424B)
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White)
+                Text("Continue", color = White)
             }
         }
     }
@@ -187,12 +188,12 @@ fun MultiSelectQuestionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
+                backgroundColor = BgBlack,
+                contentColor = White,
                 elevation = 0.dp
             ) {
                 Box(
@@ -203,7 +204,7 @@ fun MultiSelectQuestionScreen(
 
                     Text(
                         "Fitness Goal ($questionCount/13)",
-                        color = Color.White,
+                        color = White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.align(Alignment.Center)
@@ -218,7 +219,7 @@ fun MultiSelectQuestionScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFFFA500)
+                                    tint = Orange
                                 )
                             }
                         }
@@ -230,7 +231,7 @@ fun MultiSelectQuestionScreen(
                     ) {
                         Text(
                             "Skip",
-                            color = Color(0xFFFFA500),
+                            color = Orange,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -244,7 +245,7 @@ fun MultiSelectQuestionScreen(
                 text = questionText,
                 style = TextStyle(
                     fontSize = 30.sp,
-                    color = Color.White,
+                    color = White,
                     fontWeight = FontWeight.Bold
                 ),
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -281,14 +282,14 @@ fun MultiSelectQuestionScreen(
                             selectedOptions.value = newSelection
                         },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFFFFA500),
-                            uncheckedColor = Color.White
+                            checkedColor = Orange,
+                            uncheckedColor = White
                         )
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = option,
-                        color = Color.White,
+                        color = White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -297,14 +298,14 @@ fun MultiSelectQuestionScreen(
                     Spacer(modifier = Modifier.height(1.dp))
                     Text(
                         text = subtext,
-                        color = Color.Gray,
+                        color = Silver,
                         fontSize = 12.sp,
                         modifier = Modifier.padding(start = 30.dp)
                     )
                 }
 
                 if (index != options.lastIndex) {
-                    Divider(color = Color.DarkGray.copy(alpha = 0.5f), thickness = 0.8.dp)
+                    Divider(color = DeepBlue.copy(alpha = 0.5f), thickness = 0.8.dp)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -318,17 +319,17 @@ fun MultiSelectQuestionScreen(
                 },
                 enabled = selectedOptions.value.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF21565C),
-                    disabledBackgroundColor = Color(0xFF21565C)
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White)
+                Text("Continue", color = White)
             }
         }
     }

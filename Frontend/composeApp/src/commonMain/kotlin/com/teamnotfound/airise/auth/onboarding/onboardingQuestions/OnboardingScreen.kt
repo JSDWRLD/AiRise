@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.cache.SummaryCache
+import com.teamnotfound.airise.util.*
 
 //Creates entry point for onboarding screens
 @Composable
@@ -52,12 +53,12 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
             Box (
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF091819))
+                    .background(BgBlack)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
-                        backgroundColor = Color(0xFF091819),
-                        contentColor = Color.White,
+                        backgroundColor = BgBlack,
+                        contentColor = White,
                         elevation = 0.dp
                     ) {
                         Box(
@@ -67,7 +68,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                         ) {
                             Text(
                                 "Fitness Goal (10/13)",
-                                color = Color.White,
+                                color = White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
@@ -80,7 +81,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFCE5100)
+                                    tint = Orange
                                 )
                             }
 
@@ -90,7 +91,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                             ) {
                                 Text(
                                     "Skip",
-                                    color = Color(0xFFCE5100),
+                                    color = Orange,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -109,12 +110,12 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF091819))
+                    .background(BgBlack)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
-                        backgroundColor = Color(0xFF091819),
-                        contentColor = Color.White,
+                        backgroundColor = BgBlack,
+                        contentColor = White,
                         elevation = 0.dp
                     ) {
                         Box(
@@ -124,7 +125,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                         ) {
                             Text(
                                 "Fitness Goal (11/13)",
-                                color = Color.White,
+                                color = White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
@@ -137,7 +138,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFCE5100)
+                                    tint = Orange
                                 )
                             }
 
@@ -147,7 +148,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                             ) {
                                 Text(
                                     "Skip",
-                                    color = Color(0xFFCE5100),
+                                    color = Orange,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
                                 )
@@ -166,12 +167,12 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF091819))
+                    .background(BgBlack)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
-                        backgroundColor = Color(0xFF091819),
-                        contentColor = Color.White,
+                        backgroundColor = BgBlack,
+                        contentColor = White,
                         elevation = 0.dp
                     ) {
                         Box(
@@ -181,7 +182,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                         ) {
                             Text(
                                 "Fitness Goal (12/13)",
-                                color = Color.White,
+                                color = White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
@@ -194,7 +195,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = Color(0xFFCE5100)
+                                    tint = Orange
                                 )
                             }
 
@@ -204,7 +205,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserData, summa
                             ) {
                                 Text(
                                     "Skip",
-                                    color = Color(0xFFCE5100),
+                                    color = Orange,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium
                                 )

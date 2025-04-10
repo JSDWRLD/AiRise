@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.*
 
 // Name input screen
 @Composable
@@ -29,12 +30,12 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF091819))
+            .background(BgBlack)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
-                backgroundColor = Color(0xFF091819),
-                contentColor = Color.White,
+                backgroundColor = BgBlack,
+                contentColor = White,
                 elevation = 0.dp
             ) {
                 Box(
@@ -44,7 +45,7 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
                 ) {
                     Text(
                         "Fitness Goal (1/13)",
-                        color = Color.White,
+                        color = White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         modifier = Modifier.align(Alignment.Center)
@@ -57,7 +58,7 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color(0xFFCE5100)
+                            tint = Orange
                         )
                     }
 
@@ -67,7 +68,7 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
                     ) {
                         Text(
                             "Skip",
-                            color = Color(0xFFCE5100),
+                            color = Orange,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -79,7 +80,7 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
 
             Text(
                 text = "Please enter your name",
-                style = TextStyle(fontSize = 30.sp, color = Color.White, fontWeight = FontWeight.Bold),
+                style = TextStyle(fontSize = 30.sp, color = White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -88,18 +89,20 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("First Name") },
+                placeholder = {
+                    Text("First Name", color = Silver)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
-                    cursorColor = Color.Gray,
-                    focusedLabelColor = Color.Gray
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
+                    cursorColor = Silver,
+                    focusedLabelColor = Silver
                 )
             )
 
@@ -108,18 +111,20 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = middleName,
                 onValueChange = { middleName = it },
-                label = { Text("Middle Name (Optional)") },
+                placeholder = {
+                    Text("Middle Name (Optional)", color = Silver)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
-                    cursorColor = Color.Gray,
-                    focusedLabelColor = Color.Gray
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
+                    cursorColor = Silver,
+                    focusedLabelColor = Silver
                 )
             )
 
@@ -128,18 +133,20 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
             OutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Last Name") },
+                placeholder = {
+                    Text("Last Name", color = Silver)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    textColor = Color.Gray,
-                    cursorColor = Color.Gray,
-                    focusedLabelColor = Color.Gray
+                    backgroundColor = White,
+                    focusedBorderColor = Silver,
+                    unfocusedBorderColor = Silver,
+                    textColor = Silver,
+                    cursorColor = Silver,
+                    focusedLabelColor = Silver
                 )
             )
 
@@ -154,17 +161,17 @@ fun NameInputScreen(navController: NavController, newUser: UserData){
                 },
                 enabled = firstName.isNotBlank() && lastName.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF21565C),
-                    disabledBackgroundColor = Color(0xFF21565C)
+                    backgroundColor = DeepBlue,
+                    disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
             ) {
-                Text("Continue", color = Color.White)
+                Text("Continue", color = White)
             }
         }
     }

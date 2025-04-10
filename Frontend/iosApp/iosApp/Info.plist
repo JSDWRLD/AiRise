@@ -46,5 +46,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSHealthUpdateUsageDescription</key>
+    	<string>We will sync your data with the Apple Health app to give you better insights</string>
+    	<key>NSHealthShareUsageDescription</key>
+    	<string>We will sync your data with the Apple Health app to give you better insights</string>
 </dict>
 </plist>
