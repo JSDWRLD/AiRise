@@ -5,6 +5,7 @@ import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
 import io.ktor.client.HttpClient
@@ -136,6 +137,34 @@ class UserClient(
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
+
+    /**
+     * API call to insert user health data
+     * Sends a POST request with the health data
+     */
+    suspend fun insertHealthData(firebaseUser: FirebaseUser, healthData: HealthData): Result<Boolean, NetworkError> {
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.post("$baseUrl/User/UserHealthData") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+                setBody(healthData)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            in 200..299 -> Result.Success(true)
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
 
     /**
      * API call for user login.

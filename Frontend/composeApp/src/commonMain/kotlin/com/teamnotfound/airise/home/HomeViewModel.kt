@@ -66,7 +66,7 @@ class HomeViewModel(private val email: String) :  ViewModel(){
                 caloriesBurned = 450,
         steps = 7550,
         avgHeartRate = 115,
-        sleep = 6.5f,
+        sleep = 6,
         workout = 3,
         hydration = 2850f
         )
