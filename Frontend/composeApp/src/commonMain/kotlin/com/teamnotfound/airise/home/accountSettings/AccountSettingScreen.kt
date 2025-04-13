@@ -54,8 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.AppScreen
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.*
 
 
 @Composable
@@ -66,6 +65,7 @@ fun AccountSettingScreen(
     accountSettingViewModel: AccountSettingsViewModel
 ) {
     val uiState by accountSettingViewModel.uiState.collectAsState()
+    var selectedSetting by remember { mutableStateOf<String?>(null) }
 
     // If user is signed out successfully we route to welcome screen
     if (uiState.isSignedOut) {
@@ -202,11 +202,13 @@ fun AccountSettingScreen(
             )
 
             // dob
+            val isDOBSelected = selectedSetting == "DOB"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "DOB"
                         localNavController.navigate(AccountSettingScreens.DOBSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -215,21 +217,25 @@ fun AccountSettingScreen(
                 Text(
                     text = "Edit Date of Birth",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isDOBSelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isDOBSelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
+
             // height
+            val isHeightSelected = selectedSetting == "Height"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "Height"
                         localNavController.navigate(AccountSettingScreens.HeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -238,21 +244,25 @@ fun AccountSettingScreen(
                 Text(
                     text = "Edit Height",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isHeightSelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isHeightSelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
+
             // weight
+            val isWeightSelected = selectedSetting == "Weight"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "Weight"
                         localNavController.navigate(AccountSettingScreens.WeightSelect.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -261,20 +271,25 @@ fun AccountSettingScreen(
                 Text(
                     text = "Edit Weight",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isWeightSelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isWeightSelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
+
+            //edit notifications
+            val isNotificationsSelected = selectedSetting == "Notifications"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "Notifications"
                         localNavController.navigate(AccountSettingScreens.Notifications.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -283,21 +298,25 @@ fun AccountSettingScreen(
                 Text(
                     text = "Edit Notifications",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isNotificationsSelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isNotificationsSelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
+
             // connect device
+            val isDeviceSelected = selectedSetting == "Device"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "Device"
                         // connect to KHealth
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -306,21 +325,25 @@ fun AccountSettingScreen(
                 Text(
                     text = "Connect a New Smart Device",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isDeviceSelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isDeviceSelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
+
             // ai personality
+            val isAISelected = selectedSetting == "AI"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .clickable {
+                        selectedSetting = "AI"
                         localNavController.navigate(AccountSettingScreens.AiPersonality.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -329,16 +352,19 @@ fun AccountSettingScreen(
                 Text(
                     text = "Customize Ai Personality",
                     fontSize = 18.sp,
-                    color = Color.White
+                    color = if (isAISelected) Orange else Color.White
                 )
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Settings Icon",
-                    tint = Color.White
+                    tint = if (isAISelected) Orange else Color.White
                 )
             }
+
             Divider(color = DeepBlue, thickness = 1.dp)
             Spacer(modifier = Modifier.weight(1f))
+
+            //sign out button
             Button(
                 onClick = {
                     accountSettingViewModel.signout()
