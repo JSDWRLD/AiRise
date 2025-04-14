@@ -57,6 +57,33 @@ class UserClient(
         }
     }
 
+    suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.get("$baseUrl/UserData") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+                parameter("firebaseUid", firebaseUid)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            201 -> {
+                val registeredUser = response.body<UserData>()
+                Result.Success(registeredUser)
+            }
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
     suspend fun insertUserData(firebaseUser: FirebaseUser, userData: UserData): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
