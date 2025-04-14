@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -19,19 +20,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
-import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
-    val heightRange = remember(newUser.heightMetric.value) {
-        if (newUser.heightMetric.value) {
-            (140..210 step 5).toList()
-        } else {
-            (50..80 step 1).toList()
-        }
-    }
+    var selectedFeet by remember { mutableStateOf(5) }
+    var selectedInches by remember { mutableStateOf(6) }
+    val cmRange = (140..210 step 1).toList()
+    val feetRange = (0..11).toList()
+    val inchRange = (0..11).toList()
 
     Box(
         modifier = Modifier
@@ -39,6 +36,7 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
             .background(BgBlack)
             .padding(vertical = 24.dp)
     ) {
+        //back button
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 backgroundColor = BgBlack,
@@ -57,15 +55,16 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
                             Icon(
                                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFFFFA500)
+                                tint = Orange
                             )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
+            //title
             Text(
                 text = "What Is Your Height?",
                 style = TextStyle(
@@ -78,56 +77,101 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //Metric/Imperial
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .background(Color.Gray, RoundedCornerShape(16.dp)),
-                horizontalArrangement = Arrangement.Center
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .background(Silver, RoundedCornerShape(16.dp)),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .fillMaxHeight()
                         .weight(1f)
                         .clickable {
                             newUser.heightMetric.value = false
-                            newUser.heightValue.value = 0
+                            newUser.heightValue.value = (selectedFeet * 12) + selectedInches
                         }
                         .background(if (!newUser.heightMetric.value) Color.White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "IN",
+                        text = "Imperial",
                         color = if (!newUser.heightMetric.value) Color.Black else Color.White,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
+
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
+                        .fillMaxHeight()
                         .weight(1f)
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             newUser.heightMetric.value = true
                             newUser.heightValue.value = 0
                         }
-                        .background(if (newUser.heightMetric.value) Color.White else Color.Transparent),
+                        .background(if (newUser.heightMetric.value) White else Color.Transparent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "CM",
-                        color = if (newUser.heightMetric.value) Color.Black else Color.White,
-                        fontSize = 18.sp
+                        text = "Metric",
+                        color = if (newUser.heightMetric.value) Color.Black else White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            //show selected value
+            if (newUser.heightValue.value != 0) {
+                val displayText = if (newUser.heightMetric.value) {
+                    "${newUser.heightValue.value} CM"
+                } else {
+                    val ft = newUser.heightValue.value / 12
+                    val `in` = newUser.heightValue.value % 12
+                    "${ft} FT ${`in`} IN"
+                }
+
+                Text(
+                    text = displayText,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = White,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            //scrollables
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                ScrollableColumnSelection(null, heightRange, newUser.heightValue.value) {
-                    newUser.heightValue.value = it
+                //cm
+                if (newUser.heightMetric.value) {
+                    ScrollableColumnSelection(null, cmRange, newUser.heightValue.value) {
+                        newUser.heightValue.value = it
+                    }
+                } else {
+                    //ft and in
+                    ScrollableColumnSelection("FT", feetRange, selectedFeet) {
+                        selectedFeet = it
+                        newUser.heightValue.value = (selectedFeet * 12) + selectedInches
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ScrollableColumnSelection("IN", inchRange, selectedInches) {
+                        selectedInches = it
+                        newUser.heightValue.value = (selectedFeet * 12) + selectedInches
+                    }
                 }
             }
 
@@ -138,9 +182,9 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
                 enabled = newUser.heightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
-                    disabledBackgroundColor = Silver
+                    disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Color(0xFFCE5100)),
+                border = BorderStroke(1.dp, Orange),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()

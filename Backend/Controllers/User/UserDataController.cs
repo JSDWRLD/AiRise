@@ -20,6 +20,11 @@ public class UserDataController : Controller
         _logger = logger;
     }
 
+    [HttpGet("{firebaseUid}")] 
+    public async Task<UserData> GetUserData(string firebaseUid) {
+        return await _userDataService.GetUserData(firebaseUid);
+    }
+
     [HttpPut("{firebaseUid}")]
     public async Task<IActionResult> UpdateUserData(string firebaseUid, [FromBody] UserData updatedData)
     {

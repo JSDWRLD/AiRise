@@ -5,6 +5,7 @@ import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
 import io.ktor.client.HttpClient
@@ -50,6 +51,7 @@ class UserClient(
                 val registeredUser = response.body<User>()
                 Result.Success(registeredUser)
             }
+
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             409 -> Result.Error(NetworkError.CONFLICT)
             else -> Result.Error(NetworkError.UNKNOWN)
@@ -64,7 +66,7 @@ class UserClient(
             httpClient.get("$baseUrl/UserData") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-                parameter("firebaseUid", "firebaseUid")
+                parameter("firebaseUid", firebaseUid)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -77,13 +79,17 @@ class UserClient(
                 val registeredUser = response.body<UserData>()
                 Result.Success(registeredUser)
             }
+
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             409 -> Result.Error(NetworkError.CONFLICT)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 
-    suspend fun insertUserData(firebaseUser: FirebaseUser, userData: UserData): Result<UserData, NetworkError> {
+    suspend fun insertUserData(
+        firebaseUser: FirebaseUser,
+        userData: UserData
+    ): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
 
@@ -105,6 +111,7 @@ class UserClient(
                 val registeredUser = response.body<UserData>()
                 Result.Success(registeredUser)
             }
+
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             409 -> Result.Error(NetworkError.CONFLICT)
             else -> Result.Error(NetworkError.UNKNOWN)
@@ -112,85 +119,32 @@ class UserClient(
     }
 
     /**
-     * API call to get user onboarding data.
-     * Queries the user record using email.
+     * API call to insert user health data
+     * Sends a POST request with the health data
      */
-    suspend fun getUserOnboarding(email: String): Result<UserOnboardingData, NetworkError> {
-        val response = try {
-            //This is just a place holder for now.
-            httpClient.get("http://localhost:5249/user/onboarding") {
-                parameter("email", email)
-            }
-        } catch(e: UnresolvedAddressException) {
-            return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
-            return Result.Error(NetworkError.SERIALIZATION)
-        }
+    suspend fun insertHealthData(
+        firebaseUser: FirebaseUser,
+        healthData: HealthData
+    ): Result<Boolean, NetworkError> {
+        val token = firebaseUser.getIdToken(true).toString()
 
-        return when(response.status.value) {
-            in 200..299 -> {
-                val onboardingData = response.body<UserOnboardingData>()
-                Result.Success(onboardingData)
-            }
-            401 -> Result.Error(NetworkError.UNAUTHORIZED)
-            else -> Result.Error(NetworkError.UNKNOWN)
-        }
-    }
-
-    /**
-     * API call to insert or update user onboarding data.
-     * Sends a PUT request with the onboarding data in JSON format.
-     */
-    suspend fun insertUserOnboarding(userOnboardingData: UserOnboardingData): Result<UserOnboardingData, NetworkError> {
         val response = try {
-            //This is just a place holder for now.
-            httpClient.put("http://localhost:5249/user/onboarding") {
+            httpClient.post("$baseUrl/User/UserHealthData") {
                 contentType(ContentType.Application.Json)
-                setBody(userOnboardingData)
+                bearerAuth(token)
+                setBody(healthData)
             }
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
+        } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when(response.status.value) {
-            in 200..299 -> {
-                val updatedData = response.body<UserOnboardingData>()
-                Result.Success(updatedData)
-            }
-            409 -> Result.Error(NetworkError.CONFLICT)
-            else -> Result.Error(NetworkError.UNKNOWN)
-        }
-    }
-
-    /**
-     * API call for user login.
-     * Sends the user authentication data (email and password) to our /user/login endpoint.
-     * If successful, should return user onboarding data.
-     */
-    /*
-        suspend fun login(userCredentials: UserLogin): Result<UserModel, NetworkError> {
-        val response = try {
-            //This is just a place holder for now.
-            httpClient.post("$baseUrl/Auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(userCredentials)
-            }
-        } catch(e: UnresolvedAddressException) {
-            return Result.Error(NetworkError.NO_INTERNET)
-        } catch(e: SerializationException) {
-            return Result.Error(NetworkError.SERIALIZATION)
-        }
-
-        return when(response.status.value) {
-            in 200..299 -> {
-                val onboardingData = response.body<UserModel>()
-                Result.Success(onboardingData)
-            }
+        return when (response.status.value) {
+            in 200..299 -> Result.Success(true)
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
-    */
 }

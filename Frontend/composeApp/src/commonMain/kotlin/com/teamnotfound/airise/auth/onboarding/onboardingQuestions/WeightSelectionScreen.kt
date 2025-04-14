@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +33,7 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(40.dp))
@@ -100,7 +99,6 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             //display selected value
             if (newUser.weightValue.value != 0) {
