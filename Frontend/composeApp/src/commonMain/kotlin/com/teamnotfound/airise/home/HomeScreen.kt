@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 
@@ -27,7 +28,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             BottomNavigationBar(navController = bottomNavController)
         },
         topBar = {
-            TopNavBar(navController = navController )
+            TopNavBar(
+                username = uiState.value.username,
+                isLoading = uiState.value.loadingUserData,
+                navController = navController
+            )
         }
     ) { innerPadding ->
         Column(

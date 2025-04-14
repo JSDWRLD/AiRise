@@ -16,7 +16,7 @@ import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.BgBlack
 
 @Composable
-fun TopNavBar(navController: NavController) {
+fun TopNavBar(username: String, navController: NavController, isLoading: Boolean) {
     TopAppBar(
         modifier = Modifier.padding(top = 25.dp),
         backgroundColor = BgBlack, // Dark background color
@@ -39,14 +39,18 @@ fun TopNavBar(navController: NavController) {
 
                 // Greeting text
                 Column {
-                    Text(
-                        text = "Good morning,",
-                        style = MaterialTheme.typography.body2
-                    )
-                    Text(
-                        text = "[User]",
-                        style = MaterialTheme.typography.h6
-                    )
+                    if(isLoading){
+                        CircularProgressIndicator()
+                    }else {
+                        Text(
+                            text = "Good morning,",
+                            style = MaterialTheme.typography.body2
+                        )
+                        Text(
+                            text = username,
+                            style = MaterialTheme.typography.h6
+                        )
+                    }
                 }
             }
         },

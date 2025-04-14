@@ -2,9 +2,15 @@ package com.teamnotfound.airise.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.auth.AuthService
+import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.repository.UserRepository
+import com.teamnotfound.airise.data.repository.UserUiState
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
+import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,7 +23,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
-class HomeViewModel(private val email: String) :  ViewModel(){
+class HomeViewModel(private val userRepository: UserRepository, private val authService: AuthService) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
@@ -45,8 +51,17 @@ class HomeViewModel(private val email: String) :  ViewModel(){
             }
         }
     }
-    private fun getUsername(){
-        _uiState.value = _uiState.value.copy(username = email.substringBefore("@"))
+    private fun getUsername() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(loadingUserData = true)
+            when (val result = authService.fetchUserData()) {
+                is Result.Error<NetworkError> -> _uiState.value = _uiState.value.copy(username = result.error.toString(), loadingUserData = false)
+                is Result.Success<UserData> -> {
+                    val name = result.data.firstName.value
+                    _uiState.value = _uiState.value.copy(username = name, loadingUserData = false)
+                }
+            }
+        }
     }
     private fun generateGreeting(){
         val generalGreetings = arrayOf(

@@ -22,6 +22,7 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -33,8 +34,9 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 @Composable
 fun App(container: AppContainer) {
     val navController = rememberNavController()
+    val auth = Firebase.auth
     val authService = AuthService(
-        auth = Firebase.auth,
+        auth = auth,
         userClient = container.userClient
     )
 
@@ -48,7 +50,11 @@ fun App(container: AppContainer) {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
     }
-
+    val userRepository = UserRepository(
+        auth = auth,
+        container.userClient,
+        container.userCache
+    )
 
     MaterialTheme {
         Column(
@@ -136,7 +142,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        HomeViewModel(email = "User"),
+                        viewModel = HomeViewModel(userRepository, authService),
                         navController = navController
                     )
                 }
