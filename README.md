@@ -1,3 +1,63 @@
+
+# Welcome to AiRise - The AI-Powered Fitness App
+
+
+# Table of Contents: 
+
+1. Synopsis
+
+2. Technology Stack
+
+3. Testing
+
+4. Deployment
+
+5. Repository Rules/Dev Instructions
+
+
+
+
+
+# Synopsis**
+AI-Rise is a mobile app designed to build a simple and enaging experience for users that are trying to meet their fitness/health goals. This will be built for iOS and Android, using Kotlin Multiplatform. The app delivers personalized workout plans, meal suggestions, and health tracking integrated with smart devices. It aims to disrupt the premium fitness market with an affordable, intelligent, and accessible solution.
+
+
+# Technology Stack
+
+AI Model: Gemini 2.0 Flash API
+
+Backend API: C# .NET
+
+Database: MongoDB
+
+Authentication: Firebase Authentication
+
+Mobile App: Kotlin Multiplatform Mobile (KMM)
+
+Cloud Hosting: Microsoft Azure
+
+
+
+
+# Testing
+TBA
+
+
+
+# Deployment 
+Deploy backend API to Azure Cloud.
+
+Publish app on Google Play Store and Apple App Store.
+
+Clone repo and configure environment variables.
+
+Build mobile app using Android Studio/Xcode.
+
+Link Firebase and MongoDB.
+
+
+
+
 # Repository Rules
 
 1. **Branching**: Always create a new branch for each task (use `git checkout -b branch-name`).
