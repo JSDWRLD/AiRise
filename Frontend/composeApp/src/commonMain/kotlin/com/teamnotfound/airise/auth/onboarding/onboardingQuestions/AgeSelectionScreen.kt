@@ -5,12 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,9 +48,75 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                ScrollableColumnSelection("Year", yearRange, newUser.dobYear.value) { newUser.dobYear.value = it }
-                ScrollableColumnSelection("Month", monthRange, newUser.dobMonth.value) { newUser.dobMonth.value = it }
-                ScrollableColumnSelection("Day", dayRange, newUser.dobDay.value) { newUser.dobDay.value = it }
+
+                //year section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobYear.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Year",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        yearRange,
+                        newUser.dobYear.value
+                    ) { newUser.dobYear.value = it }
+                }
+
+                //month section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobMonth.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Month",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        monthRange,
+                        newUser.dobMonth.value
+                    ) { newUser.dobMonth.value = it }
+                }
+
+                //day section
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // selected value
+                    Text(
+                        text = newUser.dobDay.value.toString(),
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // label
+                    Text(
+                        text = "Day",
+                        color = Silver,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ScrollableColumnSelection(
+                        null,
+                        dayRange,
+                        newUser.dobDay.value
+                    ) { newUser.dobDay.value = it }
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))

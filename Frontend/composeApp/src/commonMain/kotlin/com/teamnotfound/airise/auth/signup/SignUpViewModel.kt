@@ -18,6 +18,8 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
 
     fun register(registerUserDTO: RegisterUserDTO) {
         if(!_uiState.value.passwordMatch) return //stops registration if password does not match
+        if (_uiState.value.passwordErrors.isNotEmpty()) return
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
@@ -31,10 +33,32 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
                     _uiState.value = _uiState.value.copy(isSuccess = true)
                 }
                 is AuthResult.Failure -> {
-                    _uiState.value = _uiState.value.copy(errorMessage = authResult.errorMessage)
+                    //send if no local val errors displayed
+                    if (_uiState.value.passwordErrors.isEmpty()) {
+                        _uiState.value = _uiState.value.copy(errorMessage = authResult.errorMessage)
+                    }
                 }
             }
         }
+    }
+
+    //password validation
+    fun validatePassword(password: String, confirmPassword: String) {
+        val errors = mutableListOf<String>()
+
+        if (password.length < 8) errors.add("Password must be at least 8 characters.")
+        if (password.length > 4096) errors.add("Password must not exceed 4096 characters.")
+        if (!password.any { it.isUpperCase() }) errors.add("At least one uppercase letter required.")
+        if (!password.any { it.isLowerCase() }) errors.add("At least one lowercase letter required.")
+        if (!password.any { it.isDigit() }) errors.add("At least one digit required.")
+        if (!password.any { "!@#$%^&*()_+-=[]{}|;:',.<>?/`~".contains(it) }) {
+            errors.add("At least one special character required.")
+        }
+        if (password != confirmPassword) errors.add("Passwords do not match.")
+
+        _uiState.value = _uiState.value.copy(
+            passwordErrors = errors
+        )
     }
 
     private fun mapError(error: NetworkError): String {

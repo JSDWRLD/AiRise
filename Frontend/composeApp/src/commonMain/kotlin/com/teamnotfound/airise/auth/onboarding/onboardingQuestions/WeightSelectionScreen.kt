@@ -6,11 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +33,7 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
+            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.height(40.dp))
@@ -52,14 +52,17 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
 
             Row(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(56.dp)
                     .background(Silver, RoundedCornerShape(16.dp)),
-                horizontalArrangement = Arrangement.Center
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
                         .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             newUser.weightMetric.value = false
                             newUser.weightValue.value = 0
@@ -70,13 +73,15 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
                     Text(
                         text = "LB",
                         color = if (!newUser.weightMetric.value) Color.Black else White,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .fillMaxHeight()
                         .weight(1f)
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             newUser.weightMetric.value = true
                             newUser.weightValue.value = 0
@@ -87,9 +92,23 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
                     Text(
                         text = "KG",
                         color = if (newUser.weightMetric.value) Color.Black else White,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            //display selected value
+            if (newUser.weightValue.value != 0) {
+                Text(
+                    text = "${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = White,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

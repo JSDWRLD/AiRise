@@ -31,6 +31,11 @@ namespace AiRise.Services
             return;
         }
 
+        public async Task<UserData?> GetUserData(string firebaseUid)
+        {
+            return await _userDataCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
+        }
+
         public async Task<bool> UpdateUserDataAsync(string firebaseUid, UserData updatedData)
         {
             var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
