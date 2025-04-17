@@ -10,7 +10,7 @@ import com.khealth.KHealth
 import kotlinx.coroutines.launch
 
 @Composable
-fun HealthDashboardScreen(kHealth: KHealth) {
+fun HealthDashboardScreen(kHealth: KHealth, onBackClick: () -> Unit) {
     val provider = remember { HealthDataProvider(kHealth) }
     val viewModel = remember { HealthDashboardViewModel(provider) }
 

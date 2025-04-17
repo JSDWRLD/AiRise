@@ -318,6 +318,7 @@ fun AccountSettingScreen(
                     .clickable {
                         selectedSetting = "Device"
                         // connect to KHealth
+                        localNavController.navigate(AccountSettingScreens.HealthDashboard.route)
                     },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
