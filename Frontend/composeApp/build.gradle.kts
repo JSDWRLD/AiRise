@@ -124,6 +124,7 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.geometry.android)
+    implementation(libs.material3.android)
     debugImplementation(compose.uiTooling)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
