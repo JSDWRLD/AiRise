@@ -39,6 +39,7 @@ import com.teamnotfound.airise.util.White
 @Composable
 fun AiChat(navController: NavHostController) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
+    val messageResponse = Message("Default response.", ai = true)
     val messageHistory = remember {
         mutableStateListOf(
             Message("Hello! How can I help you?", ai = true),
@@ -144,6 +145,7 @@ fun AiChat(navController: NavHostController) {
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                         .clickable {
                             messageHistory.add(Message(suggestion.text, ai = false))
+                            messageHistory.add(messageResponse)
                         }
                 ) {
                     Text(
@@ -198,6 +200,7 @@ fun AiChat(navController: NavHostController) {
                 if (messageText.text.isNotBlank()) {
                     messageHistory.add(Message(messageText.text, ai = false))
                     messageText = TextFieldValue("")
+                    messageHistory.add(messageResponse)
                 }
             }) {
                 Icon(
