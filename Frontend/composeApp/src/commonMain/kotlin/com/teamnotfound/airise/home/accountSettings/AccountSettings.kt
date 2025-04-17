@@ -45,7 +45,7 @@ fun AccountSettings(
             NotificationSettingsScreen(localNavController)
         }
         composable(AccountSettingScreens.HealthDashboard.route) {
-            HealthDashboardScreen(kHealth) // Pass your KHealth instance
+            HealthDashboardScreen(kHealth, onBackClick = { localNavController.popBackStack() })
         }
     }
 }

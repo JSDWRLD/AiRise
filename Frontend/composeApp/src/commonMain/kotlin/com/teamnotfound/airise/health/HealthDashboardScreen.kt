@@ -1,16 +1,33 @@
 package com.teamnotfound.airise.health
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.khealth.KHealth
 import kotlinx.coroutines.launch
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.NeonGreen
+import com.teamnotfound.airise.util.Orange
+import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.White
+import com.teamnotfound.airise.util.Cyan
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @Composable
-fun HealthDashboardScreen(kHealth: KHealth, onBackClick: () -> Unit) {
+fun HealthDashboardScreen(
+    kHealth: KHealth,
+    onBackClick: () -> Unit
+) {
     val provider = remember { HealthDataProvider(kHealth) }
     val viewModel = remember { HealthDashboardViewModel(provider) }
 
@@ -23,44 +40,89 @@ fun HealthDashboardScreen(kHealth: KHealth, onBackClick: () -> Unit) {
         viewModel.requestAndLoadData()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Health Dashboard", style = MaterialTheme.typography.h5)
-        Spacer(modifier = Modifier.height(20.dp))
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Health Dashboard", color = White) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back", tint = White)
+                    }
+                },
+                backgroundColor = DeepBlue,
+                elevation = 8.dp
+            )
+        },
+        backgroundColor = BgBlack
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
 
-        when {
-            isLoading -> CircularProgressIndicator()
-            error != null -> Text("Error: $error", color = MaterialTheme.colors.error)
-            healthData != null -> {
-                Text("Active Calories Burned: ${healthData!!.activeCalories}")
-                Text("Steps: ${healthData!!.steps}")
-                Text("Heart Rate: ${healthData!!.heartRate} bpm")
+            if (isLoading) {
+                CircularProgressIndicator(color = Orange)
+            } else if (error != null) {
+                Text("Error: $error", color = Orange)
+            } else if (healthData != null) {
+                HealthMetricCard(label = "Active Calories", value = "${healthData!!.activeCalories}", unit = "kcal")
+                Spacer(modifier = Modifier.height(12.dp))
+                HealthMetricCard(label = "Steps", value = "${healthData!!.steps}", unit = "steps")
+                Spacer(modifier = Modifier.height(12.dp))
+                HealthMetricCard(label = "Heart Rate", value = "${healthData!!.heartRate}", unit = "bpm")
+            } else {
+                Text("No data available", color = Silver)
             }
-            else -> Text("No data available")
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        Button(onClick = { viewModel.requestAndLoadData() }) {
-            Text("Refresh")
-        }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { viewModel.requestAndLoadData() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Cyan)
+                ) {
+                    Text("Refresh", color = White)
+                }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(onClick = {
-            coroutineScope.launch {
-                val success = viewModel.writeHealthData()
-                if (!success) {
-                    println("Failed to write sample data.")
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            val success = viewModel.writeHealthData()
+                            if (!success) println("Failed to write sample data.")
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen)
+                ) {
+                    Text("Write Sample", color = BgBlack)
                 }
             }
-        }) {
-            Text("Write Test Data")
         }
+    }
+}
+
+@Composable
+fun HealthMetricCard(label: String, value: String, unit: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(DeepBlue)
+            .padding(16.dp)
+    ) {
+        Text(text = label, color = Silver, fontSize = 14.sp)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "$value $unit",
+            color = White,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
