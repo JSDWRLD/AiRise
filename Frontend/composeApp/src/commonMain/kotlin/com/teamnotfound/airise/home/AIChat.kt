@@ -16,7 +16,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.TagFaces
 import androidx.compose.runtime.*
@@ -97,14 +96,22 @@ fun AiChat(navController: NavHostController) {
                     horizontalArrangement = if (message.ai) Arrangement.Start else Arrangement.End
                 ) {
                     Column {
-                        if (message.ai) {
-                            Text(
-                                text = "Coach Rise",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = White,
-                                modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
-                            )
+                        Row (modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)) {
+                            if (message.ai) {
+                                Icon(
+                                    imageVector = Icons.Filled.TagFaces,
+                                    contentDescription = "Smiley Face",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Coach Rise",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = White
+                                )
+                            }
                         }
                         Box(
                             modifier = Modifier
