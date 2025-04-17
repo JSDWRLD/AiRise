@@ -92,7 +92,7 @@ fun App(container: AppContainer) {
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
-                        onGoogleSignUpClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD.name) }, //TODO: Replace with /* Google Sign-Up */
+                        onGoogleSignUpClick = { /* Google Sign Up */ },
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
                     )
@@ -150,7 +150,10 @@ fun App(container: AppContainer) {
 
                 // Health Dashboard
                 composable(route = AppScreen.HEALTH_DASHBOARD.name) {
-                    HealthDashboardScreen(kHealth = container.kHealth)
+                    HealthDashboardScreen(
+                        kHealth = container.kHealth,
+                        onBackClick = { navController.popBackStack() }
+                    )
                 }
 
 
@@ -158,7 +161,7 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
                     val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService) }
                     // TODO: Fill with actual user data
-                    AccountSettings(navController = navController, accountSettingViewModel)
+                    AccountSettings(navController = navController, accountSettingViewModel, kHealth = container.kHealth)
 
                 }
 

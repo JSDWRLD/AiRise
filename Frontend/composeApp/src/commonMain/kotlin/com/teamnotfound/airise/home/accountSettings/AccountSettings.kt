@@ -9,11 +9,14 @@ import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.AgeSelectionS
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.HeightSelectionScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.WeightSelectionScreen
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.health.HealthDashboardScreen
+import com.khealth.KHealth
 
 @Composable
 fun AccountSettings(
     navController: NavHostController,
-    accountSettingViewModel: AccountSettingsViewModel
+    accountSettingViewModel: AccountSettingsViewModel,
+    kHealth: KHealth
 ) {
     val localNavController = rememberNavController()  // Use a local NavController for account settings
     val user = UserData()
@@ -40,6 +43,9 @@ fun AccountSettings(
         }
         composable(AccountSettingScreens.Notifications.route) {
             NotificationSettingsScreen(localNavController)
+        }
+        composable(AccountSettingScreens.HealthDashboard.route) {
+            HealthDashboardScreen(kHealth, onBackClick = { localNavController.popBackStack() })
         }
     }
 }
