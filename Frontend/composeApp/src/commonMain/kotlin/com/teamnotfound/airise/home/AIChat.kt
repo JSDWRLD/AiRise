@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.Icon
@@ -15,13 +16,15 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.TagFaces
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -71,9 +74,9 @@ fun AiChat(navController: NavHostController) {
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
+                        imageVector = Icons.Default.Close,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = Color.Red
                     )
                 }
             }
@@ -92,20 +95,31 @@ fun AiChat(navController: NavHostController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = if (message.ai) Arrangement.Start else Arrangement.End
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(
-                                if (message.ai) Silver else DeepBlue
+                    Column {
+                        if (message.ai) {
+                            Text(
+                                text = "Coach Rise",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = White,
+                                modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
                             )
-                            .padding(12.dp)
-                            .widthIn(max = 280.dp)
-                    ) {
-                        Text(
-                            message.text,
-                            fontSize = 16.sp,
-                            color = if (message.ai) Color.Black else Color.White
-                        )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(
+                                    if (message.ai) Silver else DeepBlue
+                                )
+                                .padding(12.dp)
+                                .widthIn(max = 280.dp)
+                        ) {
+                            Text(
+                                message.text,
+                                fontSize = 16.sp,
+                                color = if (message.ai) Color.Black else Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -157,16 +171,27 @@ fun AiChat(navController: NavHostController) {
                     tint = White
                 )
             }
-            TextField(
-                value = messageText,
-                onValueChange = { messageText = it },
-                placeholder = { Text("Message") },
+            BasicTextField(
+                value = messageText.text,
+                onValueChange = { messageText = TextFieldValue(it) },
+                singleLine = true,
+                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
                 modifier = Modifier
                     .weight(1f)
+                    .height(40.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(White)
-                    .padding(0.dp),
-                singleLine = true
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                decorationBox = { placeHolder ->
+                    if (messageText.text.isEmpty()) {
+                        Text(
+                            text = "Message...",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    placeHolder()
+                }
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
