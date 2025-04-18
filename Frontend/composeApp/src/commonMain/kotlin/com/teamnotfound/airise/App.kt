@@ -159,7 +159,7 @@ fun App(container: AppContainer) {
 
                 // Account Settings Screen
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
-                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService) }
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
                     // TODO: Fill with actual user data
                     AccountSettings(navController = navController, accountSettingViewModel, kHealth = container.kHealth)
 
