@@ -15,6 +15,7 @@ import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 import dev.gitlive.firebase.auth.FirebaseUser
 
+
 class AccountSettingsViewModel(private val authService: AuthService,private val userClient: UserClient) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountSetttingsUiState())
@@ -69,7 +70,7 @@ class AccountSettingsViewModel(private val authService: AuthService,private val 
             }
         }
     }
-    //We might need these to avoid sending all the info for an update.
+    //We might need these to update only certain parts, may implement later, full get and update are a bigger concern
     fun updateNotificationSettings(
         challengeEnabled: Boolean? = null,
         friendReqEnabled: Boolean? = null,
