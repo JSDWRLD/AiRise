@@ -7,13 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import android.util.Log
 import com.teamnotfound.airise.data.cache.SummaryCache
-import com.teamnotfound.airise.data.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.UserData
 import java.util.Calendar
 
 class SummaryCacheAndroid(private val context: Context) : SummaryCache {
     private val db = DatabaseProvider.getDatabase(context)
 
-    override suspend fun cacheSummary(summary: UserOnboardingData) {
+    override suspend fun cacheSummary(summary: UserData) {
         withContext(Dispatchers.IO) {
             try {
                 val calendar = Calendar.getInstance().apply {
@@ -27,7 +27,7 @@ class SummaryCacheAndroid(private val context: Context) : SummaryCache {
                 }
                 val dobTimestamp = calendar.timeInMillis
 
-                val workoutLengthInt = summary.workoutLength.toIntOrNull() ?: 0
+                val workoutLengthInt = summary.workoutLength
 
                 val entity = SummaryEntity(
                     id = 0,  // auto-generated
@@ -61,16 +61,16 @@ class SummaryCacheAndroid(private val context: Context) : SummaryCache {
         }
     }
 
-    override suspend fun getUserSummaries(userId: String): List<UserOnboardingData> {
+    override suspend fun getUserSummaries(userId: String): List<UserData> {
         return withContext(Dispatchers.IO) {
             db.summaryDao().getSummariesForUser(userId).map { entity ->
-                UserOnboardingData(
+                UserData(
                     firstName = entity.firstName,
                     lastName = entity.lastName,
                     middleName = entity.middleName,
                     workoutGoal = entity.workoutGoal,
                     fitnessLevel = entity.currentFitnessLevel,
-                    workoutLength = entity.workoutLength.toString(),
+                    workoutLength = entity.workoutLength,
                     workoutEquipment = entity.equipmentAccess,
                     workoutDays = entity.daysSelected,
                     workoutTime = entity.workoutTimes,

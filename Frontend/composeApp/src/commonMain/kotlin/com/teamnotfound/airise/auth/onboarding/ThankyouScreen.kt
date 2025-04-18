@@ -10,12 +10,12 @@ import androidx.compose.material.Text
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import kotlinx.coroutines.delay
 import com.teamnotfound.airise.data.cache.SummaryCache
 
 @Composable
-fun ThankYouScreen(navController: NavController, newUser: UserData, summaryCache: SummaryCache){
+fun ThankYouScreen(navController: NavController, newUser: UserDataUiState, summaryCache: SummaryCache){
     var showUserDetails by remember { mutableStateOf(false) }
 
     val summaryData = newUser.toData()

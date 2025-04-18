@@ -142,7 +142,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        viewModel = HomeViewModel(userRepository, authService),
+                        userRepository = userRepository,
                         navController = navController
                     )
                 }

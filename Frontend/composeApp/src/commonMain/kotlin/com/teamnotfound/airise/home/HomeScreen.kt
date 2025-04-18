@@ -17,10 +17,11 @@ import com.teamnotfound.airise.util.BgBlack
 
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
+fun HomeScreen(userRepository: UserRepository, navController: NavHostController) {
+    val viewModel = remember { HomeViewModel(userRepository) }
+
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
-
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -29,8 +30,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         },
         topBar = {
             TopNavBar(
+                greeting = uiState.value.greeting,
                 username = uiState.value.username,
-                isLoading = uiState.value.loadingUserData,
+                isLoaded = uiState.value.isUserDataLoaded,
                 navController = navController
             )
         }
@@ -51,14 +53,14 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             ) {
                 TodaysOverview(
                     overview = uiState.value.overview,
-                    isLoading = uiState.value.isOverviewLoading
+                    isLoaded = uiState.value.isOverviewLoaded
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 DailyProgressSection(
                     dailyProgressData = uiState.value.dailyProgressData,
-                    isLoading = uiState.value.isDailyProgressLoading
+                    isLoaded = uiState.value.isDailyProgressLoaded
                     )
 
                 Spacer(modifier = Modifier.height(10.dp))

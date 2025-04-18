@@ -1,7 +1,5 @@
 package com.teamnotfound.airise.data.repository
 
-import com.teamnotfound.airise.data.auth.AuthService
-import com.teamnotfound.airise.data.auth.User
 import com.teamnotfound.airise.data.cache.UserCache
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
@@ -18,11 +16,13 @@ class UserRepository(
         return try {
             val firebaseUser = auth.currentUser
             if (firebaseUser != null){
-                userClient.getUserData(firebaseUser)
+                val result = userClient.getUserData(firebaseUser)
+                return result
             } else {
                 Result.Error(NetworkError.UNAUTHORIZED)
             }
         } catch (e: Exception){
+            println("Error: $e")
             Result.Error(NetworkError.UNKNOWN)
         }
     }

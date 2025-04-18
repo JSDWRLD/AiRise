@@ -17,13 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 
 @Composable
-fun AiPersonalityScreen(user: UserData, navController: NavController) {
+fun AiPersonalityScreen(user: UserDataUiState, navController: NavController) {
     var personalityOption by remember { mutableStateOf<String?>(null) }
 
     Box(

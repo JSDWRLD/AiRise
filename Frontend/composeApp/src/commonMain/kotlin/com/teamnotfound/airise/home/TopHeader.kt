@@ -16,7 +16,7 @@ import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.BgBlack
 
 @Composable
-fun TopNavBar(username: String, navController: NavController, isLoading: Boolean) {
+fun TopNavBar(greeting: String, username: String, navController: NavController, isLoaded: Boolean) {
     TopAppBar(
         modifier = Modifier.padding(top = 25.dp),
         backgroundColor = BgBlack, // Dark background color
@@ -39,11 +39,11 @@ fun TopNavBar(username: String, navController: NavController, isLoading: Boolean
 
                 // Greeting text
                 Column {
-                    if(isLoading){
+                    if(!isLoaded){
                         CircularProgressIndicator()
                     }else {
                         Text(
-                            text = "Good morning,",
+                            text = "$greeting,",
                             style = MaterialTheme.typography.body2
                         )
                         Text(
@@ -55,7 +55,7 @@ fun TopNavBar(username: String, navController: NavController, isLoading: Boolean
             }
         },
         actions = {
-            // Notifications icon
+            // Notifications icone4
             IconButton(onClick = { }) { // TODO: make notifications screen to show curr notifs
                 Icon(
                     imageVector = Icons.Default.Notifications,

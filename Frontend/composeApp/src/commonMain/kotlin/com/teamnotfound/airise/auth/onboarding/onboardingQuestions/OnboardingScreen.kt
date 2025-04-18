@@ -16,14 +16,13 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.data.cache.SummaryCache
 import com.teamnotfound.airise.util.*
 
@@ -32,13 +31,13 @@ import com.teamnotfound.airise.util.*
 fun OnboardingScreen(summaryCache: SummaryCache) {
     val navController = rememberNavController()
     //Create a new user onboarding object
-    val newUser = remember {UserData()}
+    val newUser = remember {UserDataUiState()}
     NavigateQuestions(navController = navController, newUser, summaryCache = summaryCache)
 }
 
 //Defines different navigation routes for onboarding screens
 @Composable
-fun NavigateQuestions(navController: NavHostController, newUser: UserData, summaryCache: SummaryCache){
+fun NavigateQuestions(navController: NavHostController, newUser: UserDataUiState, summaryCache: SummaryCache){
     NavHost(navController = navController, startDestination = OnboardingScreens.NameInput.route) {
         composable(OnboardingScreens.NameInput.route) { NameInputScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutGoal.route) { WorkoutGoalScreen(navController, newUser) }

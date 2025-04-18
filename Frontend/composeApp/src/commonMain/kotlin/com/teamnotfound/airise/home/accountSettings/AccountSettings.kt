@@ -5,10 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.AgeSelectionScreen
-import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.HeightSelectionScreen
-import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.WeightSelectionScreen
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 
 @Composable
 fun AccountSettings(
@@ -16,7 +13,7 @@ fun AccountSettings(
     accountSettingViewModel: AccountSettingsViewModel
 ) {
     val localNavController = rememberNavController()  // Use a local NavController for account settings
-    val user = UserData()
+    val user = UserDataUiState()
 
     NavHost(
         navController = localNavController,

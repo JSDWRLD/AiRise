@@ -2,19 +2,18 @@ package com.teamnotfound.airise.data.serializable
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UserData {
+class UserDataUiState {
     var firstName: MutableState<String> = mutableStateOf("")
     var lastName: MutableState<String> = mutableStateOf("")
     var middleName: MutableState<String> = mutableStateOf("")
     var workoutGoal: MutableState<String> = mutableStateOf("")
     var fitnessLevel: MutableState<String> = mutableStateOf("")
-    var workoutLength: MutableState<String> = mutableStateOf("")
+    var workoutLength: MutableState<Int> = mutableStateOf(0)
     var equipmentAccess: MutableState<String> = mutableStateOf("")
-    var workoutDays: MutableState<String> = mutableStateOf("")
+    var workoutDays: MutableState<List<String>> = mutableStateOf(listOf())
     var workoutTime: MutableState<String> = mutableStateOf("")
     var dietaryGoal: MutableState<String> = mutableStateOf("")
     var workoutRestrictions: MutableState<String> = mutableStateOf("")
@@ -28,7 +27,7 @@ class UserData {
     var activityLevel: MutableState<String> = mutableStateOf("")
 
     // Convert to a serializable data class for MongoDB storage
-    fun toData(): UserOnboardingData = UserOnboardingData(
+    fun toData(): UserData = UserData(
         firstName = firstName.value, 
         lastName = lastName.value, 
         middleName = middleName.value,
@@ -52,15 +51,15 @@ class UserData {
 }
 
 @Serializable
-data class UserOnboardingData(
+data class UserData(
     val firstName: String, 
     val lastName: String, 
     val middleName: String,
     val workoutGoal: String,
     val fitnessLevel: String,
-    val workoutLength: String,
+    val workoutLength: Int,
     val workoutEquipment: String,
-    val workoutDays: String,
+    val workoutDays: List<String>,
     val workoutTime: String,
     val dietaryGoal: String,
     val workoutRestrictions: String,

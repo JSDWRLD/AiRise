@@ -16,11 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun HeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserData) {
+fun HeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserDataUiState) {
     var selectedFeet by remember { mutableStateOf(5) }
     var selectedInches by remember { mutableStateOf(6) }
     val cmRange = (140..210 step 1).toList()

@@ -2,10 +2,8 @@ package com.teamnotfound.airise.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.repository.UserRepository
-import com.teamnotfound.airise.data.repository.UserUiState
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
@@ -23,7 +21,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
-class HomeViewModel(private val userRepository: UserRepository, private val authService: AuthService) :  ViewModel(){
+class HomeViewModel(private val userRepository: UserRepository) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
@@ -46,19 +44,21 @@ class HomeViewModel(private val userRepository: UserRepository, private val auth
             }
             is HomeUiEvent.SelectedTimeFrameChanged -> {
 
-                _uiState.value = _uiState.value.copy(isFitnessSummaryLoading = true, selectedTimeFrame = uiEvent.selectedTimeFrame, errorMessage = null)
+                _uiState.value = _uiState.value.copy(isFitnessSummaryLoaded = false, selectedTimeFrame = uiEvent.selectedTimeFrame, errorMessage = null)
                 loadFitnessSummary()
             }
         }
     }
     private fun getUsername() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(loadingUserData = true)
-            when (val result = authService.fetchUserData()) {
-                is Result.Error<NetworkError> -> _uiState.value = _uiState.value.copy(username = result.error.toString(), loadingUserData = false)
+            when (val result = userRepository.fetchUserData()) {
+                is Result.Error<NetworkError> -> _uiState.value = _uiState.value.copy(username = result.error.toString(), isUserDataLoaded = true)
                 is Result.Success<UserData> -> {
-                    val name = result.data.firstName.value
-                    _uiState.value = _uiState.value.copy(username = name, loadingUserData = false)
+                    val name = result.data.firstName
+                    _uiState.value = _uiState.value.copy(
+                        username = name,
+                        userData =  result.data,
+                        isUserDataLoaded = true)
                 }
             }
         }
@@ -70,7 +70,6 @@ class HomeViewModel(private val userRepository: UserRepository, private val auth
             "Hey",
             "Welcome",
             "Greetings",
-            "Howdy",
         )
         val randomIndex = Random.nextInt(generalGreetings.size)
         _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
@@ -88,25 +87,24 @@ class HomeViewModel(private val userRepository: UserRepository, private val auth
     }
     private fun generateOverview() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isOverviewLoading = true, errorMessage = null)
             try {
                 val result = geminiApi.generateTodaysOverview(healthData = todaysHealthData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
-                    isOverviewLoading = false,
+                    isOverviewLoaded = true,
                     errorMessage = null
                 )
             } catch (e: Exception) {
+                println("OVERVIEW ERROR: $e")
                 _uiState.value = _uiState.value.copy(
                     overview = "Error generating Today's Overview",
-                    isOverviewLoading = false,
+                    isOverviewLoaded = true,
                     errorMessage = e.toString()
                 )
             }
         }
     }
     private fun loadDailyProgress(){
-        _uiState.value = _uiState.value.copy(isDailyProgressLoading = true)
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
         val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
@@ -121,7 +119,7 @@ class HomeViewModel(private val userRepository: UserRepository, private val auth
         )
         _uiState.value = _uiState.value.copy(
             dailyProgressData = progressData,
-            isDailyProgressLoading = false
+            isDailyProgressLoaded = true
         )
     }
     private fun loadFitnessSummary() {
@@ -159,7 +157,7 @@ class HomeViewModel(private val userRepository: UserRepository, private val auth
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
             healthData = updatedHealthData,
-            isFitnessSummaryLoading = false
+            isFitnessSummaryLoaded = true
         )
     }
 }
