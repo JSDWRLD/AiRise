@@ -1,15 +1,16 @@
 package com.teamnotfound.airise.data.serializable
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 @Serializable
 data class UserSettingsData(
-    val _id: String? = null,
-    val firebaseUid: String,
-    val profile_picture_url: String = "",
-    val ai_personality: String = "",
-    val challenge_notifs_enabled: Boolean = false,
-    val friend_req_notifs_enabled: Boolean = false,
-    val streak_notifs_enabled: Boolean = false,
-    val meal_notifs_enabled: Boolean = false
+    @SerialName("_id")               val id: String = "",
+    @SerialName("firebaseUid")       val firebaseUid: String,
+    @SerialName("profile_picture_url") val profilePictureUrl: String = "",
+    @SerialName("ai_personality")    val aiPersonality: String = "",
+    @SerialName("challenge_notifs_enabled")    val challengeNotifsEnabled: Boolean = false,
+    @SerialName("friend_req_notifs_enabled")   val friendReqNotifsEnabled: Boolean = false,
+    @SerialName("streak_notifs_enabled")       val streakNotifsEnabled: Boolean = false,
+    @SerialName("meal_notifs_enabled")         val mealNotifsEnabled: Boolean = false
 )
