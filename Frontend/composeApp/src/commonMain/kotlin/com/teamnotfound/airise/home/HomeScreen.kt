@@ -25,9 +25,7 @@ import com.teamnotfound.airise.util.White
 
 
 @Composable
-fun HomeScreen(userRepository: UserRepository, navController: NavHostController) {
-    val viewModel = remember { HomeViewModel(userRepository) }
-
+fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
