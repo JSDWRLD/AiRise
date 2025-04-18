@@ -18,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.data.serializable.UserDataUiState
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.DeepBlue
-import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun AiPersonalityScreen(user: UserDataUiState, navController: NavController) {
@@ -53,7 +51,7 @@ fun AiPersonalityScreen(user: UserDataUiState, navController: NavController) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                 contentDescription = "Back",
-                                tint = Color(0xFFFFA500)
+                                tint = Orange
                             )
                         }
                     }
@@ -86,7 +84,7 @@ fun AiPersonalityScreen(user: UserDataUiState, navController: NavController) {
                         selected = personalityOption == option,
                         onClick = { personalityOption = option },
                         colors = RadioButtonDefaults.colors(
-                            selectedColor = Color(0xFFFFA500),
+                            selectedColor = Orange,
                             unselectedColor = Color.White
                         )
                     )
@@ -103,9 +101,9 @@ fun AiPersonalityScreen(user: UserDataUiState, navController: NavController) {
             enabled = personalityOption != null,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = DeepBlue,
-                disabledBackgroundColor = Silver
+                disabledBackgroundColor = DeepBlue
             ),
-            border = BorderStroke(1.dp, Color(0xFFCE5100)),
+            border = BorderStroke(1.dp, Orange),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .align(Alignment.BottomCenter)

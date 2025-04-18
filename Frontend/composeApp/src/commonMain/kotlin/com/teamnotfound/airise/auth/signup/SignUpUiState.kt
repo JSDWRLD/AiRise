@@ -7,5 +7,6 @@ data class SignUpUiState(
     val isSuccess: Boolean = false,
     val errorMessage: String? = null,
     val currentUser: User? = null,
-    val passwordMatch: Boolean = true
+    val passwordMatch: Boolean = true,
+    val passwordErrors: List<String> = emptyList()
 )

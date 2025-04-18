@@ -29,6 +29,9 @@ fun SignUpScreen(
 ) {
     // Observe the UI state from the view model
     val uiState by viewModel.uiState.collectAsState()
+    var attemptedSubmit by remember { mutableStateOf(false) }
+    val showErrors = attemptedSubmit
+
 
     // If sign up is successful, trigger navigation or any other success action.
     if (uiState.isSuccess) {
@@ -77,14 +80,17 @@ fun SignUpScreen(
                 .padding(top = 50.dp)
                 .padding(24.dp)
         ) {
+
             // Display error message from UI state, if any
-            uiState.errorMessage?.let { errorMsg ->
-                Text(
-                    text = errorMsg,
-                    color = Color.Red,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+            if (attemptedSubmit && uiState.passwordErrors.isEmpty()) {
+                uiState.errorMessage?.let { errorMsg ->
+                    Text(
+                        text = errorMsg,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -123,7 +129,12 @@ fun SignUpScreen(
             // password input
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    if (attemptedSubmit) {
+                        viewModel.validatePassword(password, confirmPassword)
+                    }
+                },
                 placeholder = {
                     Text("Password", color = Silver)
                 },                singleLine = true,
@@ -146,7 +157,12 @@ fun SignUpScreen(
             // confirm password input
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = {
+                    confirmPassword = it
+                    if (attemptedSubmit) {
+                        viewModel.validatePassword(password, confirmPassword)
+                    }
+                },
                 placeholder = {
                     Text("Confirm Password", color = Silver)
                 },                singleLine = true,
@@ -164,14 +180,17 @@ fun SignUpScreen(
                 )
             )
 
-            //shows message if password does not match
-            if(confirmPassword.isNotBlank() && !passwordsMatch){
-                Text(
-                    text = "Passwords do not match",
-                    color = Color.Red,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+            //shows message of error for password
+            if (attemptedSubmit && uiState.passwordErrors.isNotEmpty()) {
+                Column(modifier = Modifier.padding(top = 4.dp)) {
+                    uiState.passwordErrors.forEach { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -179,18 +198,23 @@ fun SignUpScreen(
             // create account button
             Button(
                 onClick = {
-                    val userModel = RegisterUserDTO(
-                        email = email,
-                        password = password
-                    )
-                    viewModel.register(userModel) // make a register
+                    attemptedSubmit = true
+                    viewModel.validatePassword(password, confirmPassword)
+
+                    if (passwordsMatch && uiState.passwordErrors.isEmpty()) {
+                        val userModel = RegisterUserDTO(
+                            email = email,
+                            password = password
+                        )
+                        viewModel.register(userModel) // make a register
+                    }
                 },
                 modifier = Modifier
                     .width(300.dp)
                     .height(50.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                enabled = passwordsMatch //disable button when passwords do not match
+                enabled = true
             ) {
                 Text("Create Account", color = White)
             }

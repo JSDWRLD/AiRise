@@ -5,12 +5,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.khealth.KHealth
 import com.teamnotfound.airise.data.serializable.UserDataUiState
+import com.teamnotfound.airise.health.HealthDashboardScreen
 
 @Composable
 fun AccountSettings(
     navController: NavHostController,
-    accountSettingViewModel: AccountSettingsViewModel
+    accountSettingViewModel: AccountSettingsViewModel,
+    kHealth: KHealth
 ) {
     val localNavController = rememberNavController()  // Use a local NavController for account settings
     val user = UserDataUiState()
@@ -37,6 +40,9 @@ fun AccountSettings(
         }
         composable(AccountSettingScreens.Notifications.route) {
             NotificationSettingsScreen(localNavController)
+        }
+        composable(AccountSettingScreens.HealthDashboard.route) {
+            HealthDashboardScreen(kHealth, onBackClick = { localNavController.popBackStack() })
         }
     }
 }

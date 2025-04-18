@@ -8,12 +8,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.FabPosition
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.data.repository.UserRepository
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.White
 
 
 @Composable
@@ -22,6 +30,7 @@ fun HomeScreen(userRepository: UserRepository, navController: NavHostController)
 
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
+
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -35,7 +44,23 @@ fun HomeScreen(userRepository: UserRepository, navController: NavHostController)
                 isLoaded = uiState.value.isUserDataLoaded,
                 navController = navController
             )
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(AppScreen.AI_CHAT.name)
+                },
+                backgroundColor = DeepBlue,
+                contentColor = White,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Open Ai Chat"
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
         Column(
             modifier = Modifier
