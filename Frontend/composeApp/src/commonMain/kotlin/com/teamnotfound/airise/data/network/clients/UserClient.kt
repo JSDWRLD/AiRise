@@ -4,7 +4,6 @@ import com.teamnotfound.airise.data.DTOs.CreateUserDTO
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.data.serializable.UserOnboardingData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -33,7 +32,6 @@ class UserClient(
     suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
-
         val response = try {
             httpClient.post("$baseUrl/User") {
                 contentType(ContentType.Application.Json)
@@ -61,12 +59,10 @@ class UserClient(
     suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
-
         val response = try {
-            httpClient.get("$baseUrl/UserData") {
+            httpClient.get("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-                parameter("firebaseUid", firebaseUid)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -75,13 +71,14 @@ class UserClient(
         }
 
         return when (response.status.value) {
-            201 -> {
+            200 -> {
                 val registeredUser = response.body<UserData>()
                 Result.Success(registeredUser)
             }
 
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }

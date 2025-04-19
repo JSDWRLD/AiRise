@@ -2,9 +2,13 @@ package com.teamnotfound.airise.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
+import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,7 +21,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
-class HomeViewModel(private val email: String) :  ViewModel(){
+class HomeViewModel(private val userRepository: UserRepository) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
@@ -40,13 +44,24 @@ class HomeViewModel(private val email: String) :  ViewModel(){
             }
             is HomeUiEvent.SelectedTimeFrameChanged -> {
 
-                _uiState.value = _uiState.value.copy(isFitnessSummaryLoading = true, selectedTimeFrame = uiEvent.selectedTimeFrame, errorMessage = null)
+                _uiState.value = _uiState.value.copy(isFitnessSummaryLoaded = false, selectedTimeFrame = uiEvent.selectedTimeFrame, errorMessage = null)
                 loadFitnessSummary()
             }
         }
     }
-    private fun getUsername(){
-        _uiState.value = _uiState.value.copy(username = email.substringBefore("@"))
+    private fun getUsername() {
+        viewModelScope.launch {
+            when (val result = userRepository.fetchUserData()) {
+                is Result.Error<NetworkError> -> _uiState.value = _uiState.value.copy(username = result.error.toString(), isUserDataLoaded = true)
+                is Result.Success<UserData> -> {
+                    val name = result.data.firstName
+                    _uiState.value = _uiState.value.copy(
+                        username = name,
+                        userData =  result.data,
+                        isUserDataLoaded = true)
+                }
+            }
+        }
     }
     private fun generateGreeting(){
         val generalGreetings = arrayOf(
@@ -55,7 +70,6 @@ class HomeViewModel(private val email: String) :  ViewModel(){
             "Hey",
             "Welcome",
             "Greetings",
-            "Howdy",
         )
         val randomIndex = Random.nextInt(generalGreetings.size)
         _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
@@ -63,50 +77,48 @@ class HomeViewModel(private val email: String) :  ViewModel(){
     private fun getTodaysHealthData(){
         //Get from database once available
         todaysHealthData = HealthData(
-                caloriesBurned = 450,
-        steps = 7550,
-        avgHeartRate = 115,
-        sleep = 6.5f,
-        workout = 3,
-        hydration = 2850f
+//            caloriesBurned = 450,
+//            steps = 7550,
+//            avgHeartRate = 115,
+//            sleep = 6.5f,
+//            workout = 3,
+//            hydration = 2850f
         )
     }
     private fun generateOverview() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isOverviewLoading = true, errorMessage = null)
             try {
                 val result = geminiApi.generateTodaysOverview(healthData = todaysHealthData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
-                    isOverviewLoading = false,
+                    isOverviewLoaded = true,
                     errorMessage = null
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     overview = "Error generating Today's Overview",
-                    isOverviewLoading = false,
+                    isOverviewLoaded = true,
                     errorMessage = e.toString()
                 )
             }
         }
     }
     private fun loadDailyProgress(){
-        _uiState.value = _uiState.value.copy(isDailyProgressLoading = true)
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
-        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
-        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
-        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
-        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
-        val progressData = DailyProgressData(
-            sleepProgress = sleepPercentage,
-            workoutProgress = workoutPercentage,
-            hydrationProgress = hydrationPercentage,
-            totalProgress = totalPercentage
-        )
+//        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
+//        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
+//        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
+//        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
+//        val progressData = DailyProgressData(
+//            sleepProgress = sleepPercentage,
+//            workoutProgress = workoutPercentage,
+//            hydrationProgress = hydrationPercentage,
+//            totalProgress = totalPercentage
+//        )
         _uiState.value = _uiState.value.copy(
-            dailyProgressData = progressData,
-            isDailyProgressLoading = false
+//            dailyProgressData = progressData,
+            isDailyProgressLoaded = true
         )
     }
     private fun loadFitnessSummary() {
@@ -133,18 +145,22 @@ class HomeViewModel(private val email: String) :  ViewModel(){
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
-        val updatedHealthData = HealthData(
-            caloriesBurned = 450,
-            steps = 7550,
-            avgHeartRate = 115,
-            sleep = todaysHealthData.sleep,
-            workout = todaysHealthData.workout,
-            hydration = todaysHealthData.hydration
-            )
+//        val updatedHealthData = HealthData(
+//            caloriesBurned = 450,
+//            steps = 7550,
+//            avgHeartRate = 115,
+//            sleep = todaysHealthData.sleep,
+//            workout = todaysHealthData.workout,
+//            hydration = todaysHealthData.hydration
+//            )
+//        _uiState.value = _uiState.value.copy(
+//            formattedDateRange = formattedDate,
+//            healthData = updatedHealthData,
+//            isFitnessSummaryLoaded = true
+//        )
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
-            healthData = updatedHealthData,
-            isFitnessSummaryLoading = false
+            isFitnessSummaryLoaded = true
         )
     }
 }

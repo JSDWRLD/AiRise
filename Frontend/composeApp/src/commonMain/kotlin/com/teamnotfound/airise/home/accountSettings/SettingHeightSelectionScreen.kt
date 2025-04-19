@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
+fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
     var selectedFeet by remember { mutableStateOf(5) }
     var selectedInches by remember { mutableStateOf(6) }
     val cmRange = (140..210 step 1).toList()

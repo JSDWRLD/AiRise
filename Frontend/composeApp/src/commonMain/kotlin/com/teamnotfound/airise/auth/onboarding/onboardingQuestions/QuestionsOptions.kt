@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 
 //Defines different onboarding questions and options
 @Composable
-fun WorkoutGoalScreen(navController: NavController, newUser: UserData){
+fun WorkoutGoalScreen(navController: NavController, newUser: UserDataUiState){
     //description of each of the options
     val optionDescriptions = mapOf(
         "Maintenance" to "Keep your current fitness level and stay active.",
@@ -28,7 +28,7 @@ fun WorkoutGoalScreen(navController: NavController, newUser: UserData){
 }
 
 @Composable
-fun FitnessLevelScreen(navController: NavController, newUser: UserData){
+fun FitnessLevelScreen(navController: NavController, newUser: UserDataUiState){
     //description of each of the options
     val optionDescriptions = mapOf(
         "Novice" to "New to working out or returning after a long break.",
@@ -48,19 +48,19 @@ fun FitnessLevelScreen(navController: NavController, newUser: UserData){
 }
 
 @Composable
-fun WorkoutLengthScreen(navController: NavController, newUser: UserData){
+fun WorkoutLengthScreen(navController: NavController, newUser: UserDataUiState){
     QuestionScreen(
         questionText = "How long would you like to workout?",
         options = listOf("15 minutes", "30 minutes", "45 minutes", "1 hour+"),
         nextScreen = OnboardingScreens.EquipmentAccess,
         navController = navController,
         questionCount = 4,
-        onSelection = { selection -> newUser.workoutLength.value = selection }
+        onSelection = { selection -> newUser.workoutLength.value = selection.split(" ")[1].toInt() }
     )
 }
 
 @Composable
-fun EquipmentAccessScreen(navController: NavController, newUser: UserData){
+fun EquipmentAccessScreen(navController: NavController, newUser: UserDataUiState){
     val selectedOptions = remember { mutableStateOf(setOf<String>()) }
 
     MultiSelectQuestionScreen(
@@ -81,7 +81,7 @@ fun EquipmentAccessScreen(navController: NavController, newUser: UserData){
 }
 
 @Composable
-fun WorkoutDaysScreen(navController: NavController, newUser: UserData){
+fun WorkoutDaysScreen(navController: NavController, newUser: UserDataUiState){
     val selectedOptions = remember { mutableStateOf(setOf<String>()) }
 
     MultiSelectQuestionScreen(
@@ -91,12 +91,12 @@ fun WorkoutDaysScreen(navController: NavController, newUser: UserData){
         nextScreen = OnboardingScreens.WorkoutTime,
         navController = navController,
         questionCount = 6,
-        onSelection = { selection -> newUser.workoutDays.value = selection.joinToString(", ") }
+        onSelection = { selection -> newUser.workoutDays.value = selection.toList() }
     )
 }
 
 @Composable
-fun WorkoutTimeScreen(navController: NavController, newUser: UserData){
+fun WorkoutTimeScreen(navController: NavController, newUser: UserDataUiState){
     val selectedOptions = remember { mutableStateOf(setOf<String>()) }
 
     MultiSelectQuestionScreen(
@@ -111,7 +111,7 @@ fun WorkoutTimeScreen(navController: NavController, newUser: UserData){
 }
 
 @Composable
-fun DietaryGoalScreen(navController: NavController, newUser: UserData){
+fun DietaryGoalScreen(navController: NavController, newUser: UserDataUiState){
     //description of each of the options
     val optionDescriptions = mapOf(
         "Lose Weight" to "Reduce calorie intake to burn fat and achieve a learner body.",
@@ -131,7 +131,7 @@ fun DietaryGoalScreen(navController: NavController, newUser: UserData){
 }
 
 @Composable
-fun ActivityLevelScreen(navController: NavController, newUser: UserData){
+fun ActivityLevelScreen(navController: NavController, newUser: UserDataUiState){
     //description of each of the options
     val optionDescriptions = mapOf(
         "Sedentary" to "Minimal physical activity, mostly sitting or inactive.",

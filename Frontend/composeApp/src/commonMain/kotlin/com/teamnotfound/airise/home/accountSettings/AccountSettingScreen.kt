@@ -45,13 +45,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import androidx.compose.ui.layout.ContentScale
 import com.preat.peekaboo.image.picker.toImageBitmap
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
@@ -59,7 +58,7 @@ import com.teamnotfound.airise.util.*
 
 @Composable
 fun AccountSettingScreen(
-    user: UserData,
+    user: UserDataUiState,
     navController: NavController,
     localNavController: NavHostController,
     accountSettingViewModel: AccountSettingsViewModel
