@@ -22,7 +22,6 @@ class UserRepository(
                 Result.Error(NetworkError.UNAUTHORIZED)
             }
         } catch (e: Exception){
-            println("Error: $e")
             Result.Error(NetworkError.UNKNOWN)
         }
     }

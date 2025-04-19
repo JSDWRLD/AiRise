@@ -59,13 +59,10 @@ class UserClient(
     suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
-        println("$baseUrl/UserData/$firebaseUid")
-        println(token)
         val response = try {
             httpClient.get("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-//                parameter("firebaseUid", firebaseUid)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
