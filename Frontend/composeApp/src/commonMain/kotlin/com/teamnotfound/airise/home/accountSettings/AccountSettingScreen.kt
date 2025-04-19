@@ -54,7 +54,8 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
-
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 
 @Composable
 fun AccountSettingScreen(
@@ -63,8 +64,14 @@ fun AccountSettingScreen(
     localNavController: NavHostController,
     accountSettingViewModel: AccountSettingsViewModel
 ) {
+    LaunchedEffect(Unit) {
+        // pull down the settings as soon as we open the screen
+        Firebase.auth.currentUser?.let { accountSettingViewModel.getUserSettings(it) }
+    }
+
     val uiState by accountSettingViewModel.uiState.collectAsState()
     var selectedSetting by remember { mutableStateOf<String?>(null) }
+
 
     // If user is signed out successfully we route to welcome screen
     if (uiState.isSignedOut) {
@@ -123,7 +130,10 @@ fun AccountSettingScreen(
                     // modifier = Modifier.padding(top = 24.dp)
                 )
                 // save button
-                IconButton(onClick = {}) { // call backend api to update to local values
+                IconButton(onClick = {
+                    // insert or update the settings
+                    uiState.userSettings?.let { accountSettingViewModel.updateUserSettings(it) }
+                }) { // call backend api to update to local values
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Settings Icon",

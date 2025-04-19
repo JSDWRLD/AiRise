@@ -19,6 +19,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import com.teamnotfound.airise.data.serializable.UserSettingsData
 
 class UserClient(
     private val httpClient: HttpClient
@@ -142,6 +143,37 @@ class UserClient(
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+    suspend fun getUserSettings(firebaseUid: String): Result<UserSettingsData, NetworkError> {
+        val resp = try {
+            httpClient.get("$baseUrl/UserSettings") {
+                parameter("firebaseUid", firebaseUid)
+            }
+        } catch(e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        }
+
+        return when (resp.status.value) {
+            in 200..299 -> Result.Success(resp.body())
+            404       -> Result.Error(NetworkError.UNKNOWN) // or custom “not found”
+            else      -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    suspend fun upsertUserSettings(settings: UserSettingsData): Result<UserSettingsData, NetworkError> {
+        val resp = try {
+            httpClient.put("$baseUrl/UserSettings") {
+                contentType(ContentType.Application.Json)
+                setBody(settings)
+            }
+        } catch(e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        }
+
+        return when (resp.status.value) {
+            in 200..299 -> Result.Success(resp.body())
+            else        -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 }
