@@ -67,6 +67,8 @@ kotlin {
             implementation(libs.peekaboo.image.picker)
             implementation(libs.generativeai.google)
             implementation(libs.khealth)
+            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
+            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
