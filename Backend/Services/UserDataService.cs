@@ -63,5 +63,55 @@ namespace AiRise.Services
             var result = await _userDataCollection.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
         }
+
+        // Only updates the user name
+        public async Task<bool> UpdateUserNameAsync(string firebaseUid, UserData updatedData)
+        {
+            var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserData>.Update
+                .Set(u => u.FirstName, updatedData.FirstName)
+                .Set(u => u.LastName, updatedData.LastName)
+                .Set(u => u.MiddleName, updatedData.MiddleName);
+
+            var result = await _userDataCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+        
+        // Only updates user birthday
+        public async Task<bool> UpdateUserDOBAsync(string firebaseUid, UserData updatedData)
+        {
+            var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserData>.Update
+                .Set(u => u.DobDay, updatedData.DobDay)
+                .Set(u => u.DobMonth, updatedData.DobMonth)
+                .Set(u => u.DobYear, updatedData.DobYear);
+
+            var result = await _userDataCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
+        // Only updates the user height
+        public async Task<bool> UpdateUserHeightAsync(string firebaseUid, UserData updatedData)
+        {
+            var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserData>.Update
+                .Set(u => u.HeightMetric, updatedData.HeightMetric)
+                .Set(u => u.HeightValue, updatedData.HeightValue);
+
+            var result = await _userDataCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
+        // Only updates the user weight
+        public async Task<bool> UpdateUserWeightAsync(string firebaseUid, UserData updatedData)
+        {
+            var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserData>.Update
+                .Set(u => u.WeightMetric, updatedData.WeightMetric)
+                .Set(u => u.WeightValue, updatedData.WeightValue);
+
+            var result = await _userDataCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
