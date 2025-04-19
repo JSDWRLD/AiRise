@@ -14,4 +14,5 @@ interface IAuthService {
     suspend fun updateEmail(newEmail: String): AuthResult
     suspend fun updatePassword(newPassword: String): AuthResult
     suspend fun signOut(): AuthResult
+    suspend fun authenticateWithGoogle(idToken: String): AuthResult
 }
