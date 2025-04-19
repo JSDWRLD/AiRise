@@ -16,6 +16,12 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
 import com.teamnotfound.airise.util.*
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
 
 @Composable
 fun LoginScreen(
@@ -23,11 +29,22 @@ fun LoginScreen(
     onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit,
     onLoginSuccess: (email: String) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    var authReady by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState.collectAsState()
+
+    // Initialize Google Auth Provider
+    LaunchedEffect(Unit) {
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(
+             // serverId = "AI-RISE_GOOGLE_CLIENT_ID"
+               serverId = "171340217875-28dj56japdti1huolkds46sdgglten4m.apps.googleusercontent.com"
+            )
+        )
+        authReady = true
+    }
 
     if (uiState.value.isLoggedIn) {
         // Using LaunchedEffect to perform a side-effect (navigation)
@@ -43,7 +60,7 @@ fun LoginScreen(
         onPrivacyPolicyClick = onPrivacyPolicyClick,
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
-        onGoogleSignInClick = onGoogleSignInClick,
+        authReady = authReady,
         onBackClick = onBackClick
     )
 }
@@ -55,7 +72,7 @@ fun Login(
     onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit,
+    authReady: Boolean,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -85,6 +102,7 @@ fun Login(
                 .padding(top = 50.dp) // Match SignUpScreen top padding
                 .padding(24.dp)
         ) {
+
             Text("Welcome back!", fontSize = 24.sp, color = White)
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -177,14 +195,32 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Google Sign-in Button
-            Button(
-                onClick = onGoogleSignInClick,
-                modifier = Modifier.width(300.dp).height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
-            ) {
-                Text("Continue with Google", color = White)
+            // Google Sign-in Button - REPLACED with GoogleButtonUiContainer
+            if (authReady) {
+                GoogleButtonUiContainer(
+                    onGoogleSignInResult = { googleUser ->
+                        val idToken = googleUser?.idToken
+
+                        // Check the actual properties available on GoogleUser
+                        // If googleUser has a different property for email, use that instead
+                        // For example, it might be googleUser.profile.email or googleUser.userInfo.email
+
+                        // Example assuming there's a getUserEmail() method or property:
+                        if (idToken != null) {
+                            onEvent(LoginUiEvent.GoogleSignInSuccess(idToken))
+                        }
+                    }
+                ) {
+                    // Custom Google Sign-In button with your styling
+                    Button(
+                        onClick = { this.onClick() },
+                        modifier = Modifier.width(300.dp).height(50.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                    ) {
+                        Text("Continue with Google", color = White)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

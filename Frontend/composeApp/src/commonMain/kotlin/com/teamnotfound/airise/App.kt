@@ -30,7 +30,7 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 
-// This is basically your main function.
+
 @Composable
 fun App(container: AppContainer) {
     val navController = rememberNavController()
@@ -77,7 +77,7 @@ fun App(container: AppContainer) {
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onGoogleSignInClick = { /* google Sign-In */ },
+                       // onGoogleSignInClick = {  },
                         onLoginSuccess = { email ->
                             navController.navigate(AppScreen.HOMESCREEN.name)
                         },
@@ -85,7 +85,7 @@ fun App(container: AppContainer) {
                     )
                 }
 
-                // sign up screens
+                // sign up screen
                 composable(route = AppScreen.SIGNUP.name) {
                     val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
                     SignUpScreen(
@@ -108,7 +108,6 @@ fun App(container: AppContainer) {
                     )
                 }
 
-                // recovery email sent screen
                 composable(route = AppScreen.RECOVERY_SENT.name) {
                     RecoverySentScreen(
                         onBackToLoginClick = {
@@ -120,14 +119,13 @@ fun App(container: AppContainer) {
                         onBackClick = { navController.popBackStack() }
                     )
                 }
-                // Privacy Policy Screens
+
                 composable(route = AppScreen.PRIVACY_POLICY.name) {
                     PrivacyPolicyScreen(
                         onBackClick = { navController.popBackStack() }
                     )
                 }
 
-                // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
                     OnboardingScreen(summaryCache = container.summaryCache)
                 }
@@ -157,7 +155,6 @@ fun App(container: AppContainer) {
                 }
 
 
-                // Account Settings Screen
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
                     val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService) }
                     // TODO: Fill with actual user data
