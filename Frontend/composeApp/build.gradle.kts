@@ -152,6 +152,11 @@ buildkonfig {
             "GEMINI_API_KEY",
             localProperties["gemini_api_key"]?.toString() ?: ""
         )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "GOOGLE_OAUTH_WEB_CLIENT_ID",
+            localProperties["google_oauth_web_client_id"]?.toString() ?: ""
+        )
     }
     /*
     When you wanna set different values for each platform

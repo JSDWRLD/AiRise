@@ -20,6 +20,7 @@ import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import com.teamnotfound.airise.BuildKonfig
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
@@ -39,8 +40,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         GoogleAuthProvider.create(
             credentials = GoogleAuthCredentials(
-             // serverId = "AI-RISE_GOOGLE_CLIENT_ID"
-               serverId = "171340217875-28dj56japdti1huolkds46sdgglten4m.apps.googleusercontent.com"
+              serverId = BuildKonfig.GOOGLE_OAUTH_WEB_CLIENT_ID
             )
         )
         authReady = true
@@ -195,23 +195,18 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Google Sign-in Button - REPLACED with GoogleButtonUiContainer
             if (authReady) {
                 GoogleButtonUiContainer(
                     onGoogleSignInResult = { googleUser ->
                         val idToken = googleUser?.idToken
 
-                        // Check the actual properties available on GoogleUser
-                        // If googleUser has a different property for email, use that instead
-                        // For example, it might be googleUser.profile.email or googleUser.userInfo.email
 
-                        // Example assuming there's a getUserEmail() method or property:
                         if (idToken != null) {
                             onEvent(LoginUiEvent.GoogleSignInSuccess(idToken))
                         }
                     }
                 ) {
-                    // Custom Google Sign-In button with your styling
+
                     Button(
                         onClick = { this.onClick() },
                         modifier = Modifier.width(300.dp).height(50.dp),
