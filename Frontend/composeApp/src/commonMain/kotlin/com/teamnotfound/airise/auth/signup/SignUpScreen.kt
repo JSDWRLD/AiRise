@@ -17,6 +17,9 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
 import com.teamnotfound.airise.util.*
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 
 @Composable
 fun SignUpScreen(
@@ -25,20 +28,21 @@ fun SignUpScreen(
     onForgotPasswordClick: () -> Unit,
     onGoogleSignUpClick: () -> Unit,
     onBackClick: () -> Unit,
-    onSignUpSuccess: () -> Unit
+    onSignUpSuccessWithUser: () -> Unit
 ) {
     // Observe the UI state from the view model
     val uiState by viewModel.uiState.collectAsState()
     var attemptedSubmit by remember { mutableStateOf(false) }
     val showErrors = attemptedSubmit
 
-
     // If sign up is successful, trigger navigation or any other success action.
     if (uiState.isSuccess) {
         // Using LaunchedEffect to perform a side-effect (navigation)
         LaunchedEffect(uiState) {
             // Continue to onboard screen
-            onSignUpSuccess()
+            Firebase.auth.currentUser?.let { user ->
+                onSignUpSuccessWithUser() // pass user to verification screen
+            }
         }
     }
 
