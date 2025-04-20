@@ -23,6 +23,7 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.auth.signup.EmailVerificationScreen
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
@@ -30,6 +31,7 @@ import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
+import dev.gitlive.firebase.auth.FirebaseUser
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.storage.resumable.SettingsResumableCache
@@ -104,7 +106,9 @@ fun App(container: AppContainer) {
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onGoogleSignUpClick = { /* Google Sign Up */ },
                         onBackClick = { navController.popBackStack() },
-                        onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
+                        onSignUpSuccessWithUser = {
+                            navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+                        }
                     )
                 }
 
@@ -179,6 +183,26 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.AI_CHAT.name) {
                     AiChat(navController = navController)
                 }
+
+                // Email verification
+                composable(route = AppScreen.EMAIL_VERIFICATION.name) {
+                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
+
+                    EmailVerificationScreen(
+                        viewModel = signUpViewModel,
+                        onVerified = {
+                            navController.navigate(AppScreen.ONBOARD.name) {
+                                popUpTo(0) // clear backstack
+                            }
+                        },
+                        onBackToLogin = {
+                            navController.navigate(AppScreen.LOGIN.name) {
+                                popUpTo(0)
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }
@@ -196,5 +220,6 @@ enum class AppScreen {
     NAVBAR,
     HEALTH_DASHBOARD,
     ACCOUNT_SETTINGS,
-    AI_CHAT
+    AI_CHAT,
+    EMAIL_VERIFICATION,
 }
