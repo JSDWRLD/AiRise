@@ -6,16 +6,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
@@ -23,6 +22,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -52,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
 import dev.gitlive.firebase.Firebase
@@ -64,13 +65,18 @@ fun AccountSettingScreen(
     localNavController: NavHostController,
     accountSettingViewModel: AccountSettingsViewModel
 ) {
+    val firebaseUser = Firebase.auth.currentUser
     LaunchedEffect(Unit) {
-        // pull down the settings as soon as we open the screen
-        Firebase.auth.currentUser?.let { accountSettingViewModel.getUserSettings(it) }
+        firebaseUser?.let { accountSettingViewModel.getUserSettings(firebaseUser) }
     }
 
     val uiState by accountSettingViewModel.uiState.collectAsState()
     var selectedSetting by remember { mutableStateOf<String?>(null) }
+    val currentImageUrl = uiState.userSettings?.profilePictureUrl
+
+    var showImagePickerDialog by remember { mutableStateOf(false) }
+    var candidateImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var candidateImageBytes by remember { mutableStateOf<ByteArray?>(null) }
 
 
     // If user is signed out successfully we route to welcome screen
@@ -82,16 +88,17 @@ fun AccountSettingScreen(
     }
 
     val scope = rememberCoroutineScope()
-    var images by remember { mutableStateOf(listOf<ImageBitmap>()) }
     val singleImagePicker = rememberImagePickerLauncher(
         selectionMode = SelectionMode.Single,
         scope = scope,
         onResult = { byteArrays ->
             byteArrays.firstOrNull()?.let {
-                images = listOf(it.toImageBitmap())
+                candidateImage = it.toImageBitmap()
+                candidateImageBytes = it // <-- Save to bytes
             }
         }
     )
+
     // body
     Box(
         modifier = Modifier
@@ -132,7 +139,7 @@ fun AccountSettingScreen(
                 // save button
                 IconButton(onClick = {
                     // insert or update the settings
-                    uiState.userSettings?.let { accountSettingViewModel.updateUserSettings(it) }
+                    uiState.userSettings?.let { settings -> firebaseUser?.let { accountSettingViewModel.updateUserSettings(settings, firebaseUser) } }
                 }) { // call backend api to update to local values
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -147,7 +154,7 @@ fun AccountSettingScreen(
                     .size(200.dp)
                     .clip(RoundedCornerShape(12.dp))
             ) {
-                if (images.isEmpty()) {
+                if (currentImageUrl == null || currentImageUrl.isEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "No Profile Picture",
@@ -157,35 +164,25 @@ fun AccountSettingScreen(
                             .padding(16.dp),
                         tint = Color.Gray
                     )
-                } else { // image selected
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp),
-                    ) {
-                        items(images) { image ->
-                            Image(
-                                bitmap = image,
-                                contentDescription = "Selected Image",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(12.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+                } else {
+                    // Show image
+                    AsyncImage(
+                        model = currentImageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
                 }
                 // overlay edit button
                 IconButton(
-                    onClick = { singleImagePicker.launch() },
+                    onClick = { showImagePickerDialog = true },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Profile Picture",
-                        tint = Color.White
-                    )
+                    Icon(Icons.Default.Edit, contentDescription = "Edit Profile Picture", tint = Color.White)
                 }
             }
             // profile name
@@ -385,5 +382,82 @@ fun AccountSettingScreen(
                 Text(text = "Sign Out", color = Color.White, fontSize = 18.sp)
             }
         }
+    }
+    if (showImagePickerDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showImagePickerDialog = false
+                candidateImage = null
+            },
+            title = {
+                Text("Change Profile Picture", color = White)
+            },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Pick a new image and preview it below:", color = White)
+                    Spacer(Modifier.size(12.dp))
+
+                    // Circular preview
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.DarkGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        candidateImage?.let {
+                            Image(
+                                bitmap = it,
+                                contentDescription = "Preview",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } ?: Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = Silver
+                        )
+                    }
+
+                    Spacer(Modifier.size(16.dp))
+
+                    // Pick Image button
+                    Button(
+                        onClick = { singleImagePicker.launch() },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Orange)
+                    ) {
+                        Text("Pick Image", color = White)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        candidateImageBytes?.let {
+                            accountSettingViewModel.uploadProfilePicture(it, firebaseUser)
+                        }
+                        showImagePickerDialog = false
+                        candidateImage = null
+                        candidateImageBytes = null
+
+                    }
+                ) {
+                    Text("Save", color = Orange)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showImagePickerDialog = false
+                        candidateImage = null
+                    }
+                ) {
+                    Text("Cancel", color = Silver)
+                }
+            },
+            backgroundColor = BgBlack
+        )
     }
 }

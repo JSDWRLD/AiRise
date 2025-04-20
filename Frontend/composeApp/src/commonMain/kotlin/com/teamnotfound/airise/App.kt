@@ -30,6 +30,10 @@ import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.storage.resumable.SettingsResumableCache
+import io.github.jan.supabase.storage.storage
 
 // This is basically your main function.
 @Composable

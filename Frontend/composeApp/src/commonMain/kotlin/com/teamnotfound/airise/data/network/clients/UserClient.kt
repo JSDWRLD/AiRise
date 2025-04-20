@@ -11,7 +11,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -92,10 +91,9 @@ class UserClient(
         val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
-            httpClient.put("$baseUrl/UserData") {
+            httpClient.put("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-                parameter("firebaseUid", firebaseUid)
                 setBody(userData)
             }
         } catch (e: UnresolvedAddressException) {
@@ -105,7 +103,7 @@ class UserClient(
         }
 
         return when (response.status.value) {
-            201 -> {
+            200 -> {
                 val registeredUser = response.body<UserData>()
                 Result.Success(registeredUser)
             }
@@ -145,35 +143,55 @@ class UserClient(
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
-    suspend fun getUserSettings(firebaseUid: String): Result<UserSettingsData, NetworkError> {
-        val resp = try {
-            httpClient.get("$baseUrl/UserSettings") {
-                parameter("firebaseUid", firebaseUid)
+
+    suspend fun getUserSettings(firebaseUser: FirebaseUser): Result<UserSettingsData, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+        val response = try {
+            httpClient.get("$baseUrl/UserSettings/$firebaseUid") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
             }
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when (resp.status.value) {
-            in 200..299 -> Result.Success(resp.body())
-            404       -> Result.Error(NetworkError.UNKNOWN) // or custom “not found”
-            else      -> Result.Error(NetworkError.UNKNOWN)
+        return when (response.status.value) {
+            200 -> {
+                val userSettings = response.body<UserSettingsData>()
+                Result.Success(userSettings)
+            }
+
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 
-    suspend fun upsertUserSettings(settings: UserSettingsData): Result<UserSettingsData, NetworkError> {
-        val resp = try {
-            httpClient.put("$baseUrl/UserSettings") {
+    suspend fun upsertUserSettings(userSettings: UserSettingsData, firebaseUser: FirebaseUser): Result<Boolean, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.put("$baseUrl/UserSettings/$firebaseUid") { // Modified URL path
                 contentType(ContentType.Application.Json)
-                setBody(settings)
+                bearerAuth(token)
+                setBody(userSettings)
             }
-        } catch(e: UnresolvedAddressException) {
+        } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
-        return when (resp.status.value) {
-            in 200..299 -> Result.Success(resp.body())
-            else        -> Result.Error(NetworkError.UNKNOWN)
+        return when (response.status.value) {
+            in 200..299 -> Result.Success(true)
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 }
