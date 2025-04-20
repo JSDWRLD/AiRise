@@ -154,17 +154,7 @@ fun AccountSettingScreen(
                     .size(200.dp)
                     .clip(RoundedCornerShape(12.dp))
             ) {
-                if (currentImageUrl != null) {
-                    // Show image
-                    AsyncImage(
-                        model = currentImageUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
+                if (currentImageUrl == null || currentImageUrl.isEmpty()) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "No Profile Picture",
@@ -173,6 +163,16 @@ fun AccountSettingScreen(
                             .align(Alignment.Center)
                             .padding(16.dp),
                         tint = Color.Gray
+                    )
+                } else {
+                    // Show image
+                    AsyncImage(
+                        model = currentImageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 }
                 // overlay edit button
