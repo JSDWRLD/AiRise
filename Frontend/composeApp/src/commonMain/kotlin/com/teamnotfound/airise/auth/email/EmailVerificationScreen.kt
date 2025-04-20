@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.auth.signup
+package com.teamnotfound.airise.auth.email
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,31 +26,35 @@ import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
-
 @Composable
 fun EmailVerificationScreen(
-    viewModel: SignUpViewModel,
+    viewModel: EmailVerificationViewModel,
     onVerified: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
-    val isVerified by viewModel.isEmailVerified.collectAsState()
+    val isVerified by viewModel.isVerified.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     var timer by remember { mutableStateOf(0) }
     val firebaseUser = Firebase.auth.currentUser ?: return
+    var hasSentVerification by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.sendEmailVerification(firebaseUser)
-
-        // Start polling every 3 seconds
-        while (!isVerified && timer < 300) { // 300 = ~15 minutes
-            delay(3000)
-            viewModel.checkEmailVerified(firebaseUser)
-            timer += 3
+    LaunchedEffect(firebaseUser) {
+        if (!hasSentVerification) {
+            viewModel.sendEmailVerification(firebaseUser)
+            hasSentVerification = true
         }
 
-        if (isVerified) onVerified()
+        repeat(300 / 3) {
+            delay(3000)
+            viewModel.checkEmailVerified(firebaseUser)
+
+            if (viewModel.isVerified.value) {
+                onVerified()
+                return@LaunchedEffect
+            }
+        }
     }
 
     Box(
@@ -60,11 +64,7 @@ fun EmailVerificationScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                "Verify your Email",
-                color = White,
-                fontSize = 24.sp
-            )
+            Text("Verify your Email", color = White, fontSize = 24.sp)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "A verification email has been sent to:\n${firebaseUser.email}",
@@ -72,14 +72,22 @@ fun EmailVerificationScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
-            CircularProgressIndicator(color = Orange)
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                "Waiting for email verification...",
-                color = White,
-                fontSize = 14.sp
-            )
-            Spacer(modifier = Modifier.height(24.dp))
+
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "",
+                    color = Orange,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            } else {
+                CircularProgressIndicator(color = Orange)
+                Spacer(modifier = Modifier.height(24.dp))
+                Text("Waiting for email verification...", color = White, fontSize = 14.sp)
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
             TextButton(onClick = onBackToLogin) {
                 Text("Back to Login", color = Orange)
             }

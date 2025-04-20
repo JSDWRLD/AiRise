@@ -23,7 +23,8 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
-import com.teamnotfound.airise.auth.signup.EmailVerificationScreen
+import com.teamnotfound.airise.auth.email.EmailVerificationScreen
+import com.teamnotfound.airise.auth.email.EmailVerificationViewModel
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
@@ -31,11 +32,6 @@ import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
-import dev.gitlive.firebase.auth.FirebaseUser
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.storage.Storage
-import io.github.jan.supabase.storage.resumable.SettingsResumableCache
-import io.github.jan.supabase.storage.storage
 
 // This is basically your main function.
 @Composable
@@ -84,6 +80,16 @@ fun App(container: AppContainer) {
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
                     val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
+                    val loginUiState by loginViewModel.uiState.collectAsState()
+
+                    // Navigate to verification screen when flagged
+                    LaunchedEffect(loginUiState.isEmailNotVerified) {
+                        if (loginUiState.isEmailNotVerified) {
+                            navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+
+                        }
+                    }
+
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -186,13 +192,15 @@ fun App(container: AppContainer) {
 
                 // Email verification
                 composable(route = AppScreen.EMAIL_VERIFICATION.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
+                    val emailVerificationViewModel = viewModel { EmailVerificationViewModel() }
 
                     EmailVerificationScreen(
-                        viewModel = signUpViewModel,
+                        viewModel = emailVerificationViewModel,
                         onVerified = {
+                            // Decide dynamically where to go
+                            val user = Firebase.auth.currentUser
                             navController.navigate(AppScreen.ONBOARD.name) {
-                                popUpTo(0) // clear backstack
+                                popUpTo(0)
                             }
                         },
                         onBackToLogin = {
