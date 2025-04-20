@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.auth
 
+import airise.composeapp.generated.resources.AiRise_Logo
 import airise.composeapp.generated.resources.Res
 import airise.composeapp.generated.resources.welcome_account
 import airise.composeapp.generated.resources.welcome_screen
@@ -44,6 +45,8 @@ fun WelcomeScreen(
 ){
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val circleSize = maxWidth * 0.4f //Circle size is 40% of screen width
+        val logoWidth = maxWidth * 0.5f
+        val logoHeight = maxHeight * 0.3f
         val padding = 16.dp
         Image(
             painter = painterResource(Res.drawable.welcome_screen),
@@ -55,35 +58,46 @@ fun WelcomeScreen(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = stringResource(Res.string.welcome_to),
-                color = Orange,
-                modifier = Modifier.padding(bottom = padding),
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
+
             Box(
-                modifier = Modifier.size(circleSize)
-                    .background(White, CircleShape)
-            )
-            Row(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = padding)
+                    .width(logoWidth)
+                    .height(logoHeight)
+                    .align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Ai",
+                    text = stringResource(Res.string.welcome_to),
                     color = Orange,
-                    fontSize = 55.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    modifier = Modifier.padding(bottom = padding).align(Alignment.TopCenter),
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = "Rise",
-                    color = Orange,
-                    fontSize = 55.sp,
-                    fontStyle = FontStyle.Italic
+                Image(
+                    painter = painterResource(Res.drawable.AiRise_Logo),
+                    contentDescription = "AiRise Logo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
+//            Row(
+//                modifier = Modifier
+//                    .align(Alignment.CenterHorizontally)
+//                    .padding(top = padding)
+//            ) {
+//                Text(
+//                    text = "Ai",
+//                    color = Orange,
+//                    fontSize = 55.sp,
+//                    fontWeight = FontWeight.ExtraBold
+//                )
+//                Text(
+//                    text = "Rise",
+//                    color = Orange,
+//                    fontSize = 55.sp,
+//                    fontStyle = FontStyle.Italic
+//                )
+//            }
         }
         val buttonWidth = maxWidth * 0.9f
         val buttonHeight = maxHeight * 0.06f
