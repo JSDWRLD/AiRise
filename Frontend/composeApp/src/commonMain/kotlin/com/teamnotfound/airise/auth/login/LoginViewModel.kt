@@ -55,47 +55,7 @@ class LoginViewModel(
 
     }
 
-// PlaceHolder function to simulate authentication
-    fun authenticateWithGoogle(idToken: String) {
-        // Set loading state
-        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-        viewModelScope.launch {
-            try {
-
-                // dummy user with "id" being the raw token.
-
-                val email = "hibahran@gmail.com"
-
-                // Create a User object
-                val user = User(
-                    id = idToken, // Generate a temporary ID
-                    email = email
-                )
-
-                // Cache the user data
-                userCache.cacheUserData(user)
-
-                // Update UI state to reflect successful login
-                _uiState.value = _uiState.value.copy(
-                    isLoggedIn = true,
-                    isLoading = false,
-                    email = email,
-                    errorMessage = null
-                )
-
-            } catch (e: Exception) {
-                // Handle unexpected exceptions
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = "Google Sign-In failed: ${e.message}"
-                )
-            }
-        }
-    }
-
-
-    /* REAL AUTHENTICATION FUNCTION
     // This function is to be uncommented & ran once Firebase keys are configured
     fun authenticateWithGoogle(idToken: String) {
         // Set loading state
@@ -135,7 +95,7 @@ class LoginViewModel(
             }
         }
     }
-*/
+
 
 
 

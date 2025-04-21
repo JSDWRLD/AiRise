@@ -10,15 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.cache.UserCache
-import dev.gitlive.firebase.auth.FirebaseUser
 
 class SignUpViewModel(private val authService: AuthService, private val userCache: UserCache): ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
-
-    val isVerificationSent = MutableStateFlow(false)
-    val isEmailVerified = MutableStateFlow(false)
 
     fun register(registerUserDTO: RegisterUserDTO) {
         if(!_uiState.value.passwordMatch) return //stops registration if password does not match
@@ -43,19 +39,6 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
                     }
                 }
             }
-        }
-    }
-
-    fun sendEmailVerification(firebaseUser: FirebaseUser) {
-        viewModelScope.launch {
-            firebaseUser.sendEmailVerification()
-        }
-    }
-
-    fun checkEmailVerified(firebaseUser: FirebaseUser) {
-        viewModelScope.launch {
-            firebaseUser.reload() // reloads user info from Firebase
-            isEmailVerified.value = firebaseUser.isEmailVerified
         }
     }
 

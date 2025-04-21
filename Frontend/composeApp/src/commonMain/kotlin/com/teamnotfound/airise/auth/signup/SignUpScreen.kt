@@ -22,9 +22,6 @@ import com.teamnotfound.airise.BuildKonfig
 import com.teamnotfound.airise.auth.login.LoginUiEvent
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
 import com.teamnotfound.airise.util.*
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
-import dev.gitlive.firebase.auth.auth
 
 @Composable
 fun SignUpScreen(
@@ -32,7 +29,7 @@ fun SignUpScreen(
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onBackClick: () -> Unit,
-    onSignUpSuccessWithUser: () -> Unit
+    onSignUpSuccess: () -> Unit
 ) {
     // Observe the UI state from the view model
     val uiState by viewModel.uiState.collectAsState()
@@ -48,14 +45,13 @@ fun SignUpScreen(
         authReady = true
     }
 
+
     // If sign up is successful, trigger navigation or any other success action.
     if (uiState.isSuccess) {
         // Using LaunchedEffect to perform a side-effect (navigation)
         LaunchedEffect(uiState) {
             // Continue to onboard screen
-            Firebase.auth.currentUser?.let { user ->
-                onSignUpSuccessWithUser() // pass user to verification screen
-            }
+            onSignUpSuccess()
         }
     }
 

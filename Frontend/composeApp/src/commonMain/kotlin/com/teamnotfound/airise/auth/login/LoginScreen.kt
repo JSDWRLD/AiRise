@@ -20,6 +20,7 @@ import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import com.mmk.kmpauth.google.GoogleButtonUiContainer
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import com.teamnotfound.airise.BuildKonfig
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
@@ -39,7 +40,7 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         GoogleAuthProvider.create(
             credentials = GoogleAuthCredentials(
-              serverId = "AI-RISE_GOOGLE_CLIENT_ID"
+              serverId = BuildKonfig.GOOGLE_OAUTH_WEB_CLIENT_ID
             )
         )
         authReady = true
