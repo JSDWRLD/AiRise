@@ -51,11 +51,20 @@ fun FitnessLevelScreen(navController: NavController, newUser: UserDataUiState){
 fun WorkoutLengthScreen(navController: NavController, newUser: UserDataUiState){
     QuestionScreen(
         questionText = "How long would you like to workout?",
-        options = listOf("15 minutes", "30 minutes", "45 minutes", "1 hour+"),
+        options = listOf("15 minutes", "30 minutes", "45 minutes", "60 minutes+"),
         nextScreen = OnboardingScreens.EquipmentAccess,
         navController = navController,
         questionCount = 4,
-        onSelection = { selection -> newUser.workoutLength.value = selection.split(" ")[1].toInt() }
+        onSelection = { selection ->
+            val minutes = when {
+                selection.contains("15") -> 15
+                selection.contains("30") -> 30
+                selection.contains("45") -> 45
+                selection.contains("60") -> 60
+                else -> 0
+            }
+            newUser.workoutLength.value = minutes
+        }
     )
 }
 

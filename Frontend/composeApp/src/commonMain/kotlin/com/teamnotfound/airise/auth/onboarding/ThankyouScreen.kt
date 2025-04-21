@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.auth.onboarding
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -10,26 +11,29 @@ import androidx.compose.material.Text
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.data.serializable.UserDataUiState
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.White
 import kotlinx.coroutines.delay
-import com.teamnotfound.airise.data.cache.SummaryCache
 
 @Composable
-fun ThankYouScreen(navController: NavController, newUser: UserDataUiState, summaryCache: SummaryCache){
+fun ThankYouScreen(appNavController: NavController, viewModel: OnboardingViewModel, newUser: UserDataUiState){
     var showUserDetails by remember { mutableStateOf(false) }
 
-    val summaryData = newUser.toData()
-
     LaunchedEffect(Unit){
-        summaryCache.cacheSummary(summaryData)
-        delay(1000)
+        viewModel.saveUserData(newUser)
+        delay(2000)
         showUserDetails = true
+        delay(2000)
+        appNavController.navigate(AppScreen.HOMESCREEN.name)
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .background(BgBlack),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
@@ -38,7 +42,8 @@ fun ThankYouScreen(navController: NavController, newUser: UserDataUiState, summa
                 text = "Thank you! Please wait for your information to be processed.",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp),
-                style = TextStyle(fontSize = 50.sp)
+                style = TextStyle(fontSize = 50.sp),
+                color = White
             )
         } else {
             // Display the summary of onboarding values
