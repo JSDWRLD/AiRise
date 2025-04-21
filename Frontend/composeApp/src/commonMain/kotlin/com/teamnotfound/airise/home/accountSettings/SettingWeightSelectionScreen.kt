@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
+fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()

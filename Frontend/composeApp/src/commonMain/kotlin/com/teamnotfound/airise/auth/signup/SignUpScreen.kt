@@ -15,22 +15,38 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
+import com.teamnotfound.airise.BuildKonfig
+import com.teamnotfound.airise.auth.login.LoginUiEvent
 import com.teamnotfound.airise.data.DTOs.RegisterUserDTO
 import com.teamnotfound.airise.util.*
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 
 @Composable
 fun SignUpScreen(
     viewModel: SignUpViewModel,
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
-    onGoogleSignUpClick: () -> Unit,
     onBackClick: () -> Unit,
-    onSignUpSuccess: () -> Unit
+    onSignUpSuccessWithUser: () -> Unit
 ) {
     // Observe the UI state from the view model
     val uiState by viewModel.uiState.collectAsState()
     var attemptedSubmit by remember { mutableStateOf(false) }
     val showErrors = attemptedSubmit
+    var authReady by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(
+                serverId = BuildKonfig.GOOGLE_OAUTH_WEB_CLIENT_ID
+            )
+        )
+        authReady = true
+    }
 
 
     // If sign up is successful, trigger navigation or any other success action.
@@ -38,7 +54,9 @@ fun SignUpScreen(
         // Using LaunchedEffect to perform a side-effect (navigation)
         LaunchedEffect(uiState) {
             // Continue to onboard screen
-            onSignUpSuccess()
+            Firebase.auth.currentUser?.let { user ->
+                onSignUpSuccessWithUser() // pass user to verification screen
+            }
         }
     }
 
@@ -241,15 +259,30 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // google sign in button
-            Button(
-                onClick = onGoogleSignUpClick,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
-            ) {
-                Text("Continue with Google", color = White)
+            if(authReady) {
+                GoogleButtonUiContainer(
+                    onGoogleSignInResult = { googleUser ->
+                        val idToken = googleUser?.idToken
+
+
+                        if (idToken != null) {
+                            viewModel.authenticateWithGoogle(idToken)
+                        }
+                    }
+                ) {
+
+                    Button(
+                        onClick = {
+                            this.onClick()
+                            attemptedSubmit = true
+                        },
+                        modifier = Modifier.width(300.dp).height(50.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                    ) {
+                        Text("Continue with Google", color = White)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

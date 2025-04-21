@@ -16,6 +16,13 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Email
 import com.teamnotfound.airise.util.*
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import com.teamnotfound.airise.BuildKonfig
+import org.jetbrains.compose.ui.tooling.preview.Preview
+
 
 @Composable
 fun LoginScreen(
@@ -23,11 +30,21 @@ fun LoginScreen(
     onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit,
     onLoginSuccess: (email: String) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    var authReady by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState.collectAsState()
+
+    // Initialize Google Auth Provider
+    LaunchedEffect(Unit) {
+        GoogleAuthProvider.create(
+            credentials = GoogleAuthCredentials(
+              serverId = BuildKonfig.GOOGLE_OAUTH_WEB_CLIENT_ID
+            )
+        )
+        authReady = true
+    }
 
     if (uiState.value.isLoggedIn) {
         // Using LaunchedEffect to perform a side-effect (navigation)
@@ -43,7 +60,7 @@ fun LoginScreen(
         onPrivacyPolicyClick = onPrivacyPolicyClick,
         onForgotPasswordClick = onForgotPasswordClick,
         onSignUpClick = onSignUpClick,
-        onGoogleSignInClick = onGoogleSignInClick,
+        authReady = authReady,
         onBackClick = onBackClick
     )
 }
@@ -55,7 +72,7 @@ fun Login(
     onPrivacyPolicyClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    onGoogleSignInClick: () -> Unit,
+    authReady: Boolean,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -177,14 +194,27 @@ fun Login(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Google Sign-in Button
-            Button(
-                onClick = onGoogleSignInClick,
-                modifier = Modifier.width(300.dp).height(50.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
-            ) {
-                Text("Continue with Google", color = White)
+            if (authReady) {
+                GoogleButtonUiContainer(
+                    onGoogleSignInResult = { googleUser ->
+                        val idToken = googleUser?.idToken
+
+
+                        if (idToken != null) {
+                            onEvent(LoginUiEvent.GoogleSignInSuccess(idToken))
+                        }
+                    }
+                ) {
+
+                    Button(
+                        onClick = { this.onClick() },
+                        modifier = Modifier.width(300.dp).height(50.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                    ) {
+                        Text("Continue with Google", color = White)
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

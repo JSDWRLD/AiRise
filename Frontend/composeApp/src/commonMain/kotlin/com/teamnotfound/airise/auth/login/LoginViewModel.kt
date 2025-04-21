@@ -4,18 +4,23 @@ import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.BaseViewModel
 import com.teamnotfound.airise.data.auth.AuthResult
 import com.teamnotfound.airise.data.auth.AuthService
+import com.teamnotfound.airise.data.auth.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.cache.UserCache
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 
-// Removing HTTP client and login function until it can be accepted.
+
 // This class is ready to handle login and signup screen
 // class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
 class LoginViewModel(
     private val authService: AuthService,
     private val userCache: UserCache
 ) : BaseViewModel() {
+
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -41,8 +46,58 @@ class LoginViewModel(
             is LoginUiEvent.Login -> {
                 loginUser()
             }
+
+            is LoginUiEvent.GoogleSignInSuccess -> {
+               authenticateWithGoogle(uiEvent.token)
+            }
+        }
+
+    }
+
+
+    // This function is to be uncommented & ran once Firebase keys are configured
+    fun authenticateWithGoogle(idToken: String) {
+        // Set loading state
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+        viewModelScope.launch {
+            try {
+                // Call the AuthService to handle the Firebase authentication with Google
+                val authResult = authService.authenticateWithGoogle(idToken)
+
+                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                when (authResult) {
+                    is AuthResult.Success -> {
+                        // cache the user data similarly to email/password authentication
+                        userCache.cacheUserData(authResult.data)
+
+                        // Update UI state to reflect successful login
+                        _uiState.value = _uiState.value.copy(
+                            isLoggedIn = true,
+                            email = authResult.data.email ?: "",
+                            errorMessage = null
+                        )
+                    }
+
+                    is AuthResult.Failure -> {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Google Sign-In failed: ${authResult.errorMessage}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Google Sign-In failed: ${e.message}"
+                )
+            }
         }
     }
+
+
+
+
 
     private fun loginUser() {
         viewModelScope.launch {
@@ -63,7 +118,16 @@ class LoginViewModel(
             when (authResult) {
                 is AuthResult.Success -> {
                     userCache.cacheUserData(authResult.data)
-                    _uiState.value = _uiState.value.copy(isLoggedIn = true)
+                    val firebaseUser = Firebase.auth.currentUser
+                    firebaseUser?.reload()
+                    if (firebaseUser?.isEmailVerified == true) {
+                        _uiState.value = _uiState.value.copy(isLoggedIn = true)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isEmailNotVerified = true,
+                            errorMessage = "Email not verified."
+                        )
+                    }
                 }
 
                 is AuthResult.Failure -> {

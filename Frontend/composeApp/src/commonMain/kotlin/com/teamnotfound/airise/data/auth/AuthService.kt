@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
 
 
 class AuthService(
@@ -24,6 +26,40 @@ class AuthService(
 
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
+
+    val firebaseUser: FirebaseUser?
+        get() = auth.currentUser
+
+    var isNewUser = false
+
+    var isUsingProvider = false
+
+    override suspend fun authenticateWithGoogle(idToken: String): AuthResult {
+        return try {
+            val credential = dev.gitlive.firebase.auth.GoogleAuthProvider.credential(idToken,null)
+            val result = auth.signInWithCredential(credential)
+            val firebaseUser = result.user
+
+            if (firebaseUser != null) {
+                // Check if this is a new user
+                isNewUser = result.additionalUserInfo?.isNewUser ?: false
+
+                if (isNewUser) {
+                    // Create a new user record in DB
+                    userClient.insertUser(firebaseUser, firebaseUser.email?: "")
+                }
+
+                val user = User(id = firebaseUser.uid, email = firebaseUser.email)
+                isUsingProvider = true
+                AuthResult.Success(user)
+            } else {
+                AuthResult.Failure("Google authentication failed: user is null")
+            }
+        } catch (e: Exception) {
+            AuthResult.Failure(e.message ?: "Google authentication failed")
+        }
+    }
+
 
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {

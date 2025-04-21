@@ -67,6 +67,10 @@ kotlin {
             implementation(libs.peekaboo.image.picker)
             implementation(libs.generativeai.google)
             implementation(libs.khealth)
+            implementation(libs.kmpauth.google)
+            implementation(libs.kmpauth.uihelper)
+            implementation(libs.supabase.storage)
+            implementation(libs.coil.compose)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -148,7 +152,22 @@ buildkonfig {
         buildConfigField(
             FieldSpec.Type.STRING,
             "GEMINI_API_KEY",
-            localProperties["gemini_api_key"]?.toString() ?: ""
+            localProperties["gemini_api_key"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SUPABASE_KEY",
+            localProperties["supabase_key"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SUPABASE_URL",
+            localProperties["supabase_url"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "GOOGLE_OAUTH_WEB_CLIENT_ID",
+            localProperties["google_oauth_web_client_id"]?.toString() ?: ""
         )
     }
     /*

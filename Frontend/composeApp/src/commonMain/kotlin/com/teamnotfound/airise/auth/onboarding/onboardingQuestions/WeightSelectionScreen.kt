@@ -16,11 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun WeightSelectionScreen(navController: NavController,  nextScreen: String, newUser: UserData) {
+fun WeightSelectionScreen(navController: NavController,  nextScreen: String, newUser: UserDataUiState) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()

@@ -17,11 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
-import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserData) {
+fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {

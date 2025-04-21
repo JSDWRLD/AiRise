@@ -7,4 +7,5 @@ sealed class AccountSettingScreens(val route: String){
     data object WeightSelect : AccountSettingScreens("weightSelect")
     data object AiPersonality : AccountSettingScreens("aiPersonality")
     data object Notifications : AccountSettingScreens("notifications")
+    data object HealthDashboard : AccountSettingScreens("healthDashboard")
 }
