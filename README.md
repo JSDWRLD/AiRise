@@ -1,71 +1,70 @@
+<h1 align="center">🏋️‍♀️ AiRise – Your Smart Personal Health Companion</h1>
 
-# 🏋️‍♀️ AiRise – Your Smart Personal Health Companion
+<p align="center">
+  <i>An AI-powered fitness and wellness platform designed to provide personalized coaching, real-time progress tracking, smart nutrition advice, and gamified motivation.</i>
+</p>
 
-> An AI-powered fitness and wellness platform designed to provide personalized coaching, real-time progress tracking, smart nutrition advice, and gamified motivation.
-
-![Project Banner](Media/banner.jpg) 
-
----
-
-## 📱 Overview
-
-Our AI Fitness App bridges the gap between convenience and results. Built with full-stack flexibility and mobile optimization in mind, it empowers users to take control of their health with personalized routines, meal planning, progress tracking, and smart-device integrations—all driven by AI.
-
-### ✨ Key Features
-
-- **AI-Powered Coaching**  
-  Personalized workouts, meal plans, and goal tracking.
-- **Smart Progress Tracker**  
-  Visual analytics and adaptive goal scaling.
-- **Meal Planner & Nutrition Tracker**  
-  Daily intake tracking and meal suggestions.
-- **Gamification & Social Engagement**  
-  Leaderboards, streaks, and community challenges.
-- **Smart Device Integration**  
-  Connect with fitness trackers and health apps.
-- **Push & Email Notifications**  
-  Stay on track with timely alerts and weekly summaries.
+<p align="center">
+  <img src="Media/banner.jpg" alt="AiRise Banner" width="100%">
+</p>
 
 ---
 
-## 📂 Project Structure
+<h2>📱 Overview</h2>
 
-This monorepo is structured into two main directories:
+<p>
+AiRise bridges the gap between convenience and results. Built with full-stack flexibility and mobile optimization in mind, it empowers users to take control of their health with personalized routines, meal planning, progress tracking, and smart-device integrations—all driven by AI.
+</p>
+
+<h3>✨ Key Features</h3>
+
+<ul>
+  <li><b>AI-Powered Coaching:</b> Personalized workouts, meal plans, and goal tracking.</li>
+  <li><b>Smart Progress Tracker:</b> Visual analytics and adaptive goal scaling.</li>
+  <li><b>Meal Planner & Nutrition Tracker:</b> Daily intake tracking and meal suggestions.</li>
+  <li><b>Gamification & Social Engagement:</b> Leaderboards, streaks, and community challenges.</li>
+  <li><b>Smart Device Integration:</b> Connect with fitness trackers and health apps.</li>
+  <li><b>Push & Email Notifications:</b> Stay on track with timely alerts and weekly summaries.</li>
+</ul>
+
+---
+
+<h2>📂 Project Structure</h2>
 
 ```
 /frontend   # Android (Kotlin) mobile application
-/backend    # RESTful backend API .NET9 
+/backend    # RESTful backend API (.NET 9)
 ```
 
-Each folder contains its own README with setup details and architecture.
+<p>Each folder contains its own README with setup details and architecture.</p>
 
 ---
 
-## 🚀 Getting Started
+<h2>🚀 Getting Started</h2>
 
-### ✅ Prerequisites
+<h3>✅ Prerequisites</h3>
 
-- .NET 9 SDK
-- Android Studio
-- Kotlin Multiplatform
+<ul>
+  <li>.NET 9 SDK</li>
+  <li>Android Studio</li>
+  <li>Kotlin Multiplatform</li>
+</ul>
 
-### ⚙️ Environment Setup
-
-Clone the repository and install dependencies for both ends:
+<h3>⚙️ Environment Setup</h3>
 
 ```bash
 git clone https://github.com/JSDWRLD/AiRise
 cd airise
 ```
 
-#### Frontend (Mobile App)
+<b>Frontend (Mobile App):</b>
 
 ```bash
 cd frontend
 # Open in Android Studio
 ```
 
-#### Backend (API)
+<b>Backend (API):</b>
 
 ```bash
 cd backend
@@ -74,47 +73,79 @@ cd backend
 
 ---
 
-## 📸 Visuals
+<h2>📸 Visuals</h2>
 
-| Feature | Screenshot |
-|--------|------------|
-| Onboarding UI | ![Onboarding](Media/onboarding.png) |
-| Homescreen | ![Homescreen](Media/home.png) |
-| AI Coach Chat | ![AI Chat](Media/chat.png) |
-| Workouts | ![Progress](Media/workout.png) |
+<details>
+  <summary>📱 Core Features</summary>
+  <table>
+    <tr>
+      <td align="center"><b>Homescreen</b><br><img src="Media/home.png" width="250"/></td>
+      <td align="center"><b>AI Coach Chat</b><br><img src="Media/chat.png" width="250"/></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Workouts</b><br><img src="Media/workout.png" width="250"/></td>
+      <td></td>
+    </tr>
+  </table>
+</details>
+
+<details>
+  <summary>⚙️ Onboarding & Settings</summary>
+  <table>
+    <tr>
+      <td align="center"><b>Onboarding UI</b><br><img src="Media/onboard.png" width="250"/></td>
+      <td></td>
+    </tr>
+  </table>
+</details>
 
 ---
 
-## 🧠 Architecture
+<h2>🧠 Architecture</h2>
 
-![Architecture Diagram](Media/erd.png)  
-_An overview of the system: mobile frontend ↔ backend services ↔ database & third-party APIs_
+<p align="center">
+  <img src="Media/erd.png" alt="Architecture Diagram" width="75%">
+</p>
 
----
-
-## 🛠️ Technologies
-
-| Frontend  | Backend       | AI & ML      | Database     | Integrations        |
-|-----------|---------------|--------------|--------------|---------------------|
-| Kotlin    | .NET Framework | Google Gemini | MongoDB      | Google Fit, Apple Health |
-| KMP   | Firebase Auth | Image Processor | SupaBase | Wearable Devices   |
+<p align="center"><i>An overview of the system: mobile frontend ↔ backend services ↔ database & third-party APIs</i></p>
 
 ---
 
-## 📌 Rules & Guidelines
+<h2>🛠️ Technologies</h2>
 
-### 🔀 Branching Strategy
+<table>
+  <tr>
+    <th>Frontend</th>
+    <th>Backend</th>
+    <th>AI & ML</th>
+    <th>Database</th>
+    <th>Integrations</th>
+  </tr>
+  <tr>
+    <td>Kotlin, KMP</td>
+    <td>.NET 9, Firebase Auth</td>
+    <td>Google Gemini, Image Processor</td>
+    <td>MongoDB, SupaBase</td>
+    <td>Google Fit, Apple Health, Wearables</td>
+  </tr>
+</table>
+
+---
+
+<h2>📌 Rules & Guidelines</h2>
+
+<h3>🔀 Branching Strategy</h3>
 
 - Always use feature branches: `git checkout -b feature/my-feature`
 - Never push directly to `main`
 
-### ✅ Pull Request Protocol
+<h3>✅ Pull Request Protocol</h3>
 
-- At least **2 reviewers** must approve before merging.
+- At least <b>2 reviewers</b> must approve before merging.
 - Ping the team on Discord (`@everyone`) for visibility.
-- Keep PRs **small, atomic, and focused**.
+- Keep PRs <b>small, atomic, and focused</b>.
 
-### ✍️ Commit Format
+<h3>✍️ Commit Format</h3>
 
 ```bash
 type: short description
@@ -122,42 +153,43 @@ type: short description
 
 > Example: `feat: add AI meal suggestion endpoint`
 
-### 🔐 Security
+<h3>🔐 Security</h3>
 
-- Do **not** commit `.env` files or secrets.
+- Do <b>not</b> commit `.env` files or secrets.
 - Use `.gitignore` to protect sensitive data.
 
 ---
 
-## 🧪 Feature Checklist
+<h2>🧪 Feature Checklist</h2>
 
-### ✅ Core Features
+<h3>✅ Core Features</h3>
 
-- [x] AI-powered workout suggestions
-- [x] Nutrition and meal tracking
-- [x] Progress analytics
-- [x] Community and gamification
-- [x] Smart device integration
+- [x] AI-powered workout suggestions  
+- [x] Nutrition and meal tracking  
+- [x] Progress analytics  
+- [x] Community and gamification  
+- [x] Smart device integration  
 
-### 🚧 Stretch Goals
+<h3>🚧 Stretch Goals</h3>
 
-- [ ] 📷 **Computer Vision** for form checking
-- [ ] 🥗 Meal image analysis for macronutrient estimation
-
----
-
-## 🤝 Contributing
-
-Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+- [ ] 📷 <b>Computer Vision</b> for form checking  
+- [ ] 🥗 Meal image analysis for macronutrient estimation  
 
 ---
 
-## 🙌 Credits
+<h2>🤝 Contributing</h2>
 
-Made with ❤️ by 404 Not Found at **[California State University Sacramento]**.  
+Please read the <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines.
+
+---
+
+<h2>🙌 Credits</h2>
+
+Made with ❤️ by <b>404 Not Found</b> at <b>California State University Sacramento</b>.  
 Special thanks to our mentors, professors, and testers who supported development.
 
 ---
 
-> _"The only bad workout is the one that didn’t happen."_  
-> — Random Dude
+<blockquote>
+  <p><i>"The only bad workout is the one that didn’t happen."</i><br>— Random Dude</p>
+</blockquote>
