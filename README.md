@@ -1,29 +1,164 @@
-# Repository Rules
 
-1. **Branching**: Always create a new branch for each task (use `git checkout -b branch-name`).
-2. **Pull Requests**: Submit pull requests for review by pushing your branch to this repository, never push directly to `main`.
-   - Pull requests are subject to review to ensure that the main branch does not break.
-3. **Code Reviews**: Ensure at least 2 reviewers approve before merging. Ping the Discord server with `@everyone` to notify the team.
-4. **Commit Messages**: Use clear, concise commit messages in the format: `type: message`.
-5. **No Large PRs**: Keep pull requests small and focused on a single task to make the review process easier.
-6. **No Sensitive Data**: Never commit passwords, API keys, or any sensitive information to the repository.
-7. **Documentation**: Update documentation whenever making changes to the code or features.
-8. **IMPORTANT - Rebasing**: Rebase your branch on `main` before submitting a pull request to ensure your changes are up-to-date and conflict-free.
+# 🏋️‍♀️ AiRise – Your Smart Personal Health Companion
+
+> An AI-powered fitness and wellness platform designed to provide personalized coaching, real-time progress tracking, smart nutrition advice, and gamified motivation.
+
+![Project Banner](Media/banner.jpg) 
 
 ---
 
-## Set up the Environment
+## 📱 Overview
 
-This repository contains two separate folders for the frontend and backend:
+Our AI Fitness App bridges the gap between convenience and results. Built with full-stack flexibility and mobile optimization in mind, it empowers users to take control of their health with personalized routines, meal planning, progress tracking, and smart-device integrations—all driven by AI.
 
-- **Frontend**: The frontend development team should navigate to the `/frontend` folder.
-- **Backend**: The backend is located in the `/backend` folder.
+### ✨ Key Features
 
-### Frontend Setup
-
-To work on the frontend, make sure to open the `/frontend` folder in **Android Studio** for proper setup and configuration.
+- **AI-Powered Coaching**  
+  Personalized workouts, meal plans, and goal tracking.
+- **Smart Progress Tracker**  
+  Visual analytics and adaptive goal scaling.
+- **Meal Planner & Nutrition Tracker**  
+  Daily intake tracking and meal suggestions.
+- **Gamification & Social Engagement**  
+  Leaderboards, streaks, and community challenges.
+- **Smart Device Integration**  
+  Connect with fitness trackers and health apps.
+- **Push & Email Notifications**  
+  Stay on track with timely alerts and weekly summaries.
 
 ---
 
-> **Note**: Each directory (`/frontend` and `/backend`) has its own `README.md` file with additional setup and configuration instructions specific to that part of the project.
+## 📂 Project Structure
 
+This monorepo is structured into two main directories:
+
+```
+/frontend   # Android (Kotlin) mobile application
+/backend    # RESTful backend API .NET9 
+```
+
+Each folder contains its own README with setup details and architecture.
+
+---
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+
+- .NET 9 SDK
+- Android Studio
+- Kotlin Multiplatform
+
+### ⚙️ Environment Setup
+
+Clone the repository and install dependencies for both ends:
+
+```bash
+git clone https://github.com/JSDWRLD/AiRise
+cd airise
+```
+
+#### Frontend (Mobile App)
+
+```bash
+cd frontend
+# Open in Android Studio
+```
+
+#### Backend (API)
+
+```bash
+cd backend
+# Open in Visual Studio
+```
+
+---
+
+## 📸 Visuals
+
+| Feature | Screenshot |
+|--------|------------|
+| Onboarding UI | ![Onboarding](Media/onboarding.png) |
+| Homescreen | ![Homescreen](Media/home.png) |
+| AI Coach Chat | ![AI Chat](Media/chat.png) |
+| Dashboard | ![Dashboard](URL_TO_IMAGE_HERE) |
+| Workouts | ![Progress](Media/workout.png) |
+
+---
+
+## 🧠 Architecture
+
+![Architecture Diagram](Media/erd.png)  
+_An overview of the system: mobile frontend ↔ backend services ↔ database & third-party APIs_
+
+---
+
+## 🛠️ Technologies
+
+| Frontend  | Backend       | AI & ML      | Database     | Integrations        |
+|-----------|---------------|--------------|--------------|---------------------|
+| Kotlin    | .NET Framework | Google Gemini | MongoDB      | Google Fit, Apple Health |
+| KMP   | Firebase Auth | Image Processor | SupaBase | Wearable Devices   |
+
+---
+
+## 📌 Rules & Guidelines
+
+### 🔀 Branching Strategy
+
+- Always use feature branches: `git checkout -b feature/my-feature`
+- Never push directly to `main`
+
+### ✅ Pull Request Protocol
+
+- At least **2 reviewers** must approve before merging.
+- Ping the team on Discord (`@everyone`) for visibility.
+- Keep PRs **small, atomic, and focused**.
+
+### ✍️ Commit Format
+
+```bash
+type: short description
+```
+
+> Example: `feat: add AI meal suggestion endpoint`
+
+### 🔐 Security
+
+- Do **not** commit `.env` files or secrets.
+- Use `.gitignore` to protect sensitive data.
+
+---
+
+## 🧪 Feature Checklist
+
+### ✅ Core Features
+
+- [x] AI-powered workout suggestions
+- [x] Nutrition and meal tracking
+- [x] Progress analytics
+- [x] Community and gamification
+- [x] Smart device integration
+
+### 🚧 Stretch Goals
+
+- [ ] 📷 **Computer Vision** for form checking
+- [ ] 🥗 Meal image analysis for macronutrient estimation
+
+---
+
+## 🤝 Contributing
+
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## 🙌 Credits
+
+Made with ❤️ by 404 Not Found at **[California State University Sacramento]**.  
+Special thanks to our mentors, professors, and testers who supported development.
+
+---
+
+> _"The only bad workout is the one that didn’t happen."_  
+> — Random Dude
