@@ -40,6 +40,20 @@ AiRise bridges the gap between convenience and results. Built with full-stack fl
 
 ---
 
+<h2>🚀 Deployment</h2>
+
+<p>
+Deployment for this project is currently manual.
+</p>
+
+<ul>
+  <li><b>Mobile (Frontend):</b> Built in Android Studio → deployed to APK / Play Store</li>
+  <li><b>Backend API:</b> Deployed on Azure or local server for demo</li>
+  <li><b>Database:</b> SupaBase & MongoDB Atlas (cloud-hosted)</li>
+</ul>
+
+---
+
 <h2>🚀 Getting Started</h2>
 
 <h3>✅ Prerequisites</h3>
@@ -49,6 +63,8 @@ AiRise bridges the gap between convenience and results. Built with full-stack fl
   <li>Android Studio</li>
   <li>Kotlin Multiplatform</li>
 </ul>
+
+---
 
 <h3>⚙️ Environment Setup</h3>
 
@@ -134,6 +150,17 @@ cd backend
 
 <h2>📌 Rules & Guidelines</h2>
 
+<h2>👨‍💻 Developer Instructions</h2>
+
+<ol>
+  <li>Clone the repo and check the correct branch.</li>
+  <li>Follow README setup instructions inside <code>/frontend</code> and <code>/backend</code>.</li>
+  <li>Update your feature branch often with <code>main</code> to avoid conflicts.</li>
+  <li>Write clear commits & keep PRs small for fast reviews.</li>
+</ol>
+
+---
+
 <h3>🔀 Branching Strategy</h3>
 
 - Always use feature branches: `git checkout -b feature/my-feature`
@@ -174,6 +201,74 @@ type: short description
 
 - [ ] 📷 <b>Computer Vision</b> for form checking  
 - [ ] 🥗 Meal image analysis for macronutrient estimation  
+
+---
+
+<h2>🗓️ Project Timeline</h2>
+
+<p>Below is a rough breakdown of our milestones and deadlines, based on our JIRA sprint planning:</p>
+
+<table>
+  <tr>
+    <th>Milestone</th>
+    <th>Due Date</th>
+    <th>Status</th>
+  </tr>
+  <tr>
+    <td>✅ SPRINT 1 SOMETHING</td>
+    <td>Jan 28, 2025</td>
+    <td>Completed</td>
+  </tr>
+  <tr>
+    <td>✅ SPRINT 1 SOMETHING</td>
+    <td>Feb 25, 2025</td>
+    <td>Completed</td>
+  </tr>
+  <tr>
+    <td>✅ SPRINT 1 SOMETHING</td>
+    <td>Mar 10, 2025</td>
+    <td>Completed</td>
+  </tr>
+  <tr>
+    <td>⚠️ SPRINT 1 SOMETHING</td>
+    <td>Apr 15, 2025</td>
+    <td>In Progress</td>
+  </tr>
+  <tr>
+    <td>🧪 SPRINT 1 SOMETHING</td>
+    <td>Apr 26, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>🎓 Final Presentation & Demo Day</td>
+    <td>Dec 7, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+</table>
+
+---
+
+<h2>🧪 Testing: FOR CSC 191 </h2>
+
+<p>
+We use manual and automated testing to ensure application stability and reliability across devices.
+</p>
+
+<ul>
+  <li><b>Frontend Testing:</b> Manual QA on Android devices + Espresso tests</li>
+  <li><b>Backend Testing:</b> xUnit test suite for .NET APIs</li>
+  <li><b>Mock Data:</b> Fake users and exercise logs to simulate workflows</li>
+</ul>
+
+```bash
+# Run backend tests
+cd backend
+dotnet test
+
+# Run frontend unit tests (if applicable)
+cd frontend
+./gradlew test
+```
 
 ---
 
