@@ -150,7 +150,7 @@ cd backend
 
 <h2>📌 Rules & Guidelines</h2>
 
-<h2>👨‍💻 Developer Instructions</h2>
+<h3>👨‍💻 Developer Instructions</h3>
 
 <ol>
   <li>Clone the repo and check the correct branch.</li>
@@ -158,8 +158,6 @@ cd backend
   <li>Update your feature branch often with <code>main</code> to avoid conflicts.</li>
   <li>Write clear commits & keep PRs small for fast reviews.</li>
 </ol>
-
----
 
 <h3>🔀 Branching Strategy</h3>
 
