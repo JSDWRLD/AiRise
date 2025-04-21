@@ -12,7 +12,9 @@ import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 import dev.gitlive.firebase.auth.FirebaseUser
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.seconds
 
 
 class AccountSettingsViewModel(private val authService: AuthService,private val userClient: UserClient) : ViewModel() {
@@ -94,6 +96,7 @@ class AccountSettingsViewModel(private val authService: AuthService,private val 
                 val cacheBustedUrl = "$publicUrl?t=$currentTimestamp"
                 updateProfilePicture(cacheBustedUrl, firebaseUser)
 
+                delay(1000)
                 // refresh ui
                 getUserSettings(firebaseUser)
             } catch (e: Exception) {
@@ -106,6 +109,7 @@ class AccountSettingsViewModel(private val authService: AuthService,private val 
             }
         }
     }
+
 
     //We might need these to update only certain parts, may implement later, full get and update are a bigger concern
     fun updateNotificationSettings(

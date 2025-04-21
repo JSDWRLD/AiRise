@@ -104,8 +104,12 @@ class UserClient(
 
         return when (response.status.value) {
             200 -> {
-                val registeredUser = response.body<UserData>()
-                Result.Success(registeredUser)
+                val userDataRes = response.body<UserData>()
+                Result.Success(userDataRes)
+            }
+            201 -> {
+                val userDataRes = response.body<UserData>()
+                Result.Success(userDataRes)
             }
 
             400 -> Result.Error(NetworkError.BAD_REQUEST)

@@ -10,4 +10,5 @@ data class LoginUiState(
     val isLoggedIn: Boolean = false,
     val errorMessage: String? = null,
     val currentUser: User? = null,
+    val isEmailNotVerified: Boolean = false
 )

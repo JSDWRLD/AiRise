@@ -18,5 +18,6 @@ data class HomeUiState(
     val healthData: HealthData = HealthData(),
     val isDailyProgressLoaded: Boolean = false,
     val isFitnessSummaryLoaded: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val userProfilePicture: String? = "",
 )

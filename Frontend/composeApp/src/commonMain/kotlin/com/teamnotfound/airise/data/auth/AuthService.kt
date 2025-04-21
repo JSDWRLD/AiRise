@@ -20,10 +20,13 @@ class AuthService(
         get() = auth.currentUser?.uid.toString()
 
     override val isAuthenticated: Boolean
-        get() = auth.currentUser != null
+        get() = auth.currentUser?.isEmailVerified == true
 
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
+
+    val firebaseUser: FirebaseUser?
+        get() = auth.currentUser
 
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {

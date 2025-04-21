@@ -23,6 +23,8 @@ import com.teamnotfound.airise.auth.signup.SignUpViewModel
 import com.teamnotfound.airise.auth.WelcomeScreen
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.auth.recovery.RecoveryViewModel
+import com.teamnotfound.airise.auth.email.EmailVerificationScreen
+import com.teamnotfound.airise.auth.email.EmailVerificationViewModel
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
@@ -30,10 +32,8 @@ import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.storage.Storage
-import io.github.jan.supabase.storage.resumable.SettingsResumableCache
-import io.github.jan.supabase.storage.storage
+import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 
 // This is basically your main function.
 @Composable
@@ -82,6 +82,16 @@ fun App(container: AppContainer) {
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
                     val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
+                    val loginUiState by loginViewModel.uiState.collectAsState()
+
+                    // Navigate to verification screen when flagged
+                    LaunchedEffect(loginUiState.isEmailNotVerified) {
+                        if (loginUiState.isEmailNotVerified) {
+                            navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+
+                        }
+                    }
+
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
@@ -104,7 +114,9 @@ fun App(container: AppContainer) {
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onGoogleSignUpClick = { /* Google Sign Up */ },
                         onBackClick = { navController.popBackStack() },
-                        onSignUpSuccess = { navController.navigate(AppScreen.ONBOARD.name) }
+                        onSignUpSuccessWithUser = {
+                            navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+                        }
                     )
                 }
 
@@ -139,7 +151,10 @@ fun App(container: AppContainer) {
 
                 // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
-                    OnboardingScreen(summaryCache = container.summaryCache)
+                    val onboardingViewModel = viewModel {
+                        OnboardingViewModel(authService, container.summaryCache, container.userClient)
+                    }
+                    OnboardingScreen(viewModel = onboardingViewModel, appNavController = navController)
                 }
 
                 // Home Screen
@@ -147,7 +162,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        viewModel = HomeViewModel(userRepository),
+                        viewModel = HomeViewModel(userRepository, container.userClient),
                         navController = navController
                     )
                 }
@@ -179,6 +194,28 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.AI_CHAT.name) {
                     AiChat(navController = navController)
                 }
+
+                // Email verification
+                composable(route = AppScreen.EMAIL_VERIFICATION.name) {
+                    val emailVerificationViewModel = viewModel { EmailVerificationViewModel() }
+
+                    EmailVerificationScreen(
+                        viewModel = emailVerificationViewModel,
+                        onVerified = {
+                            // Decide dynamically where to go
+                            val user = Firebase.auth.currentUser
+                            navController.navigate(AppScreen.ONBOARD.name) {
+                                popUpTo(0)
+                            }
+                        },
+                        onBackToLogin = {
+                            navController.navigate(AppScreen.LOGIN.name) {
+                                popUpTo(0)
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }
@@ -196,5 +233,6 @@ enum class AppScreen {
     NAVBAR,
     HEALTH_DASHBOARD,
     ACCOUNT_SETTINGS,
-    AI_CHAT
+    AI_CHAT,
+    EMAIL_VERIFICATION,
 }
