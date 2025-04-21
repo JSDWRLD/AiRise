@@ -69,6 +69,9 @@ kotlin {
             implementation(libs.khealth)
             implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
             implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
+            implementation(libs.supabase.storage)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -150,7 +153,17 @@ buildkonfig {
         buildConfigField(
             FieldSpec.Type.STRING,
             "GEMINI_API_KEY",
-            localProperties["gemini_api_key"]?.toString() ?: ""
+            localProperties["gemini_api_key"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SUPABASE_KEY",
+            localProperties["supabase_key"]?.toString() ?: "",
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SUPABASE_URL",
+            localProperties["supabase_url"]?.toString() ?: "",
         )
         buildConfigField(
             FieldSpec.Type.STRING,

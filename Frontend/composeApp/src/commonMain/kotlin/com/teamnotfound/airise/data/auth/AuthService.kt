@@ -27,9 +27,12 @@ class AuthService(
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
 
-    var isNewUser = true
+    val firebaseUser: FirebaseUser?
+        get() = auth.currentUser
 
-   override suspend fun authenticateWithGoogle(idToken: String): AuthResult {
+    var isNewUser = false
+
+    override suspend fun authenticateWithGoogle(idToken: String): AuthResult {
         return try {
             val credential = dev.gitlive.firebase.auth.GoogleAuthProvider.credential(idToken,null)
             val result = auth.signInWithCredential(credential)

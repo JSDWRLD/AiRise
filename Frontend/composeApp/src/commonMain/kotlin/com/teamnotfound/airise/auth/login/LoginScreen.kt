@@ -102,7 +102,6 @@ fun Login(
                 .padding(top = 50.dp) // Match SignUpScreen top padding
                 .padding(24.dp)
         ) {
-
             Text("Welcome back!", fontSize = 24.sp, color = White)
             Spacer(modifier = Modifier.height(24.dp))
 

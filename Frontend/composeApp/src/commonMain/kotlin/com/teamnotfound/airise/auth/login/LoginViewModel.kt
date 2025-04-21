@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.cache.UserCache
-
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 
 
 // This class is ready to handle login and signup screen
@@ -18,6 +20,7 @@ class LoginViewModel(
     private val authService: AuthService,
     private val userCache: UserCache
 ) : BaseViewModel() {
+
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
@@ -50,46 +53,6 @@ class LoginViewModel(
         }
 
     }
-
-// PlaceHolder function to simulate authentication
-//    fun authenticateWithGoogle(idToken: String) {
-//        // Set loading state
-//        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-//
-//        viewModelScope.launch {
-//            try {
-//
-//                // dummy user with "id" being the raw token.
-//
-//                val email = "hibahran@gmail.com"
-//
-//                // Create a User object
-//                val user = User(
-//                    id = idToken, // Generate a temporary ID
-//                    email = email
-//                )
-//
-//                // Cache the user data
-//                userCache.cacheUserData(user)
-//
-//                // Update UI state to reflect successful login
-//                _uiState.value = _uiState.value.copy(
-//                    isLoggedIn = true,
-//                    isLoading = false,
-//                    email = email,
-//                    errorMessage = null
-//                )
-//
-//            } catch (e: Exception) {
-//                // Handle unexpected exceptions
-//                _uiState.value = _uiState.value.copy(
-//                    isLoading = false,
-//                    errorMessage = "Google Sign-In failed: ${e.message}"
-//                )
-//            }
-//        }
-//    }
-
 
 
     // This function is to be uncommented & ran once Firebase keys are configured
@@ -155,7 +118,16 @@ class LoginViewModel(
             when (authResult) {
                 is AuthResult.Success -> {
                     userCache.cacheUserData(authResult.data)
-                    _uiState.value = _uiState.value.copy(isLoggedIn = true)
+                    val firebaseUser = Firebase.auth.currentUser
+                    firebaseUser?.reload()
+                    if (firebaseUser?.isEmailVerified == true) {
+                        _uiState.value = _uiState.value.copy(isLoggedIn = true)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isEmailNotVerified = true,
+                            errorMessage = "Email not verified."
+                        )
+                    }
                 }
 
                 is AuthResult.Failure -> {

@@ -1,8 +1,8 @@
 package com.teamnotfound.airise.data.cache
 
-import com.teamnotfound.airise.data.serializable.UserOnboardingData
+import com.teamnotfound.airise.data.serializable.UserData
 
 interface SummaryCache {
-    suspend fun cacheSummary(summary: UserOnboardingData)
-    suspend fun getUserSummaries(userId: String): List<UserOnboardingData>
+    suspend fun cacheSummary(summary: UserData)
+    suspend fun getUserSummaries(userId: String): List<UserData>
 }

@@ -19,7 +19,7 @@ data class SummaryEntity(
     val equipmentAccess: String,
 
 
-    val daysSelected: String,
+    val daysSelected: List<String>,
 
     val workoutTimes: String,
 

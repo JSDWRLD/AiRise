@@ -16,11 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.White
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 
 
 @Composable
@@ -28,6 +31,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
+    val currentImageUrl = uiState.value.userProfilePicture
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -35,7 +39,13 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             BottomNavigationBar(navController = bottomNavController)
         },
         topBar = {
-            TopNavBar(navController = navController )
+            TopNavBar(
+                greeting = uiState.value.greeting,
+                username = uiState.value.username,
+                isLoaded = uiState.value.isUserDataLoaded,
+                navController = navController,
+                currentImageUrl = currentImageUrl
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -70,14 +80,14 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             ) {
                 TodaysOverview(
                     overview = uiState.value.overview,
-                    isLoading = uiState.value.isOverviewLoading
+                    isLoaded = uiState.value.isOverviewLoaded
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 DailyProgressSection(
                     dailyProgressData = uiState.value.dailyProgressData,
-                    isLoading = uiState.value.isDailyProgressLoading
+                    isLoaded = uiState.value.isDailyProgressLoaded
                     )
 
                 Spacer(modifier = Modifier.height(10.dp))

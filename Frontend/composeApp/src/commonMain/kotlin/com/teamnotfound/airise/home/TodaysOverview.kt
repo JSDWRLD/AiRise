@@ -16,7 +16,7 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 
 @Composable
-fun TodaysOverview (overview: String, isLoading: Boolean) {
+fun TodaysOverview (overview: String, isLoaded: Boolean) {
     Column(
         modifier = Modifier.fillMaxWidth()
             .padding(horizontal = 10.dp),
@@ -29,7 +29,7 @@ fun TodaysOverview (overview: String, isLoading: Boolean) {
             fontWeight = FontWeight.Bold,
             color = White
         )
-        if(isLoading){
+        if(!isLoaded){
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 color = DeepBlue

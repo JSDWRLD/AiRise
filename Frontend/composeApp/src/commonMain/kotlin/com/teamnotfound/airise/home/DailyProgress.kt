@@ -26,7 +26,7 @@ import com.teamnotfound.airise.util.Silver
 
 //Displays the daily progress section
 @Composable
-fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoading: Boolean) {
+fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean) {
 
     Column(
         modifier = Modifier
@@ -58,7 +58,7 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoading: Boolea
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(70.dp)
         ) {
-            if(isLoading){
+            if(!isLoaded){
                 CircularProgressIndicator(
                     color = DeepBlue
                 )
