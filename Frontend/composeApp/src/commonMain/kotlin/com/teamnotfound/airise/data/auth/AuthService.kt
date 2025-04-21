@@ -28,10 +28,6 @@ class AuthService(
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
 
     var isNewUser = true
-    val firebaseUser: FirebaseUser?
-        get() = auth.currentUser
-
-
 
     override suspend fun authenticateWithGoogle(idToken: String): AuthResult {
         return try {
