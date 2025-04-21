@@ -91,6 +91,8 @@ cd backend
 
 <h2>📸 Visuals</h2>
 
+Click the dropdown menus to view images!
+
 <details>
   <summary>📱 Core Features</summary>
   <table>
