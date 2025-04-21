@@ -113,7 +113,7 @@ fun App(container: AppContainer) {
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccessWithUser = {
-                            if(authService.isNewUser){
+                            if(authService.isUsingProvider){
                                 navController.navigate(AppScreen.ONBOARD.name)
                             }else {
                                 navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
