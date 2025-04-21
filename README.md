@@ -81,7 +81,6 @@ cd backend
 | Onboarding UI | ![Onboarding](Media/onboarding.png) |
 | Homescreen | ![Homescreen](Media/home.png) |
 | AI Coach Chat | ![AI Chat](Media/chat.png) |
-| Dashboard | ![Dashboard](URL_TO_IMAGE_HERE) |
 | Workouts | ![Progress](Media/workout.png) |
 
 ---
