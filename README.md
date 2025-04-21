@@ -1,4 +1,4 @@
-<h1 align="center">🏋️‍♀️ AiRise – Your Smart Personal Health Companion</h1>
+<h1 align="center">🏋️‍♀️ AiRise – The Smart Personal Health Companion</h1>
 
 <p align="center">
   <i>An AI-powered fitness and wellness platform designed to provide personalized coaching, real-time progress tracking, smart nutrition advice, and gamified motivation.</i>
@@ -107,7 +107,7 @@ cd backend
   <img src="Media/erd.png" alt="Architecture Diagram" width="75%">
 </p>
 
-<p align="center"><i>An overview of the system: mobile frontend ↔ backend services ↔ database & third-party APIs</i></p>
+<p align="center"><i>An overview of the system: mobile frontend ↔ backend services ↔ database</i></p>
 
 ---
 
