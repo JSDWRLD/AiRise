@@ -35,7 +35,7 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 
-// This is basically your main function.
+
 @Composable
 fun App(container: AppContainer) {
     val navController = rememberNavController()
@@ -97,7 +97,6 @@ fun App(container: AppContainer) {
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onGoogleSignInClick = { /* google Sign-In */ },
                         onLoginSuccess = { email ->
                             navController.navigate(AppScreen.HOMESCREEN.name)
                         },
@@ -105,17 +104,20 @@ fun App(container: AppContainer) {
                     )
                 }
 
-                // sign up screens
+                // sign up screen
                 composable(route = AppScreen.SIGNUP.name) {
                     val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
-                        onGoogleSignUpClick = { /* Google Sign Up */ },
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccessWithUser = {
-                            navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+                            if(authService.isUsingProvider){
+                                navController.navigate(AppScreen.ONBOARD.name)
+                            }else {
+                                navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+                            }
                         }
                     )
                 }
