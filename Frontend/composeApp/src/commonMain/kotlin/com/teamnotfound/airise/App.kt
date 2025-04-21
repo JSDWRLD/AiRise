@@ -32,6 +32,8 @@ import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
+import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
+import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 
 // This is basically your main function.
 @Composable
@@ -149,7 +151,10 @@ fun App(container: AppContainer) {
 
                 // Onboarding Screen
                 composable(route = AppScreen.ONBOARD.name) {
-                    OnboardingScreen(summaryCache = container.summaryCache)
+                    val onboardingViewModel = viewModel {
+                        OnboardingViewModel(authService, container.summaryCache, container.userClient)
+                    }
+                    OnboardingScreen(viewModel = onboardingViewModel, appNavController = navController)
                 }
 
                 // Home Screen

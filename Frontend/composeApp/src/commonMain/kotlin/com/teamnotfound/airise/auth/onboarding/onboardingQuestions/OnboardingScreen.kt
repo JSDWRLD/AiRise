@@ -19,25 +19,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.auth.onboarding.ThankYouScreen
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.data.cache.SummaryCache
 import com.teamnotfound.airise.util.*
+import com.teamnotfound.airise.util.BgBlack
 
 //Creates entry point for onboarding screens
 @Composable
-fun OnboardingScreen(summaryCache: SummaryCache) {
+fun OnboardingScreen(viewModel: OnboardingViewModel, appNavController: NavController) {
+
     val navController = rememberNavController()
     //Create a new user onboarding object
     val newUser = remember {UserDataUiState()}
-    NavigateQuestions(navController = navController, newUser, summaryCache = summaryCache)
+    NavigateQuestions(
+        navController = navController, viewModel = viewModel, appNavController = appNavController, newUser = newUser
+    )
 }
 
 //Defines different navigation routes for onboarding screens
 @Composable
-fun NavigateQuestions(navController: NavHostController, newUser: UserDataUiState, summaryCache: SummaryCache){
+fun NavigateQuestions(
+    navController: NavHostController, viewModel: OnboardingViewModel, appNavController: NavController, newUser: UserDataUiState
+){
     NavHost(navController = navController, startDestination = OnboardingScreens.NameInput.route) {
         composable(OnboardingScreens.NameInput.route) { NameInputScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutGoal.route) { WorkoutGoalScreen(navController, newUser) }
@@ -46,7 +55,7 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserDataUiState
         composable(OnboardingScreens.EquipmentAccess.route) { EquipmentAccessScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutDays.route) { WorkoutDaysScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutTime.route) { WorkoutTimeScreen(navController, newUser) }
-        composable(OnboardingScreens.DietaryGoal.route) { DietaryGoalScreen(navController, newUser ) }
+        composable(OnboardingScreens.DietaryGoal.route) { DietaryGoalScreen(navController, newUser) }
         composable(OnboardingScreens.WorkoutRestrictions.route) { WorkoutRestrictionsScreen(navController, newUser) }
         composable(OnboardingScreens.HeightSelection.route) {
             Box (
@@ -220,6 +229,6 @@ fun NavigateQuestions(navController: NavHostController, newUser: UserDataUiState
             }
         }
         composable(OnboardingScreens.ActivityLevel.route) { ActivityLevelScreen(navController, newUser) }
-        composable(OnboardingScreens.ThankYou.route) { ThankYouScreen(navController, newUser, summaryCache = summaryCache) }
+        composable(OnboardingScreens.ThankYou.route) { ThankYouScreen(appNavController, viewModel, newUser = newUser) }
     }
 }

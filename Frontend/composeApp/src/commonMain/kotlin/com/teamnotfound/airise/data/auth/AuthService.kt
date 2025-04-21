@@ -25,6 +25,9 @@ class AuthService(
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
 
+    val firebaseUser: FirebaseUser?
+        get() = auth.currentUser
+
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {
             val result = auth.signInWithEmailAndPassword(email, password)
