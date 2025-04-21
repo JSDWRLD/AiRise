@@ -92,4 +92,43 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
             NetworkError.BAD_REQUEST -> TODO()
         }
     }
+    // This function is to be uncommented & ran once Firebase keys are configured
+    fun authenticateWithGoogle(idToken: String) {
+        // Set loading state
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+
+        viewModelScope.launch {
+            try {
+                // Call the AuthService to handle the Firebase authentication with Google
+                val authResult = authService.authenticateWithGoogle(idToken)
+
+                _uiState.value = _uiState.value.copy(isLoading = false)
+
+                when (authResult) {
+                    is AuthResult.Success -> {
+                        // cache the user data similarly to email/password authentication
+                        userCache.cacheUserData(authResult.data)
+
+                        // Update UI state to reflect successful login
+                        if(authService.isNewUser){
+                            _uiState.value = _uiState.value.copy(isSuccess = true, errorMessage = null)
+                        }else{
+                            _uiState.value = _uiState.value.copy(errorMessage = "Google Account already linked to an AiRise account")
+                        }
+                    }
+
+                    is AuthResult.Failure -> {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Google Sign-In failed: ${authResult.errorMessage}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Google Sign-In failed: ${e.message}"
+                )
+            }
+        }
+    }
 }
