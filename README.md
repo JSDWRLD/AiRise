@@ -213,28 +213,53 @@ type: short description
     <th>Status</th>
   </tr>
   <tr>
-    <td>✅ SPRINT 1 SOMETHING</td>
+    <td>✅ SPRINT 0 Project Approval</td>
     <td>Jan 28, 2025</td>
     <td>Completed</td>
   </tr>
   <tr>
-    <td>✅ SPRINT 1 SOMETHING</td>
-    <td>Feb 25, 2025</td>
+    <td>✅ SPRINT 1 UI Prototype</td>
+    <td>Feb 17, 2025</td>
     <td>Completed</td>
   </tr>
   <tr>
-    <td>✅ SPRINT 1 SOMETHING</td>
-    <td>Mar 10, 2025</td>
+    <td>✅ SPRINT 2 User Registration and Onboarding</td>
+    <td>Mar 03, 2025</td>
     <td>Completed</td>
   </tr>
   <tr>
-    <td>⚠️ SPRINT 1 SOMETHING</td>
-    <td>Apr 15, 2025</td>
+    <td>✅ SPRINT 3 Homescreen</td>
+    <td>Mar 17, 2025</td>
     <td>In Progress</td>
   </tr>
   <tr>
-    <td>🧪 SPRINT 1 SOMETHING</td>
+    <td>✅ SPRINT 4 User Onboarding Fix and Profile Integration</td>
     <td>Apr 26, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>🧑‍🤝‍🧑 SPRINT 5 Community Engagement</td>
+    <td>Aug 25, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>🏋️ SPRINT 6 Workout Plan & Screen</td>
+    <td>Sep 08, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>🗣️ SPRINT 7 AI Chat & Notifications</td>
+    <td>Sep 23, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>📊 SPRINT 8 User Insights and Progress</td>
+    <td>Oct 7, 2025</td>
+    <td>Upcoming</td>
+  </tr>
+  <tr>
+    <td>🥩 SPRINT 9 Nutrition Tracking and Food Entry</td>
+    <td>Oct 21, 2025</td>
     <td>Upcoming</td>
   </tr>
   <tr>
