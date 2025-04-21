@@ -22,6 +22,8 @@ import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.White
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 
 
 @Composable
@@ -29,6 +31,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
+    val currentImageUrl = uiState.value.userProfilePicture
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -40,7 +43,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 greeting = uiState.value.greeting,
                 username = uiState.value.username,
                 isLoaded = uiState.value.isUserDataLoaded,
-                navController = navController
+                navController = navController,
+                currentImageUrl = currentImageUrl
             )
         },
         floatingActionButton = {

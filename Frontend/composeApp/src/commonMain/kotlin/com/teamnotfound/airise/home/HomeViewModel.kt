@@ -3,12 +3,16 @@ package com.teamnotfound.airise.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.util.NetworkError
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,7 +25,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
-class HomeViewModel(private val userRepository: UserRepository) :  ViewModel(){
+class HomeViewModel(private val userRepository: UserRepository, private val userClient: UserClient) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
@@ -35,6 +39,7 @@ class HomeViewModel(private val userRepository: UserRepository) :  ViewModel(){
         generateOverview()
         loadDailyProgress()
         loadFitnessSummary()
+        getUserProfilePic()
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
@@ -49,6 +54,25 @@ class HomeViewModel(private val userRepository: UserRepository) :  ViewModel(){
             }
         }
     }
+
+    fun getUserProfilePic() {
+        viewModelScope.launch {
+            val firebaseUser = Firebase.auth.currentUser
+            when (val result = firebaseUser?.let { userClient.getUserSettings(firebaseUser) }) {
+                is Result.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        userProfilePicture = result.data.profilePictureUrl
+                    )
+                }
+                is Result.Error -> {
+
+                }
+
+                null -> TODO()
+            }
+        }
+    }
+
     private fun getUsername() {
         viewModelScope.launch {
             when (val result = userRepository.fetchUserData()) {

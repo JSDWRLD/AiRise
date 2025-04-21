@@ -162,7 +162,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        viewModel = HomeViewModel(userRepository),
+                        viewModel = HomeViewModel(userRepository, container.userClient),
                         navController = navController
                     )
                 }
