@@ -24,6 +24,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
+/*FOR PRESENTATION
+    email: nd131814@gmail.com
+    password: @Aa123456
+ */
 
 class HomeViewModel(private val userRepository: UserRepository, private val userClient: UserClient) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -101,12 +105,12 @@ class HomeViewModel(private val userRepository: UserRepository, private val user
     private fun getTodaysHealthData(){
         //Get from database once available
         todaysHealthData = HealthData(
-//            caloriesBurned = 450,
-//            steps = 7550,
-//            avgHeartRate = 115,
-//            sleep = 6.5f,
-//            workout = 3,
-//            hydration = 2850f
+            caloriesBurned = 450,
+            steps = 7550,
+            avgHeartRate = 115,
+            sleep = 6.5f,
+            workout = 3,
+            hydration = 2850f
         )
     }
     private fun generateOverview() {
@@ -130,18 +134,18 @@ class HomeViewModel(private val userRepository: UserRepository, private val user
     private fun loadDailyProgress(){
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
-//        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
-//        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
-//        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
-//        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
-//        val progressData = DailyProgressData(
-//            sleepProgress = sleepPercentage,
-//            workoutProgress = workoutPercentage,
-//            hydrationProgress = hydrationPercentage,
-//            totalProgress = totalPercentage
-//        )
+        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
+        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
+        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
+        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
+        val progressData = DailyProgressData(
+            sleepProgress = sleepPercentage,
+            workoutProgress = workoutPercentage,
+            hydrationProgress = hydrationPercentage,
+            totalProgress = totalPercentage
+        )
         _uiState.value = _uiState.value.copy(
-//            dailyProgressData = progressData,
+            dailyProgressData = progressData,
             isDailyProgressLoaded = true
         )
     }
@@ -169,19 +173,19 @@ class HomeViewModel(private val userRepository: UserRepository, private val user
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
-//        val updatedHealthData = HealthData(
-//            caloriesBurned = 450,
-//            steps = 7550,
-//            avgHeartRate = 115,
-//            sleep = todaysHealthData.sleep,
-//            workout = todaysHealthData.workout,
-//            hydration = todaysHealthData.hydration
-//            )
-//        _uiState.value = _uiState.value.copy(
-//            formattedDateRange = formattedDate,
-//            healthData = updatedHealthData,
-//            isFitnessSummaryLoaded = true
-//        )
+        val updatedHealthData = HealthData(
+            caloriesBurned = 450,
+            steps = 7550,
+            avgHeartRate = 115,
+            sleep = todaysHealthData.sleep,
+            workout = todaysHealthData.workout,
+            hydration = todaysHealthData.hydration
+            )
+        _uiState.value = _uiState.value.copy(
+            formattedDateRange = formattedDate,
+            healthData = updatedHealthData,
+            isFitnessSummaryLoaded = true
+        )
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
             isFitnessSummaryLoaded = true
