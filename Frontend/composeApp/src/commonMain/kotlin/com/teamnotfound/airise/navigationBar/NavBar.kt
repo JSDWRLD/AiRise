@@ -89,11 +89,14 @@ fun BottomNavigationBar(navController: NavHostController){
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
                 onClick = {
+                    /*
                     navController.navigate(screen.route){
                         // popUpTo(navController.graph.startDestinationId){ saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
+
+                     */
                 }
             )
         }
