@@ -67,11 +67,10 @@ kotlin {
             implementation(libs.peekaboo.image.picker)
             implementation(libs.generativeai.google)
             implementation(libs.khealth)
-            implementation("io.github.mirzemehdi:kmpauth-google:2.0.0")
-            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.0.0")
+            implementation(libs.kmpauth.google)
+            implementation(libs.kmpauth.uihelper)
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
-            implementation(libs.coil.network)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
