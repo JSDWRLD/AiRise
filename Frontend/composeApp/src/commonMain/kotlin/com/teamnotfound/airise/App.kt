@@ -34,6 +34,8 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
+import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.friends.FriendsListScreen
 import com.teamnotfound.airise.friends.FriendsListViewModel
 import com.teamnotfound.airise.friends.ExFriendRepository
@@ -53,7 +55,7 @@ fun App(container: AppContainer) {
 
     LaunchedEffect(isUserLoggedIn) {
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
+            navController.navigate(AppScreen.COMMUNITY.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
@@ -179,6 +181,17 @@ fun App(container: AppContainer) {
                     FriendsListScreen(viewModel = vm)
                 }
 
+                // Community
+                composable(route = AppScreen.COMMUNITY.name) {
+                    val dummyUser = UserProfile(
+                        name = "Dummy User",
+                        streak = 30,
+                        rank = 1,
+                        profilePictureUrl = null
+                    )
+                    CommunityNavBar(userProfile = dummyUser)
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -247,5 +260,6 @@ enum class AppScreen {
     ACCOUNT_SETTINGS,
     AI_CHAT,
     EMAIL_VERIFICATION,
-    FRIENDS
+    FRIENDS,
+    COMMUNITY
 }
