@@ -55,7 +55,7 @@ fun App(container: AppContainer) {
 
     LaunchedEffect(isUserLoggedIn) {
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.COMMUNITY.name) { popUpTo(0) }
+            navController.navigate(AppScreen.FRIENDS.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
@@ -178,18 +178,13 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm)
-                }
-
-                // Community
-                composable(route = AppScreen.COMMUNITY.name) {
                     val dummyUser = UserProfile(
                         name = "Dummy User",
                         streak = 30,
                         rank = 1,
                         profilePictureUrl = null
                     )
-                    CommunityNavBar(userProfile = dummyUser)
+                    FriendsListScreen(viewModel = vm, userProfile = dummyUser)
                 }
 
                 //Navigation Bar and overview screen
@@ -261,5 +256,4 @@ enum class AppScreen {
     AI_CHAT,
     EMAIL_VERIFICATION,
     FRIENDS,
-    COMMUNITY
 }
