@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.util.*
+import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.communityNavBar.UserProfile
 
 //Defines navigation routes for bottom navigation bar
 @Composable
@@ -28,7 +30,15 @@ fun NavBar(navController: NavHostController){
                 composable(NavBarItems.Workout.route) { Text(text = "Workout Screen") }
                 composable(NavBarItems.Meal.route) { Text(text = "Meal Screen") }
                 composable(NavBarItems.Overview.route) { Text(text = "Overview Screen") }
-                composable(NavBarItems.Community.route) { Text(text = "Community Screen") }
+                composable(NavBarItems.Community.route) {
+                    val dummyUser = UserProfile(
+                        name = "Kai McKenzie",
+                        streak = 30,
+                        rank = 1,
+                        profilePictureUrl = null
+                    )
+                    CommunityNavBar(userProfile = dummyUser)
+                }
                 composable(NavBarItems.Progress.route) { Text(text = "Progress Screen") }
             }
         }
@@ -89,14 +99,11 @@ fun BottomNavigationBar(navController: NavHostController){
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
                 onClick = {
-                    /*
                     navController.navigate(screen.route){
                         // popUpTo(navController.graph.startDestinationId){ saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
-
-                     */
                 }
             )
         }
