@@ -34,6 +34,9 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
+import com.teamnotfound.airise.friends.FriendsListScreen
+import com.teamnotfound.airise.friends.FriendsListViewModel
+import com.teamnotfound.airise.friends.ExFriendRepository
 
 
 @Composable
@@ -169,6 +172,13 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                // Friends (Activity Feed)
+                //need to update with actual data for activity feeds
+                composable(route = AppScreen.FRIENDS.name) {
+                    val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
+                    FriendsListScreen(viewModel = vm)
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -237,4 +247,5 @@ enum class AppScreen {
     ACCOUNT_SETTINGS,
     AI_CHAT,
     EMAIL_VERIFICATION,
+    FRIENDS
 }
