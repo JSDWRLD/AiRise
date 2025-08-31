@@ -232,17 +232,17 @@ type: short description
   <tr>
     <td>✅ SPRINT 3 Homescreen</td>
     <td>Mar 17, 2025</td>
-    <td>In Progress</td>
+    <td>Completed</td>
   </tr>
   <tr>
     <td>✅ SPRINT 4 User Onboarding Fix and Profile Integration</td>
     <td>Apr 26, 2025</td>
-    <td>Upcoming</td>
+    <td>Completed</td>
   </tr>
   <tr>
     <td>🧑‍🤝‍🧑 SPRINT 5 Community Engagement</td>
     <td>Aug 25, 2025</td>
-    <td>Upcoming</td>
+    <td>In Progress</td>
   </tr>
   <tr>
     <td>🏋️ SPRINT 6 Workout Plan & Screen</td>
