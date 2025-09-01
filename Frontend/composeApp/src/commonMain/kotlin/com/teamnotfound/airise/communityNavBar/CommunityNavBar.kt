@@ -1,6 +1,7 @@
 package com.teamnotfound.airise.communityNavBar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,25 +13,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
 fun CommunityNavBar(userProfile: UserProfile) {
-    Surface(
+    Surface (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .padding(4.dp)
+            .clip(RoundedCornerShape(18.dp))
             .background(Color(0xFFE0E0E0)),
         elevation = 4.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .background(Color(0xFFB5B0B3))
+                .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Profile section with picture, name, streak, and rank
             Row(
@@ -40,7 +43,7 @@ fun CommunityNavBar(userProfile: UserProfile) {
                 // Profile picture placeholder
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(128.dp)
                         .clip(CircleShape)
                         .background(Color.LightGray)
                 )
@@ -50,7 +53,13 @@ fun CommunityNavBar(userProfile: UserProfile) {
                 Column(
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = userProfile.name, fontSize = 24.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    // Name
+                    Text(
+                        text = userProfile.name,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
 
                     Spacer(Modifier.height(8.dp))
 
@@ -70,7 +79,7 @@ fun CommunityNavBar(userProfile: UserProfile) {
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Icon(Icons.Default.LocalFireDepartment, contentDescription = "Streak", tint = Color.Red, modifier = Modifier.size(16.dp))
-                                Text(text = "${userProfile.streak}", color = Color.White, fontSize = 12.sp)
+                                Text(text = "${userProfile.streak}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -81,7 +90,7 @@ fun CommunityNavBar(userProfile: UserProfile) {
                                 .background(Color(0xFFFFA500))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Text(text = "#${userProfile.rank}", color = Color.White, fontSize = 12.sp)
+                            Text(text = "#${userProfile.rank}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -90,30 +99,59 @@ fun CommunityNavBar(userProfile: UserProfile) {
             // Buttons for Community and Activity
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.Top
             ) {
-                // Community Button
-                Button(
-                    onClick = { /* TODO: Handle Community Button Click */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(12.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start,
                 ) {
-                    Text(text = "Community", color = Color.White)
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = "Community",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        color = Color.White
+                    )
                 }
 
-                Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(8.dp))
 
-                // Activity Button
-                Button(
-                    onClick = { /* TODO: Handle Activity Button Click */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(12.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
                 ) {
-                    Text(text = "Activity Feed", color = Color.White)
+                    // Activity Feed Button
+                    Button(
+                        onClick = { /* TODO: Handle Leaderboard Click */ },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCE5100)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Color.White, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        Text(
+                            text = "Activity Feed",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
+
+                    // Leaderboard Button
+                    Button(
+                        onClick = { /* TODO: Handle Leaderboard Click */ },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21465C)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Color.White, RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                    ) {
+                        Text(
+                            text = "Leaderboard",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }
