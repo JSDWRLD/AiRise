@@ -22,21 +22,21 @@ public class UserController : Controller
 
     // // Get User by id
     [HttpGet("id/{id}")]
-    public async Task<User> GetById(string id) 
+    public async Task<User> GetById(string id)
     {
         return await _userService.GetUserByIdAsync(id);
     }
 
     // Get User by FirebaseUid
     [HttpGet("firebaseUid/{firebaseUid}")]
-    public async Task<User> GetByFirebaseUid(string firebaseUid) 
+    public async Task<User> GetByFirebaseUid(string firebaseUid)
     {
         return await _userService.GetUserByFirebaseUidAsync(firebaseUid);
     }
-    
+
     // Create a User
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateUserRequest request) 
+    public async Task<IActionResult> Post([FromBody] CreateUserRequest request)
     {
         if (request == null)
         {
@@ -66,16 +66,23 @@ public class UserController : Controller
     }
 
     [HttpPut("{id}/firebaseUid")]
-    public async Task<IActionResult> UpdateFirebaseUid(string id, [FromBody] string firebaseUid) 
+    public async Task<IActionResult> UpdateFirebaseUid(string id, [FromBody] string firebaseUid)
     {
         await _userService.UpdateFirebaseUidAsync(id, firebaseUid);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(string id) 
+    public async Task<IActionResult> DeleteUser(string id)
     {
         await _userService.DeleteUserAsync(id);
+        return NoContent();
+    }
+
+    [HttpPut("{firebaseUid}/streak")]
+    public async Task<IActionResult> UpdateStreak(string firebaseUid, [FromBody] int streak)
+    {
+        await _userService.UpdateStreakAsync(firebaseUid, streak);
         return NoContent();
     }
 

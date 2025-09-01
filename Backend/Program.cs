@@ -26,6 +26,7 @@ public class Program
         builder.Services.AddSingleton<UserChallengesService>();
         builder.Services.AddSingleton<UserHealthDataService>();
         builder.Services.AddSingleton<UserChatHistoryService>();
+        builder.Services.AddSingleton<ChallengeService>();
 
         builder.Services.AddControllers();
 
