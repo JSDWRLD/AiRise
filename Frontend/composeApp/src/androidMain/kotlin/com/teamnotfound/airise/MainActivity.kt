@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
         val container = AppContainer(
             userClient = userClient,
+            dataClient = dataClient,
             kHealth = kHealth,
             userCache = userCache,
             summaryCache = summaryCache,

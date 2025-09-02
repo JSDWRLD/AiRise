@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class LeaderboardEntryDTO (
     val name: String,
     val imageUrl: String,
-    val streak: String
+    val streak: Int
 )

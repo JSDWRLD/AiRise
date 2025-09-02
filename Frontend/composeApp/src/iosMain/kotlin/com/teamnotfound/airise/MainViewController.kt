@@ -10,6 +10,7 @@ import io.ktor.client.engine.darwin.Darwin
 import com.khealth.KHealth
 import com.teamnotfound.airise.cache.FakeUserCache
 import com.teamnotfound.airise.cache.FakeSummaryCache
+import com.teamnotfound.airise.data.network.clients.DataClient
 
 fun MainViewController() = ComposeUIViewController {
     val platformConfig = defaultPlatformConfiguration()
@@ -21,6 +22,9 @@ fun MainViewController() = ComposeUIViewController {
                 container = AppContainer(
                     userClient = remember {
                         UserClient(createHttpClient(Darwin.create()))
+                    },
+                    dataClient = remember {
+                        DataClient(createHttpClient(Darwin.create()))
                     },
                     kHealth = kHealth,
                     userCache = FakeUserCache(),
