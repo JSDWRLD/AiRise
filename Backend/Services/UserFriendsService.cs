@@ -24,5 +24,12 @@ namespace AiRise.Services
             await _userFriendsCollection.InsertOneAsync(userFriends);
             return userFriends.Id;
         }
+
+        // Simply gets and returns the UserFriends document for the given firebaseUid
+        public async Task<UserFriends?> GetUserFriends(string firebaseUid)
+        {
+            var filter = Builders<UserFriends>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
+            return await _userFriendsCollection.Find(filter).FirstOrDefaultAsync();
+        }
     }
 }
