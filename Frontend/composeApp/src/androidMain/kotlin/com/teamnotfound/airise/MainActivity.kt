@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.khealth.KHealth
+import com.teamnotfound.airise.data.network.clients.DataClient
 
 class MainActivity : ComponentActivity() {
     private val kHealth = KHealth(this)
@@ -34,11 +35,13 @@ class MainActivity : ComponentActivity() {
         kHealth.initialise()
 
         val userClient = UserClient(createHttpClient(OkHttp.create()))
+        val dataClient = DataClient(createHttpClient(OkHttp.create()))
         val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
 
         val container = AppContainer(
             userClient = userClient,
+            dataClient = dataClient,
             kHealth = kHealth,
             userCache = userCache,
             summaryCache = summaryCache,

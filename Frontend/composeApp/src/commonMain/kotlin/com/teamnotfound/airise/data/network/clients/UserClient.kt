@@ -198,4 +198,32 @@ class UserClient(
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
+
+    // Function to update the streak of a user, the streak param is inside user object already
+    suspend fun updateStreak(
+        firebaseUser: FirebaseUser,
+        streak: Int
+    ): Result<Boolean, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.post("$baseUrl/User/$firebaseUid/streak") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+                setBody(streak)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            in 200..299 -> Result.Success(true)
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
 }
