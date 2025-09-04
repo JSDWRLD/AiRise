@@ -16,8 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.CommunityNavBar.CommunityNavBar
-import com.teamnotfound.airise.CommunityNavBar.UserProfile
+import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
