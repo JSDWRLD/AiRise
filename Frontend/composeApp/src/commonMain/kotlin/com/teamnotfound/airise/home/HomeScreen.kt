@@ -36,7 +36,12 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     Scaffold(
         backgroundColor = BgBlack,
         bottomBar = {
-            BottomNavigationBar(navController = bottomNavController)
+            BottomNavigationBar(
+                navController = bottomNavController,
+                onCommunityClick = {
+                    navController.navigate(AppScreen.CHALLENGES.name)
+                }
+            )
         },
         topBar = {
             TopNavBar(
