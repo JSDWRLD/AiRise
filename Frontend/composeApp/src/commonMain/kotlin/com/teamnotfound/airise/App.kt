@@ -54,7 +54,7 @@ fun App(container: AppContainer) {
 
     LaunchedEffect(isUserLoggedIn) {
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
+            navController.navigate(AppScreen.FRIENDS.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
