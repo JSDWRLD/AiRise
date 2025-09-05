@@ -28,7 +28,9 @@ fun ChallengeDetailsScreen(
     val item by viewModel.selected.collectAsState()
 
     //title
-    val title = item?.id?.let { "Challenge $it" } ?: "Challenge"
+    val title = item?.name?.takeIf { it.isNotBlank() }
+        ?: item?.id?.let { "Challenge $it" }
+        ?: "Challenge"
 
     // local edit for description
     var isEditing by rememberSaveable { mutableStateOf(false) }
