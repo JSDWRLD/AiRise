@@ -44,7 +44,7 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, userProfile: UserProfile)
                 .padding(horizontal = 12.dp)
         ) {
             //
-            CommunityNavBar(userProfile = userProfile)
+            CommunityNavBar()
             when {
                 state.isLoading -> FeedLoading()
                 state.error != null -> FeedError(message = state.error!!, onRetry = { viewModel.refresh() })
