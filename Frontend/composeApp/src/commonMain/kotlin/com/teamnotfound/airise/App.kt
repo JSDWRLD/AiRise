@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.home.AiChat
@@ -53,7 +54,7 @@ fun App(container: AppContainer) {
 
     LaunchedEffect(isUserLoggedIn) {
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
+            navController.navigate(AppScreen.FRIENDS.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
@@ -176,7 +177,13 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm)
+                    val dummyUser = UserProfile(
+                        name = "Dummy User",
+                        streak = 30,
+                        rank = 1,
+                        profilePictureUrl = null
+                    )
+                    FriendsListScreen(viewModel = vm, userProfile = dummyUser)
                 }
 
                 //Navigation Bar and overview screen
