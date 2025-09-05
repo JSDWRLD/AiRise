@@ -82,7 +82,7 @@ fun ChallengesScreen(
                         ChallengeCard(
                             name = c.name,
                             description = c.description,
-                            label = "Challenge ${c.id}",
+                            label = if (c.name.isNotBlank()) c.name else "Challenge ${c.id}",
                             onClick = {
                                 //notifies vm of selection and nav to details
                                 viewModel.onChallengeClick(c.id)
