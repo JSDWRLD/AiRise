@@ -15,20 +15,33 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.util.*
+import com.teamnotfound.airise.AppScreen
+
 
 //Defines navigation routes for bottom navigation bar
 @Composable
-fun NavBar(navController: NavHostController){
-
+fun NavBar(navController: NavHostController,
+           appNavController: NavHostController? = null
+){
     Scaffold(
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                onCommunityClick = {
+                    // Only navigate if we have the app-level controller
+                    appNavController?.navigate(AppScreen.CHALLENGES.name) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             NavHost(navController = navController, startDestination = NavBarItems.Overview.route) {
                 composable(NavBarItems.Workout.route) { Text(text = "Workout Screen") }
                 composable(NavBarItems.Meal.route) { Text(text = "Meal Screen") }
                 composable(NavBarItems.Overview.route) { Text(text = "Overview Screen") }
-                composable(NavBarItems.Community.route) { Text(text = "Community Screen") }
+                composable(NavBarItems.Community.route) { Text("Community") }
                 composable(NavBarItems.Progress.route) { Text(text = "Progress Screen") }
             }
         }
@@ -37,7 +50,7 @@ fun NavBar(navController: NavHostController){
 
 //Creates the bottom navigation bar and ui elements
 @Composable
-fun BottomNavigationBar(navController: NavHostController){
+fun BottomNavigationBar(navController: NavHostController, onCommunityClick: () -> Unit = {}){
     val items = listOf(
         NavBarItems.Workout,
         NavBarItems.Meal,
@@ -89,6 +102,14 @@ fun BottomNavigationBar(navController: NavHostController){
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
                 onClick = {
+                    if (screen == NavBarItems.Community) {
+                        onCommunityClick()
+                    } else {
+                        navController.navigate(screen.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                     /*
                     navController.navigate(screen.route){
                         // popUpTo(navController.graph.startDestinationId){ saveState = true }
