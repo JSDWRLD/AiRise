@@ -75,5 +75,14 @@ namespace AiRise.Services
             return result.ModifiedCount > 0;
         }
 
+        public async Task<bool> DeleteFriend(string firebaseUid, string friendFirebaseUid)
+        {
+            var filter = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserFriends>.Update
+                .Pull(u => u.FriendIds, friendFirebaseUid);
+
+            var result = await _userFriendsCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }

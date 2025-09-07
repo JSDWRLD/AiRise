@@ -37,4 +37,14 @@ public class UserFriendsController : Controller
         return Ok(new { message = "Friend added successfully" });
     }
 
+    [HttpDelete("{firebaseUid}")]
+    public async Task<IActionResult> DeleteFriend(string firebaseUid, string friendFirebaseUid)
+    {
+        bool success = await _userFriendService.DeleteFriend(firebaseUid, friendFirebaseUid);
+
+        if (!success)
+            return NotFound(new { message = "UserFriend not found or deleting failed" });
+        return Ok(new { message = "Friend deleted successfully" });
+    }
+
 }
