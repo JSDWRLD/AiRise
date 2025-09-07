@@ -31,7 +31,7 @@ namespace AiRise.Services
             var filter = Builders<UserFriends>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
             return await _userFriendsCollection.Find(filter).FirstOrDefaultAsync();
         }
-        
+
         //Gets the list of firebaseUids and returns a list of profiles for each one
         public async Task<FriendList> GetUserFriendsList(string firebaseUid)
         {
@@ -62,7 +62,18 @@ namespace AiRise.Services
                         {"_id", 0 }
                 })
             };
-            return new FriendList{ Friends = await _userCollection.Aggregate<FriendListItem>(pipeline).ToListAsync() };
+            return new FriendList { Friends = await _userCollection.Aggregate<FriendListItem>(pipeline).ToListAsync() };
         }
+
+        public async Task<bool> AddFriend(string firebaseUid, string friendFirebaseUid)
+        {
+            var filter = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<UserFriends>.Update
+                .AddToSet(u => u.FriendIds, friendFirebaseUid);
+
+            var result = await _userFriendsCollection.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
+
     }
 }

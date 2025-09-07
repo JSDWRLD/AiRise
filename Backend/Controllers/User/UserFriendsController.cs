@@ -25,4 +25,16 @@ public class UserFriendsController : Controller
         return await _userFriendService.GetUserFriendsList(firebaseUid);
     }
 
+    [HttpPost("{firebaseUid}")]
+    public async Task<IActionResult> AddFriend(string firebaseUid, string friendFirebaseUid)
+    {
+        bool success = await _userFriendService.AddFriend(firebaseUid, friendFirebaseUid);
+
+        if (!success)
+        {
+            return NotFound(new { message = "UserFriend not found or adding failed" });
+        }
+        return Ok(new { message = "Friend added successfully" });
+    }
+
 }
