@@ -20,7 +20,7 @@ public class UserFriendsController : Controller
     }
 
     [HttpGet("{firebaseUid}")]
-    public async Task<FriendList> GetUserFriendsList(string firebaseUid)
+    public async Task<UserList> GetUserFriendsList(string firebaseUid)
     {
         return await _userFriendService.GetUserFriendsList(firebaseUid);
     }

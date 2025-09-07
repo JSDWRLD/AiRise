@@ -33,16 +33,16 @@ namespace AiRise.Services
         }
 
         //Gets the list of firebaseUids and returns a list of profiles for each one
-        public async Task<FriendList> GetUserFriendsList(string firebaseUid)
+        public async Task<UserList> GetUserFriendsList(string firebaseUid)
         {
             UserFriends? userFriends = await GetUserFriends(firebaseUid);
             List<string> friendIds = userFriends.FriendIds;
             if (userFriends == null || userFriends.FriendIds == null)
-                return new FriendList();
+                return new UserList();
 
             return await AggregateFriendProfiles(friendIds);
         }
-        private async Task<FriendList> AggregateFriendProfiles(List<string> friendIds)
+        private async Task<UserList> AggregateFriendProfiles(List<string> friendIds)
         {
             BsonDocument[] pipeline = new BsonDocument[] {
                 new BsonDocument("$match", new BsonDocument("firebaseUid", new BsonDocument("$in", new BsonArray(friendIds)))),
@@ -53,16 +53,23 @@ namespace AiRise.Services
                     { "as", "data" }
                 }),
                 new BsonDocument("$unwind", "$data"),
+                new BsonDocument("$lookup", new BsonDocument {
+                    {"from", "user.settings"},
+                    {"localField", "firebaseUid"},
+                    {"foreignField", "firebaseUid"},
+                    {"as", "settings"}
+                }),
+                new BsonDocument("$unwind", "$settings"),
                 new BsonDocument("$project", new BsonDocument {
                         { "firebaseUid", 1 },
-                        { "email", 1 },
+                        { "profile_picture_url", "$settings.profile_picture_url" },
                         { "streak", 1 },
                         { "firstName", "$data.firstName" },
                         { "lastName", "$data.lastName" },
                         {"_id", 0 }
                 })
             };
-            return new FriendList { Friends = await _userCollection.Aggregate<FriendListItem>(pipeline).ToListAsync() };
+            return new UserList { Users = await _userCollection.Aggregate<UserProfile>(pipeline).ToListAsync() };
         }
 
         public async Task<bool> AddFriend(string firebaseUid, string friendFirebaseUid)
