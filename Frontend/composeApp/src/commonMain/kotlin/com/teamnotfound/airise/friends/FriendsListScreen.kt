@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.communityNavBar.CommunityNavBar
 import com.teamnotfound.airise.communityNavBar.UserProfile
@@ -26,7 +27,7 @@ import com.teamnotfound.airise.util.White
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel) {
+fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -34,7 +35,7 @@ fun FriendsListScreen(viewModel: FriendsListViewModel) {
 
     Scaffold(
         backgroundColor = BgBlack,
-        topBar = { CommunityNavBar() },
+        topBar = { CommunityNavBar(navController = navController) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
     ) { innerPadding ->
         Column(

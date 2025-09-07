@@ -19,9 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.teamnotfound.airise.AppScreen
 
 @Composable
 fun CommunityNavBar(
+    navController: NavController,
     viewModel: CommunityNavBarViewModel = viewModel()
 ) {
     val userProfile by viewModel.userProfile.collectAsState()
@@ -130,7 +133,7 @@ fun CommunityNavBar(
                 ) {
                     // Activity Feed Button
                     Button(
-                        onClick = { /* TODO: Handle Leaderboard Click */ },
+                        onClick = { navController.navigate(AppScreen.FRIENDS.name) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCE5100)),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(2.dp, Color.White),
@@ -145,14 +148,14 @@ fun CommunityNavBar(
 
                     // Leaderboard Button
                     Button(
-                        onClick = { /* TODO: Handle Leaderboard Click */ },
+                        onClick = { navController.navigate(AppScreen.CHALLENGES.name) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21465C)),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(2.dp, Color.White),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Leaderboard",
+                            text = "Challenges",
                             color = Color.White,
                             fontSize = 16.sp
                         )
