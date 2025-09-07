@@ -35,9 +35,16 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
+import com.teamnotfound.airise.challenges.ChallengeDetailsScreen
 import com.teamnotfound.airise.friends.FriendsListScreen
 import com.teamnotfound.airise.friends.FriendsListViewModel
 import com.teamnotfound.airise.friends.ExFriendRepository
+import com.teamnotfound.airise.challenges.ChallengesScreen
+import com.teamnotfound.airise.challenges.ChallengesViewModel
+import com.teamnotfound.airise.challenges.ExChallengesViewModel
+import com.teamnotfound.airise.challenges.ChallengeEditorScreen
+
+
 
 
 @Composable
@@ -180,10 +187,73 @@ fun App(container: AppContainer) {
                     FriendsListScreen(viewModel = vm)
                 }
 
+                // challenges list
+                composable(route = AppScreen.CHALLENGES.name) {
+                    //use same viewmodel across all challenges screens
+                    val parentEntry = remember(navController) {
+                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
+                    }
+                    val vm: ExChallengesViewModel = viewModel(parentEntry)
+
+                    //onaddclick goes to creating a challenge
+                    //oneditclick goes to details of the challenge clicked on and can edit from there
+                    ChallengesScreen(
+                        viewModel = vm,
+                        onAddClick = { navController.navigate(AppScreen.CHALLENGE_NEW.name) },
+                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) }
+                    )
+                }
+
+                // create challenge
+                composable(route = AppScreen.CHALLENGE_NEW.name) {
+                    val parentEntry = remember(navController) {
+                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
+                    }
+                    val vm: ExChallengesViewModel = viewModel(parentEntry)
+
+                    //used for creating new challenges
+                    ChallengeEditorScreen(
+                        navController = navController,
+                        viewModel = vm,
+                        onBackClick = { navController.popBackStack() }//returns to the list
+                    )
+                }
+
+                // edit challenge
+                composable(route = AppScreen.CHALLENGE_EDIT.name) {
+                    val parentEntry = remember(navController) {
+                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
+                    }
+                    val vm: ExChallengesViewModel = viewModel(parentEntry)
+
+                    //used for updating an known challenge
+                    ChallengeEditorScreen(
+                        navController = navController,
+                        viewModel = vm,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
+                // challenge details
+                composable(route = AppScreen.CHALLENGE_DETAILS.name) {
+                    val parentEntry = remember(navController) {
+                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
+                    }
+                    val vm: ExChallengesViewModel = viewModel(parentEntry)
+
+                    //read challenges details
+                    ChallengeDetailsScreen(
+                        viewModel = vm,
+                        onBackClick = {
+                            navController.popBackStack(AppScreen.CHALLENGES.name, inclusive = false)
+                        }
+                    )
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
-                    NavBar(navController = bottomNavController)
+                    NavBar(navController = bottomNavController, appNavController = navController)
                 }
 
                 // Health Dashboard
@@ -248,5 +318,9 @@ enum class AppScreen {
     ACCOUNT_SETTINGS,
     AI_CHAT,
     EMAIL_VERIFICATION,
-    FRIENDS
+    FRIENDS,
+    CHALLENGES,
+    CHALLENGE_NEW,
+    CHALLENGE_EDIT,
+    CHALLENGE_DETAILS
 }
