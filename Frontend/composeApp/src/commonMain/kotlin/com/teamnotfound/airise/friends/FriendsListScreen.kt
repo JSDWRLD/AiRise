@@ -26,7 +26,7 @@ import com.teamnotfound.airise.util.White
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel, userProfile: UserProfile) {
+fun FriendsListScreen(viewModel: FriendsListViewModel) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 

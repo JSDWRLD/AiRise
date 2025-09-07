@@ -177,13 +177,7 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    val dummyUser = UserProfile(
-                        name = "Dummy User",
-                        streak = 30,
-                        rank = 1,
-                        profilePictureUrl = null
-                    )
-                    FriendsListScreen(viewModel = vm, userProfile = dummyUser)
+                    FriendsListScreen(viewModel = vm)
                 }
 
                 //Navigation Bar and overview screen

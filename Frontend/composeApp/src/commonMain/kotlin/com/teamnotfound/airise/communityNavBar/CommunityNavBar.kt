@@ -1,7 +1,7 @@
 package com.teamnotfound.airise.communityNavBar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +28,7 @@ fun CommunityNavBar(
     Surface (
         modifier = Modifier
             .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.statusBars)
             .padding(4.dp)
             .clip(RoundedCornerShape(18.dp))
             .background(Color(0xFFE0E0E0)),
@@ -131,10 +132,9 @@ fun CommunityNavBar(
                     Button(
                         onClick = { /* TODO: Handle Leaderboard Click */ },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCE5100)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color.White, RoundedCornerShape(12.dp))
-                            .clip(RoundedCornerShape(12.dp))
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(2.dp, Color.White),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "Activity Feed",
@@ -147,10 +147,9 @@ fun CommunityNavBar(
                     Button(
                         onClick = { /* TODO: Handle Leaderboard Click */ },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21465C)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color.White, RoundedCornerShape(12.dp))
-                            .clip(RoundedCornerShape(12.dp))
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(2.dp, Color.White),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "Leaderboard",
