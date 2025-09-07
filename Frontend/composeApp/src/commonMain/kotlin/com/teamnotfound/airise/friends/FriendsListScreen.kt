@@ -34,17 +34,18 @@ fun FriendsListScreen(viewModel: FriendsListViewModel) {
 
     Scaffold(
         backgroundColor = BgBlack,
+        topBar = { CommunityNavBar() },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BgBlack)
-                .padding(innerPadding)                // space for bottom bar
+                .padding(innerPadding)
                 .padding(horizontal = 12.dp)
         ) {
             //
-            CommunityNavBar()
+            //CommunityNavBar()
             when {
                 state.isLoading -> FeedLoading()
                 state.error != null -> FeedError(message = state.error!!, onRetry = { viewModel.refresh() })
