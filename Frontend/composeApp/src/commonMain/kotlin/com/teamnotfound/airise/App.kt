@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.home.AiChat
@@ -183,7 +184,7 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm)
+                    FriendsListScreen(viewModel = vm, navController = navController)
                 }
 
                 // challenges list
@@ -198,6 +199,7 @@ fun App(container: AppContainer) {
                     //oneditclick goes to details of the challenge clicked on and can edit from there
                     ChallengesScreen(
                         viewModel = vm,
+                        navController,
                         onAddClick = { navController.navigate(AppScreen.CHALLENGE_NEW.name) },
                         onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) }
                     )
