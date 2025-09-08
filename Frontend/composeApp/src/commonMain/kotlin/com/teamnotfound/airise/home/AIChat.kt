@@ -156,10 +156,7 @@ fun AiChat(navController: NavHostController) {
                         )
                         .background(Transparent)
                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .clickable {
-                            messageHistory.add(Message(suggestion.text, ai = false))
-                            messageHistory.add(messageResponse)
-                        }
+                        .clickable {  }
                 ) {
                     Text(
                         text = suggestion.text,
@@ -213,7 +210,6 @@ fun AiChat(navController: NavHostController) {
                 if (messageText.text.isNotBlank()) {
                     messageHistory.add(Message(messageText.text, ai = false))
                     messageText = TextFieldValue("")
-                    messageHistory.add(messageResponse)
                 }
             }) {
                 Icon(
