@@ -44,7 +44,8 @@ namespace AiRise.Services
         }
         private async Task<UserList> AggregateFriendProfiles(List<string> friendIds)
         {
-            BsonDocument[] pipeline = new BsonDocument[] {
+            BsonDocument[] pipeline = 
+            [
                 new BsonDocument("$match", new BsonDocument("firebaseUid", new BsonDocument("$in", new BsonArray(friendIds)))),
                 new BsonDocument("$lookup", new BsonDocument {
                     {"from", "user.data"},
@@ -65,10 +66,12 @@ namespace AiRise.Services
                         { "profile_picture_url", "$settings.profile_picture_url" },
                         { "streak", 1 },
                         { "firstName", "$data.firstName" },
+                        { "middleName", "$data.middleName" },
                         { "lastName", "$data.lastName" },
-                        {"_id", 0 }
+                        { "fullName", "$data.fullName" },
+                        { "_id", 0 }
                 })
-            };
+            ];
             return new UserList { Users = await _userCollection.Aggregate<UserProfile>(pipeline).ToListAsync() };
         }
 
