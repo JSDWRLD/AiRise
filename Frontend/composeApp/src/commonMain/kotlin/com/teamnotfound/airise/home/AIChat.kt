@@ -45,13 +45,12 @@ fun AiChat(navController: NavHostController) {
 
     val scope = rememberCoroutineScope()
 
-    val messageHistory = remember {
-        mutableStateListOf(
-            Message("Hello! How can I help you?", ai = true),
-            Message("Hi! I have a question about my fitness.", ai = false),
-            Message("Sure, what can I help you with?", ai = true)
-        )
+    val messageHistory = remember { mutableStateListOf<Message>() }
+
+    LaunchedEffect(Unit) {
+        messageHistory += Message("Hello! How can I help you?", ai = true)
     }
+
     val messageSuggested = remember {
         mutableStateListOf(
             Message("What should I eat before exercising?", ai = false),
