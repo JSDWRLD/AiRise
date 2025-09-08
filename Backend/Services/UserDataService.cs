@@ -81,6 +81,8 @@ namespace AiRise.Services
         {
             string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
 
+            string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
+
             var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
             var update = Builders<UserData>.Update
                 .Set(u => u.FirstName, updatedData.FirstName)
