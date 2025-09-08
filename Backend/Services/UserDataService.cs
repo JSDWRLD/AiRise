@@ -36,13 +36,25 @@ namespace AiRise.Services
             return await _userDataCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
         }
 
+        private string prepFullName(string firstName, string middleName, string lastName)
+        {
+            string updatedFullName = string.Join(" ",
+            new[] { firstName, middleName, lastName }
+            .Where(s => !string.IsNullOrEmpty(s)));
+
+            return updatedFullName;
+        }
+
         public async Task<bool> UpdateUserDataAsync(string firebaseUid, UserData updatedData)
         {
+            string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
+
             var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
             var update = Builders<UserData>.Update
                 .Set(u => u.FirstName, updatedData.FirstName)
                 .Set(u => u.LastName, updatedData.LastName)
                 .Set(u => u.MiddleName, updatedData.MiddleName)
+                .Set(u => u.FullName, updatedFullName)
                 .Set(u => u.WorkoutGoal, updatedData.WorkoutGoal)
                 .Set(u => u.FitnessLevel, updatedData.FitnessLevel)
                 .Set(u => u.WorkoutLength, updatedData.WorkoutLength)
@@ -67,11 +79,14 @@ namespace AiRise.Services
         // Only updates the user name
         public async Task<bool> UpdateUserNameAsync(string firebaseUid, UserData updatedData)
         {
+            string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
+
             var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
             var update = Builders<UserData>.Update
                 .Set(u => u.FirstName, updatedData.FirstName)
                 .Set(u => u.LastName, updatedData.LastName)
-                .Set(u => u.MiddleName, updatedData.MiddleName);
+                .Set(u => u.MiddleName, updatedData.MiddleName)
+                .Set(u => u.FullName, updatedFullName);
 
             var result = await _userDataCollection.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
@@ -113,5 +128,62 @@ namespace AiRise.Services
             var result = await _userDataCollection.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
         }
+
+        public async Task<UserList> SearchUsersByNameAsync(string query)
+        {
+            //uses the search index on UserData to find people by their full names
+            BsonDocument[] search =
+            [
+                new BsonDocument("$search", new BsonDocument
+                {
+                    { "index", "nameSearch" },
+                    { "autocomplete", new BsonDocument
+                        {
+                            { "query", query },
+                            { "path", "fullName" }
+                        }
+                    }
+                }),
+                new BsonDocument("$limit", 10)
+            ];
+            List<UserData> results = await _userDataCollection.Aggregate<UserData>(search).ToListAsync();
+            List<string> userIds = results.Select(u => u.FirebaseUid).ToList();
+
+            //Uses the list of firebaseUids to create the User list of profiles
+            BsonDocument[] profileAggregation =
+            [
+                //get all users we found with Search
+                new BsonDocument("$match", new BsonDocument("firebaseUid", new BsonDocument("$in", new BsonArray(userIds)))),
+                //join with UserData
+                new BsonDocument("$lookup", new BsonDocument {
+                    {"from", "user.data"},
+                    { "localField", "firebaseUid" },
+                    { "foreignField", "firebaseUid" },
+                    { "as", "data" }
+                }),
+                //join with UserSettings
+                new BsonDocument("$unwind", "$data"),
+                new BsonDocument("$lookup", new BsonDocument {
+                    {"from", "user.settings"},
+                    {"localField", "firebaseUid"},
+                    {"foreignField", "firebaseUid"},
+                    {"as", "settings"}
+                }),
+                new BsonDocument("$unwind", "$settings"),
+                //Shaping document to only give user profile
+                new BsonDocument("$project", new BsonDocument {
+                        { "firebaseUid", 1 },
+                        { "profile_picture_url", "$settings.profile_picture_url" },
+                        { "streak", 1 },
+                        { "firstName", "$data.firstName" },
+                        { "middleName", "$data.middleName" },
+                        { "lastName", "$data.lastName" },
+                        { "fullName", "$data.fullName" },
+                        {"_id", 0 }
+                })
+            ];
+            return new UserList { Users = await _userCollection.Aggregate<UserProfile>(profileAggregation).ToListAsync() };
+        }
+        
     }
 }

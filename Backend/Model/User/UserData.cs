@@ -25,6 +25,10 @@ namespace AiRise.Models.User
         [BsonElement("middleName")]
         [JsonPropertyName("middleName")]
         public string MiddleName { get; set; } = string.Empty;
+        
+        [BsonElement("fullName")]
+        [JsonPropertyName("fullName")]
+        public string FullName { get; set; } = string.Empty;
 
         [BsonElement("workoutGoal")]
         [JsonPropertyName("workoutGoal")]

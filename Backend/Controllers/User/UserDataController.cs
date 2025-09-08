@@ -20,7 +20,7 @@ public class UserDataController : Controller
         _logger = logger;
     }
 
-    [HttpGet("{firebaseUid}")] 
+    [HttpGet("{firebaseUid}")]
     public async Task<UserData> GetUserData(string firebaseUid) {
         return await _userDataService.GetUserData(firebaseUid);
     }
@@ -79,4 +79,11 @@ public class UserDataController : Controller
 
         return Ok(new { message = "UserData updated successfully" });
     }
+
+    [HttpGet("/search-user/{firebaseUid}")]
+    public async Task<UserList> SearchUsersByNameAsync(string query)
+    {
+            return await _userDataService.SearchUsersByNameAsync(query);
+    }
+
 }
