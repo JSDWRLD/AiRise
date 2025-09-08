@@ -42,7 +42,9 @@ import com.teamnotfound.airise.generativeAi.AiMessage
 @Composable
 fun AiChat(navController: NavHostController) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
-    val messageResponse = Message("Default response.", ai = true)
+
+    val scope = rememberCoroutineScope()
+
     val messageHistory = remember {
         mutableStateListOf(
             Message("Hello! How can I help you?", ai = true),
