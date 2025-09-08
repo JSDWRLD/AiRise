@@ -45,6 +45,8 @@ fun AiChat(navController: NavHostController) {
 
     val scope = rememberCoroutineScope()
 
+    val api = remember { GeminiApi() }
+
     val messageHistory = remember { mutableStateListOf<Message>() }
 
     LaunchedEffect(Unit) {
@@ -58,6 +60,28 @@ fun AiChat(navController: NavHostController) {
             Message("What is the best pizza topping?", ai = false)
         )
     }
+
+
+    fun send(text: String) {
+        if (text.isBlank()) return
+
+
+        messageHistory += Message(text, ai = false)
+
+        scope.launch {
+            val reply = try {
+                val chat = api.generateChat(emptyList())
+                val resp = chat.sendMessage(text)
+                resp.text.orEmpty().ifBlank {
+                    "I didn’t quite catch that. Are you asking about workouts, nutrition, recovery, or motivation?"
+                }
+            } catch (e: Exception) {
+                "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
+            }
+            messageHistory += Message(reply, ai = true)
+        }
+    }
+
     // body
     Column(
         modifier = Modifier
