@@ -16,7 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.Icon
 import androidx.compose.foundation.clickable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.communityNavBar.CommunityNavBar
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
@@ -26,6 +28,7 @@ import com.teamnotfound.airise.util.White
 @Composable
 fun ChallengesScreen(
     viewModel: ChallengesViewModel,
+    navController: NavHostController,
     onAddClick: () -> Unit, //call to go to create challenge
     onEditClick: () -> Unit //call to go to details of challenge
 ) {
@@ -36,6 +39,7 @@ fun ChallengesScreen(
 
     Scaffold(
         backgroundColor = BgBlack,
+        topBar = { CommunityNavBar(navController = navController) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) },
         //floating add button
         floatingActionButton = {
@@ -52,7 +56,6 @@ fun ChallengesScreen(
                 .background(BgBlack)
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
-                .padding(top = 300.dp)       // reserve space for the top header
         ) {
             when {
                 state.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
