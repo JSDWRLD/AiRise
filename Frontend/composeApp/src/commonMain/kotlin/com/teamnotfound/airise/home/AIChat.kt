@@ -34,6 +34,10 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
+import kotlinx.coroutines.launch
+import com.teamnotfound.airise.generativeAi.GeminiApi
+import com.teamnotfound.airise.generativeAi.AiMessage
+
 
 @Composable
 fun AiChat(navController: NavHostController) {
