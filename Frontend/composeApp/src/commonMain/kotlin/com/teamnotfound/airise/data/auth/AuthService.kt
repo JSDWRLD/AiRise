@@ -144,7 +144,7 @@ class AuthService(
         }
     }
 
-    suspend fun getIdToken(): String? {
+    override suspend fun getIdToken(): String? {
         val currentUser: FirebaseUser? = auth.currentUser
         return try {
             currentUser?.getIdToken(false) // no force refresh

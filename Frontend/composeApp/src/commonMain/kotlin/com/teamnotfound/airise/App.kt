@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.home.AiChat
@@ -34,13 +33,11 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
-import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
 import com.teamnotfound.airise.challenges.ChallengeDetailsScreen
-import com.teamnotfound.airise.friends.FriendsListScreen
-import com.teamnotfound.airise.friends.FriendsListViewModel
-import com.teamnotfound.airise.friends.ExFriendRepository
+import com.teamnotfound.airise.friends.models.FriendsListViewModel
+import com.teamnotfound.airise.friends.screens.FriendsListScreen
+import com.teamnotfound.airise.friends.repos.ExFriendRepository
 import com.teamnotfound.airise.challenges.ChallengesScreen
-import com.teamnotfound.airise.challenges.ChallengesViewModel
 import com.teamnotfound.airise.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.challenges.ChallengeEditorScreen
 
@@ -184,7 +181,10 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm, navController = navController)
+                    FriendsListScreen(viewModel = vm,
+                        navController = navController,
+                        onGoToFriends = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
+                    )
                 }
 
                 // challenges list
@@ -320,6 +320,7 @@ enum class AppScreen {
     AI_CHAT,
     EMAIL_VERIFICATION,
     FRIENDS,
+    FRIENDS_LIST,
     CHALLENGES,
     CHALLENGE_NEW,
     CHALLENGE_EDIT,

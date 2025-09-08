@@ -1,7 +1,8 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.friends.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.communityNavBar.CommunityNavBar
-import com.teamnotfound.airise.communityNavBar.UserProfile
+import com.teamnotfound.airise.friends.data.FriendActivity
+import com.teamnotfound.airise.friends.models.FriendsListViewModel
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
@@ -27,7 +29,7 @@ import com.teamnotfound.airise.util.White
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController) {
+fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController, onGoToFriends: () -> Unit = {}) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -45,6 +47,22 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
         ) {
+            // --- Test button row ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(Modifier.weight(1f))
+                OutlinedButton(
+                    onClick = onGoToFriends,
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                    border = BorderStroke(1.dp, White)
+                ) {
+                    Text("Go to Friends")
+                }
+            }
             //
             //CommunityNavBar()
             when {
