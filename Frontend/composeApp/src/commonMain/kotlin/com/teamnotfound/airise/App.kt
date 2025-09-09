@@ -42,8 +42,10 @@ import com.teamnotfound.airise.challenges.ChallengesScreen
 import com.teamnotfound.airise.challenges.ChallengesViewModel
 import com.teamnotfound.airise.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.challenges.ChallengeEditorScreen
-
-
+import com.teamnotfound.airise.data.network.clients.UserClient
+import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.User
+import com.teamnotfound.airise.data.serializable.UserData
 
 
 @Composable
@@ -274,7 +276,12 @@ fun App(container: AppContainer) {
 
                 // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
-                    AiChat(navController = navController)
+                    AiChat(
+                        navController = navController,
+                        todayHealth = null,
+                        userGoal = null,
+                        personality = null
+                    )
                 }
 
                 // Email verification

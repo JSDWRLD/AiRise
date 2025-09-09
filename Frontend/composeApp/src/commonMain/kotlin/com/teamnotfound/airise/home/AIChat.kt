@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.DeepBlue
@@ -40,7 +41,12 @@ import com.teamnotfound.airise.generativeAi.AiMessage
 
 
 @Composable
-fun AiChat(navController: NavHostController) {
+fun AiChat(
+    navController: NavHostController,
+    todayHealth: HealthData? = null,
+    userGoal: String? = null,
+    personality: String? = null
+) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
 
@@ -64,50 +70,36 @@ fun AiChat(navController: NavHostController) {
         onDispose { messageHistory.clear() }
     }
 
-    //build chat HISTORY for Gemini
-    fun buildHistoryForGemini(): List<AiMessage> {
-        val preamble = AiMessage(
-            aiModel = "user",
-            message = """
-            You are Coach Rise, a concise, friendly fitness coach.
-            Keep answers short (2–4 bullets or 2–3 sentences). End with one clarifying question.
-            If unclear, ask 1 clarifier and give a simple fitness tip.
-            """.trimIndent()
-        )
+    val maxTurns: Int = 24 // Can be adjusted based on how limited our token size is
 
-        // Map existing bubbles to chat history
+    //Map to keep track of message history
+    fun mapUiHistoryToAiMessages(): List<AiMessage> {
         val turns = messageHistory.map { m ->
             AiMessage(
                 aiModel = if (m.ai) "assistant" else "user",
                 message = m.text
             )
         }
-
-        // Optimizing some token usage, can be adjusted later
-        val trimmed = if (turns.size > 24) turns.takeLast(24) else turns
-
-        return buildList {
-            add(preamble)
-            addAll(trimmed)
-        }
+        return if (turns.size > maxTurns) turns.takeLast(maxTurns) else turns
     }
 
 
     fun send(text: String) {
         if (text.isBlank()) return
 
-        // Build history from PRIOR turns only, just to avoid duplicates
-        val priorHistory = buildHistoryForGemini()
+        val prior = mapUiHistoryToAiMessages()
 
         messageHistory += Message(text, ai = false)
 
         scope.launch {
             val reply = try {
-                val chat = api.generateChat(priorHistory)
-                val resp = chat.sendMessage(text)
-                resp.text.orEmpty().ifBlank {
-                    "I didn’t quite catch that. Are you asking about workouts, nutrition, recovery, or motivation?"
-                }
+                api.chatReplyWithContext(
+                    userMsg = text,
+                    priorTurns = prior,
+                    goal = userGoal,
+                    personality = personality,
+                    health = todayHealth
+                )
             } catch (e: Exception) {
                 "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
             }
