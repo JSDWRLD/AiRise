@@ -276,6 +276,9 @@ fun App(container: AppContainer) {
 
                 // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
+
+                    // We need to retrieve our current user data and pass it accordingly
+
                     AiChat(
                         navController = navController,
                         todayHealth = null,

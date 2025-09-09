@@ -140,7 +140,7 @@ class GeminiApi {
         personality: String? = null,
         health: HealthData? = null
     ): String {
-        val snapshot = snapshotFrom(health)                  
+        val snapshot = snapshotFrom(health)
         val pre = preambleMessage(goal, personality, snapshot)
 
         val trimmed = if (priorTurns.size > 24) priorTurns.takeLast(24) else priorTurns
