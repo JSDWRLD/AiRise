@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.communityNavBar.CommunityNavBar
-import com.teamnotfound.airise.communityNavBar.UserProfile
+import com.teamnotfound.airise.communityNavBar.CommunityPage
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
@@ -35,7 +35,7 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
 
     Scaffold(
         backgroundColor = BgBlack,
-        topBar = { CommunityNavBar(navController = navController) },
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.ActivityFeed) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
     ) { innerPadding ->
         Column(
@@ -45,8 +45,6 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
         ) {
-            //
-            //CommunityNavBar()
             when {
                 state.isLoading -> FeedLoading()
                 state.error != null -> FeedError(message = state.error!!, onRetry = { viewModel.refresh() })

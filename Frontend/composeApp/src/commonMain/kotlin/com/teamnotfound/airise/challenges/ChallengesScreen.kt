@@ -19,6 +19,7 @@ import androidx.compose.foundation.clickable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.communityNavBar.CommunityPage
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
@@ -39,7 +40,7 @@ fun ChallengesScreen(
 
     Scaffold(
         backgroundColor = BgBlack,
-        topBar = { CommunityNavBar(navController = navController) },
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Challenges) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) },
         //floating add button
         floatingActionButton = {
