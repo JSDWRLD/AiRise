@@ -42,10 +42,10 @@ import com.teamnotfound.airise.challenges.ChallengesScreen
 import com.teamnotfound.airise.challenges.ChallengesViewModel
 import com.teamnotfound.airise.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.challenges.ChallengeEditorScreen
-import com.teamnotfound.airise.data.network.clients.UserClient
+import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
-import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.Result
 
 
 @Composable
@@ -72,6 +72,11 @@ fun App(container: AppContainer) {
         container.userClient,
         container.userCache
     )
+
+    val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
+        UserRepository(auth = auth, container.userClient, container.userCache),
+        container.userClient
+    )}
 
     MaterialTheme {
         Column(
@@ -274,18 +279,32 @@ fun App(container: AppContainer) {
 
                 }
 
-                // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
+                    //Reusing the data retrieved for HomeViewModel, to avoid too many API calls
+                    val homeUi by sharedHomeVM.uiState.collectAsState()
+                    val workoutGoal: String? = homeUi.userData?.workoutGoal?.takeIf { it.isNotBlank() }
+                    val dietaryGoal: String? = homeUi.userData?.dietaryGoal?.takeIf { it.isNotBlank() }
+                    val activityLevel: String? = homeUi.userData?.activityLevel?.takeIf { it.isNotBlank() }
+                    val fitnessLevel: String? = homeUi.userData?.fitnessLevel?.takeIf { it.isNotBlank() }
+                    val workoutLength: Int? = homeUi.userData?.workoutLength
+                    val workoutRestrictions: String? = homeUi.userData?.workoutRestrictions?.takeIf { it.isNotBlank() }
+                    val healthData: HealthData? = homeUi.healthData
+                    val dailyProgressData: DailyProgressData? = homeUi.dailyProgressData
 
-                    // We need to retrieve our current user data and pass it accordingly
 
                     AiChat(
                         navController = navController,
-                        todayHealth = null,
-                        userGoal = null,
-                        personality = null
+                        workoutGoal = workoutGoal,
+                        dietaryGoal= dietaryGoal,
+                        activityLevel= activityLevel,
+                        fitnessLevel= fitnessLevel,
+                        workoutLength= workoutLength,
+                        workoutRestrictions= workoutRestrictions,
+                        healthData= healthData,
+                        dailyProgressData= dailyProgressData,
                     )
                 }
+
 
                 // Email verification
                 composable(route = AppScreen.EMAIL_VERIFICATION.name) {

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.DeepBlue
@@ -43,9 +44,14 @@ import com.teamnotfound.airise.generativeAi.AiMessage
 @Composable
 fun AiChat(
     navController: NavHostController,
-    todayHealth: HealthData? = null,
-    userGoal: String? = null,
-    personality: String? = null
+    workoutGoal: String? = null,
+     dietaryGoal: String? = null,
+     activityLevel: String? = null,
+     fitnessLevel: String? = null,
+     workoutLength: Int? = null,
+     workoutRestrictions: String? = null,
+     healthData: HealthData? = null,
+     dailyProgressData: DailyProgressData? = null
 ) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
@@ -72,15 +78,15 @@ fun AiChat(
 
     val maxTurns: Int = 24 // Can be adjusted based on how limited our token size is
 
-    //Map to keep track of message history
+    // Map UI bubbles to chat history (no preamble here)
     fun mapUiHistoryToAiMessages(): List<AiMessage> {
         val turns = messageHistory.map { m ->
             AiMessage(
-                aiModel = if (m.ai) "assistant" else "user",
+                aiModel = if (m.ai) "model" else "user",
                 message = m.text
             )
         }
-        return if (turns.size > maxTurns) turns.takeLast(maxTurns) else turns
+        return turns.takeLast(maxTurns)
     }
 
 
@@ -96,9 +102,14 @@ fun AiChat(
                 api.chatReplyWithContext(
                     userMsg = text,
                     priorTurns = prior,
-                    goal = userGoal,
-                    personality = personality,
-                    health = todayHealth
+                    workoutGoal = workoutGoal,
+                    dietaryGoal= dietaryGoal,
+                    activityLevel= activityLevel,
+                    fitnessLevel= fitnessLevel,
+                    workoutLength= workoutLength,
+                    workoutRestrictions= workoutRestrictions,
+                    healthData= healthData,
+                    dailyProgressData= dailyProgressData,
                 )
             } catch (e: Exception) {
                 "Sorry, I couldn’t reach the coach right now. Please try again in a moment."

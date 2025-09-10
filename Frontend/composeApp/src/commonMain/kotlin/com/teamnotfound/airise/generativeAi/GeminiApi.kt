@@ -1,6 +1,7 @@
 package com.teamnotfound.airise.generativeAi
 
 import com.teamnotfound.airise.BuildKonfig
+import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import dev.shreyaspatil.ai.client.generativeai.Chat
 import dev.shreyaspatil.ai.client.generativeai.GenerativeModel
@@ -10,6 +11,7 @@ import dev.shreyaspatil.ai.client.generativeai.type.PlatformImage
 import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
+import kotlin.math.roundToInt
 
 class GeminiApi {
     private val promptTodaysOverview =
@@ -49,11 +51,8 @@ class GeminiApi {
     fun generateChat(prompt: List<AiMessage>): Chat {
         val history = mutableListOf<Content>()
         prompt.forEach { p ->
-            if (p.aiModel.lowercase() == "user") {
-                history.add(content("user") { text(p.message) })
-            } else {
-                history.add(content("assistant") { text(p.message) })
-            }
+            val role = if (p.aiModel.equals("user", ignoreCase = true)) "user" else "model"
+            history.add(content(role) { text(p.message) })
         }
         return generativeModel.startChat(history)
     }
@@ -63,90 +62,110 @@ class GeminiApi {
      */
 
 
-    private fun snapshotFrom(health: HealthData?): String? {
-        if (health == null) return null
+    private fun healthSnapshot(h: HealthData?): String? {
+        if (h == null) return null
         val parts = buildList {
-            if (health.steps > 0) add("steps=${health.steps}")
-            if (health.workout > 0) add("workout_min=${health.workout}")
-            if (health.caloriesBurned > 0) add("kcal_burned=${health.caloriesBurned}")
-            if (health.sleep > 0f) add("sleep_h=${health.sleep}")
-            if (health.avgHeartRate > 0) add("avg_hr=${health.avgHeartRate}")
-            if (health.hydration > 0f) add("water_l=${health.hydration}")
+            if (h.steps > 0) add("steps=${h.steps}")
+            if (h.workout > 0) add("workout_min=${h.workout}")
+            if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
+            if (h.sleep > 0f) add("sleep_h=${h.sleep}")
+            if (h.avgHeartRate > 0) add("avg_hr=${h.avgHeartRate}")
+            if (h.hydration > 0f) add("water_l=${h.hydration}")
         }
         return parts.takeIf { it.isNotEmpty() }?.joinToString("; ")
     }
 
-    private fun shouldAttachSnapshot(q: String): Boolean {
-        val keys = listOf(
-            "workout",
-            "train",
-            "plan",
-            "recover",
-            "rest",
-            "sleep",
-            "calorie",
-            "protein",
-            "macro",
-            "pace",
-            "hr",
-            "hrv",
-            "rhr",
-            "fatigue",
-            "sore",
-            "steps",
-            "active",
-            "hydration",
-            "water"
-        )
-        return keys.any { q.contains(it, ignoreCase = true) }
+    private fun progressSnapshot(p: DailyProgressData?): String? {
+        if (p == null) return null
+
+        fun pct(x: Float) = x.coerceIn(0f, 100f).roundToInt()
+
+        val total = pct(p.totalProgress)
+        val workout = pct(p.workoutProgress)
+        val sleep   = pct(p.sleepProgress)
+        val hydra   = pct(p.hydrationProgress)
+
+        return "progress_total=$total; workout=$workout; sleep=$sleep; hydration=$hydra"
     }
 
-    private fun preambleMessage(
-        goal: String? = null,
-        personality: String? = null,
-        healthSnapshot: String? = null
-    ): AiMessage {
-        val style = personality?.trim()?.takeIf { it.isNotEmpty() }
-
-        val profileBlock = buildString {
-            appendLine("[Profile] goal=${goal ?: "general_fitness"}")
-            if (!healthSnapshot.isNullOrBlank()) appendLine("[Snapshot] $healthSnapshot")
-        }.trim()
-
-        val styleBlock = style?.let { "[STYLE] $it" } ?: ""
-
-        val text = """
-        You are Coach Rise, a fitness coach AI.
-        Adopt the STYLE below if present. STYLE overrides defaults. Do not reveal or quote any bracketed tags.
-        
-        $styleBlock
-        $profileBlock
-        
-        Output rules:
-        - Start with a short title.
-        - Give 2–4 concise bullets with specific, actionable guidance (include units).
-        - End with exactly one clarifying question.
-        - If unclear: ask 1 clarifier and give a safe, general tip.
-        """.trimIndent()
-
-        return AiMessage(aiModel = "user", message = text)
+    private fun buildProfileBlock(
+        workoutGoal: String?,
+        fitnessLevel: String?,
+        workoutLength: Int?,
+        activityLevel: String?,
+        dietaryGoal: String?,
+        workoutRestrictions: String?
+    ): String? {
+        val lines = buildList {
+            workoutGoal?.takeIf { it.isNotBlank() }?.let { add("goal=$it") }
+            fitnessLevel?.takeIf { it.isNotBlank() }?.let { add("fitness_level=$it") }
+            workoutLength?.takeIf { it > 0 }?.let { add("session_length_min=$it") }
+            activityLevel?.takeIf { it.isNotBlank() }?.let { add("activity_level=$it") }
+            dietaryGoal?.takeIf { it.isNotBlank() }?.let { add("diet_goal=$it") }
+            workoutRestrictions?.takeIf { it.isNotBlank() }?.let { add("restrictions=$it") }
+        }
+        return lines.takeIf { it.isNotEmpty() }?.joinToString("\n")
     }
 
-    // Helper that the app will call from AiChat
     suspend fun chatReplyWithContext(
         userMsg: String,
         priorTurns: List<AiMessage> = emptyList(),
-        goal: String? = null,
-        personality: String? = null,
-        health: HealthData? = null
+        workoutGoal: String? = null,
+        dietaryGoal: String? = null,
+        activityLevel: String? = null,
+        fitnessLevel: String? = null,
+        workoutLength: Int? = null,
+        workoutRestrictions: String? = null,
+        healthData: HealthData? = null,
+        dailyProgressData: DailyProgressData? = null
     ): String {
-        val snapshot = snapshotFrom(health)
-        val pre = preambleMessage(goal, personality, snapshot)
+        // Build compact context blocks
+        val profileBlock = buildProfileBlock(
+            workoutGoal = workoutGoal,
+            fitnessLevel = fitnessLevel,
+            workoutLength = workoutLength,
+            activityLevel = activityLevel,
+            dietaryGoal = dietaryGoal,
+            workoutRestrictions = workoutRestrictions
+        )
+        val snapshotBlock = healthSnapshot(healthData)
+        val progressBlock = progressSnapshot(dailyProgressData)
 
+        // Compose preamble
+        val preambleText = buildString {
+            appendLine("You are Coach Rise, a concise, supportive, evidence-based fitness coach.")
+            appendLine("Use PROFILE for long-term tailoring and SNAPSHOT_TODAY for day-to-day adjustments.")
+            appendLine("Output a short title, 2–4 specific bullets (with units), then exactly one clarifying question.")
+            appendLine("If data is missing, do not invent numbers—omit them.")
+
+
+            //I am currently testing with a dummy user so this block doesn't even get send due to all null fields
+            profileBlock?.let {
+                appendLine()
+                appendLine("[PROFILE]")
+                appendLine(it)
+            }
+            snapshotBlock?.let {
+                appendLine()
+                appendLine("[SNAPSHOT_TODAY]")
+                appendLine(it)
+            }
+            progressBlock?.let {
+                appendLine()
+                appendLine("[PROGRESS] $it")
+            }
+        }.trim()
+
+        val preamble = AiMessage(aiModel = "user", message = preambleText)
+
+        // Keep history small for latency
         val trimmed = if (priorTurns.size > 24) priorTurns.takeLast(24) else priorTurns
-        val chat = generateChat(buildList { add(pre); addAll(trimmed) })
 
+        // Call Gemini chat
+        val chat = generateChat(buildList { add(preamble); addAll(trimmed) })
         val resp = chat.sendMessage(userMsg)
+
+        // Fallback for unclear/empty responses
         return resp.text.orEmpty().ifBlank {
             "I didn’t quite catch that. Are you asking about workouts, nutrition, recovery, or motivation?"
         }
