@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,19 +22,24 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Orange
 
 @Composable
 fun CommunityNavBar(
     navController: NavController,
+    currentPage: CommunityPage,
     viewModel: CommunityNavBarViewModel = viewModel()
 ) {
     val userProfile by viewModel.userProfile.collectAsState()
+    LaunchedEffect(key1 = currentPage) {
+        viewModel.updatePage(currentPage)
+    }
     Surface (
         modifier = Modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(4.dp)
-            .clip(RoundedCornerShape(18.dp))
             .background(Color(0xFFE0E0E0)),
         elevation = 4.dp
     ) {
@@ -131,37 +137,79 @@ fun CommunityNavBar(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.End
                 ) {
-                    // Activity Feed Button
-                    Button(
-                        onClick = { navController.navigate(AppScreen.FRIENDS.name) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCE5100)),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(2.dp, Color.White),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Activity Feed",
-                            color = Color.White,
-                            fontSize = 16.sp
-                        )
-                    }
-
-                    // Leaderboard Button
-                    Button(
-                        onClick = { navController.navigate(AppScreen.CHALLENGES.name) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21465C)),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(2.dp, Color.White),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Challenges",
-                            color = Color.White,
-                            fontSize = 16.sp
-                        )
+                    // alternating button names with routs
+                    when (currentPage) {
+                        CommunityPage.Leaderboard -> {
+                            CommunityButton(
+                                text = "Activity Feed",
+                                color = ButtonDefaults.buttonColors(backgroundColor = Orange),
+                                onClick = { navController.navigate(AppScreen.FRIENDS.name) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CommunityButton(
+                                text = "Challenges",
+                                color = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                                onClick = { navController.navigate(AppScreen.CHALLENGES.name) }
+                            )
+                        }
+                        CommunityPage.ActivityFeed -> {
+                            CommunityButton(
+                                text = "Leaderboard",
+                                color = ButtonDefaults.buttonColors(backgroundColor = Orange),
+                                onClick = { /*navController.navigate(AppScreen.LEADERBOARD.name)*/ }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CommunityButton(
+                                text = "Challenges",
+                                color = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                                onClick = { navController.navigate(AppScreen.CHALLENGES.name) }
+                            )
+                        }
+                        CommunityPage.Challenges -> {
+                            CommunityButton(
+                                text = "Leaderboard",
+                                color = ButtonDefaults.buttonColors(backgroundColor = Orange),
+                                onClick = { /*navController.navigate(AppScreen.LEADERBOARD.name)*/ }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            CommunityButton(
+                                text = "Activity Feed",
+                                color = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                                onClick = { navController.navigate(AppScreen.FRIENDS.name) }
+                            )
+                        }
                     }
                 }
             }
+            // page title
+            Text(
+                text = currentPage.name,
+                modifier = Modifier.fillMaxWidth().wrapContentWidth(Alignment.Start),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
+    }
+}
+
+@Composable
+fun CommunityButton(
+    text: String,
+    color: ButtonColors,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        colors = color,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(2.dp, Color.White),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = 16.sp
+        )
     }
 }
