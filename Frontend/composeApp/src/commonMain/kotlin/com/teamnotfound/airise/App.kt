@@ -40,8 +40,9 @@ import com.teamnotfound.airise.friends.repos.ExFriendRepository
 import com.teamnotfound.airise.challenges.ChallengesScreen
 import com.teamnotfound.airise.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.challenges.ChallengeEditorScreen
-
-
+import com.teamnotfound.airise.friends.repos.FriendsNetworkRepositoryImpl
+import com.teamnotfound.airise.friends.data.FriendsClient
+import com.teamnotfound.airise.friends.screens.FriendsActivityScreen
 
 
 @Composable
@@ -52,7 +53,6 @@ fun App(container: AppContainer) {
         auth = auth,
         userClient = container.userClient
     )
-
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
@@ -68,6 +68,14 @@ fun App(container: AppContainer) {
         container.userClient,
         container.userCache
     )
+    val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
+    val friendsRepository = remember {
+        val friendsClient = FriendsClient(
+            container.httpClient,
+            apiBase
+        )
+        FriendsNetworkRepositoryImpl(friendsClient)
+    }
 
     MaterialTheme {
         Column(
@@ -181,12 +189,20 @@ fun App(container: AppContainer) {
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm,
+                    FriendsActivityScreen(viewModel = vm,
                         navController = navController,
                         onGoToFriends = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
                     )
                 }
 
+                // Friends (List)
+                composable(route = AppScreen.FRIENDS_LIST.name) {
+                    FriendsListScreen(
+                        authService = authService,
+                        friendsRepository = friendsRepository,
+                        navController = navController
+                    )
+                }
                 // challenges list
                 composable(route = AppScreen.CHALLENGES.name) {
                     //use same viewmodel across all challenges screens

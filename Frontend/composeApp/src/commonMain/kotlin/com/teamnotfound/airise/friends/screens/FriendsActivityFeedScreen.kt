@@ -23,13 +23,14 @@ import com.teamnotfound.airise.friends.data.FriendActivity
 import com.teamnotfound.airise.friends.models.FriendsListViewModel
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController, onGoToFriends: () -> Unit = {}) {
+fun FriendsActivityScreen(viewModel: FriendsListViewModel, navController: NavHostController, onGoToFriends: () -> Unit = {}) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -51,14 +52,21 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(Modifier.weight(1f))
+                OutlinedButton(
+                    onClick = { navController.navigate("FRIENDS_TEST") },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DeepBlue),
+                    border = BorderStroke(1.dp, White)
+                ) {
+                    Text("Test Friends API")
+                }
+
                 OutlinedButton(
                     onClick = onGoToFriends,
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
-                    border = BorderStroke(1.dp, White)
+                    border = BorderStroke(1.dp, DeepBlue)
                 ) {
                     Text("Go to Friends")
                 }
