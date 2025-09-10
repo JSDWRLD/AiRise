@@ -40,7 +40,6 @@ class FriendsClient(
 
     suspend fun addFriend(idToken: String, meUid: String, friendUid: String) {
         val res = http.post {
-            // If your backend uses a different route (e.g. /AddFriend/{friendUid}), adjust here.
             url(api("UserFriends/$meUid/$friendUid"))
             contentType(ContentType.Application.Json)
             bearerAuth(idToken)
@@ -56,6 +55,7 @@ class FriendsClient(
         }
         res.ensureSuccess()
     }
+
     private suspend inline fun <reified T> HttpResponse.parseOrThrow(): T {
         if (!status.isSuccess()) {
             val err = runCatching { bodyAsText() }.getOrNull()

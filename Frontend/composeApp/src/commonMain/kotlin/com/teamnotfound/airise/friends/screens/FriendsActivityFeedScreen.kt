@@ -56,19 +56,11 @@ fun FriendsActivityScreen(viewModel: FriendsListViewModel, navController: NavHos
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 OutlinedButton(
-                    onClick = { navController.navigate("FRIENDS_TEST") },
+                    onClick = onGoToFriends,
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = DeepBlue),
                     border = BorderStroke(1.dp, White)
                 ) {
                     Text("Test Friends API")
-                }
-
-                OutlinedButton(
-                    onClick = onGoToFriends,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
-                    border = BorderStroke(1.dp, DeepBlue)
-                ) {
-                    Text("Go to Friends")
                 }
             }
             //
