@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 //keeps loading status, list of activities, and error messages if needed
 data class FriendsListUiState(

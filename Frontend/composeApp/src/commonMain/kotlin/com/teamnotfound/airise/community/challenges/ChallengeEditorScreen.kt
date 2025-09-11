@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.challenges
+package com.teamnotfound.airise.community.challenges
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,7 +24,7 @@ import com.teamnotfound.airise.util.Orange
 @Composable
 fun ChallengeEditorScreen(
     navController: NavHostController,
-    viewModel: ExChallengesViewModel,
+    viewModel: ChallengesViewModelImpl,
     initialName: String? = null,
     initialDesc: String? = null,
     onBackClick: () -> Unit
@@ -70,7 +70,7 @@ fun ChallengeEditorScreen(
                 Button(
                     onClick = {
                         if (name.text.isNotBlank()) {
-                            viewModel.addChallenge(name.text, desc.text)
+                            // viewModel.addChallenge(name.text, desc.text)
                             navController.popBackStack() // go back to the Challenges list
                         }
                     },

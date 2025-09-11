@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,7 +15,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.communityNavBar.CommunityPage
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
@@ -24,7 +28,7 @@ import com.teamnotfound.airise.util.White
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel) {
+fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController, communityNavBarViewModel: CommunityNavBarViewModel) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -32,15 +36,15 @@ fun FriendsListScreen(viewModel: FriendsListViewModel) {
 
     Scaffold(
         backgroundColor = BgBlack,
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Friends, communityNavBarViewModel) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(BgBlack)
-                .padding(innerPadding)                // space for bottom bar
+                .padding(innerPadding)
                 .padding(horizontal = 12.dp)
-                .padding(top = 300.dp)                // leaves space for top bar (to created)
         ) {
             when {
                 state.isLoading -> FeedLoading()

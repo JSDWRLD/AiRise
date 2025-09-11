@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.challenges
+package com.teamnotfound.airise.community.challenges
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,18 +16,35 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.Icon
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.communityNavBar.CommunityPage
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.Cyan
 import com.teamnotfound.airise.util.DeepBlue
+import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
+
 
 @Composable
 fun ChallengesScreen(
     viewModel: ChallengesViewModel,
+    navController: NavHostController,
     onAddClick: () -> Unit, //call to go to create challenge
-    onEditClick: () -> Unit //call to go to details of challenge
+    onEditClick: () -> Unit, //call to go to details of challenge
+    communityNavBarViewModel: CommunityNavBarViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
@@ -36,6 +53,7 @@ fun ChallengesScreen(
 
     Scaffold(
         backgroundColor = BgBlack,
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Challenges, communityNavBarViewModel) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) },
         //floating add button
         floatingActionButton = {
@@ -52,7 +70,6 @@ fun ChallengesScreen(
                 .background(BgBlack)
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
-                .padding(top = 300.dp)       // reserve space for the top header
         ) {
             when {
                 state.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) {
@@ -83,8 +100,8 @@ fun ChallengesScreen(
                             name = c.name,
                             description = c.description,
                             label = if (c.name.isNotBlank()) c.name else "Challenge ${c.id}",
+                            imageUrl = c.imageUrl,
                             onClick = {
-                                //notifies vm of selection and nav to details
                                 viewModel.onChallengeClick(c.id)
                                 onEditClick()
                             }
@@ -98,31 +115,73 @@ fun ChallengesScreen(
 
 @Composable
 private fun ChallengeCard(
-    name: String,                 // unused for now
-    description: String,          // unused for now
-    label: String,                // challenge label
-    onClick: () -> Unit           // nav to details
+    name: String,
+    description: String,
+    label: String,
+    imageUrl: String?,
+    onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
 
-    Card(
-        backgroundColor = BgBlack,
-        contentColor = White,
-        elevation = 0.dp,
-        shape = shape,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp)
-            .border(2.dp, White, shape)
-            .clickable(onClick = onClick)
+            .padding(top = 2.dp) // so glow peeks out evenly
     ) {
-        //label placement
-        Box(Modifier.fillMaxSize().padding(12.dp)) {
-            Text(
-                text = label,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.align(Alignment.BottomStart)
-            )
+        // Glow layer (cyan halo)
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(Cyan.copy(alpha = 0.35f), Transparent)
+                    )
+                )
+                .blur(radius = 28.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+        )
+
+        Card(
+            backgroundColor = BgBlack,
+            contentColor = White,
+            elevation = 0.dp,
+            shape = shape,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .border(2.dp, Orange.copy(alpha = 0.6f), shape)
+                .clip(shape)
+                .clickable(onClick = onClick)
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                // Challenge image (Coil v3)
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = if (name.isNotBlank()) name else label,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Label overlay with gradient
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Silver.copy(alpha = 0.9f), Transparent)
+                            )
+                        )
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = label,
+                        fontWeight = FontWeight.SemiBold,
+                        color = White
+                    )
+                }
+            }
         }
     }
 }
+
+

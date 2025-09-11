@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 //temp repos that returns hardcoded data for activity feed
 class ExFriendRepository : FriendsRepository {
