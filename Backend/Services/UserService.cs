@@ -78,6 +78,13 @@ namespace AiRise.Services
             await _userCollection.UpdateOneAsync(filter, update);
         }
 
+        public async Task UpdateStreakByOneAsync(string firebaseUid)
+        {
+            var filter = Builders<User>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var update = Builders<User>.Update.Inc(u => u.Streak, 1);
+            await _userCollection.UpdateOneAsync(filter, update);
+        }
+
         public async Task UpdateStreakAsync(string firebaseUid, int streak)
         {
             var filter = Builders<User>.Filter.Eq(u => u.FirebaseUid, firebaseUid);

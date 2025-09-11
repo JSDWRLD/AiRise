@@ -201,8 +201,7 @@ class   UserClient(
 
     // Function to update the streak of a user, the streak param is inside user object already
     suspend fun updateStreak(
-        firebaseUser: FirebaseUser,
-        streak: Int
+        firebaseUser: FirebaseUser
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
@@ -211,7 +210,6 @@ class   UserClient(
             httpClient.post("$baseUrl/User/$firebaseUid/streak") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
-                setBody(streak)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
