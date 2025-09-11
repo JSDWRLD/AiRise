@@ -45,13 +45,14 @@ import com.teamnotfound.airise.generativeAi.AiMessage
 fun AiChat(
     navController: NavHostController,
     workoutGoal: String? = null,
-     dietaryGoal: String? = null,
-     activityLevel: String? = null,
-     fitnessLevel: String? = null,
-     workoutLength: Int? = null,
-     workoutRestrictions: String? = null,
-     healthData: HealthData? = null,
-     dailyProgressData: DailyProgressData? = null
+    dietaryGoal: String? = null,
+    activityLevel: String? = null,
+    fitnessLevel: String? = null,
+    workoutLength: Int? = null,
+    workoutRestrictions: String? = null,
+    healthData: HealthData? = null,
+    dailyProgressData: DailyProgressData? = null,
+    onPickImageBytes: (suspend () -> ByteArray?) = { null }
 ) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
@@ -236,6 +237,29 @@ fun AiChat(
         ) {
             IconButton(onClick = {
                 // add image logic
+                scope.launch {
+                    val bytes = onPickImageBytes() ?: return@launch
+                    messageHistory += Message("📷 Image attached", ai = false)
+                    val prior = mapUiHistoryToAiMessages()
+                    val reply = try {
+                        api.visionReplyWithContext(
+                            userMsg = messageText.text,
+                            imageData = bytes,
+                            workoutGoal = workoutGoal,
+                            dietaryGoal = dietaryGoal,
+                            activityLevel = activityLevel,
+                            fitnessLevel = fitnessLevel,
+                            workoutLength = workoutLength,
+                            workoutRestrictions = workoutRestrictions,
+                            healthData = healthData,
+                            dailyProgressData = dailyProgressData
+                        )
+                    } catch (_: Exception) {
+                        "Sorry, I couldn’t analyze that image right now."
+                    }
+                    messageHistory += Message(reply, ai = true)
+                    messageText = TextFieldValue("")
+                }
             }) {
                 Icon(
                     imageVector = Icons.Filled.Add,

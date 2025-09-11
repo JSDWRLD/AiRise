@@ -40,13 +40,19 @@ class GeminiApi {
         return generativeModel.generateContent(promptWithData)
     }
 
-    fun generateContent(prompt: String, imageData: ByteArray): Flow<GenerateContentResponse> {
-        val content = content {
+    suspend fun generateContentOnce(
+        prompt: String,
+        imageData: ByteArray
+    ): String {
+        val c = content {
             image(PlatformImage(imageData))
             text(prompt)
         }
-        return generativeVisionModel.generateContentStream(content)
+        val resp = generativeVisionModel.generateContent(c)
+        return resp.text.orEmpty()
     }
+
+
 
     fun generateChat(prompt: List<AiMessage>): Chat {
         val history = mutableListOf<Content>()
@@ -138,13 +144,12 @@ class GeminiApi {
             appendLine("Output a short title, 2–4 specific bullets (with units), then exactly one clarifying question.")
             appendLine("If data is missing, do not invent numbers—omit them.")
 
-
-            //I am currently testing with a dummy user so this block doesn't even get send due to all null fields
             profileBlock?.let {
                 appendLine()
                 appendLine("[PROFILE]")
-                appendLine(it)
+                appendLine(profileBlock)
             }
+
             snapshotBlock?.let {
                 appendLine()
                 appendLine("[SNAPSHOT_TODAY]")
@@ -152,7 +157,8 @@ class GeminiApi {
             }
             progressBlock?.let {
                 appendLine()
-                appendLine("[PROGRESS] $it")
+                appendLine("[PROGRESS]")
+                appendLine(it)
             }
         }.trim()
 
@@ -169,5 +175,62 @@ class GeminiApi {
         return resp.text.orEmpty().ifBlank {
             "I didn’t quite catch that. Are you asking about workouts, nutrition, recovery, or motivation?"
         }
+    }
+
+    suspend fun visionReplyWithContext(
+        userMsg: String,
+        imageData: ByteArray,
+        workoutGoal: String? = null,
+        dietaryGoal: String? = null,
+        activityLevel: String? = null,
+        fitnessLevel: String? = null,
+        workoutLength: Int? = null,
+        workoutRestrictions: String? = null,
+        healthData: HealthData? = null,
+        dailyProgressData: DailyProgressData? = null
+    ): String {
+        // Reuse your existing builders
+        val profileBlock = buildProfileBlock(
+            workoutGoal, fitnessLevel, workoutLength, activityLevel, dietaryGoal, workoutRestrictions
+        )
+        val snapshotBlock = healthSnapshot(healthData)
+        val progressBlock = progressSnapshot(dailyProgressData)
+
+        val prompt = buildString {
+            appendLine("You are Coach Rise, a concise, supportive, evidence-based fitness coach.")
+            appendLine("Use PROFILE for long-term tailoring and SNAPSHOT_TODAY for day-to-day adjustments.")
+            appendLine("Output a short title, 2–4 specific bullets (with units), then exactly one clarifying question.")
+            appendLine("If data is missing, do not invent numbers—omit them.")
+
+            profileBlock?.let {
+                appendLine()
+                appendLine("[PROFILE]")
+                appendLine(it)
+            }
+            snapshotBlock?.let {
+                appendLine()
+                appendLine("[SNAPSHOT_TODAY]")
+                appendLine(it)
+            }
+            progressBlock?.let {
+                appendLine()
+                appendLine("[PROGRESS]")
+                appendLine(it)
+            }
+
+            appendLine()
+            appendLine("[USER_IMAGE_PROMPT]")
+            appendLine(userMsg.ifBlank { "Analyze this image and tailor advice to my profile and today’s snapshot." })
+        }.trim()
+
+        return try {
+            val text = generateContentOnce(prompt, imageData)
+            if (text.isNotBlank()) text
+            else "I couldn’t read that image. Try another photo or add a brief note about what you want me to analyze."
+        } catch (e: Exception) {
+            // (optional) println("vision error: ${e.message}")
+            "Sorry, I couldn’t analyze that image right now."
+        }
+
     }
 }

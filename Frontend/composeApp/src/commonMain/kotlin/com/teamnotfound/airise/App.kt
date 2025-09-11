@@ -46,6 +46,7 @@ import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.Result
+import com.teamnotfound.airise.platform.ImagePlatformPicker
 
 
 @Composable
@@ -291,6 +292,7 @@ fun App(container: AppContainer) {
                     val healthData: HealthData? = homeUi.healthData
                     val dailyProgressData: DailyProgressData? = homeUi.dailyProgressData
 
+                    val pickImage = ImagePlatformPicker()
 
                     AiChat(
                         navController = navController,
@@ -302,6 +304,7 @@ fun App(container: AppContainer) {
                         workoutRestrictions= workoutRestrictions,
                         healthData= healthData,
                         dailyProgressData= dailyProgressData,
+                        onPickImageBytes = pickImage
                     )
                 }
 
