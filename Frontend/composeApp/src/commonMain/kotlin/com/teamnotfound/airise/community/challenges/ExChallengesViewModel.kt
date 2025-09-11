@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.challenges
+package com.teamnotfound.airise.community.challenges
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

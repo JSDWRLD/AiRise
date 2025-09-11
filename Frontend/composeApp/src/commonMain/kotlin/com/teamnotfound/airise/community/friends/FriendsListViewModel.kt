@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

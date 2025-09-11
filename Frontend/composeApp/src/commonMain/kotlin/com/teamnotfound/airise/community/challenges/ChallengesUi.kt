@@ -1,4 +1,6 @@
-package com.teamnotfound.airise.challenges
+package com.teamnotfound.airise.community.challenges
+
+import kotlinx.coroutines.flow.StateFlow
 
 //data for single challenge
 data class ChallengeUI(
@@ -16,7 +18,7 @@ data class ChallengesUiState(
 
 //ex challenge view model implementation
 interface ChallengesViewModel {
-    val uiState: kotlinx.coroutines.flow.StateFlow<ChallengesUiState>
+    val uiState: StateFlow<ChallengesUiState>
     fun refresh()
     fun onChallengeClick(id: String)
 }
