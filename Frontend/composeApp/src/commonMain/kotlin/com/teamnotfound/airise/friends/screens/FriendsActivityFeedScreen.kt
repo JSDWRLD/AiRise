@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.communityNavBar.CommunityPage
 import com.teamnotfound.airise.friends.data.FriendActivity
 import com.teamnotfound.airise.friends.models.FriendsListViewModel
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
@@ -38,7 +39,7 @@ fun FriendsActivityScreen(viewModel: FriendsListViewModel, navController: NavHos
 
     Scaffold(
         backgroundColor = BgBlack,
-        topBar = { CommunityNavBar(navController = navController) },
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.ActivityFeed) },
         bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
     ) { innerPadding ->
         Column(
@@ -63,8 +64,6 @@ fun FriendsActivityScreen(viewModel: FriendsListViewModel, navController: NavHos
                     Text("Test Friends API")
                 }
             }
-            //
-            //CommunityNavBar()
             when {
                 state.isLoading -> FeedLoading()
                 state.error != null -> FeedError(message = state.error!!, onRetry = { viewModel.refresh() })
