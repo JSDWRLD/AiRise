@@ -24,6 +24,7 @@ import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
+import com.teamnotfound.airise.AppScreen
 
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
@@ -37,7 +38,25 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
     Scaffold(
         backgroundColor = BgBlack,
         topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Friends, communityNavBarViewModel) },
-        bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
+        // bottom nav bar
+        bottomBar = { BottomNavigationBar(
+            navController = bottomNavController,
+            appNavController = navController,
+            onCommunityClick = {
+                navController.navigate(AppScreen.CHALLENGES.name) {
+                    launchSingleTop = true
+                }
+            },
+            onOverviewClick = {
+                navController.navigate(AppScreen.HOMESCREEN.name) {
+                    launchSingleTop = true
+                    navController.graph.startDestinationRoute?.let { startRoute ->
+                        popUpTo(startRoute) { saveState = true }
+                    }
+                    restoreState = true
+                }
+            }
+        ) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
