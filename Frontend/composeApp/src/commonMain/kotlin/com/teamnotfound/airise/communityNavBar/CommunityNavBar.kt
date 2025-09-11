@@ -148,14 +148,14 @@ fun CommunityNavBar(
 
                     // Leaderboard Button
                     Button(
-                        onClick = { navController.navigate(AppScreen.CHALLENGES.name) },
+                        onClick = { navController.navigate(AppScreen.LEADERBOARD.name) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF21465C)),
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(2.dp, Color.White),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Challenges",
+                            text = "Leaderboard",
                             color = Color.White,
                             fontSize = 16.sp
                         )

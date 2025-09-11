@@ -43,6 +43,7 @@ import com.teamnotfound.airise.challenges.ChallengesScreen
 import com.teamnotfound.airise.challenges.ChallengesViewModel
 import com.teamnotfound.airise.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.challenges.ChallengeEditorScreen
+import com.teamnotfound.airise.leaderboard.LeaderboardScreen
 
 
 
@@ -300,6 +301,11 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                // Leaderboard Screen
+                composable(route = AppScreen.LEADERBOARD.name) {
+                    LeaderboardScreen(navController = navController)
+                }
+
             }
         }
     }
@@ -323,5 +329,6 @@ enum class AppScreen {
     CHALLENGES,
     CHALLENGE_NEW,
     CHALLENGE_EDIT,
-    CHALLENGE_DETAILS
+    CHALLENGE_DETAILS,
+    LEADERBOARD
 }
