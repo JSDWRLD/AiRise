@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.community.challenges
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,8 @@ import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
+import com.teamnotfound.airise.AppScreen
+
 
 
 @Composable
@@ -54,7 +57,24 @@ fun ChallengesScreen(
     Scaffold(
         backgroundColor = BgBlack,
         topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Challenges, communityNavBarViewModel) },
-        bottomBar = { BottomNavigationBar(navController = bottomNavController) },
+        bottomBar = { BottomNavigationBar(
+            navController = bottomNavController,
+            appNavController = navController,
+            onCommunityClick = {
+                navController.navigate(AppScreen.CHALLENGES.name) {
+                    launchSingleTop = true
+                }
+            },
+            onOverviewClick = {
+                navController.navigate(AppScreen.HOMESCREEN.name) {
+                    launchSingleTop = true
+                    navController.graph.startDestinationRoute?.let { startRoute ->
+                        popUpTo(startRoute) { saveState = true }
+                    }
+                    restoreState = true
+                }
+            }
+        ) },
         //floating add button
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClick,

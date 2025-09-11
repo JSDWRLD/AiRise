@@ -38,8 +38,20 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         bottomBar = {
             BottomNavigationBar(
                 navController = bottomNavController,
+                appNavController = navController,
                 onCommunityClick = {
-                    navController.navigate(AppScreen.CHALLENGES.name)
+                    navController.navigate(AppScreen.CHALLENGES.name) {
+                        launchSingleTop = true
+                    }
+                },
+                onOverviewClick = {
+                    navController.navigate(AppScreen.HOMESCREEN.name) {
+                        launchSingleTop = true
+                        navController.graph.startDestinationRoute?.let { startRoute ->
+                            popUpTo(startRoute) { saveState = true }
+                        }
+                        restoreState = true
+                    }
                 }
             )
         },
