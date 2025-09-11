@@ -92,9 +92,9 @@ public class UserController : Controller
     }
 
     [HttpPut("{firebaseUid}/streak")]
-    public async Task<IActionResult> UpdateStreak(string firebaseUid, [FromBody] int streak)
+    public async Task<IActionResult> UpdateStreak(string firebaseUid)
     {
-        await _userService.UpdateStreakAsync(firebaseUid, streak);
+        await _userService.UpdateStreakByOneAsync(firebaseUid);
         return NoContent();
     }
 
