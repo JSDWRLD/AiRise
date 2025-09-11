@@ -29,23 +29,42 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
+import kotlinx.coroutines.launch
+import com.teamnotfound.airise.generativeAi.GeminiApi
+import com.teamnotfound.airise.generativeAi.AiMessage
+
 
 @Composable
-fun AiChat(navController: NavHostController) {
+fun AiChat(
+    navController: NavHostController,
+    workoutGoal: String? = null,
+    dietaryGoal: String? = null,
+    activityLevel: String? = null,
+    fitnessLevel: String? = null,
+    workoutLength: Int? = null,
+    workoutRestrictions: String? = null,
+    healthData: HealthData? = null,
+    dailyProgressData: DailyProgressData? = null,
+    onPickImageBytes: (suspend () -> ByteArray?) = { null }
+) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
-    val messageResponse = Message("Default response.", ai = true)
-    val messageHistory = remember {
-        mutableStateListOf(
-            Message("Hello! How can I help you?", ai = true),
-            Message("Hi! I have a question about my fitness.", ai = false),
-            Message("Sure, what can I help you with?", ai = true)
-        )
+    val scope = rememberCoroutineScope()
+
+    val api = remember { GeminiApi() }
+
+    val messageHistory = remember { mutableStateListOf<Message>() }
+
+    LaunchedEffect(Unit) {
+        messageHistory += Message("Hello! How can I help you?", ai = true)
     }
+
     val messageSuggested = remember {
         mutableStateListOf(
             Message("What should I eat before exercising?", ai = false),
@@ -53,6 +72,54 @@ fun AiChat(navController: NavHostController) {
             Message("What is the best pizza topping?", ai = false)
         )
     }
+
+    DisposableEffect(Unit) {
+        onDispose { messageHistory.clear() }
+    }
+
+    val maxTurns: Int = 24 // Can be adjusted based on how limited our token size is
+
+    // Map UI bubbles to chat history (no preamble here)
+    fun mapUiHistoryToAiMessages(): List<AiMessage> {
+        val turns = messageHistory.map { m ->
+            AiMessage(
+                aiModel = if (m.ai) "model" else "user",
+                message = m.text
+            )
+        }
+        return turns.takeLast(maxTurns)
+    }
+
+
+    fun send(text: String) {
+        if (text.isBlank()) return
+
+        val prior = mapUiHistoryToAiMessages()
+
+        messageHistory += Message(text, ai = false)
+
+        scope.launch {
+            val reply = try {
+                api.chatReplyWithContext(
+                    userMsg = text,
+                    priorTurns = prior,
+                    workoutGoal = workoutGoal,
+                    dietaryGoal= dietaryGoal,
+                    activityLevel= activityLevel,
+                    fitnessLevel= fitnessLevel,
+                    workoutLength= workoutLength,
+                    workoutRestrictions= workoutRestrictions,
+                    healthData= healthData,
+                    dailyProgressData= dailyProgressData,
+                )
+            } catch (e: Exception) {
+                "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
+            }
+            messageHistory += Message(reply, ai = true)
+        }
+    }
+
+
     // body
     Column(
         modifier = Modifier
@@ -150,10 +217,7 @@ fun AiChat(navController: NavHostController) {
                         )
                         .background(Transparent)
                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .clickable {
-                            messageHistory.add(Message(suggestion.text, ai = false))
-                            messageHistory.add(messageResponse)
-                        }
+                        .clickable { send(suggestion.text) }
                 ) {
                     Text(
                         text = suggestion.text,
@@ -173,6 +237,29 @@ fun AiChat(navController: NavHostController) {
         ) {
             IconButton(onClick = {
                 // add image logic
+                scope.launch {
+                    val bytes = onPickImageBytes() ?: return@launch
+                    messageHistory += Message("📷 Image attached", ai = false)
+                    val prior = mapUiHistoryToAiMessages()
+                    val reply = try {
+                        api.visionReplyWithContext(
+                            userMsg = messageText.text,
+                            imageData = bytes,
+                            workoutGoal = workoutGoal,
+                            dietaryGoal = dietaryGoal,
+                            activityLevel = activityLevel,
+                            fitnessLevel = fitnessLevel,
+                            workoutLength = workoutLength,
+                            workoutRestrictions = workoutRestrictions,
+                            healthData = healthData,
+                            dailyProgressData = dailyProgressData
+                        )
+                    } catch (_: Exception) {
+                        "Sorry, I couldn’t analyze that image right now."
+                    }
+                    messageHistory += Message(reply, ai = true)
+                    messageText = TextFieldValue("")
+                }
             }) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -205,9 +292,8 @@ fun AiChat(navController: NavHostController) {
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = {
                 if (messageText.text.isNotBlank()) {
-                    messageHistory.add(Message(messageText.text, ai = false))
+                    send(messageText.text)
                     messageText = TextFieldValue("")
-                    messageHistory.add(messageResponse)
                 }
             }) {
                 Icon(

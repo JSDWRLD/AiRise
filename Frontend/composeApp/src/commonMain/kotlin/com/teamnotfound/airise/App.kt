@@ -33,6 +33,11 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
+import com.teamnotfound.airise.data.serializable.DailyProgressData
+import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.Result
+import com.teamnotfound.airise.platform.ImagePlatformPicker
 import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
 import com.teamnotfound.airise.community.friends.FriendsListScreen
 import com.teamnotfound.airise.community.friends.FriendsListViewModel
@@ -68,6 +73,11 @@ fun App(container: AppContainer) {
         container.userClient,
         container.userCache
     )
+
+    val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
+        UserRepository(auth = auth, container.userClient, container.userCache),
+        container.userClient
+    )}
 
     MaterialTheme {
         Column(
@@ -284,10 +294,34 @@ fun App(container: AppContainer) {
 
                 }
 
-                // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
-                    AiChat(navController = navController)
+                    //Reusing the data retrieved for HomeViewModel, to avoid too many API calls
+                    val homeUi by sharedHomeVM.uiState.collectAsState()
+                    val workoutGoal: String? = homeUi.userData?.workoutGoal?.takeIf { it.isNotBlank() }
+                    val dietaryGoal: String? = homeUi.userData?.dietaryGoal?.takeIf { it.isNotBlank() }
+                    val activityLevel: String? = homeUi.userData?.activityLevel?.takeIf { it.isNotBlank() }
+                    val fitnessLevel: String? = homeUi.userData?.fitnessLevel?.takeIf { it.isNotBlank() }
+                    val workoutLength: Int? = homeUi.userData?.workoutLength
+                    val workoutRestrictions: String? = homeUi.userData?.workoutRestrictions?.takeIf { it.isNotBlank() }
+                    val healthData: HealthData? = homeUi.healthData
+                    val dailyProgressData: DailyProgressData? = homeUi.dailyProgressData
+
+                    val pickImage = ImagePlatformPicker()
+
+                    AiChat(
+                        navController = navController,
+                        workoutGoal = workoutGoal,
+                        dietaryGoal= dietaryGoal,
+                        activityLevel= activityLevel,
+                        fitnessLevel= fitnessLevel,
+                        workoutLength= workoutLength,
+                        workoutRestrictions= workoutRestrictions,
+                        healthData= healthData,
+                        dailyProgressData= dailyProgressData,
+                        onPickImageBytes = pickImage
+                    )
                 }
+
 
                 // Email verification
                 composable(route = AppScreen.EMAIL_VERIFICATION.name) {

@@ -20,7 +20,7 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 
-class UserClient(
+class   UserClient(
     private val httpClient: HttpClient
 ) {
     private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
