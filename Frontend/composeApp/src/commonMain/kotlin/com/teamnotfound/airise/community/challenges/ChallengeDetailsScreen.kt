@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.challenges
+package com.teamnotfound.airise.community.challenges
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +21,7 @@ import com.teamnotfound.airise.util.White
 
 @Composable
 fun ChallengeDetailsScreen(
-    viewModel: ExChallengesViewModel,
+    viewModel: ChallengesViewModelImpl,
     onBackClick: () -> Unit
 ) {
     //current selected challenge from vm

@@ -18,30 +18,60 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.teamnotfound.airise.communityNavBar.CommunityNavBar
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.communityNavBar.CommunityPage
+import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import com.teamnotfound.airise.util.BgBlack
 
 @Composable
 fun LeaderboardScreen(
-    navController: NavController,
+    navController: NavHostController,
+    communityNavBarViewModel: CommunityNavBarViewModel,
     viewModel: LeaderboardViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val bottomNavController = rememberNavController()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0E0E0))
-    ) {
-        // Community NavBar at the top
-        CommunityNavBar(navController = navController)
-        
-        // Leaderboard content
-        LeaderboardContent(
-            uiState = uiState,
-            onTabSelected = viewModel::onTabSelected,
-            modifier = Modifier.fillMaxSize()
-        )
+    Scaffold(
+        backgroundColor = BgBlack,
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Leaderboard, communityNavBarViewModel) },
+        // bottom nav bar
+        bottomBar = { BottomNavigationBar(
+            navController = bottomNavController,
+            appNavController = navController,
+            onCommunityClick = {
+                navController.navigate(AppScreen.CHALLENGES.name) {
+                    launchSingleTop = true
+                }
+            },
+            onOverviewClick = {
+                navController.navigate(AppScreen.HOMESCREEN.name) {
+                    launchSingleTop = true
+                    navController.graph.startDestinationRoute?.let { startRoute ->
+                        popUpTo(startRoute) { saveState = true }
+                    }
+                    restoreState = true
+                }
+            }
+        ) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFE0E0E0))
+                .padding(innerPadding)
+        ) {
+            // Leaderboard content
+            LeaderboardContent(
+                uiState = uiState,
+                onTabSelected = viewModel::onTabSelected,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 

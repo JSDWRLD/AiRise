@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,17 +17,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.communityNavBar.CommunityNavBar
-import com.teamnotfound.airise.communityNavBar.UserProfile
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBar
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.communityNavBar.CommunityPage
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
+import com.teamnotfound.airise.AppScreen
 
 //screen of activity feed
 //currently uses viewmodel state and bottom nav bar created previously
 @Composable
-fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController) {
+fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostController, communityNavBarViewModel: CommunityNavBarViewModel) {
     val state by viewModel.uiState.collectAsState()
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -35,8 +37,26 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
 
     Scaffold(
         backgroundColor = BgBlack,
-        topBar = { CommunityNavBar(navController = navController) },
-        bottomBar = { BottomNavigationBar(navController = bottomNavController) } // bottom nav bar
+        topBar = { CommunityNavBar(navController = navController, currentPage = CommunityPage.Friends, communityNavBarViewModel) },
+        // bottom nav bar
+        bottomBar = { BottomNavigationBar(
+            navController = bottomNavController,
+            appNavController = navController,
+            onCommunityClick = {
+                navController.navigate(AppScreen.CHALLENGES.name) {
+                    launchSingleTop = true
+                }
+            },
+            onOverviewClick = {
+                navController.navigate(AppScreen.HOMESCREEN.name) {
+                    launchSingleTop = true
+                    navController.graph.startDestinationRoute?.let { startRoute ->
+                        popUpTo(startRoute) { saveState = true }
+                    }
+                    restoreState = true
+                }
+            }
+        ) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -45,8 +65,6 @@ fun FriendsListScreen(viewModel: FriendsListViewModel, navController: NavHostCon
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
         ) {
-            //
-            //CommunityNavBar()
             when {
                 state.isLoading -> FeedLoading()
                 state.error != null -> FeedError(message = state.error!!, onRetry = { viewModel.refresh() })

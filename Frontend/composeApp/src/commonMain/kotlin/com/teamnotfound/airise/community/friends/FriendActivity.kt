@@ -1,4 +1,4 @@
-package com.teamnotfound.airise.friends
+package com.teamnotfound.airise.community.friends
 
 //for one activity in feed
 //used by FriendListScreen to display info such as challenge and status

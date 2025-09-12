@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.teamnotfound.airise.communityNavBar.UserProfile
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.home.AiChat
@@ -34,15 +33,18 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
-import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.OnboardingScreen
-import com.teamnotfound.airise.challenges.ChallengeDetailsScreen
-import com.teamnotfound.airise.friends.FriendsListScreen
-import com.teamnotfound.airise.friends.FriendsListViewModel
-import com.teamnotfound.airise.friends.ExFriendRepository
-import com.teamnotfound.airise.challenges.ChallengesScreen
-import com.teamnotfound.airise.challenges.ChallengesViewModel
-import com.teamnotfound.airise.challenges.ExChallengesViewModel
-import com.teamnotfound.airise.challenges.ChallengeEditorScreen
+import com.teamnotfound.airise.data.serializable.DailyProgressData
+import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.platform.ImagePlatformPicker
+import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
+import com.teamnotfound.airise.community.friends.FriendsListScreen
+import com.teamnotfound.airise.community.friends.FriendsListViewModel
+import com.teamnotfound.airise.community.friends.ExFriendRepository
+import com.teamnotfound.airise.community.challenges.ChallengesScreen
+import com.teamnotfound.airise.community.challenges.ExChallengesViewModel
+import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
+import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
 import com.teamnotfound.airise.leaderboard.LeaderboardScreen
 
 
@@ -72,6 +74,11 @@ fun App(container: AppContainer) {
         container.userClient,
         container.userCache
     )
+
+    val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
+        UserRepository(auth = auth, container.userClient, container.userCache),
+        container.userClient
+    )}
 
     MaterialTheme {
         Column(
@@ -181,28 +188,35 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                val communityNavBarViewModel = CommunityNavBarViewModel(
+                    userRepository,
+                    container.userClient,
+                    container.dataClient
+                )
+
                 // Friends (Activity Feed)
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm, navController = navController)
+                    FriendsListScreen(viewModel = vm, navController = navController, communityNavBarViewModel)
                 }
 
                 // challenges list
                 composable(route = AppScreen.CHALLENGES.name) {
-                    //use same viewmodel across all challenges screens
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //onaddclick goes to creating a challenge
-                    //oneditclick goes to details of the challenge clicked on and can edit from there
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient) // <-- inject DataClient here
+                    }
+
                     ChallengesScreen(
                         viewModel = vm,
-                        navController,
+                        navController = navController,
                         onAddClick = { navController.navigate(AppScreen.CHALLENGE_NEW.name) },
-                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) }
+                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) },
+                        communityNavBarViewModel = communityNavBarViewModel
                     )
                 }
 
@@ -211,13 +225,15 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //used for creating new challenges
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeEditorScreen(
                         navController = navController,
                         viewModel = vm,
-                        onBackClick = { navController.popBackStack() }//returns to the list
+                        onBackClick = { navController.popBackStack() }
                     )
                 }
 
@@ -226,9 +242,11 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //used for updating an known challenge
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeEditorScreen(
                         navController = navController,
                         viewModel = vm,
@@ -241,9 +259,11 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //read challenges details
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeDetailsScreen(
                         viewModel = vm,
                         onBackClick = {
@@ -275,9 +295,32 @@ fun App(container: AppContainer) {
 
                 }
 
-                // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
-                    AiChat(navController = navController)
+                    //Reusing the data retrieved for HomeViewModel, to avoid too many API calls
+                    val homeUi by sharedHomeVM.uiState.collectAsState()
+                    val workoutGoal: String? = homeUi.userData?.workoutGoal?.takeIf { it.isNotBlank() }
+                    val dietaryGoal: String? = homeUi.userData?.dietaryGoal?.takeIf { it.isNotBlank() }
+                    val activityLevel: String? = homeUi.userData?.activityLevel?.takeIf { it.isNotBlank() }
+                    val fitnessLevel: String? = homeUi.userData?.fitnessLevel?.takeIf { it.isNotBlank() }
+                    val workoutLength: Int? = homeUi.userData?.workoutLength
+                    val workoutRestrictions: String? = homeUi.userData?.workoutRestrictions?.takeIf { it.isNotBlank() }
+                    val healthData: HealthData? = homeUi.healthData
+                    val dailyProgressData: DailyProgressData? = homeUi.dailyProgressData
+
+                    val pickImage = ImagePlatformPicker()
+
+                    AiChat(
+                        navController = navController,
+                        workoutGoal = workoutGoal,
+                        dietaryGoal= dietaryGoal,
+                        activityLevel= activityLevel,
+                        fitnessLevel= fitnessLevel,
+                        workoutLength= workoutLength,
+                        workoutRestrictions= workoutRestrictions,
+                        healthData= healthData,
+                        dailyProgressData= dailyProgressData,
+                        onPickImageBytes = pickImage
+                    )
                 }
 
                 // Email verification
@@ -303,7 +346,7 @@ fun App(container: AppContainer) {
 
                 // Leaderboard Screen
                 composable(route = AppScreen.LEADERBOARD.name) {
-                    LeaderboardScreen(navController = navController)
+                    LeaderboardScreen(navController = navController, communityNavBarViewModel = communityNavBarViewModel)
                 }
 
             }
