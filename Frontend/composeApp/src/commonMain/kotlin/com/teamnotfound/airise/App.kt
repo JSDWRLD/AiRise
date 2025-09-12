@@ -200,6 +200,7 @@ fun App(container: AppContainer) {
                     FriendsListScreen(
                         authService = authService,
                         friendsRepository = friendsRepository,
+                        userRepository = userRepository,
                         navController = navController
                     )
                 }

@@ -1,6 +1,6 @@
 package com.teamnotfound.airise.friends.data
 
-import com.teamnotfound.airise.data.DTOs.FriendsEnvelope
+import com.teamnotfound.airise.data.DTOs.UsersEnvelope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -29,9 +29,9 @@ class FriendsClient(
     }
     private fun api(path: String) = "$apiBase/${path.trimStart('/')}"
 
-    suspend fun getFriends(idToken: String, meUid: String): FriendsEnvelope {
+    suspend fun getFriends(idToken: String, meUid: String): UsersEnvelope {
         val res = http.get {
-            url(api("UserFriends/$meUid"))
+            url("http://10.0.2.2:5249/api/UserFriends/$meUid")//api("UserFriends/$meUid"))
             contentType(ContentType.Application.Json)
             bearerAuth(idToken)
         }

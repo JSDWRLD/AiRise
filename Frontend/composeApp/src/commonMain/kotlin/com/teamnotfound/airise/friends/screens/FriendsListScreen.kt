@@ -18,7 +18,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.data.auth.IAuthService
-import com.teamnotfound.airise.friends.data.FriendProfile
+import com.teamnotfound.airise.data.DTOs.UserProfile
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.friends.models.FriendsViewModel
 import com.teamnotfound.airise.friends.repos.FriendsNetworkRepository
 import com.teamnotfound.airise.util.BgBlack
@@ -33,9 +34,10 @@ import com.teamnotfound.airise.util.Silver
 fun FriendsListScreen(
     authService: IAuthService,
     friendsRepository: FriendsNetworkRepository,
+    userRepository: UserRepository,
     navController: NavHostController
 ) {
-    val friendsViewModel = remember { FriendsViewModel(authService, friendsRepository) }
+    val friendsViewModel = remember { FriendsViewModel(authService, friendsRepository, userRepository) }
     val state by friendsViewModel.ui.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -195,7 +197,7 @@ fun FriendsListScreen(
 }
 
 @Composable
-fun FriendListItem(friend: FriendProfile, onRemove: () -> Unit) {
+fun FriendListItem(friend: UserProfile, onRemove: () -> Unit) {
     Card(
         backgroundColor = BgBlack,
         elevation = 2.dp,

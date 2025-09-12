@@ -3,7 +3,8 @@ package com.teamnotfound.airise.friends.models
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.auth.IAuthService
-import com.teamnotfound.airise.friends.data.FriendProfile
+import com.teamnotfound.airise.data.DTOs.UserProfile
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.friends.repos.FriendsNetworkRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +23,14 @@ import kotlin.collections.plus
  */
 class FriendsViewModel(
     private val auth: IAuthService,
-    private val repo: FriendsNetworkRepository,
+    private val friendRepo: FriendsNetworkRepository,
+    private val userRepo: UserRepository,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     data class UiState(
         val isLoading: Boolean = false,
-        val friends: List<FriendProfile> = emptyList(),
+        val friends: List<UserProfile> = emptyList(),
         val error: String? = null
     )
 
@@ -50,7 +52,7 @@ class FriendsViewModel(
                 val token = withContext(io) { auth.getIdToken() }
                     ?: throw IllegalStateException("Missing ID token. Please sign in again.")
 
-                val list = withContext(io) { repo.getFriends(me, token) }
+                val list = withContext(io) { friendRepo.getFriends(me, token) }
                 _ui.value = UiState(isLoading = false, friends = list, error = null)
             } catch (t: Throwable) {
                 _ui.value = UiState(isLoading = false, friends = emptyList(), error = t.message ?: "Failed to load friends.")
@@ -75,7 +77,7 @@ class FriendsViewModel(
         if (before.any { it.firebaseUid == friendUid }) return // already present
 
         // Optimistic placeholder (name/pic will be corrected on refresh)
-        val optimistic = before + FriendProfile(
+        val optimistic = before + UserProfile(
             firebaseUid = friendUid,
             displayName = "(adding…)",
             profilePicUrl = null,
@@ -88,7 +90,7 @@ class FriendsViewModel(
                 val token = withContext(io) { auth.getIdToken() }
                     ?: throw IllegalStateException("Missing ID token. Please sign in again.")
 
-                withContext(io) { repo.addFriend(me, friendUid, token) }
+                withContext(io) { friendRepo.addFriend(me, friendUid, token) }
 
                 // Re-fetch to replace the optimistic row with real data (name/photo/streak)
                 load()
@@ -119,7 +121,7 @@ class FriendsViewModel(
                 val token = withContext(io) { auth.getIdToken() }
                     ?: throw IllegalStateException("Missing ID token. Please sign in again.")
 
-                withContext(io) { repo.removeFriend(me, friendUid, token) }
+                withContext(io) { friendRepo.removeFriend(me, friendUid, token) }
                 // No immediate re-fetch needed unless you want to validate server state
             } catch (t: Throwable) {
                 // Roll back the UI on failure
