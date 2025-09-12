@@ -74,7 +74,10 @@ fun FriendsListScreen(
 
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = {
+                    searchQuery = it
+                    friendsViewModel.searchUsers(it)
+                },
                 label = { Text("Search by UID or Name", color = Silver) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
