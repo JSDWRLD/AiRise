@@ -77,22 +77,32 @@ namespace AiRise.Services
 
         public async Task<bool> AddFriend(string firebaseUid, string friendFirebaseUid)
         {
-            var filter = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
-            var update = Builders<UserFriends>.Update
-                .AddToSet(u => u.FriendIds, friendFirebaseUid);
+            // Add friendFirebaseUid to user's friend list
+            var filterUser = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var updateUser = Builders<UserFriends>.Update.AddToSet(u => u.FriendIds, friendFirebaseUid);
+            var resultUser = await _userFriendsCollection.UpdateOneAsync(filterUser, updateUser);
 
-            var result = await _userFriendsCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            // Add firebaseUid to friend's friend list
+            var filterFriend = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, friendFirebaseUid);
+            var updateFriend = Builders<UserFriends>.Update.AddToSet(u => u.FriendIds, firebaseUid);
+            var resultFriend = await _userFriendsCollection.UpdateOneAsync(filterFriend, updateFriend);
+
+            return resultUser.ModifiedCount > 0 || resultFriend.ModifiedCount > 0;
         }
 
         public async Task<bool> DeleteFriend(string firebaseUid, string friendFirebaseUid)
         {
-            var filter = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
-            var update = Builders<UserFriends>.Update
-                .Pull(u => u.FriendIds, friendFirebaseUid);
+            // Pull friendFirebaseUid from user's friend list
+            var filterUser = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
+            var updateUser = Builders<UserFriends>.Update.Pull(u => u.FriendIds, friendFirebaseUid);
+            var resultUser = await _userFriendsCollection.UpdateOneAsync(filterUser, updateUser);
 
-            var result = await _userFriendsCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+            // Pull firebaseUid from friend's friend list
+            var filterFriend = Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, friendFirebaseUid);
+            var updateFriend = Builders<UserFriends>.Update.Pull(u => u.FriendIds, firebaseUid);
+            var resultFriend = await _userFriendsCollection.UpdateOneAsync(filterFriend, updateFriend);
+
+            return resultUser.ModifiedCount > 0 || resultFriend.ModifiedCount > 0;
         }
     }
 }
