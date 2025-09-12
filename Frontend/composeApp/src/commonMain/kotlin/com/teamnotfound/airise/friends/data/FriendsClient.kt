@@ -40,7 +40,7 @@ class FriendsClient(
 
     suspend fun addFriend(idToken: String, meUid: String, friendUid: String) {
         val res = http.post {
-            url(api("UserFriends/$meUid/$friendUid"))
+            url(api("UserFriends/$meUid?friendFirebaseUid=$friendUid"))
             contentType(ContentType.Application.Json)
             bearerAuth(idToken)
         }
@@ -49,7 +49,7 @@ class FriendsClient(
 
     suspend fun removeFriend(idToken: String, meUid: String, friendUid: String) {
         val res = http.delete {
-            url(api("UserFriends/$meUid/$friendUid"))
+            url(api("UserFriends/$meUid?friendFirebaseUid=$friendUid"))
             contentType(ContentType.Application.Json)
             bearerAuth(idToken)
         }
