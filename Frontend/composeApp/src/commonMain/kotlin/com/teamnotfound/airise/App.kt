@@ -35,18 +35,17 @@ import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
-import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.Result
 import com.teamnotfound.airise.platform.ImagePlatformPicker
 import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
 import com.teamnotfound.airise.community.friends.FriendsListScreen
 import com.teamnotfound.airise.community.friends.FriendsListViewModel
 import com.teamnotfound.airise.community.friends.ExFriendRepository
 import com.teamnotfound.airise.community.challenges.ChallengesScreen
-import com.teamnotfound.airise.community.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
 import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
 import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
+import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 
 
 @Composable
@@ -322,7 +321,6 @@ fun App(container: AppContainer) {
                     )
                 }
 
-
                 // Email verification
                 composable(route = AppScreen.EMAIL_VERIFICATION.name) {
                     val emailVerificationViewModel = viewModel { EmailVerificationViewModel() }
@@ -342,6 +340,12 @@ fun App(container: AppContainer) {
                             }
                         }
                     )
+                }
+
+                // Leaderboard Screen
+                composable(route = AppScreen.LEADERBOARD.name) {
+                    val leaderboardViewModel = viewModel { LeaderboardViewModel(container.dataClient) }
+                    LeaderboardScreen(navController = navController, communityNavBarViewModel = communityNavBarViewModel, leaderboardViewModel)
                 }
 
             }
@@ -367,5 +371,6 @@ enum class AppScreen {
     CHALLENGES,
     CHALLENGE_NEW,
     CHALLENGE_EDIT,
-    CHALLENGE_DETAILS
+    CHALLENGE_DETAILS,
+    LEADERBOARD
 }
