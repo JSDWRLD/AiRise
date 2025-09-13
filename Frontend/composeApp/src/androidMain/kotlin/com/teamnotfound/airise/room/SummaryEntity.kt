@@ -11,6 +11,7 @@ data class SummaryEntity(
     val firstName: String,
     val lastName: String,
     val middleName: String,
+    val fullName: String,
 
     val workoutGoal: String,
     val currentFitnessLevel: String,

@@ -1,6 +1,7 @@
 package com.teamnotfound.airise.data.network.clients
 
 import com.teamnotfound.airise.data.DTOs.CreateUserDTO
+import com.teamnotfound.airise.data.DTOs.UsersEnvelope
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserData
@@ -59,6 +60,7 @@ class   UserClient(
     suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
+        println(token)
         val response = try {
             httpClient.get("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
@@ -244,6 +246,30 @@ class   UserClient(
 
         return when (response.status.value) {
             in 200..299 -> Result.Success(true)
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+    suspend fun searchUsers(firebaseUser: FirebaseUser, query: String): Result<UsersEnvelope, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(false).toString()
+
+        val response = try {
+            httpClient.get("$baseUrl/UserData/search-user/$firebaseUid?query=$query") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+        return when (response.status.value) {
+            200 -> {
+                val users = response.body<UsersEnvelope>()
+                Result.Success(users)
+            }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             else -> Result.Error(NetworkError.UNKNOWN)

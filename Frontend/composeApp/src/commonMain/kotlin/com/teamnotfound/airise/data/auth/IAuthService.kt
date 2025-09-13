@@ -15,4 +15,5 @@ interface IAuthService {
     suspend fun updatePassword(newPassword: String): AuthResult
     suspend fun signOut(): AuthResult
     suspend fun authenticateWithGoogle(idToken: String): AuthResult
+    suspend fun getIdToken(): String?
 }

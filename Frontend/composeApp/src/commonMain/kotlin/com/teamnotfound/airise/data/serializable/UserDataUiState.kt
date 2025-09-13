@@ -9,6 +9,7 @@ class UserDataUiState {
     var firstName: MutableState<String> = mutableStateOf("")
     var lastName: MutableState<String> = mutableStateOf("")
     var middleName: MutableState<String> = mutableStateOf("")
+    var fullName: MutableState<String> = mutableStateOf("")
     var workoutGoal: MutableState<String> = mutableStateOf("")
     var fitnessLevel: MutableState<String> = mutableStateOf("")
     var workoutLength: MutableState<Int> = mutableStateOf(0)
@@ -31,6 +32,7 @@ class UserDataUiState {
         firstName = firstName.value, 
         lastName = lastName.value, 
         middleName = middleName.value,
+        fullName = fullName.value,
         workoutGoal = workoutGoal.value,
         fitnessLevel = fitnessLevel.value,
         workoutLength = workoutLength.value,
@@ -55,6 +57,7 @@ data class UserData(
     val firstName: String, 
     val lastName: String, 
     val middleName: String,
+    val fullName: String,
     val workoutGoal: String,
     val fitnessLevel: String,
     val workoutLength: Int,

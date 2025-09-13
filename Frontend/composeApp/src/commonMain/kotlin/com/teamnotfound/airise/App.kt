@@ -37,13 +37,14 @@ import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.platform.ImagePlatformPicker
 import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
-import com.teamnotfound.airise.community.friends.FriendsListScreen
-import com.teamnotfound.airise.community.friends.FriendsListViewModel
-import com.teamnotfound.airise.community.friends.ExFriendRepository
+import com.teamnotfound.airise.community.friends.screens.FriendsListScreen
+import com.teamnotfound.airise.community.friends.data.FriendsClient
+import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepositoryImpl
 import com.teamnotfound.airise.community.challenges.ChallengesScreen
 import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
 import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
 import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 
@@ -72,6 +73,14 @@ fun App(container: AppContainer) {
         container.userClient,
         container.userCache
     )
+    val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
+    val friendsRepository = remember {
+        val friendsClient = FriendsClient(
+            container.httpClient,
+            apiBase
+        )
+        FriendsNetworkRepositoryImpl(friendsClient)
+    }
 
     val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
         UserRepository(auth = auth, container.userClient, container.userCache),
@@ -192,13 +201,19 @@ fun App(container: AppContainer) {
                     container.dataClient
                 )
 
-                // Friends (Activity Feed)
-                //need to update with actual data for activity feeds
-                composable(route = AppScreen.FRIENDS.name) {
-                    val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsListScreen(viewModel = vm, navController = navController, communityNavBarViewModel)
-                }
 
+                // Friends List
+                composable(route = AppScreen.FRIENDS_LIST.name) {
+                    val vm = viewModel { FriendsViewModel(
+                        auth = authService,
+                        friendRepo = friendsRepository,
+                        userRepo = userRepository,
+                    ) }
+                    FriendsListScreen(viewModel = vm,
+                        navController = navController,
+                        communityNavBarViewModel = communityNavBarViewModel,
+                    )
+                }
                 // challenges list
                 composable(route = AppScreen.CHALLENGES.name) {
                     val parentEntry = remember(navController) {
@@ -293,6 +308,7 @@ fun App(container: AppContainer) {
 
                 }
 
+                // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
                     //Reusing the data retrieved for HomeViewModel, to avoid too many API calls
                     val homeUi by sharedHomeVM.uiState.collectAsState()
@@ -367,7 +383,7 @@ enum class AppScreen {
     ACCOUNT_SETTINGS,
     AI_CHAT,
     EMAIL_VERIFICATION,
-    FRIENDS,
+    FRIENDS_LIST,
     CHALLENGES,
     CHALLENGE_NEW,
     CHALLENGE_EDIT,

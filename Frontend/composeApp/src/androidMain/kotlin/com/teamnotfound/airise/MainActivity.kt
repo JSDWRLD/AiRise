@@ -18,6 +18,7 @@ import com.teamnotfound.airise.data.auth.User
 import com.teamnotfound.airise.room.DatabaseProvider
 import com.teamnotfound.airise.cache.SummaryCacheAndroid
 import com.teamnotfound.airise.cache.FakeSummaryCache
+import io.ktor.client.HttpClient
 
 //Just for testing purposes for now
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
         val dataClient = DataClient(createHttpClient(OkHttp.create()))
         val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
+        val httpClient = createHttpClient(OkHttp.create())
 
         val container = AppContainer(
             userClient = userClient,
@@ -45,6 +47,7 @@ class MainActivity : ComponentActivity() {
             kHealth = kHealth,
             userCache = userCache,
             summaryCache = summaryCache,
+            httpClient = httpClient
         )
         //For debugging
 //        lifecycleScope.launch(Dispatchers.IO) {

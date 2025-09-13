@@ -80,8 +80,8 @@ public class UserDataController : Controller
         return Ok(new { message = "UserData updated successfully" });
     }
 
-    [HttpGet("/search-user/{firebaseUid}")]
-    public async Task<UserList> SearchUsersByNameAsync(string query)
+    [HttpGet("search-user/{firebaseUid}")]
+    public async Task<UserList> SearchUsersByNameAsync(string firebaseUid, string query)
     {
             return await _userDataService.SearchUsersByNameAsync(query);
     }
