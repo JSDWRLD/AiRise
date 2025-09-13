@@ -121,6 +121,10 @@ fun ChallengesScreen(
                             description = c.description,
                             label = if (c.name.isNotBlank()) c.name else "Challenge ${c.id}",
                             imageUrl = c.imageUrl,
+                            isStarted = c.isStarted,
+                            //onStart = { viewModel.startChallenge(c.id) },
+                            isCompleted = c.isCompleted,
+                            //onComplete = { viewModel.onChallengeCompleted(c.id) },
                             onClick = {
                                 viewModel.onChallengeClick(c.id)
                                 onEditClick()
@@ -139,7 +143,11 @@ private fun ChallengeCard(
     description: String,
     label: String,
     imageUrl: String?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isStarted: Boolean,
+    //onStart: () -> Unit,
+    isCompleted: Boolean,
+    //onComplete: () -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
 

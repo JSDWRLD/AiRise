@@ -221,7 +221,7 @@ fun App(container: AppContainer) {
                     }
 
                     val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient) // <-- inject DataClient here
+                        ChallengesViewModelImpl(container.dataClient, container.userClient, authService, ) // <-- inject DataClient here
                     }
 
                     ChallengesScreen(
@@ -240,7 +240,7 @@ fun App(container: AppContainer) {
                     }
 
                     val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient)
+                        ChallengesViewModelImpl(container.dataClient, container.userClient, authService)
                     }
 
                     ChallengeEditorScreen(
@@ -257,7 +257,7 @@ fun App(container: AppContainer) {
                     }
 
                     val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient)
+                        ChallengesViewModelImpl(container.dataClient, container.userClient, authService)
                     }
 
                     ChallengeEditorScreen(
@@ -274,7 +274,7 @@ fun App(container: AppContainer) {
                     }
 
                     val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient)
+                        ChallengesViewModelImpl(container.dataClient, container.userClient, authService)
                     }
 
                     ChallengeDetailsScreen(

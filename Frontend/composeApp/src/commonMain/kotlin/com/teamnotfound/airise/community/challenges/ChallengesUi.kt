@@ -7,7 +7,10 @@ data class ChallengeUI(
     val id: String,
     val name: String,
     val description: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val isStarted: Boolean = false,
+    val startTime: Long? = null,
+    val isCompleted: Boolean = false
 )
 
 data class ChallengesUiState(
