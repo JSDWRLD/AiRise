@@ -157,7 +157,6 @@ class CommunityNavBarViewModel(
         _uiState.value = _uiState.value.copy(page = newPage)
     }
 
-    // Optional: manual refresh hook the UI can call (pull-to-refresh, etc.)
     fun refresh() {
         loadUserData()
         loadUserProfilePic()

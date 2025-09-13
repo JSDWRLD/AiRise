@@ -7,7 +7,7 @@ namespace AiRise.Data
     {
         public static readonly List<Challenge> Challenges = new List<Challenge>
         {
-            new Challenge { Id = "1", Name = "10,000 Steps Challenge", Description = "Walk 10,000 steps every day for a week.", Url = "https://pixabay.com/images/search/running%20training/" },
+            new Challenge { Id = "1", Name = "10,000 Steps Challenge", Description = "Walk 10,000 steps every day for a week.", Url = "https://media.istockphoto.com/id/1125038961/photo/young-man-running-outdoors-in-morning.jpg?s=612x612&w=0&k=20&c=LVAlQIforg7ZRAF-bOvdvoD_k3ejEeimrWbGq2IA5ak=" },
             new Challenge { Id = "2", Name = "Hydration Challenge", Description = "Drink 2 liters of water daily for 14 days.", Url = "https://www.shutterstock.com/image-photo/fit-slim-sportswoman-drinking-water-600nw-1333020713.jpg" },
             new Challenge { Id = "3", Name = "No Sugar Week", Description = "Avoid all added sugars for 7 days.", Url = "https://st2.depositphotos.com/1005563/8505/i/450/depositphotos_85057086-stock-photo-diet-and-fitness-vitamin-concept.jpg" },
             new Challenge { Id = "4", Name = "Morning Yoga", Description = "Do 20 minutes of yoga every morning for 10 days.", Url = "https://images.pexels.com/photos/3076509/pexels-photo-3076509.jpeg?cs=srgb&dl=pexels-jonathanborba-3076509.jpg&fm=jpg" },
