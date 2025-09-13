@@ -2,16 +2,26 @@ package com.teamnotfound.airise.community.challenges
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.auth.AuthService
+import com.teamnotfound.airise.data.datastore.PreferencesDataStore
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
+import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+
+
 
 class ChallengesViewModelImpl(
-    private val dataClient: DataClient
+    private val dataClient: DataClient,
+    private val userClient: UserClient,
+    private val authService: AuthService,
+    private val dataStore: PreferencesDataStore
+
 ) : ViewModel(), ChallengesViewModel {
 
     private val _uiState = MutableStateFlow(ChallengesUiState(isLoading = true))
@@ -72,6 +82,28 @@ class ChallengesViewModelImpl(
             items = _uiState.value.items.map { if (it.id == current.id) updated else it }
         )
     }
+
+    fun startChallenge(id: String) {
+        val current = _uiState.value.items.firstOrNull{ it.id == id } ?: return
+        val updated = current.copy(isStarted = true, startTime = Clock.System.now().toEpochMilliseconds())
+        _uiState.value = _uiState.value.copy(
+            items = _uiState.value.items.map { if (it.id == id) updated else it }
+        )
+        if (_selected.value?.id == id) _selected.value = updated
+    }
+
+
+    fun onChallengeCompleted(id: String) {
+        val current = _uiState.value.items.firstOrNull{ it.id == id } ?: return
+        val currentTime = Clock.System.now().toEpochMilliseconds()
+        val startedTime = current.startTime ?: return
+        viewModelScope.launch {
+            if (currentTime - startedTime <= 86_400_000L)
+
+
+        }
+    }
+
 }
 
 // --- Mappers & helpers

@@ -72,6 +72,8 @@ kotlin {
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
             implementation(libs.coil.network)
+            implementation("androidx.datastore:datastore:1.1.7")
+            implementation("androidx.datastore:datastore-preferences:1.1.7")
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -130,6 +132,10 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.geometry.android)
     implementation(libs.material3.android)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.datastore.preferences.core.android)
+    implementation(libs.androidx.compiler)
+    implementation(libs.androidx.databinding.compiler)
     debugImplementation(compose.uiTooling)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
