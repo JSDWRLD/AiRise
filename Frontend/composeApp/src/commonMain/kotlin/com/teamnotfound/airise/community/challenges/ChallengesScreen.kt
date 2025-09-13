@@ -43,8 +43,6 @@ import kotlinx.coroutines.flow.collect
 fun ChallengesScreen(
     viewModel: ChallengesViewModelImpl,
     navController: NavHostController,
-    onAddClick: () -> Unit,
-    onEditClick: () -> Unit,
     communityNavBarViewModel: CommunityNavBarViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -98,7 +96,7 @@ fun ChallengesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClick, backgroundColor = DeepBlue, contentColor = White) {
+            FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = DeepBlue, contentColor = White) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }

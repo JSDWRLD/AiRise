@@ -36,12 +36,10 @@ import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.platform.ImagePlatformPicker
-import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
 import com.teamnotfound.airise.community.friends.screens.FriendsListScreen
 import com.teamnotfound.airise.community.friends.data.FriendsClient
 import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepositoryImpl
 import com.teamnotfound.airise.community.challenges.ChallengesScreen
-import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
 import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
 import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
 import com.teamnotfound.airise.community.friends.models.FriendsViewModel
@@ -227,61 +225,7 @@ fun App(container: AppContainer) {
                     ChallengesScreen(
                         viewModel = vm,
                         navController = navController,
-                        onAddClick = { navController.navigate(AppScreen.CHALLENGE_NEW.name) },
-                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) },
                         communityNavBarViewModel = communityNavBarViewModel
-                    )
-                }
-
-                // create challenge
-                composable(route = AppScreen.CHALLENGE_NEW.name) {
-                    val parentEntry = remember(navController) {
-                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
-                    }
-
-                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient, container.userClient)
-                    }
-
-                    ChallengeEditorScreen(
-                        navController = navController,
-                        viewModel = vm,
-                        onBackClick = { navController.popBackStack() }
-                    )
-                }
-
-                // edit challenge
-                composable(route = AppScreen.CHALLENGE_EDIT.name) {
-                    val parentEntry = remember(navController) {
-                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
-                    }
-
-                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient, container.userClient)
-                    }
-
-                    ChallengeEditorScreen(
-                        navController = navController,
-                        viewModel = vm,
-                        onBackClick = { navController.popBackStack() }
-                    )
-                }
-
-                // challenge details
-                composable(route = AppScreen.CHALLENGE_DETAILS.name) {
-                    val parentEntry = remember(navController) {
-                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
-                    }
-
-                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient, container.userClient)
-                    }
-
-                    ChallengeDetailsScreen(
-                        viewModel = vm,
-                        onBackClick = {
-                            navController.popBackStack(AppScreen.CHALLENGES.name, inclusive = false)
-                        }
                     )
                 }
 
