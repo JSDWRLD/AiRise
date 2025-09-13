@@ -14,25 +14,13 @@ namespace AiRise.Models.User
         [JsonPropertyName("firebaseUid")]
         public string FirebaseUid { get; set; } = null!;
 
-        [BsonElement("user_challenge_id")]
-        [JsonPropertyName("user_challenge_id")]
-        public string ChallengeId { get; set; } = string.Empty;
+        [BsonElement("activeChallengeId")]
+        [JsonPropertyName("activeChallengeId")]
+        public string? ActiveChallengeId { get; set; }
 
-        [BsonElement("assigned_by")]
-        [JsonPropertyName("assigned_by")]
-        public string AssignedById { get; set; } = string.Empty;
-
-        [BsonElement("assigned_on")]
-        [JsonPropertyName("assigned_on")]
-        public DateTime? AssignedOn { get; set; } = null;
-
-        [BsonElement("complete_by")]
-        [JsonPropertyName("complete_by")]
-        public DateTime? CompleteBy { get; set; } = null;
-
-        // ID of most recently completed activity
-        [BsonElement("completed_activity_id")]
-        [JsonPropertyName("completed_activity_id")]
-        public string CompletedActivityId { get; set; } = string.Empty;
+        // Epoch day (UTC) of the last completion (nullable if never completed)
+        [BsonElement("lastCompletionEpochDay")]
+        [JsonPropertyName("lastCompletionEpochDay")]
+        public long? LastCompletionEpochDay { get; set; }
     }
 }
