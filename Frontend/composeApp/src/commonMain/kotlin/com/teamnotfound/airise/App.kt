@@ -38,15 +38,13 @@ import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.platform.ImagePlatformPicker
 import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
 import com.teamnotfound.airise.community.friends.screens.FriendsListScreen
-import com.teamnotfound.airise.community.friends.screens.FriendsActivityScreen
-import com.teamnotfound.airise.community.friends.models.FriendsListViewModel
-import com.teamnotfound.airise.community.friends.repos.ExFriendRepository
 import com.teamnotfound.airise.community.friends.data.FriendsClient
 import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepositoryImpl
 import com.teamnotfound.airise.community.challenges.ChallengesScreen
 import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
 import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
 import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
+import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 
@@ -203,24 +201,17 @@ fun App(container: AppContainer) {
                     container.dataClient
                 )
 
-                // Friends (Activity Feed)
-                //need to update with actual data for activity feeds
-                composable(route = AppScreen.FRIENDS.name) {
-                    val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
-                    FriendsActivityScreen(viewModel = vm,
+
+                // Friends List
+                composable(route = AppScreen.FRIENDS_LIST.name) {
+                    val vm = viewModel { FriendsViewModel(
+                        auth = authService,
+                        friendRepo = friendsRepository,
+                        userRepo = userRepository,
+                    ) }
+                    FriendsListScreen(viewModel = vm,
                         navController = navController,
                         communityNavBarViewModel = communityNavBarViewModel,
-                        onGoToFriends = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
-                    )
-                }
-
-                // Friends (List)
-                composable(route = AppScreen.FRIENDS_LIST.name) {
-                    FriendsListScreen(
-                        authService = authService,
-                        friendsRepository = friendsRepository,
-                        userRepository = userRepository,
-                        navController = navController
                     )
                 }
                 // challenges list
@@ -392,7 +383,6 @@ enum class AppScreen {
     ACCOUNT_SETTINGS,
     AI_CHAT,
     EMAIL_VERIFICATION,
-    FRIENDS,
     FRIENDS_LIST,
     CHALLENGES,
     CHALLENGE_NEW,

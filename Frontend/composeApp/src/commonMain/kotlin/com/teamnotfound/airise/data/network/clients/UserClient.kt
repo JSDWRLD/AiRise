@@ -256,7 +256,7 @@ class   UserClient(
         val token = firebaseUser.getIdToken(false).toString()
 
         val response = try {
-            httpClient.get("$baseUrl/UserData/$firebaseUid?query=$query") {
+            httpClient.get("http://10.0.2.2:5249/api/UserData/search-user/$firebaseUid?query=$query") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
             }

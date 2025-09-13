@@ -3,11 +3,12 @@ package com.teamnotfound.airise.community.friends.models
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.DTOs.UserProfile
-import com.teamnotfound.airise.data.DTOs.UsersEnvelope
 import com.teamnotfound.airise.data.auth.IAuthService
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepository
+import com.teamnotfound.airise.community.friends.screens.FriendsListUiState
+import com.teamnotfound.airise.data.DTOs.toDomain
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -33,20 +34,13 @@ class FriendsViewModel(
     // --- Search state slice ---
     data class SearchState(
         val isSearching: Boolean = false,
-        val results: UsersEnvelope? = null,
+        val results: List<UserProfile> = emptyList(),
         val error: String? = null
     )
 
-    // --- Screen UI state, now includes `search` ---
-    data class UiState(
-        val isLoading: Boolean = false,
-        val friends: List<UserProfile> = emptyList(),
-        val error: String? = null,
-        val search: SearchState = SearchState()  // <— NEW FIELD
-    )
 
-    private val _ui = MutableStateFlow(UiState(isLoading = false))
-    val ui: StateFlow<UiState> = _ui
+    private val _ui = MutableStateFlow(FriendsListUiState(isLoading = false))
+    val ui: StateFlow<FriendsListUiState> = _ui
 
     /** Loads the current user's friends from the backend. */
     fun load() {
@@ -141,7 +135,7 @@ class FriendsViewModel(
     fun searchUsers(query: String) {
         if (query.isBlank()) {
             _ui.value = _ui.value.copy(
-                search = SearchState(isSearching = false, results = null, error = null)
+                search = SearchState(isSearching = false, results = emptyList(), error = null)
             )
             return
         }
@@ -153,11 +147,18 @@ class FriendsViewModel(
         viewModelScope.launch {
             val res = withContext(io) { userRepo.searchUsers(query) }
             when (res) {
-                is Result.Success -> _ui.value = _ui.value.copy(
-                    search = SearchState(isSearching = false, results = res.data, error = null)
-                )
+                is Result.Success -> {
+                    val users = res.data.users.map { it.toDomain() }
+                    _ui.value = _ui.value.copy(
+                        search = SearchState(
+                            isSearching = false,
+                            results = users,
+                            error = null
+                        )
+                    )
+                }
                 is Result.Error -> _ui.value = _ui.value.copy(
-                    search = SearchState(isSearching = false, results = null, error = res.error.name)
+                    search = SearchState(isSearching = false, results = emptyList(), error = res.error.name)
                 )
             }
         }

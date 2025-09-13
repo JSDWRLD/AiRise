@@ -249,7 +249,7 @@ fun CommunityNavBar(
                                 CommunityPage.Leaderboard -> {
                                     PrimaryCTA(
                                         text = "Friends",
-                                        onClick = { navController.navigate(AppScreen.FRIENDS.name) }
+                                        onClick = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     SecondaryCTA(
@@ -276,7 +276,7 @@ fun CommunityNavBar(
                                     Spacer(Modifier.height(8.dp))
                                     SecondaryCTA(
                                         text = "Friends",
-                                        onClick = { navController.navigate(AppScreen.FRIENDS.name) }
+                                        onClick = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
                                     )
                                 }
                             }
