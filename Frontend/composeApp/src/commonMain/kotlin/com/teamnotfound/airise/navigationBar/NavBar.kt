@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.util.*
@@ -27,12 +28,23 @@ fun NavBar(navController: NavHostController,
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
+                appNavController = appNavController,
                 onCommunityClick = {
                     // Only navigate if we have the app-level controller
                     appNavController?.navigate(AppScreen.CHALLENGES.name) {
                         launchSingleTop = true
                     }
+                },
+                onOverviewClick = {
+                    appNavController?.navigate(AppScreen.HOMESCREEN.name) {
+                        launchSingleTop = true
+                        appNavController.graph.startDestinationRoute?.let { startRoute ->
+                            popUpTo(startRoute) { saveState = true }
+                        }
+                        restoreState = true
+                    }
                 }
+
             )
         }
     ) { paddingValues ->
@@ -50,7 +62,10 @@ fun NavBar(navController: NavHostController,
 
 //Creates the bottom navigation bar and ui elements
 @Composable
-fun BottomNavigationBar(navController: NavHostController, onCommunityClick: () -> Unit = {}){
+fun BottomNavigationBar(navController: NavHostController,
+                        appNavController: NavHostController? = null,
+                        onOverviewClick: () -> Unit = {},
+                        onCommunityClick: () -> Unit = {}){
     val items = listOf(
         NavBarItems.Workout,
         NavBarItems.Meal,
@@ -73,7 +88,11 @@ fun BottomNavigationBar(navController: NavHostController, onCommunityClick: () -
                 )
             }
     ){
+
+
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+        val appRoute = appNavController?.currentBackStackEntryAsState()?.value?.destination?.route
+
         items.forEach { screen ->
             BottomNavigationItem(
                 icon = {
@@ -98,26 +117,21 @@ fun BottomNavigationBar(navController: NavHostController, onCommunityClick: () -
                     }
                 },
 
-                selected = currentRoute == screen.route,
-                selectedContentColor = Color.White,
+                selected = when (screen) {
+                    NavBarItems.Overview  -> appRoute == AppScreen.HOMESCREEN.name
+                    NavBarItems.Community -> appRoute == AppScreen.CHALLENGES.name
+                    else                   -> currentRoute == screen.route
+                },                selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
                 onClick = {
-                    if (screen == NavBarItems.Community) {
-                        onCommunityClick()
-                    } else {
-                        navController.navigate(screen.route) {
+                    when (screen) {
+                        NavBarItems.Community -> onCommunityClick()
+                        NavBarItems.Overview  -> onOverviewClick()
+                        else -> navController.navigate(screen.route) {
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
-                    /*
-                    navController.navigate(screen.route){
-                        // popUpTo(navController.graph.startDestinationId){ saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-
-                     */
                 }
             )
         }

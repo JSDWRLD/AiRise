@@ -71,6 +71,7 @@ kotlin {
             implementation(libs.kmpauth.uihelper)
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
+            implementation(libs.coil.network)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)

@@ -33,16 +33,23 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
-import com.teamnotfound.airise.challenges.ChallengeDetailsScreen
-import com.teamnotfound.airise.friends.models.FriendsListViewModel
-import com.teamnotfound.airise.friends.screens.FriendsListScreen
-import com.teamnotfound.airise.friends.repos.ExFriendRepository
-import com.teamnotfound.airise.challenges.ChallengesScreen
-import com.teamnotfound.airise.challenges.ExChallengesViewModel
-import com.teamnotfound.airise.challenges.ChallengeEditorScreen
-import com.teamnotfound.airise.friends.repos.FriendsNetworkRepositoryImpl
-import com.teamnotfound.airise.friends.data.FriendsClient
-import com.teamnotfound.airise.friends.screens.FriendsActivityScreen
+import com.teamnotfound.airise.data.serializable.DailyProgressData
+import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.util.Result
+import com.teamnotfound.airise.platform.ImagePlatformPicker
+import com.teamnotfound.airise.community.challenges.ChallengeDetailsScreen
+import com.teamnotfound.airise.community.friends.screens.FriendsListScreen
+import com.teamnotfound.airise.community.friends.screens.FriendsActivityScreen
+import com.teamnotfound.airise.community.friends.models.FriendsListViewModel
+import com.teamnotfound.airise.community.friends.repos.ExFriendRepository
+import com.teamnotfound.airise.community.friends.data.FriendsClient
+import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepositoryImpl
+import com.teamnotfound.airise.community.challenges.ChallengesScreen
+import com.teamnotfound.airise.community.challenges.ExChallengesViewModel
+import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
+import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
+import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
 
 
 @Composable
@@ -53,6 +60,7 @@ fun App(container: AppContainer) {
         auth = auth,
         userClient = container.userClient
     )
+
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
@@ -76,6 +84,11 @@ fun App(container: AppContainer) {
         )
         FriendsNetworkRepositoryImpl(friendsClient)
     }
+
+    val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
+        UserRepository(auth = auth, container.userClient, container.userCache),
+        container.userClient
+    )}
 
     MaterialTheme {
         Column(
@@ -185,12 +198,19 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                val communityNavBarViewModel = CommunityNavBarViewModel(
+                    userRepository,
+                    container.userClient,
+                    container.dataClient
+                )
+
                 // Friends (Activity Feed)
                 //need to update with actual data for activity feeds
                 composable(route = AppScreen.FRIENDS.name) {
                     val vm = viewModel { FriendsListViewModel(ExFriendRepository()) }
                     FriendsActivityScreen(viewModel = vm,
                         navController = navController,
+                        communityNavBarViewModel = communityNavBarViewModel,
                         onGoToFriends = { navController.navigate(AppScreen.FRIENDS_LIST.name) }
                     )
                 }
@@ -206,19 +226,20 @@ fun App(container: AppContainer) {
                 }
                 // challenges list
                 composable(route = AppScreen.CHALLENGES.name) {
-                    //use same viewmodel across all challenges screens
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //onaddclick goes to creating a challenge
-                    //oneditclick goes to details of the challenge clicked on and can edit from there
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient) // <-- inject DataClient here
+                    }
+
                     ChallengesScreen(
                         viewModel = vm,
-                        navController,
+                        navController = navController,
                         onAddClick = { navController.navigate(AppScreen.CHALLENGE_NEW.name) },
-                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) }
+                        onEditClick = { navController.navigate(AppScreen.CHALLENGE_DETAILS.name) },
+                        communityNavBarViewModel = communityNavBarViewModel
                     )
                 }
 
@@ -227,13 +248,15 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //used for creating new challenges
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeEditorScreen(
                         navController = navController,
                         viewModel = vm,
-                        onBackClick = { navController.popBackStack() }//returns to the list
+                        onBackClick = { navController.popBackStack() }
                     )
                 }
 
@@ -242,9 +265,11 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //used for updating an known challenge
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeEditorScreen(
                         navController = navController,
                         viewModel = vm,
@@ -257,9 +282,11 @@ fun App(container: AppContainer) {
                     val parentEntry = remember(navController) {
                         navController.getBackStackEntry(AppScreen.CHALLENGES.name)
                     }
-                    val vm: ExChallengesViewModel = viewModel(parentEntry)
 
-                    //read challenges details
+                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
+                        ChallengesViewModelImpl(container.dataClient)
+                    }
+
                     ChallengeDetailsScreen(
                         viewModel = vm,
                         onBackClick = {
@@ -293,7 +320,31 @@ fun App(container: AppContainer) {
 
                 // Ai Chat Screen
                 composable(route = AppScreen.AI_CHAT.name) {
-                    AiChat(navController = navController)
+                    //Reusing the data retrieved for HomeViewModel, to avoid too many API calls
+                    val homeUi by sharedHomeVM.uiState.collectAsState()
+                    val workoutGoal: String? = homeUi.userData?.workoutGoal?.takeIf { it.isNotBlank() }
+                    val dietaryGoal: String? = homeUi.userData?.dietaryGoal?.takeIf { it.isNotBlank() }
+                    val activityLevel: String? = homeUi.userData?.activityLevel?.takeIf { it.isNotBlank() }
+                    val fitnessLevel: String? = homeUi.userData?.fitnessLevel?.takeIf { it.isNotBlank() }
+                    val workoutLength: Int? = homeUi.userData?.workoutLength
+                    val workoutRestrictions: String? = homeUi.userData?.workoutRestrictions?.takeIf { it.isNotBlank() }
+                    val healthData: HealthData? = homeUi.healthData
+                    val dailyProgressData: DailyProgressData? = homeUi.dailyProgressData
+
+                    val pickImage = ImagePlatformPicker()
+
+                    AiChat(
+                        navController = navController,
+                        workoutGoal = workoutGoal,
+                        dietaryGoal= dietaryGoal,
+                        activityLevel= activityLevel,
+                        fitnessLevel= fitnessLevel,
+                        workoutLength= workoutLength,
+                        workoutRestrictions= workoutRestrictions,
+                        healthData= healthData,
+                        dailyProgressData= dailyProgressData,
+                        onPickImageBytes = pickImage
+                    )
                 }
 
                 // Email verification
