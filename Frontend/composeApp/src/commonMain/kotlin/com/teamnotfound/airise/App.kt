@@ -41,13 +41,11 @@ import com.teamnotfound.airise.community.friends.FriendsListScreen
 import com.teamnotfound.airise.community.friends.FriendsListViewModel
 import com.teamnotfound.airise.community.friends.ExFriendRepository
 import com.teamnotfound.airise.community.challenges.ChallengesScreen
-import com.teamnotfound.airise.community.challenges.ExChallengesViewModel
 import com.teamnotfound.airise.community.challenges.ChallengeEditorScreen
 import com.teamnotfound.airise.community.challenges.ChallengesViewModelImpl
 import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewModel
-import com.teamnotfound.airise.leaderboard.LeaderboardScreen
-
-
+import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
+import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 
 
 @Composable
@@ -346,7 +344,8 @@ fun App(container: AppContainer) {
 
                 // Leaderboard Screen
                 composable(route = AppScreen.LEADERBOARD.name) {
-                    LeaderboardScreen(navController = navController, communityNavBarViewModel = communityNavBarViewModel)
+                    val leaderboardViewModel = viewModel { LeaderboardViewModel(container.dataClient) }
+                    LeaderboardScreen(navController = navController, communityNavBarViewModel = communityNavBarViewModel, leaderboardViewModel)
                 }
 
             }
