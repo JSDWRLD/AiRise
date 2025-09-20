@@ -65,7 +65,9 @@ fun NavBar(navController: NavHostController,
 fun BottomNavigationBar(navController: NavHostController,
                         appNavController: NavHostController? = null,
                         onOverviewClick: () -> Unit = {},
-                        onCommunityClick: () -> Unit = {}){
+                        onCommunityClick: () -> Unit = {},
+                        onWorkoutClick: () -> Unit = {}
+){
     val items = listOf(
         NavBarItems.Workout,
         NavBarItems.Meal,
@@ -120,6 +122,7 @@ fun BottomNavigationBar(navController: NavHostController,
                 selected = when (screen) {
                     NavBarItems.Overview  -> appRoute == AppScreen.HOMESCREEN.name
                     NavBarItems.Community -> appRoute == AppScreen.CHALLENGES.name
+                    NavBarItems.Workout -> appRoute == AppScreen.WORKOUT.name
                     else                   -> currentRoute == screen.route
                 },                selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
@@ -127,6 +130,7 @@ fun BottomNavigationBar(navController: NavHostController,
                     when (screen) {
                         NavBarItems.Community -> onCommunityClick()
                         NavBarItems.Overview  -> onOverviewClick()
+                        NavBarItems.Workout  -> onWorkoutClick()
                         else -> navController.navigate(screen.route) {
                             launchSingleTop = true
                             restoreState = true

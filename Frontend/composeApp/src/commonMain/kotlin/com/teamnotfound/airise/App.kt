@@ -45,6 +45,8 @@ import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewMode
 import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
+import com.teamnotfound.airise.workout.WorkoutScreen
+import com.teamnotfound.airise.workout.ExWorkoutViewModel
 
 
 @Composable
@@ -229,6 +231,12 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                // Workout Screen
+                composable(route = AppScreen.WORKOUT.name) {
+                    val vm = ExWorkoutViewModel()
+                    WorkoutScreen(viewModel = vm)
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -332,5 +340,6 @@ enum class AppScreen {
     CHALLENGE_NEW,
     CHALLENGE_EDIT,
     CHALLENGE_DETAILS,
-    LEADERBOARD
+    LEADERBOARD,
+    WORKOUT
 }
