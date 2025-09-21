@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
@@ -27,19 +26,18 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun WorkoutScreen(viewModel: WorkoutViewModelContract) {
+fun WorkoutScreen() {
+    val viewModel: WorkoutViewModel = viewModel()
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()
 
-    // fixed 7 day expand/collapse
-    val days = listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun")
+    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     val expanded = remember {
         mutableStateMapOf<String, Boolean>().apply { days.forEach { put(it, true) } }
     }
-
-    // track rows are editable
     val editingKeys = remember { mutableStateMapOf<String, Boolean>() }
 
     Scaffold(
@@ -69,11 +67,11 @@ fun WorkoutScreen(viewModel: WorkoutViewModelContract) {
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            when {
-                state.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            when (state) {
+                is WorkoutUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = White)
                 }
-                state.error != null -> Column(
+                is WorkoutUiState.Error -> Column(
                     Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -82,11 +80,11 @@ fun WorkoutScreen(viewModel: WorkoutViewModelContract) {
                     Spacer(Modifier.height(8.dp))
                     OutlinedButton(onClick = viewModel::refresh) { Text("Retry") }
                 }
-                else -> {
-                    // ex show all current items on Monday, others None
-                    val schedule: Map<String, List<WorkoutRow>> = remember(state.items) {
+                is WorkoutUiState.Success -> {
+                    val workoutPlan = (state as WorkoutUiState.Success).workoutPlan
+                    val schedule: Map<String, List<ExerciseUi>> = remember(workoutPlan.exercises) {
                         mapOf(
-                            "Mon" to state.items,
+                            "Mon" to workoutPlan.exercises,
                             "Tue" to emptyList(),
                             "Wed" to emptyList(),
                             "Thu" to emptyList(),
@@ -133,7 +131,7 @@ private fun DaySection(
     day: String,
     expanded: Boolean,
     onToggle: () -> Unit,
-    items: List<WorkoutRow>,
+    items: List<ExerciseUi>,
     isEditing: (workoutId: String, index: Int) -> Boolean,
     onToggleEdit: (workoutId: String, index: Int) -> Unit,
     onChange: (workoutId: String, index: Int, reps: Int?, weight: Double?) -> Unit,
@@ -172,10 +170,10 @@ private fun DaySection(
                 items.forEach { row ->
                     WorkoutCard(
                         row = row,
-                        isEditing = { setIndex -> isEditing(row.id, setIndex) },
-                        onToggleEdit = { setIndex -> onToggleEdit(row.id, setIndex) },
-                        onChange = { setIndex, reps, weight -> onChange(row.id, setIndex, reps, weight) },
-                        onExerciseNotes = { notes -> onExerciseNotes(row.id, notes) }
+                        isEditing = { setIndex -> isEditing(row.exerciseTemplateId, setIndex) },
+                        onToggleEdit = { setIndex -> onToggleEdit(row.exerciseTemplateId, setIndex) },
+                        onChange = { setIndex, reps, weight -> onChange(row.exerciseTemplateId, setIndex, reps, weight) },
+                        onExerciseNotes = { notes -> onExerciseNotes(row.exerciseTemplateId, notes) }
                     )
                 }
             }
@@ -185,7 +183,7 @@ private fun DaySection(
 
 @Composable
 private fun WorkoutCard(
-    row: WorkoutRow,
+    row: ExerciseUi,
     isEditing: (index: Int) -> Boolean,
     onToggleEdit: (index: Int) -> Unit,
     onChange: (index: Int, reps: Int?, weight: Double?) -> Unit,
@@ -209,17 +207,17 @@ private fun WorkoutCard(
 
             // planned line
             val plannedBits = buildList {
-                row.plannedReps?.let { add("$it reps") }
-                row.plannedWeightLbs?.let { add("@ ${it} lbs") }
+                add("${row.plannedReps} reps")
+                add("@ ${row.plannedWeight} lbs")
             }.joinToString(" ")
             if (plannedBits.isNotBlank()) {
                 Spacer(Modifier.height(4.dp))
-                Text("Planned: ${row.sets.size} sets • $plannedBits", color = Silver)
+                Text("Planned: ${row.plannedSets} sets • $plannedBits", color = Silver)
             }
 
             Spacer(Modifier.height(8.dp))
 
-            row.sets.forEachIndexed { i, set ->
+            row.setLogs.forEachIndexed { i, set ->
                 val editing = isEditing(i)
 
                 Row(
@@ -238,7 +236,7 @@ private fun WorkoutCard(
                     )
                     DecimalNumberField(
                         label = "Weight used (lbs)",
-                        value = set.weightUsedLbs,
+                        value = set.weightUsed,
                         enabled = editing,
                         imeAction = ImeAction.Done,
                         onImeAction = { focus.clearFocus() },
@@ -254,12 +252,12 @@ private fun WorkoutCard(
                     }
                 }
 
-                if (i != row.sets.lastIndex) Spacer(Modifier.height(8.dp))
+                if (i != row.setLogs.lastIndex) Spacer(Modifier.height(8.dp))
             }
 
             // notes box per exercise
             Spacer(Modifier.height(12.dp))
-            var notes by remember(row.exerciseNotes) { mutableStateOf(row.exerciseNotes) }
+            var notes by remember(row.notes) { mutableStateOf(row.notes) }
             OutlinedTextField(
                 value = notes,
                 onValueChange = {
