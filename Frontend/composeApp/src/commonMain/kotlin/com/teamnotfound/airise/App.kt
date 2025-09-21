@@ -46,8 +46,6 @@ import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 import com.teamnotfound.airise.workout.WorkoutScreen
-import com.teamnotfound.airise.workout.ExWorkoutViewModel
-
 
 @Composable
 fun App(container: AppContainer) {
@@ -233,8 +231,7 @@ fun App(container: AppContainer) {
 
                 // Workout Screen
                 composable(route = AppScreen.WORKOUT.name) {
-                    val vm = ExWorkoutViewModel()
-                    WorkoutScreen(viewModel = vm)
+                    WorkoutScreen()
                 }
 
                 //Navigation Bar and overview screen
