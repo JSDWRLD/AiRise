@@ -9,12 +9,14 @@ namespace AiRise.Services
     {
         private readonly IMongoCollection<User> _userCollection;
         private readonly IMongoCollection<UserData> _userDataCollection;
+        private readonly IUserProgramService _userProgramService;
 
 
-        public UserDataService(MongoDBService mongoDBService)
+        public UserDataService(MongoDBService mongoDBService, IUserProgramService userProgramService)
         {
             _userCollection = mongoDBService.GetCollection<User>("users"); // Use the Users collection
             _userDataCollection = mongoDBService.GetCollection<UserData>("user.data");
+            _userProgramService = userProgramService;
         }
 
         public async Task<string> CreateAsync(string firebaseUid)
@@ -36,7 +38,7 @@ namespace AiRise.Services
             return await _userDataCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
         }
 
-        private string prepFullName(string firstName, string middleName, string lastName)
+        private static string prepFullName(string firstName, string middleName, string lastName)
         {
             string updatedFullName = string.Join(" ",
             new[] { firstName, middleName, lastName }
@@ -47,6 +49,19 @@ namespace AiRise.Services
 
         public async Task<bool> UpdateUserDataAsync(string firebaseUid, UserData updatedData)
         {
+            // 1) Load current to compare
+            var current = await _userDataCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
+
+            var oldDays = current?.WorkoutDays?.Where(s => !string.IsNullOrWhiteSpace(s)).ToList() ?? new List<string>();
+            var newDays = updatedData.WorkoutDays?.Where(s => !string.IsNullOrWhiteSpace(s)).ToList() ?? new List<string>();
+
+            var oldEquip = current?.WorkoutEquipment ?? string.Empty;
+            var newEquip = updatedData.WorkoutEquipment ?? string.Empty;
+
+            var daysCountChanged = oldDays.Count != newDays.Count;
+            var typeChanged = ProgramTypeMapper.MapEquipmentToProgramType(oldEquip) != ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
+
+            // 2) Update user.data
             string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
 
             var filter = Builders<UserData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
@@ -58,8 +73,8 @@ namespace AiRise.Services
                 .Set(u => u.WorkoutGoal, updatedData.WorkoutGoal)
                 .Set(u => u.FitnessLevel, updatedData.FitnessLevel)
                 .Set(u => u.WorkoutLength, updatedData.WorkoutLength)
-                .Set(u => u.WorkoutEquipment, updatedData.WorkoutEquipment)
-                .Set(u => u.WorkoutDays, updatedData.WorkoutDays)
+                .Set(u => u.WorkoutEquipment, newEquip)
+                .Set(u => u.WorkoutDays, newDays)
                 .Set(u => u.WorkoutTime, updatedData.WorkoutTime)
                 .Set(u => u.DietaryGoal, updatedData.DietaryGoal)
                 .Set(u => u.WorkoutRestrictions, updatedData.WorkoutRestrictions)
@@ -73,7 +88,26 @@ namespace AiRise.Services
                 .Set(u => u.ActivityLevel, updatedData.ActivityLevel);
 
             var result = await _userDataCollection.UpdateOneAsync(filter, update);
-            return result.ModifiedCount > 0;
+
+            // 3) Sync program based on what changed
+            if (daysCountChanged || typeChanged)
+            {
+                if (newDays.Count is >= 3 and <= 6)
+                {
+                    var primaryType = ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
+                    await _userProgramService.AssignFromExplicitAsync(firebaseUid, primaryType, newDays); // <-- change here
+                }
+            }
+            else
+            {
+                if (!SeqEqualIgnoreCase(oldDays, newDays) && newDays.Count is >= 3 and <= 6)
+                {
+                    await _userProgramService.RelabelDayNamesAsync(firebaseUid, newDays);
+                }
+            }
+
+            // Success if matched & acknowledged (even if nothing changed)
+            return result.IsAcknowledged && result.MatchedCount > 0;
         }
 
         // Only updates the user name
@@ -174,5 +208,16 @@ namespace AiRise.Services
             return new UserList { Users = await _userDataCollection.Aggregate<UserProfile>(pipeline).ToListAsync() };
         }
         
+        private static bool SeqEqualIgnoreCase(IReadOnlyList<string> a, IReadOnlyList<string> b)
+        {
+            if (a.Count != b.Count) return false;
+            for (int i = 0; i < a.Count; i++)
+            {
+                var aa = (a[i] ?? "").Trim();
+                var bb = (b[i] ?? "").Trim();
+                if (!aa.Equals(bb, StringComparison.OrdinalIgnoreCase)) return false;
+            }
+            return true;
+        }
     }
 }
