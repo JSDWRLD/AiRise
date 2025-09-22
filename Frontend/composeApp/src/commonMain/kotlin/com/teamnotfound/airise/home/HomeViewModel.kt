@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
+import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -29,12 +30,16 @@ import kotlin.random.Random
     password: @Aa123456
  */
 
-class HomeViewModel(private val userRepository: UserRepository, private val userClient: UserClient) :  ViewModel(){
+class HomeViewModel(private val userRepository: UserRepository,
+                    private val userClient: UserClient,
+                    private val provider: HealthDataProvider
+) :  ViewModel(){
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     private lateinit var todaysHealthData: HealthData
+    private var hasRequestedHealthPerms = false
 
     init {
         generateGreeting()
@@ -61,18 +66,29 @@ class HomeViewModel(private val userRepository: UserRepository, private val user
 
     fun getUserProfilePic() {
         viewModelScope.launch {
-            val firebaseUser = Firebase.auth.currentUser
-            when (val result = firebaseUser?.let { userClient.getUserSettings(firebaseUser) }) {
+            val user = Firebase.auth.currentUser
+            if (user == null) {
+                // not signed in – show default avatar or a message
+                _uiState.value = _uiState.value.copy(
+                    userProfilePicture = null,
+                    errorMessage = "Not signed in"
+                )
+                return@launch
+            }
+
+            when (val result = userClient.getUserSettings(user)) {
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
-                        userProfilePicture = result.data.profilePictureUrl
+                        userProfilePicture = result.data.profilePictureUrl,
+                        errorMessage = null
                     )
                 }
                 is Result.Error -> {
-
+                    _uiState.value = _uiState.value.copy(
+                        userProfilePicture = null,
+                        errorMessage = result.error.toString()
+                    )
                 }
-
-                null -> TODO()
             }
         }
     }
@@ -190,5 +206,67 @@ class HomeViewModel(private val userRepository: UserRepository, private val user
             formattedDateRange = formattedDate,
             isFitnessSummaryLoaded = true
         )
+    }
+
+    // Sync health data on screen view
+    fun syncHealthOnEnter() {
+        viewModelScope.launch {
+            try {
+                if (!hasRequestedHealthPerms) {
+                    val granted = provider.requestPermissions()
+                    hasRequestedHealthPerms = true
+                    if (!granted) {
+                        _uiState.value = _uiState.value.copy(errorMessage = "Health permissions not granted")
+                        return@launch
+                    }
+                }
+
+                val platformHealth = provider.getHealthData()
+                // Map platform health into serializable HealthData model
+                val mapped = com.teamnotfound.airise.data.serializable.HealthData(
+                    caloriesBurned = platformHealth.activeCalories,
+                    steps = platformHealth.steps,
+                    avgHeartRate = platformHealth.heartRate,
+                    sleep =  todaysHealthData.sleep,   // TODO: wire actual sleep when added
+                    workout = todaysHealthData.workout, // TODO
+                    hydration = todaysHealthData.hydration // TODO
+                )
+
+                // Update UI
+                _uiState.value = _uiState.value.copy(
+                    healthData = mapped,
+                    isFitnessSummaryLoaded = true,
+                    errorMessage = null
+                )
+                // Recompute progress + overview with fresh health metrics
+                loadDailyProgress()
+                generateOverview()
+
+                // Push to backend (if signed in)
+                Firebase.auth.currentUser?.let { user ->
+                    when (val res = userClient.insertHealthData(user, mapped)) {
+                        is com.teamnotfound.airise.data.network.Result.Error -> {
+                            _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
+                        }
+                        else -> Unit
+                    }
+                }
+            } catch (t: Throwable) {
+                _uiState.value = _uiState.value.copy(errorMessage = t.message ?: "Health sync failed")
+            }
+        }
+    }
+
+    fun writeSampleHealth() {
+        viewModelScope.launch {
+            // Ask KHealth to insert sample records (platform-specific actual code handles this)
+            val ok = provider.writeHealthData()
+            if (!ok) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Failed to write sample health data")
+                return@launch
+            }
+            // Refresh UI + server with the newest readings
+            syncHealthOnEnter()
+        }
     }
 }

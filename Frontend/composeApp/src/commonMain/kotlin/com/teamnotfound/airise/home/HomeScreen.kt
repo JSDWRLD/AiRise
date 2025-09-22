@@ -33,6 +33,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     val currentImageUrl = uiState.value.userProfilePicture
 
+    // Pull Apple/Android Health data when user lands here
+    LaunchedEffect(Unit) {
+        viewModel.syncHealthOnEnter()
+    }
+
     Scaffold(
         backgroundColor = BgBlack,
         bottomBar = {
@@ -115,7 +120,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     healthData = uiState.value.healthData,
                     onTimeFrameSelected = { timeFrame ->
                         viewModel.onEvent(HomeUiEvent.SelectedTimeFrameChanged(timeFrame))
-                    }
+                    },
+                    onRefreshHealth = { viewModel.syncHealthOnEnter() },
+                    onWriteSample = { viewModel.writeSampleHealth() }
                 )
             }
         }
