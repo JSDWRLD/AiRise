@@ -26,6 +26,7 @@ namespace AiRise.Services
     {
         private readonly IMongoCollection<UserProgramDoc> _userProgramCollection;
 
+        [ActivatorUtilitiesConstructor]
         public UserProgramService(MongoDBService mongoDBService)
         {
             _userProgramCollection = mongoDBService.GetCollection<UserProgramDoc>("user.program");
