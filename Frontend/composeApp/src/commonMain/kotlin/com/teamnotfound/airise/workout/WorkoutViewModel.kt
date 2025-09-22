@@ -1,3 +1,5 @@
+package com.teamnotfound.airise.workout
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.serializable.ProgramType
