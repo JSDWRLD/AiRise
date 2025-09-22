@@ -228,6 +228,7 @@ class HomeViewModel(private val userRepository: UserRepository,
                 )
 
                 updatedHealthData = mapped
+                todaysHealthData = mapped
 
                 // Update UI
                 _uiState.value = _uiState.value.copy(
@@ -266,4 +267,11 @@ class HomeViewModel(private val userRepository: UserRepository,
             syncHealthOnEnter()
         }
     }
+
+    // Used for Unit testing
+    data class ProviderOverrides(
+        val requestPermissions: (suspend () -> Boolean)? = null,
+        val getMappedHealthData: (suspend () -> com.teamnotfound.airise.data.serializable.HealthData)? = null,
+        val writeHealthData: (suspend () -> Boolean)? = null
+    )
 }
