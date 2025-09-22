@@ -40,6 +40,7 @@ class HomeViewModel(private val userRepository: UserRepository,
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     private lateinit var todaysHealthData: HealthData
     private var hasRequestedHealthPerms = false
+    private lateinit var updatedHealthData: HealthData
 
     init {
         generateGreeting()
@@ -119,11 +120,11 @@ class HomeViewModel(private val userRepository: UserRepository,
         _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
     }
     private fun getTodaysHealthData(){
-        //Get from database once available
+        //Gets overwritten by KHealth once permissions are given
         todaysHealthData = HealthData(
-            caloriesBurned = 450,
-            steps = 7550,
-            avgHeartRate = 115,
+            caloriesBurned = 0,
+            steps = 0,
+            avgHeartRate = 0,
             sleep = 6.5f,
             workout = 3,
             hydration = 2850f
@@ -132,7 +133,7 @@ class HomeViewModel(private val userRepository: UserRepository,
     private fun generateOverview() {
         viewModelScope.launch {
             try {
-                val result = geminiApi.generateTodaysOverview(healthData = todaysHealthData)
+                val result = geminiApi.generateTodaysOverview(healthData = updatedHealthData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoaded = true,
@@ -189,14 +190,8 @@ class HomeViewModel(private val userRepository: UserRepository,
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
-        val updatedHealthData = HealthData(
-            caloriesBurned = 450,
-            steps = 7550,
-            avgHeartRate = 115,
-            sleep = todaysHealthData.sleep,
-            workout = todaysHealthData.workout,
-            hydration = todaysHealthData.hydration
-            )
+        updatedHealthData = todaysHealthData
+
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
             healthData = updatedHealthData,
@@ -231,6 +226,8 @@ class HomeViewModel(private val userRepository: UserRepository,
                     workout = todaysHealthData.workout, // TODO
                     hydration = todaysHealthData.hydration // TODO
                 )
+
+                updatedHealthData = mapped
 
                 // Update UI
                 _uiState.value = _uiState.value.copy(

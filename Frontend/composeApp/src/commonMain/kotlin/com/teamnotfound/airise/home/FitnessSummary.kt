@@ -147,15 +147,6 @@ fun FitnessSummarySection(
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-        // Refresh button
-        Button(
-            onClick = onRefreshHealth,
-            colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-            shape = RoundedCornerShape(180.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-        ) { Text("Refresh", color = White, fontSize = 14.sp) }
-
-        Spacer(Modifier.width(8.dp))
 
         // Write sample
         Button(
