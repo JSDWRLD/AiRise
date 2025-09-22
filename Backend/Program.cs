@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using AiRise.Models;
 using AiRise.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +16,15 @@ public class Program
         // Create singleton service
         builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
         builder.Services.AddSingleton<MongoDBService>();
+
+        builder.Services.AddControllers()
+        .AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
+        builder.Services.AddSingleton<IUserProgramService, UserProgramService>();
+
         builder.Services.AddSingleton<UserService>();
         builder.Services.AddSingleton<UserDataService>();
         builder.Services.AddSingleton<UserFriendsService>();
@@ -26,11 +36,12 @@ public class Program
         builder.Services.AddSingleton<UserChallengesService>();
         builder.Services.AddSingleton<UserHealthDataService>();
         builder.Services.AddSingleton<UserChatHistoryService>();
+        builder.Services.AddSingleton<UserProgramService>();
         builder.Services.AddSingleton<ChallengeService>();
 
         builder.Services.AddControllers();
 
-        // ENV
+        // ENV 
         DotNetEnv.Env.Load();
         builder.Configuration.AddEnvironmentVariables();
 
