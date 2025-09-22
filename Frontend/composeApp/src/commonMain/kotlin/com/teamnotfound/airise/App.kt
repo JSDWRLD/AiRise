@@ -45,7 +45,7 @@ import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewMode
 import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
-
+import com.teamnotfound.airise.workout.WorkoutScreen
 
 @Composable
 fun App(container: AppContainer) {
@@ -61,7 +61,7 @@ fun App(container: AppContainer) {
 
     LaunchedEffect(isUserLoggedIn) {
         if (isUserLoggedIn) {
-            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
+            navController.navigate(AppScreen.WORKOUT.name) { popUpTo(0) }
         } else {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
@@ -229,6 +229,11 @@ fun App(container: AppContainer) {
                     )
                 }
 
+                // Workout Screen
+                composable(route = AppScreen.WORKOUT.name) {
+                    WorkoutScreen()
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -332,5 +337,6 @@ enum class AppScreen {
     CHALLENGE_NEW,
     CHALLENGE_EDIT,
     CHALLENGE_DETAILS,
-    LEADERBOARD
+    LEADERBOARD,
+    WORKOUT
 }
