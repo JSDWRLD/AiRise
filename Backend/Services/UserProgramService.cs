@@ -37,6 +37,17 @@ namespace AiRise.Services
                 ));
         }
 
+        // CTOR for unit tests
+        public UserProgramService(IMongoCollection<UserProgramDoc> collection)
+        {
+            _userProgramCollection = collection;
+            _userProgramCollection.Indexes.CreateOne(
+                new CreateIndexModel<UserProgramDoc>(
+                    Builders<UserProgramDoc>.IndexKeys.Ascending(x => x.FirebaseUid),
+                    new CreateIndexOptions { Unique = true }
+                ));
+        }
+
         public async Task<string> CreateAsync(string firebaseUid, ProgramType type, List<string> workoutDays, CancellationToken ct = default)
         {
             var existing = await _userProgramCollection.Find(x => x.FirebaseUid == firebaseUid).FirstOrDefaultAsync(ct);
