@@ -8,8 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,14 +17,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.data.serializable.UserExerciseEntry
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
 @Composable
 fun WorkoutScreen() {
@@ -34,11 +33,7 @@ fun WorkoutScreen() {
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()
 
-    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    val expanded = remember {
-        mutableStateMapOf<String, Boolean>().apply { days.forEach { put(it, true) } }
-    }
-    val editingKeys = remember { mutableStateMapOf<String, Boolean>() }
+    val expanded = remember { mutableStateMapOf<String, Boolean>() }
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -67,59 +62,35 @@ fun WorkoutScreen() {
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            when (state) {
-                is WorkoutUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = White)
-                }
-                is WorkoutUiState.Error -> Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("Couldn't load workouts", color = White)
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(onClick = viewModel::refresh) { Text("Retry") }
-                }
+            when (val s = state) {
                 is WorkoutUiState.Success -> {
-                    val workoutPlan = (state as WorkoutUiState.Success).workoutPlan
-                    val schedule: Map<String, List<ExerciseUi>> = remember(workoutPlan.exercises) {
-                        mapOf(
-                            "Mon" to workoutPlan.exercises,
-                            "Tue" to emptyList(),
-                            "Wed" to emptyList(),
-                            "Thu" to emptyList(),
-                            "Fri" to emptyList(),
-                            "Sat" to emptyList(),
-                            "Sun" to emptyList(),
-                        )
-                    }
+                    val programDoc = s.programDoc
+                    val schedule = programDoc.program.schedule
 
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 84.dp)
                     ) {
-                        items(days) { day ->
+                        items(schedule) { day ->
                             DaySection(
-                                day = day,
-                                expanded = expanded[day] == true,
-                                onToggle = { expanded[day] = !(expanded[day] ?: true) },
-                                items = schedule[day].orEmpty(),
-                                isEditing = { workoutId, setIndex ->
-                                    editingKeys["$workoutId#$setIndex"] == true
+                                day = day.dayName,
+                                expanded = expanded[day.dayName] == true,
+                                onToggle = {
+                                    expanded[day.dayName] = !(expanded[day.dayName] ?: true)
                                 },
-                                onToggleEdit = { workoutId, setIndex ->
-                                    val key = "$workoutId#$setIndex"
-                                    editingKeys[key] = !(editingKeys[key] ?: false)
-                                },
-                                onChange = { workoutId, setIndex, reps, weight ->
-                                    viewModel.changeSet(workoutId, setIndex, reps, weight)
-                                },
-                                onExerciseNotes = { workoutId, notes ->
-                                    viewModel.changeExerciseNotes(workoutId, notes)
+                                items = day.exercises,
+                                onChange = { exerciseName, reps, weight ->
+                                    viewModel.changeSet(day.dayIndex, exerciseName, reps, weight)
                                 }
                             )
                         }
                     }
+                }
+                is WorkoutUiState.Error -> {
+                    Text("Something went wrong.", color = White)
+                }
+                WorkoutUiState.Loading -> {
+                    CircularProgressIndicator(color = White)
                 }
             }
         }
@@ -131,15 +102,11 @@ private fun DaySection(
     day: String,
     expanded: Boolean,
     onToggle: () -> Unit,
-    items: List<ExerciseUi>,
-    isEditing: (workoutId: String, index: Int) -> Boolean,
-    onToggleEdit: (workoutId: String, index: Int) -> Unit,
-    onChange: (workoutId: String, index: Int, reps: Int?, weight: Double?) -> Unit,
-    onExerciseNotes: (workoutId: String, notes: String) -> Unit
+    items: List<UserExerciseEntry>,
+    onChange: (exerciseName: String, reps: Int?, weight: Double?) -> Unit
 ) {
     val headerShape = RoundedCornerShape(12.dp)
 
-    // day header
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,13 +134,12 @@ private fun DaySection(
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items.forEach { row ->
+                items.forEach { exercise ->
                     WorkoutCard(
-                        row = row,
-                        isEditing = { setIndex -> isEditing(row.exerciseTemplateId, setIndex) },
-                        onToggleEdit = { setIndex -> onToggleEdit(row.exerciseTemplateId, setIndex) },
-                        onChange = { setIndex, reps, weight -> onChange(row.exerciseTemplateId, setIndex, reps, weight) },
-                        onExerciseNotes = { notes -> onExerciseNotes(row.exerciseTemplateId, notes) }
+                        exercise = exercise,
+                        onChange = { reps, weight ->
+                            onChange(exercise.name, reps, weight)
+                        }
                     )
                 }
             }
@@ -183,11 +149,8 @@ private fun DaySection(
 
 @Composable
 private fun WorkoutCard(
-    row: ExerciseUi,
-    isEditing: (index: Int) -> Boolean,
-    onToggleEdit: (index: Int) -> Unit,
-    onChange: (index: Int, reps: Int?, weight: Double?) -> Unit,
-    onExerciseNotes: (notes: String) -> Unit
+    exercise: UserExerciseEntry,
+    onChange: (reps: Int?, weight: Double?) -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
     val focus = LocalFocusManager.current
@@ -203,85 +166,43 @@ private fun WorkoutCard(
             .padding(14.dp)
     ) {
         Column(Modifier.fillMaxWidth()) {
-            Text(row.name, style = MaterialTheme.typography.h6, color = White)
+            Text(exercise.name, style = MaterialTheme.typography.h6, color = White)
 
-            // planned line
-            val plannedBits = buildList {
-                add("${row.plannedReps} reps")
-                add("@ ${row.plannedWeight} lbs")
-            }.joinToString(" ")
-            if (plannedBits.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
-                Text("Planned: ${row.plannedSets} sets • $plannedBits", color = Silver)
-            }
+            val planned = "${exercise.sets} sets • ${exercise.targetReps} reps @ ${exercise.weight.value} ${exercise.weight.unit}"
+            Spacer(Modifier.height(4.dp))
+            Text("Planned: $planned", color = Silver)
 
             Spacer(Modifier.height(8.dp))
 
-            row.setLogs.forEachIndexed { i, set ->
-                val editing = isEditing(i)
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NumberField(
-                        label = "Reps done",
-                        value = set.repsCompleted,
-                        enabled = editing,
-                        imeAction = ImeAction.Next,
-                        onImeAction = { focus.moveFocus(FocusDirection.Right) },
-                        onValue = { v -> onChange(i, v, null) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    DecimalNumberField(
-                        label = "Weight used (lbs)",
-                        value = set.weightUsed,
-                        enabled = editing,
-                        imeAction = ImeAction.Done,
-                        onImeAction = { focus.clearFocus() },
-                        onValue = { v -> onChange(i, null, v) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = { onToggleEdit(i) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = if (editing) "Done editing" else "Edit",
-                            tint = White
-                        )
-                    }
-                }
-
-                if (i != row.setLogs.lastIndex) Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NumberField(
+                    label = "Reps done",
+                    value = exercise.repsCompleted,
+                    enabled = true,
+                    imeAction = ImeAction.Next,
+                    onImeAction = { focus.moveFocus(FocusDirection.Right) },
+                    onValue = { v -> onChange(v, null) },
+                    modifier = Modifier.weight(1f)
+                )
+                DecimalNumberField(
+                    label = "Weight used (${exercise.weight.unit})",
+                    value = exercise.weight.value.toDouble(),
+                    enabled = true,
+                    imeAction = ImeAction.Done,
+                    onImeAction = { focus.clearFocus() },
+                    onValue = { v -> onChange(null, v) },
+                    modifier = Modifier.weight(1f)
+                )
             }
-
-            // notes box per exercise
-            Spacer(Modifier.height(12.dp))
-            var notes by remember(row.notes) { mutableStateOf(row.notes) }
-            OutlinedTextField(
-                value = notes,
-                onValueChange = {
-                    notes = it
-                    onExerciseNotes(it)
-                },
-                label = { Text("Notes") },
-                singleLine = false,
-                textStyle = LocalTextStyle.current.copy(color = White),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    textColor = White,
-                    focusedBorderColor = White,
-                    unfocusedBorderColor = Silver,
-                    cursorColor = White,
-                    focusedLabelColor = Silver,
-                    unfocusedLabelColor = Silver
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }
 
-//inputs
+// --- Inputs ---
 @Composable
 private fun NumberField(
     label: String,
@@ -294,46 +215,34 @@ private fun NumberField(
 ) {
     var text by remember(value) { mutableStateOf(if (value == 0) "" else value.toString()) }
 
-    if (enabled) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = {
-                text = it.filter(Char::isDigit).take(4)
-                onValue(text.toIntOrNull() ?: 0)
-            },
-            label = { Text(label) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = imeAction
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { onImeAction() },
-                onDone = { onImeAction() }
-            ),
-            textStyle = LocalTextStyle.current.copy(color = White),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = White,
-                focusedBorderColor = White,
-                unfocusedBorderColor = Silver,
-                cursorColor = White,
-                focusedLabelColor = Silver,
-                unfocusedLabelColor = Silver
-            ),
-            modifier = modifier
-        )
-    } else {
-        val shape = RoundedCornerShape(12.dp)
-        Column(
-            modifier = modifier
-                .border(2.dp, Silver, shape)
-                .padding(12.dp)
-        ) {
-            Text(label, color = Silver, style = MaterialTheme.typography.caption)
-            Spacer(Modifier.height(4.dp))
-            Text(if (value == 0) "-" else value.toString(), color = White)
-        }
-    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = {
+            text = it.filter(Char::isDigit).take(4)
+            onValue(text.toIntOrNull() ?: 0)
+        },
+        label = { Text(label) },
+        singleLine = true,
+        enabled = enabled,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = imeAction
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { onImeAction() },
+            onDone = { onImeAction() }
+        ),
+        textStyle = LocalTextStyle.current.copy(color = White),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = White,
+            focusedBorderColor = White,
+            unfocusedBorderColor = Silver,
+            cursorColor = White,
+            focusedLabelColor = Silver,
+            unfocusedLabelColor = Silver
+        ),
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -343,55 +252,42 @@ private fun DecimalNumberField(
     enabled: Boolean,
     imeAction: ImeAction,
     onImeAction: () -> Unit,
-    onValue: (Double?) -> Unit, // null means empty
+    onValue: (Double?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var text by remember(value) { mutableStateOf(value?.toString().orEmpty()) }
 
-    if (enabled) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = {
-                // allow digits and a single dot
-                var s = it.filter { ch -> ch.isDigit() || ch == '.' }
-                val firstDot = s.indexOf('.')
-                if (firstDot != -1) {
-                    s = s.substring(0, firstDot + 1) + s.substring(firstDot + 1).replace(".", "")
-                }
-                text = s
-                onValue(s.toDoubleOrNull())
-            },
-            label = { Text(label) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = imeAction
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { onImeAction() },
-                onDone = { onImeAction() }
-            ),
-            textStyle = LocalTextStyle.current.copy(color = White),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = White,
-                focusedBorderColor = White,
-                unfocusedBorderColor = Silver,
-                cursorColor = White,
-                focusedLabelColor = Silver,
-                unfocusedLabelColor = Silver
-            ),
-            modifier = modifier
-        )
-    } else {
-        val shape = RoundedCornerShape(12.dp)
-        Column(
-            modifier = modifier
-                .border(2.dp, Silver, shape)
-                .padding(12.dp)
-        ) {
-            Text(label, color = Silver, style = MaterialTheme.typography.caption)
-            Spacer(Modifier.height(4.dp))
-            Text(value?.toString() ?: "-", color = White)
-        }
-    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = {
+            var s = it.filter { ch -> ch.isDigit() || ch == '.' }
+            val firstDot = s.indexOf('.')
+            if (firstDot != -1) {
+                s = s.substring(0, firstDot + 1) + s.substring(firstDot + 1).replace(".", "")
+            }
+            text = s
+            onValue(s.toDoubleOrNull())
+        },
+        label = { Text(label) },
+        singleLine = true,
+        enabled = enabled,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = imeAction
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { onImeAction() },
+            onDone = { onImeAction() }
+        ),
+        textStyle = LocalTextStyle.current.copy(color = White),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            textColor = White,
+            focusedBorderColor = White,
+            unfocusedBorderColor = Silver,
+            cursorColor = White,
+            focusedLabelColor = Silver,
+            unfocusedLabelColor = Silver
+        ),
+        modifier = modifier
+    )
 }
