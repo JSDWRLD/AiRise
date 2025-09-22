@@ -28,7 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
 @Composable
-fun WorkoutScreen() {
+fun WorkoutScreen(navController: NavHostController) {
     val viewModel: WorkoutViewModel = viewModel()
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()

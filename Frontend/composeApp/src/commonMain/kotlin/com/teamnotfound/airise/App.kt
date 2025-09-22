@@ -231,7 +231,7 @@ fun App(container: AppContainer) {
 
                 // Workout Screen
                 composable(route = AppScreen.WORKOUT.name) {
-                    WorkoutScreen()
+                    WorkoutScreen(navController)
                 }
 
                 //Navigation Bar and overview screen
