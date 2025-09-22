@@ -28,3 +28,5 @@ Backend/publish
 Frontend/composeApp/google-services.json
 Frontend/iosApp/iosApp/GoogleService-Info.plist
 Frontend/iosApp/iosApp.xcodeproj 
+Tests/AiRiseBackend.Tests/obj
+Tests/AiRiseBackend.Tests/bin

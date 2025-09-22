@@ -26,10 +26,22 @@ namespace AiRise.Services
     {
         private readonly IMongoCollection<UserProgramDoc> _userProgramCollection;
 
+        [ActivatorUtilitiesConstructor]
         public UserProgramService(MongoDBService mongoDBService)
         {
             _userProgramCollection = mongoDBService.GetCollection<UserProgramDoc>("user.program");
 
+            _userProgramCollection.Indexes.CreateOne(
+                new CreateIndexModel<UserProgramDoc>(
+                    Builders<UserProgramDoc>.IndexKeys.Ascending(x => x.FirebaseUid),
+                    new CreateIndexOptions { Unique = true }
+                ));
+        }
+
+        // CTOR for unit tests
+        public UserProgramService(IMongoCollection<UserProgramDoc> collection)
+        {
+            _userProgramCollection = collection;
             _userProgramCollection.Indexes.CreateOne(
                 new CreateIndexModel<UserProgramDoc>(
                     Builders<UserProgramDoc>.IndexKeys.Ascending(x => x.FirebaseUid),
