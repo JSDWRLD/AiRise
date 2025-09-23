@@ -2,19 +2,21 @@ package com.teamnotfound.airise.workout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.ProgramType
 import com.teamnotfound.airise.data.serializable.UserExerciseEntry
 import com.teamnotfound.airise.data.serializable.UserExerciseWeight
 import com.teamnotfound.airise.data.serializable.UserProgram
 import com.teamnotfound.airise.data.serializable.UserProgramDay
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
-import com.teamnotfound.airise.workout.WorkoutUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class WorkoutViewModel : ViewModel() {
+class WorkoutViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow<WorkoutUiState>(WorkoutUiState.Loading)
     val uiState: StateFlow<WorkoutUiState> = _uiState.asStateFlow()
 
@@ -44,8 +46,8 @@ class WorkoutViewModel : ViewModel() {
                 day.copy(
                     exercises = day.exercises.map { ex ->
                         if (ex.name == exerciseName) {
-                            val newReps = if (reps != null) reps else ex.repsCompleted
-                            val newWeight = if (weight != null) weight else ex.weight.value
+                            val newReps = reps ?: ex.repsCompleted
+                            val newWeight = weight ?: ex.weight.value
                             ex.copy(
                                 repsCompleted = newReps,
                                 weight = ex.weight.copy(value = newWeight.toInt())
@@ -60,14 +62,11 @@ class WorkoutViewModel : ViewModel() {
         _uiState.value = WorkoutUiState.Success(updatedDoc)
     }
 
-    fun changeExerciseNotes(dayIndex: Int, exerciseName: String, notes: String) {
-        // If notes aren’t part of backend schema yet, store locally or extend model
-        println("Would update notes for $exerciseName on day $dayIndex: $notes")
-    }
-
     fun logAll() {
         val state = _uiState.value as? WorkoutUiState.Success ?: return
+        val updatedProgramDoc = state.programDoc
         println("Logging data: ${state.programDoc}")
+        // TODO: call function
     }
 
     private fun createHardcodedProgramDoc(): UserProgramDoc {

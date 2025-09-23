@@ -49,6 +49,7 @@ material3AndroidVersion = "1.3.2"
 supabaseStorage = "3.1.4"
 coil = "3.1.0"
 kmpauth = "2.0.0"
+kotlinx-coroutines-test = "1.7.3"
 
 [libraries]
 khealth = { module = "io.github.shubhamsinghshubham777:khealth", version.ref = "khealth" }
@@ -69,6 +70,7 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", versi
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
 androidx-nav = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "dateTimeVersion" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
