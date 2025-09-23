@@ -12,7 +12,6 @@ import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -125,7 +124,7 @@ class HomeViewModel(private val userRepository: UserRepository,
             caloriesBurned = 0,
             steps = 0,
             avgHeartRate = 0,
-            sleep = 6.5f,
+            sleepHours = 6.5,
             workout = 3,
             hydration = 2850f
         )
@@ -151,7 +150,7 @@ class HomeViewModel(private val userRepository: UserRepository,
     private fun loadDailyProgress(){
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
-        val sleepPercentage = (todaysHealthData.sleep / 8f) * 100
+        val sleepPercentage = (todaysHealthData.sleepHours.toFloat() / 8f) * 100
         val workoutPercentage = (todaysHealthData.workout / 5f) * 100
         val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
         val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
@@ -222,9 +221,9 @@ class HomeViewModel(private val userRepository: UserRepository,
                     caloriesBurned = platformHealth.activeCalories,
                     steps = platformHealth.steps,
                     avgHeartRate = platformHealth.heartRate,
-                    sleep =  todaysHealthData.sleep,   // TODO: wire actual sleep when added
-                    workout = todaysHealthData.workout, // TODO
-                    hydration = todaysHealthData.hydration // TODO
+                    sleepHours =  platformHealth.sleepHours,
+                    workout = todaysHealthData.workout, // TODO replace with .platformhealth
+                    hydration = todaysHealthData.hydration // TODO replace with .platformhealth
                 )
 
                 updatedHealthData = mapped

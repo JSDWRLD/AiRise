@@ -23,10 +23,12 @@ import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.NeonGreen
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
+import kotlin.math.floor
+import kotlin.math.roundToInt
 
 //Displays the daily progress section
 @Composable
-fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean) {
+fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean, lastNightSleepHours: Double? = null) {
 
     Column(
         modifier = Modifier
@@ -98,6 +100,14 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
                 horizontalAlignment = Alignment.Start
             ) {
                 Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
+                if (isLoaded && lastNightSleepHours != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Last night: ${formatHours(lastNightSleepHours)}",
+                        fontSize = 11.sp,
+                        color = Silver
+                    )
+                }
                 Spacer(modifier = Modifier.height(6.dp))
                 Legend(Orange, "Workouts: ", dailyProgressData.workoutProgress.toInt())
                 Spacer(modifier = Modifier.height(6.dp))
@@ -147,3 +157,12 @@ fun DrawScope.drawProgressArc(
         size = Size(size.width - radiusOffset * 2, size.height - radiusOffset * 2)
     )
 }
+
+// Helper for formatting sleep hours
+
+private fun formatHours(hours: Double): String {
+    val h = floor(hours).toInt()
+    val m = ((hours - h) * 60).roundToInt().coerceIn(0, 59)
+    return if (h > 0) "${h}h ${m}m" else "${m}m"
+}
+
