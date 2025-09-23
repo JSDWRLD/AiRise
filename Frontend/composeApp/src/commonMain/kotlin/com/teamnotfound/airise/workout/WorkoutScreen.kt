@@ -25,11 +25,15 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.navigation.NavHostController
+import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
 @Composable
-fun WorkoutScreen() {
-    val viewModel: WorkoutViewModel = viewModel()
+fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController) {
+    val viewModel: WorkoutViewModel = remember {
+        WorkoutViewModel(userRepository)
+    }
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()
 
@@ -37,7 +41,10 @@ fun WorkoutScreen() {
 
     Scaffold(
         backgroundColor = BgBlack,
-        bottomBar = { BottomNavigationBar(navController = bottomNav) },
+        bottomBar = { BottomNavigationBar(
+                        navController = bottomNav,
+                        appNavController = navController)
+                    },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Log") },
