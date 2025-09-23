@@ -95,7 +95,12 @@ namespace AiRise.Services
                 if (newDays.Count is >= 3 and <= 6)
                 {
                     var primaryType = ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
-                    await _userProgramService.AssignFromExplicitAsync(firebaseUid, primaryType, newDays); // <-- change here
+                    ProgramPreferences preferences = new ProgramPreferences
+                    {
+                        WorkoutGoal = updatedData.WorkoutGoal,
+                        WorkoutLength = updatedData.WorkoutLength
+                    };
+                    await _userProgramService.AssignFromExplicitAsync(firebaseUid, primaryType, newDays, preferences); // <-- change here
                 }
             }
             else
