@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.SetActiveReq
 import com.teamnotfound.airise.data.serializable.UidOnlyReq
 import com.teamnotfound.airise.data.serializable.UserChallenge
+import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
 import io.ktor.client.HttpClient
@@ -382,6 +383,30 @@ class   UserClient(
         return when (response.status.value) {
             200 -> Result.Success(response.body<UserChallenge>())
             201 -> Result.Success(response.body<UserChallenge>())
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+    // GET /api/UserProgram/{firebaseUid}
+    // Returns the user's personalized program template
+    suspend fun getUserProgram(firebaseUser: FirebaseUser): Result<UserProgramDoc, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.get("$baseUrl/UserProgram/$firebaseUid") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            200 -> Result.Success(response.body<UserProgramDoc>())
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             else -> Result.Error(NetworkError.UNKNOWN)
