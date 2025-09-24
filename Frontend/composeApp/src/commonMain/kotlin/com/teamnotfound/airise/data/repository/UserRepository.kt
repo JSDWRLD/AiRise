@@ -7,6 +7,7 @@ import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseAuth
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
+import com.teamnotfound.airise.data.serializable.UserChallenge
 
 class UserRepository(
     private val auth: FirebaseAuth,
@@ -39,4 +40,17 @@ class UserRepository(
             Result.Error(NetworkError.UNKNOWN)
         }
     }
+    suspend fun getUserChallengeOrNull(): UserChallenge? {
+        return try {
+            UserChallenge(
+                id = "demo",
+                firebaseUid = "abc123",
+                activeChallengeId = "challenge1",
+                lastCompletionEpochDay = null
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }

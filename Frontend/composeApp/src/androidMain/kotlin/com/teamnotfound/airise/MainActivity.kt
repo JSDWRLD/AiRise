@@ -26,13 +26,36 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.khealth.KHealth
 import com.teamnotfound.airise.data.network.clients.DataClient
-import notifications.LocalNotifierAndroid
+import com.teamnotfound.airise.notifications.LocalNotifierAndroid
 import notifications.WorkoutReminderUseCase
+import android.os.Build
+import android.app.AlarmManager
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
+import androidx.activity.result.contract.ActivityResultContracts
+import notifications.LocalNotifier
 
 class MainActivity : ComponentActivity() {
     private val kHealth = KHealth(this)
+    private val requestNotifPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    private fun requestExactAlarmIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            if (!am.canScheduleExactAlarms()) {
+                startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+            }
+        }
+    }
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         //This is REQUIRED for the library to work properly (on Android only)
         kHealth.initialise()
@@ -42,8 +65,9 @@ class MainActivity : ComponentActivity() {
         val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
         val httpClient = createHttpClient(OkHttp.create())
-        val notifier = LocalNotifierAndroid(this)
+        val notifier: LocalNotifier = LocalNotifierAndroid(this)
         val reminder = WorkoutReminderUseCase(notifier)
+
 
         val container = AppContainer(
             userClient = userClient,
@@ -65,6 +89,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             App(container = container, reminder = reminder)
         }
+        //For Android 13+ permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotifPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        requestExactAlarmIfNeeded()
+
+
+
     }
 }
 

@@ -3,6 +3,9 @@ package com.teamnotfound.airise.workout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.repository.UserRepository
+import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.util.NetworkError
+import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.ProgramType
 import com.teamnotfound.airise.data.serializable.UserExerciseEntry
 import com.teamnotfound.airise.data.serializable.UserExerciseWeight
@@ -15,6 +18,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.update
 import notifications.WorkoutReminderUseCase
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import com.teamnotfound.airise.data.serializable.UserChallenge
+
 
 class WorkoutViewModel(
     private val userRepository: UserRepository,
@@ -23,37 +31,70 @@ class WorkoutViewModel(
     private val _uiState = MutableStateFlow<WorkoutUiState>(WorkoutUiState.Loading)
     val uiState: StateFlow<WorkoutUiState> = _uiState.asStateFlow()
 
+    private val _userChallenge = MutableStateFlow<UserChallenge?>(null)
+    val userChallenge: StateFlow<UserChallenge?> = _userChallenge.asStateFlow()
+
     private val _activeDayIndex = MutableStateFlow<Int?>(null)
     val activeDayIndex: StateFlow<Int?> = _activeDayIndex.asStateFlow()
 
+    private var hasScheduledDaily = false
+
+
     init {
         refresh()
+    }
+
+    private fun currentEpochDay(): Long {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        return now.date.toEpochDays().toLong()
+    }
+
+
+    fun debugNotifyIn(seconds: Long = 60) {
+        val triggerAt = Clock.System.now().toEpochMilliseconds() + seconds * 1000
+        reminder.cancelActive()
+        reminder.scheduleAt(
+            title = "Test in ${seconds}s",
+            body  = "Should show even if app is closed",
+            triggerAtEpochMillis = triggerAt
+        )
     }
 
     fun refresh() {
         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
-                // TODO: Replace with repository call
                 val hardcoded = createHardcodedProgramDoc()
                 _uiState.value = WorkoutUiState.Success(hardcoded)
 
-                // Pick a default active day (first in schedule) and schedule its reminder.
+                val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
+                _userChallenge.value = uc
+
                 val first = hardcoded.program.schedule.firstOrNull()
-                if (first != null) {
-                    _activeDayIndex.value = first.dayIndex
+                _activeDayIndex.value = first?.dayIndex
+
+                if (!hasScheduledDaily && first != null) {
+                    hasScheduledDaily = true
                     reminder.cancelActive()
-                    reminder.scheduleActive(
+
+                    val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+                    reminder.scheduleDailyAt(
+                        hour = hour,
+                        minute = minute,
                         title = "Workout: ${first.dayName}",
                         body  = first.focus
                     )
+
                 }
+
 
             } catch (e: Exception) {
                 _uiState.value = WorkoutUiState.Error(e)
             }
         }
     }
+
+
 
     fun changeSet(dayIndex: Int, exerciseName: String, reps: Int?, weight: Double?) {
         val state = _uiState.value as? WorkoutUiState.Success ?: return
@@ -82,24 +123,102 @@ class WorkoutViewModel(
 
     fun logAll() {
         val state = _uiState.value as? WorkoutUiState.Success ?: return
-        val updatedProgramDoc = state.programDoc
         println("Logging data: ${state.programDoc}")
+
         reminder.cancelActive()
-        // TODO: call function
+
+        val today = currentEpochDay()
+        _userChallenge.value = _userChallenge.value?.copy(lastCompletionEpochDay = today)
     }
 
+    private fun parseTimeToHourMinute(raw: String?): Pair<Int, Int>? {
+        if (raw.isNullOrBlank()) return null
+        val s = raw.trim().lowercase()
+
+        // 24h: HH:mm
+        Regex("""^(\d{1,2}):(\d{2})$""").matchEntire(s)?.let {
+            val h = it.groupValues[1].toInt()
+            val m = it.groupValues[2].toInt()
+            if (h in 0..23 && m in 0..59) return h to m
+        }
+
+        // 12h: h:mm am/pm
+        Regex("""^(\d{1,2}):(\d{2})\s*([ap]m)$""").matchEntire(s)?.let {
+            var h = it.groupValues[1].toInt()
+            val m = it.groupValues[2].toInt()
+            val ampm = it.groupValues[3]
+            if (h in 1..12 && m in 0..59) {
+                if (ampm == "pm" && h != 12) h += 12
+                if (ampm == "am" && h == 12) h = 0
+                return h to m
+            }
+        }
+        return null
+    }
+
+    private suspend fun resolveUserWorkoutTimeOrFallback(): Pair<Int, Int> {
+        var hour = 19
+        var minute = 0
+        when (val result = userRepository.fetchUserData()) {
+            is Result.Success<UserData> -> {
+                parseTimeToHourMinute(result.data.workoutTime)?.let { (h, m) ->
+                    hour = h; minute = m
+                }
+            }
+            is Result.Error -> {  }
+        }
+        return hour to minute
+    }
+
+
+    fun ensureDailyReminderFromState() {
+        if (hasScheduledDaily) return
+        val s = _uiState.value as? WorkoutUiState.Success ?: return
+        val first = s.programDoc.program.schedule.firstOrNull() ?: return
+        hasScheduledDaily = true
+
+        viewModelScope.launch {
+            reminder.cancelActive()
+            val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+            reminder.scheduleDailyAt(
+                hour = hour, minute = minute,
+                title = "Workout: ${first.dayName}",
+                body  = first.focus
+            )
+        }
+    }
 
     fun setActiveDay(dayIndex: Int, dayTitle: String, dayFocus: String) {
-        val prev = _activeDayIndex.value
         _activeDayIndex.value = dayIndex
-
-        // Cancel previous one-shot notification and schedule a new one for the active day
         reminder.cancelActive()
-        reminder.scheduleActive(
-            title = "Workout: $dayTitle",
-            body = dayFocus
-        )
+
+        viewModelScope.launch {
+            // default to 19:00 if we can’t load up
+            var hour = 19
+            var minute = 0
+
+            when (val result = userRepository.fetchUserData()) {
+                is Result.Success<UserData> -> {
+                    val timeStr = result.data.workoutTime
+                    parseTimeToHourMinute(timeStr)?.let { (h, m) ->
+                        hour = h; minute = m
+                    }
+                }
+                is Result.Error<NetworkError> -> {
+                }
+            }
+
+            // schedule a DAILY reminder at the user’s local time
+            reminder.scheduleDailyAt(
+                hour = 1,
+                minute = 31,
+                title = "Workout: ${dayTitle.trim()}",
+                body  = dayFocus.trim()
+            )
+        }
     }
+
+
 
     /** Call this after the user logs/completes the active workout. */
     fun onWorkoutLogged() {

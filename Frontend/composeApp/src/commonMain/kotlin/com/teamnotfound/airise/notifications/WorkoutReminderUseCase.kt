@@ -1,17 +1,26 @@
 package notifications
 
-class WorkoutReminderUseCase(
-    private val notifier: LocalNotifier,
-    private val prefs: ReminderPrefs = ReminderPrefs()
-) {
-    private val NOTIF_ID = 1001
+import kotlinx.datetime.Clock
 
-    fun scheduleActive(title: String, body: String) {
-        val instant = ReminderPlanner.nextFireInstant(prefs)
-        notifier.schedule(NOTIF_ID, title, body, instant.toEpochMilliseconds())
+private const val ACTIVE_ID = 2001
+
+class WorkoutReminderUseCase(private val notifier: LocalNotifier) {
+
+    fun scheduleAt(title: String, body: String, triggerAtEpochMillis: Long) {
+        notifier.schedule(ACTIVE_ID, title, body, triggerAtEpochMillis)
+    }
+
+    fun scheduleDailyAt(hour: Int, minute: Int, title: String, body: String) {
+        notifier.scheduleDaily(ACTIVE_ID, title, body, hour, minute)
     }
 
     fun cancelActive() {
-        notifier.cancel(NOTIF_ID)
+        notifier.cancel(ACTIVE_ID)
+    }
+
+    // Optional debug helper
+    fun scheduleTestIn(seconds: Long = 5) {
+        val whenMs = Clock.System.now().toEpochMilliseconds() + seconds * 1000
+        notifier.schedule(ACTIVE_ID, "Test notification", "It works 🎉", whenMs)
     }
 }
