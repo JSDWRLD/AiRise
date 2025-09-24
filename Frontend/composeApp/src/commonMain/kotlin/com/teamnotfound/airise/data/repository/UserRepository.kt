@@ -42,15 +42,15 @@ class UserRepository(
     }
     suspend fun getUserChallengeOrNull(): UserChallenge? {
         return try {
-            UserChallenge(
-                id = "demo",
-                firebaseUid = "abc123",
-                activeChallengeId = "challenge1",
-                lastCompletionEpochDay = null
-            )
-        } catch (e: Exception) {
+            val firebaseUser = auth.currentUser ?: return null
+            when (val res = userClient.getUserChallenges(firebaseUser)) {
+                is Result.Success -> res.data
+                is Result.Error   -> null
+            }
+        } catch (_: Exception) {
             null
         }
     }
+
 
 }

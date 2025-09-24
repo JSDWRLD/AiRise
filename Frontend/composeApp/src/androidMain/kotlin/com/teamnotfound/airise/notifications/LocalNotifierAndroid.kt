@@ -11,7 +11,7 @@ class LocalNotifierAndroid(private val ctx: Context) : LocalNotifier {
 
     override fun schedule(id: Int, title: String, body: String, triggerAtEpochMillis: Long) {
         ensureChannel()
-        val intent = Intent(ctx, WorkoutReminderReceiver::class.java).apply { putExtra("notifId", id)putExtra("title", title)putExtra("message", body)}
+        val intent = Intent(ctx, WorkoutReminderReceiver::class.java).apply { putExtra("notifId", id);putExtra("title", title);putExtra("message", body); }
         val pi = PendingIntent.getBroadcast(
             ctx, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

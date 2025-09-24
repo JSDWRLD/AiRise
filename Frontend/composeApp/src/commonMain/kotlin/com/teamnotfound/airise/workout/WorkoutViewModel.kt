@@ -84,9 +84,7 @@ class WorkoutViewModel(
                         title = "Workout: ${first.dayName}",
                         body  = first.focus
                     )
-
                 }
-
 
             } catch (e: Exception) {
                 _uiState.value = WorkoutUiState.Error(e)
