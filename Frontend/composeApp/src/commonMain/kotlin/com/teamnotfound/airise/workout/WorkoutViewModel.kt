@@ -208,8 +208,8 @@ class WorkoutViewModel(
 
             // schedule a DAILY reminder at the user’s local time
             reminder.scheduleDailyAt(
-                hour = 1,
-                minute = 31,
+                hour = hour,
+                minute = minute,
                 title = "Workout: ${dayTitle.trim()}",
                 body  = dayFocus.trim()
             )
