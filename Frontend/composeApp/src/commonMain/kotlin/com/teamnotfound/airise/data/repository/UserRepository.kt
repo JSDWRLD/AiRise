@@ -4,10 +4,11 @@ import com.teamnotfound.airise.data.cache.UserCache
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserProgram
+import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseAuth
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
-import com.teamnotfound.airise.data.serializable.UserProgramDoc
 
 class UserRepository(
     private val auth: FirebaseAuth,
@@ -41,16 +42,28 @@ class UserRepository(
         }
     }
 
-    suspend fun fetchUserProgram(): Result<UserProgramDoc, NetworkError>{
+    suspend fun getUserProgram(): Result<UserProgramDoc, NetworkError> {
         return try {
             val firebaseUser = auth.currentUser
-            if (firebaseUser != null){
-                val result = userClient.getUserProgram(firebaseUser)
-                return result
+            if (firebaseUser != null) {
+                userClient.getUserProgram(firebaseUser)
             } else {
                 Result.Error(NetworkError.UNAUTHORIZED)
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
+            Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    suspend fun updateUserProgram(userProgram: UserProgram): Result<Boolean, NetworkError> {
+        return try {
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                userClient.updateUserProgram(firebaseUser, userProgram)
+            } else {
+                Result.Error(NetworkError.UNAUTHORIZED)
+            }
+        } catch (e: Exception) {
             Result.Error(NetworkError.UNKNOWN)
         }
     }
