@@ -9,7 +9,6 @@ import dev.shreyaspatil.ai.client.generativeai.type.Content
 import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
 import dev.shreyaspatil.ai.client.generativeai.type.PlatformImage
 import dev.shreyaspatil.ai.client.generativeai.type.content
-import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
 
@@ -74,7 +73,7 @@ class GeminiApi {
             if (h.steps > 0) add("steps=${h.steps}")
             if (h.workout > 0) add("workout_min=${h.workout}")
             if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
-            if (h.sleep > 0f) add("sleep_h=${h.sleep}")
+            if (h.sleepHours > 0f) add("sleep_h=${h.sleepHours}")
             if (h.avgHeartRate > 0) add("avg_hr=${h.avgHeartRate}")
             if (h.hydration > 0f) add("water_l=${h.hydration}")
         }

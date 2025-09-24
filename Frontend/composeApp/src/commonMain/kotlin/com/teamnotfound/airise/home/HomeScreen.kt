@@ -16,14 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.White
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 
 
 @Composable
@@ -32,6 +29,11 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val bottomNavController = rememberNavController()
 
     val currentImageUrl = uiState.value.userProfilePicture
+
+    // Pull Apple/Android Health data when user lands here
+    LaunchedEffect(Unit) {
+        viewModel.syncHealthOnEnter()
+    }
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -104,7 +106,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
                 DailyProgressSection(
                     dailyProgressData = uiState.value.dailyProgressData,
-                    isLoaded = uiState.value.isDailyProgressLoaded
+                    isLoaded = uiState.value.isDailyProgressLoaded,
+                    lastNightSleepHours = uiState.value.healthData.sleepHours
                     )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -115,7 +118,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     healthData = uiState.value.healthData,
                     onTimeFrameSelected = { timeFrame ->
                         viewModel.onEvent(HomeUiEvent.SelectedTimeFrameChanged(timeFrame))
-                    }
+                    },
+                    onRefreshHealth = { viewModel.syncHealthOnEnter() },
+                    onWriteSample = { viewModel.writeSampleHealth() }
                 )
             }
         }
