@@ -64,33 +64,41 @@ class WorkoutViewModel(
         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
-                val hardcoded = createHardcodedProgramDoc()
-                _uiState.value = WorkoutUiState.Success(hardcoded)
+                when (val result = userRepository.fetchUserProgram()) {
+                    is Result.Error<NetworkError> -> {
+                        val hardcoded = createHardcodedProgramDoc()
+                        _uiState.value = WorkoutUiState.Success(hardcoded)
 
-                val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
-                _userChallenge.value = uc
+                        val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
+                        _userChallenge.value = uc
 
-                val first = hardcoded.program.schedule.firstOrNull()
-                _activeDayIndex.value = first?.dayIndex
+                        val first = hardcoded.program.schedule.firstOrNull()
+                        _activeDayIndex.value = first?.dayIndex
 
-                if (!hasScheduledDaily && first != null) {
-                    hasScheduledDaily = true
-                    reminder.cancelActive()
-
-                    val (hour, minute) = resolveUserWorkoutTimeOrFallback()
-                    reminder.scheduleDailyAt(
-                        hour = hour,
-                        minute = minute,
-                        title = "Workout: ${first.dayName}",
-                        body  = first.focus
-                    )
+                        if (!hasScheduledDaily && first != null) {
+                            hasScheduledDaily = true
+                            reminder.cancelActive()
+                            val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+                            reminder.scheduleDailyAt(
+                                hour = hour,
+                                minute = minute,
+                                title = "Workout: ${first.dayName}",
+                                body  = first.focus
+                            )
+                        }
+                    }
+                    is Result.Success<UserProgramDoc> -> {
+                        _uiState.value = WorkoutUiState.Success(result.data)
+                        val first = result.data.program.schedule.firstOrNull()
+                        _activeDayIndex.value = first?.dayIndex
+                    }
                 }
-
             } catch (e: Exception) {
                 _uiState.value = WorkoutUiState.Error(e)
             }
         }
     }
+
 
 
 
