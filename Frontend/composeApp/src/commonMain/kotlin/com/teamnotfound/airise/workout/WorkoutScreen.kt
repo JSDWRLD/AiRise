@@ -28,11 +28,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import notifications.WorkoutReminderUseCase
 
 @Composable
-fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController) {
+fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController, reminder: WorkoutReminderUseCase) {
     val viewModel: WorkoutViewModel = remember {
-        WorkoutViewModel(userRepository)
+        WorkoutViewModel(userRepository, reminder)
     }
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()
@@ -48,7 +49,10 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Log") },
-                onClick = { viewModel.logAll() },
+                onClick = {
+                    viewModel.logAll()
+                    viewModel.onWorkoutLogged()
+                          },
                 backgroundColor = DeepBlue,
                 contentColor = White
             )
@@ -84,6 +88,7 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
                                 expanded = expanded[day.dayName] == true,
                                 onToggle = {
                                     expanded[day.dayName] = !(expanded[day.dayName] ?: true)
+                                    viewModel.setActiveDay(day.dayIndex, day.dayName, day.focus)
                                 },
                                 items = day.exercises,
                                 onChange = { exerciseName, reps, weight ->

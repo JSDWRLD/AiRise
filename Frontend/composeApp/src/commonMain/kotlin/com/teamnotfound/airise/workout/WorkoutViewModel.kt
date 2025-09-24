@@ -13,12 +13,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
+import notifications.WorkoutReminderUseCase
 
 class WorkoutViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val reminder: WorkoutReminderUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<WorkoutUiState>(WorkoutUiState.Loading)
     val uiState: StateFlow<WorkoutUiState> = _uiState.asStateFlow()
+
+    private val _activeDayIndex = MutableStateFlow<Int?>(null)
+    val activeDayIndex: StateFlow<Int?> = _activeDayIndex.asStateFlow()
 
     init {
         refresh()
@@ -31,6 +37,18 @@ class WorkoutViewModel(
                 // TODO: Replace with repository call
                 val hardcoded = createHardcodedProgramDoc()
                 _uiState.value = WorkoutUiState.Success(hardcoded)
+
+                // Pick a default active day (first in schedule) and schedule its reminder.
+                val first = hardcoded.program.schedule.firstOrNull()
+                if (first != null) {
+                    _activeDayIndex.value = first.dayIndex
+                    reminder.cancelActive()
+                    reminder.scheduleActive(
+                        title = "Workout: ${first.dayName}",
+                        body  = first.focus
+                    )
+                }
+
             } catch (e: Exception) {
                 _uiState.value = WorkoutUiState.Error(e)
             }
@@ -66,8 +84,28 @@ class WorkoutViewModel(
         val state = _uiState.value as? WorkoutUiState.Success ?: return
         val updatedProgramDoc = state.programDoc
         println("Logging data: ${state.programDoc}")
+        reminder.cancelActive()
         // TODO: call function
     }
+
+
+    fun setActiveDay(dayIndex: Int, dayTitle: String, dayFocus: String) {
+        val prev = _activeDayIndex.value
+        _activeDayIndex.value = dayIndex
+
+        // Cancel previous one-shot notification and schedule a new one for the active day
+        reminder.cancelActive()
+        reminder.scheduleActive(
+            title = "Workout: $dayTitle",
+            body = dayFocus
+        )
+    }
+
+    /** Call this after the user logs/completes the active workout. */
+    fun onWorkoutLogged() {
+        reminder.cancelActive()
+    }
+
 
     private fun createHardcodedProgramDoc(): UserProgramDoc {
         return UserProgramDoc(
