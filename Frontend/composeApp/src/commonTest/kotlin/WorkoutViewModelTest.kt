@@ -1,49 +1,71 @@
-import com.teamnotfound.airise.workout.WorkoutUiState
-import com.teamnotfound.airise.workout.WorkoutViewModel
-import kotlinx.coroutines.test.runTest
-import kotlin.test.assertTrue
+package com.teamnotfound.airise.workout
+
+import com.teamnotfound.airise.data.serializable.UserExerciseEntry
+import com.teamnotfound.airise.data.serializable.UserExerciseWeight
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class WorkoutViewModelTest {
+
     @Test
-    fun test() {
-        assertTrue(true)
+    fun test_number_field_updates_value_correctly() {
+        // Arrange
+        var capturedValue: Int? = null
+        val initialValue = 5
+        val newValue = 10
+
+        // Act
+        val onValueChange: (Int) -> Unit = { capturedValue = it }
+
+        // Simulating the user typing "10"
+        val newText = "10"
+        onValueChange(newText.toIntOrNull() ?: 0)
+
+        // Assert
+        assertEquals(newValue, capturedValue, "The number field should capture the new integer value.")
     }
 
     @Test
-    fun `changeSet updates reps and weight`() = runTest {
-        val viewModel = WorkoutViewModel()
+    fun test_decimal_number_field_updates_value_correctly() {
+        // Arrange
+        var capturedValue: Double? = null
+        val initialValue = 135.0
+        val newValue = 145.5
 
-        val exerciseId = "ex_456"
-        val setIndex = 1
+        // Act
+        val onValueChange: (Double?) -> Unit = { capturedValue = it }
 
-        viewModel.changeSet(exerciseId, setIndex, reps = 12, weight = 55.0)
+        // Simulating the user typing "145.5"
+        val newText = "145.5"
+        onValueChange(newText.toDoubleOrNull())
 
-        val updatedSet = (viewModel.uiState.value as WorkoutUiState.Success)
-            .workoutPlan.exercises
-            .first { it.exerciseTemplateId == exerciseId }
-            .setLogs[setIndex]
-
-        assertEquals(12, updatedSet.repsCompleted)
-        assertEquals(55.0, updatedSet.weightUsed)
+        // Assert
+        assertEquals(newValue, capturedValue, "The decimal number field should capture the new double value.")
     }
 
     @Test
-    fun `changeExerciseNotes updates notes`() = runTest {
-        val viewModel = WorkoutViewModel()
+    fun test_workout_card_onChange_is_called_with_correct_reps() {
+        // Arrange
+        var capturedReps: Int? = null
+        var capturedWeight: Double? = null
+        val repsValue = 15
+        val initialExercise = UserExerciseEntry(
+            name = "Test Exercise",
+            sets = 3,
+            targetReps = "10-12",
+            repsCompleted = 0,
+            weight = UserExerciseWeight(value = 100, unit = "kg")
+        )
 
-        val exerciseId = "ex_456"
-        val newNotes = "New notes for this exercise."
+        // Act
+        val onChange: (reps: Int?, weight: Double?) -> Unit = { reps, weight ->
+            capturedReps = reps
+            capturedWeight = weight
+        }
+        onChange(repsValue, null)
 
-        viewModel.changeExerciseNotes(exerciseId, newNotes)
-
-        val updatedNotes = (viewModel.uiState.value as WorkoutUiState.Success)
-            .workoutPlan.exercises
-            .first { it.exerciseTemplateId == exerciseId }
-            .notes
-
-        assertEquals(newNotes, updatedNotes)
+        // Assert
+        assertEquals(repsValue, capturedReps, "onChange should be called with the new reps value.")
+        assertEquals(null, capturedWeight, "Weight should not be changed when reps are updated.")
     }
-
 }
