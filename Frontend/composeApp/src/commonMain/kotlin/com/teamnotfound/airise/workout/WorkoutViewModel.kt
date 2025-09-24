@@ -2,7 +2,6 @@ package com.teamnotfound.airise.workout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.ProgramType
 import com.teamnotfound.airise.data.serializable.UserExerciseEntry
@@ -10,7 +9,6 @@ import com.teamnotfound.airise.data.serializable.UserExerciseWeight
 import com.teamnotfound.airise.data.serializable.UserProgram
 import com.teamnotfound.airise.data.serializable.UserProgramDay
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
-import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,11 +26,21 @@ class WorkoutViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            when (val result = userRepository.fetchUserProgram()) {
-                is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error,)
-                is Result.Success<UserProgramDoc> -> {
-                    _uiState.value = WorkoutUiState.Success(result.data)
+            _uiState.value = WorkoutUiState.Loading
+            try {
+                val result = userRepository.getUserProgram()
+                when (result) {
+                    is com.teamnotfound.airise.data.network.Result.Success -> {
+                        _uiState.value = WorkoutUiState.Success(result.data)
+                    }
+                    is com.teamnotfound.airise.data.network.Result.Error -> {
+                        _uiState.value = WorkoutUiState.Error(
+                            Exception("Failed to load program: ${result.error}")
+                        )
+                    }
                 }
+            } catch (e: Exception) {
+                _uiState.value = WorkoutUiState.Error(e)
             }
         }
     }
@@ -64,9 +72,25 @@ class WorkoutViewModel(
 
     fun logAll() {
         val state = _uiState.value as? WorkoutUiState.Success ?: return
-        val updatedProgramDoc = state.programDoc
-        println("Logging data: ${state.programDoc}")
-        // TODO: call function
+        val programDoc = state.programDoc
+
+        viewModelScope.launch {
+            try {
+                val result = userRepository.updateUserProgram(programDoc.program)
+                when (result) {
+                    is com.teamnotfound.airise.data.network.Result.Success -> {
+                        println("Program saved successfully")
+                        // Optionally show success message to user
+                    }
+                    is com.teamnotfound.airise.data.network.Result.Error -> {
+                        println("Failed to save program: ${result.error}")
+                        // Handle error - maybe show error message to user
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error saving program: ${e.message}")
+            }
+        }
     }
 
 }
