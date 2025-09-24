@@ -26,6 +26,7 @@ import com.teamnotfound.airise.util.White
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.navigation.NavHostController
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 
@@ -41,10 +42,22 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
 
     Scaffold(
         backgroundColor = BgBlack,
-        bottomBar = { BottomNavigationBar(
-                        navController = bottomNav,
-                        appNavController = navController)
-                    },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = bottomNav,
+                appNavController = navController,
+                onCommunityClick = {
+                    navController.navigate(AppScreen.CHALLENGES.name) { launchSingleTop = true }
+                },
+                onOverviewClick = {
+                    navController.navigate(AppScreen.HOMESCREEN.name) { launchSingleTop = true }
+                },
+                onWorkoutClick = {
+                    navController.navigate(AppScreen.WORKOUT.name) { launchSingleTop = true }
+                }
+            )
+        },
+
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Log") },
