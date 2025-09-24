@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import androidx.compose.ui.platform.testTag
 
 @Composable
 fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController) {
@@ -63,7 +64,8 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
                 text = { Text("Log") },
                 onClick = { viewModel.logAll() },
                 backgroundColor = DeepBlue,
-                contentColor = White
+                contentColor = White,
+                modifier = Modifier.testTag("log_button") // testing
             )
         }
     ) { inner ->
@@ -74,12 +76,14 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
                 .padding(inner)
                 .padding(horizontal = 12.dp)
                 .padding(top = 24.dp)
+                .testTag("workout_screen") //testing
         ) {
             Text(
                 text = "Workout",
                 color = White,
                 style = MaterialTheme.typography.h5,
                 modifier = Modifier.padding(bottom = 12.dp)
+                    .testTag("title_workout") //testing
             )
 
             when (val s = state) {
@@ -118,7 +122,7 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
 }
 
 @Composable
-private fun DaySection(
+internal fun DaySection(
     day: String,
     expanded: Boolean,
     onToggle: () -> Unit,
@@ -132,7 +136,8 @@ private fun DaySection(
             .fillMaxWidth()
             .border(2.dp, White, headerShape)
             .padding(horizontal = 14.dp, vertical = 12.dp)
-            .clickable { onToggle() },
+            .clickable { onToggle() }
+            .testTag("day_header_$day"), //test
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -147,7 +152,8 @@ private fun DaySection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(2.dp, Silver, RoundedCornerShape(12.dp))
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .testTag("none_$day"), //testing
                 contentAlignment = Alignment.CenterStart
             ) {
                 Text("None", color = Silver)
@@ -184,6 +190,7 @@ private fun WorkoutCard(
             .fillMaxWidth()
             .border(2.dp, White, shape)
             .padding(14.dp)
+            .testTag("card_${exercise.name}") //testing
     ) {
         Column(Modifier.fillMaxWidth()) {
             Text(exercise.name, style = MaterialTheme.typography.h6, color = White)
@@ -206,7 +213,7 @@ private fun WorkoutCard(
                     imeAction = ImeAction.Next,
                     onImeAction = { focus.moveFocus(FocusDirection.Right) },
                     onValue = { v -> onChange(v, null) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).testTag("reps_${exercise.name}")//testing
                 )
                 DecimalNumberField(
                     label = "Weight used (${exercise.weight.unit})",
@@ -215,7 +222,7 @@ private fun WorkoutCard(
                     imeAction = ImeAction.Done,
                     onImeAction = { focus.clearFocus() },
                     onValue = { v -> onChange(null, v) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).testTag("weight_${exercise.name}")//testing
                 )
             }
         }
