@@ -26,6 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.khealth.KHealth
 import com.teamnotfound.airise.data.network.clients.DataClient
+import notifications.LocalNotifierAndroid
+import notifications.WorkoutReminderUseCase
 
 class MainActivity : ComponentActivity() {
     private val kHealth = KHealth(this)
@@ -40,6 +42,8 @@ class MainActivity : ComponentActivity() {
         val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
         val httpClient = createHttpClient(OkHttp.create())
+        val notifier = LocalNotifierAndroid(this)
+        val reminder = WorkoutReminderUseCase(notifier)
 
         val container = AppContainer(
             userClient = userClient,
@@ -59,7 +63,7 @@ class MainActivity : ComponentActivity() {
 //        }
 
         setContent {
-            App(container = container)
+            App(container = container, reminder = reminder)
         }
     }
 }
