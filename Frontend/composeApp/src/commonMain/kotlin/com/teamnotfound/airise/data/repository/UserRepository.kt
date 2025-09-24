@@ -8,6 +8,7 @@ import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseAuth
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
 import com.teamnotfound.airise.data.serializable.UserChallenge
+import com.teamnotfound.airise.data.serializable.UserProgramDoc
 
 class UserRepository(
     private val auth: FirebaseAuth,
@@ -52,5 +53,17 @@ class UserRepository(
         }
     }
 
-
+    suspend fun fetchUserProgram(): Result<UserProgramDoc, NetworkError>{
+        return try {
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null){
+                val result = userClient.getUserProgram(firebaseUser)
+                return result
+            } else {
+                Result.Error(NetworkError.UNAUTHORIZED)
+            }
+        } catch (e: Exception){
+            Result.Error(NetworkError.UNKNOWN)
+        }
+    }
 }

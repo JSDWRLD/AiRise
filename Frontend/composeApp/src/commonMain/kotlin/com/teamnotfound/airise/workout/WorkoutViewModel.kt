@@ -2,6 +2,7 @@ package com.teamnotfound.airise.workout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.util.NetworkError
@@ -12,6 +13,7 @@ import com.teamnotfound.airise.data.serializable.UserExerciseWeight
 import com.teamnotfound.airise.data.serializable.UserProgram
 import com.teamnotfound.airise.data.serializable.UserProgramDay
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
+import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,38 +62,31 @@ class WorkoutViewModel(
         )
     }
 
-    fun refresh() {
+     fun refresh() {
         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
                 when (val result = userRepository.fetchUserProgram()) {
-                    is Result.Error<NetworkError> -> {
-                        val hardcoded = createHardcodedProgramDoc()
-                        _uiState.value = WorkoutUiState.Success(hardcoded)
-
-                        val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
-                        _userChallenge.value = uc
-
-                        val first = hardcoded.program.schedule.firstOrNull()
-                        _activeDayIndex.value = first?.dayIndex
-
-                        if (!hasScheduledDaily && first != null) {
-                            hasScheduledDaily = true
-                            reminder.cancelActive()
-                            val (hour, minute) = resolveUserWorkoutTimeOrFallback()
-                            reminder.scheduleDailyAt(
-                                hour = hour,
-                                minute = minute,
-                                title = "Workout: ${first.dayName}",
-                                body  = first.focus
-                            )
-                        }
-                    }
+                    is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error,)
                     is Result.Success<UserProgramDoc> -> {
                         _uiState.value = WorkoutUiState.Success(result.data)
-                        val first = result.data.program.schedule.firstOrNull()
-                        _activeDayIndex.value = first?.dayIndex
                     }
+                }
+
+                val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
+                _userChallenge.value = uc
+
+                if (!hasScheduledDaily) {
+                    hasScheduledDaily = true
+                    reminder.cancelActive()
+
+                    val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+                    reminder.scheduleDailyAt(
+                        hour = hour,
+                        minute = minute,
+                        title = "AiRise",
+                        body  = "Time to workout!"
+                    )
                 }
             } catch (e: Exception) {
                 _uiState.value = WorkoutUiState.Error(e)
@@ -136,6 +131,7 @@ class WorkoutViewModel(
         val today = currentEpochDay()
         _userChallenge.value = _userChallenge.value?.copy(lastCompletionEpochDay = today)
     }
+
 
     private fun parseTimeToHourMinute(raw: String?): Pair<Int, Int>? {
         if (raw.isNullOrBlank()) return null
@@ -226,117 +222,7 @@ class WorkoutViewModel(
 
 
 
-    /** Call this after the user logs/completes the active workout. */
     fun onWorkoutLogged() {
         reminder.cancelActive()
-    }
-
-
-    private fun createHardcodedProgramDoc(): UserProgramDoc {
-        return UserProgramDoc(
-            id = "66f4a37e57c2d93d5b8f9a21",
-            firebaseUid = "abc123",
-            program = UserProgram(
-                templateName = "3-Day Full Body Strength (Gym)",
-                days = 3,
-                type = ProgramType.Gym,
-                schedule = listOf(
-                    UserProgramDay(
-                        dayIndex = 1,
-                        dayName = "Monday",
-                        focus = "Upper Push (Gym)",
-                        exercises = listOf(
-                            UserExerciseEntry(
-                                name = "Barbell Bench Press",
-                                sets = 4,
-                                targetReps = "6-10",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 135, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Overhead Press",
-                                sets = 3,
-                                targetReps = "8-10",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 95, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Dumbbell Lateral Raises",
-                                sets = 3,
-                                targetReps = "12-15",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 15, unit = "lbs")
-                            )
-                        )
-                    ),
-                    UserProgramDay(
-                        dayIndex = 2,
-                        dayName = "Wednesday",
-                        focus = "Upper Pull (Gym)",
-                        exercises = listOf(
-                            UserExerciseEntry(
-                                name = "Pull-Ups",
-                                sets = 4,
-                                targetReps = "To Failure",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 0, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Barbell Rows",
-                                sets = 4,
-                                targetReps = "8-12",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 115, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Face Pulls",
-                                sets = 3,
-                                targetReps = "12-15",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 40, unit = "lbs")
-                            )
-                        )
-                    ),
-                    UserProgramDay(
-                        dayIndex = 3,
-                        dayName = "Friday",
-                        focus = "Lower Body (Gym)",
-                        exercises = listOf(
-                            UserExerciseEntry(
-                                name = "Barbell Back Squat",
-                                sets = 4,
-                                targetReps = "6-8",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 185, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Romanian Deadlift",
-                                sets = 4,
-                                targetReps = "8-10",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 135, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Walking Lunges",
-                                sets = 3,
-                                targetReps = "12 steps/leg",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 40, unit = "lbs")
-                            ),
-                            UserExerciseEntry(
-                                name = "Calf Raises",
-                                sets = 3,
-                                targetReps = "15-20",
-                                repsCompleted = 0,
-                                weight = UserExerciseWeight(value = 90, unit = "lbs")
-                            )
-                        )
-                    )
-                ),
-                createdAtUtc = "2025-09-21T16:00:00Z",
-                updatedAtUtc = "2025-09-21T16:00:00Z"
-            ),
-            lastUpdatedUtc = "2025-09-21T16:00:00Z"
-        )
     }
 }
