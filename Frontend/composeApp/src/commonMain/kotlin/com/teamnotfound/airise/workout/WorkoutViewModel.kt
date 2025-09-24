@@ -27,20 +27,13 @@ class WorkoutViewModel(
     fun refresh() {
         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
-            try {
-                val result = userRepository.getUserProgram()
-                when (result) {
-                    is com.teamnotfound.airise.data.network.Result.Success -> {
-                        _uiState.value = WorkoutUiState.Success(result.data)
-                    }
-                    is com.teamnotfound.airise.data.network.Result.Error -> {
-                        _uiState.value = WorkoutUiState.Error(
-                            Exception("Failed to load program: ${result.error}")
-                        )
-                    }
+            when (val result = userRepository.getUserProgram()) {
+                is com.teamnotfound.airise.data.network.Result.Success -> {
+                    _uiState.value = WorkoutUiState.Success(result.data)
                 }
-            } catch (e: Exception) {
-                _uiState.value = WorkoutUiState.Error(e)
+                is com.teamnotfound.airise.data.network.Result.Error -> {
+                    _uiState.value = WorkoutUiState.Error(result.error)
+                }
             }
         }
     }
@@ -76,8 +69,7 @@ class WorkoutViewModel(
 
         viewModelScope.launch {
             try {
-                val result = userRepository.updateUserProgram(programDoc.program)
-                when (result) {
+                when (val result = userRepository.updateUserProgram(programDoc.program)) {
                     is com.teamnotfound.airise.data.network.Result.Success -> {
                         println("Program saved successfully")
                         // Optionally show success message to user
