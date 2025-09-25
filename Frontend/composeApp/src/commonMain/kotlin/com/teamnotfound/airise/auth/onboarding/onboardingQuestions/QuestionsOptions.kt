@@ -72,20 +72,30 @@ fun WorkoutLengthScreen(navController: NavController, newUser: UserDataUiState){
 fun EquipmentAccessScreen(navController: NavController, newUser: UserDataUiState){
     val selectedOptions = remember { mutableStateOf(setOf<String>()) }
 
+    // Display labels -> canonical keys
+    val labelToKey = mapOf(
+        "Gym" to "gym",
+        "Home" to "home",
+        "Bodyweight" to "bodyweight"
+    )
+
     MultiSelectQuestionScreen(
         questionText = "What equipment do you have access to?",
-        options = listOf("Gym", "Home", "Body Weight", "Other Equipment"),
+        options = listOf("Gym", "Home", "Body Weight"),
         optionSubtext = mapOf(
             "Gym" to "Full range of machines and free weights.",
             "Home" to "Basic equipment like dumbbells or resistance bands",
-            "Body Weight" to "Exercises that rely on your own body only.",
-            "Other Equipment" to "Any special or unique gear you have."
+            "Body Weight" to "Exercises that rely on your own body only."
         ),
         selectedOptions = selectedOptions,
         nextScreen = OnboardingScreens.WorkoutDays,
         navController = navController,
         questionCount = 5,
-        onSelection = { selection -> newUser.equipmentAccess.value = selection.joinToString(", ") }
+        onSelection = { labels ->
+            // Save canonical keys (preferred: array). If you must save CSV, join with ","
+            val keys = labels.mapNotNull { labelToKey[it] }.toSet()
+            newUser.equipmentAccess.value = keys.joinToString(",")
+        }
     )
 }
 

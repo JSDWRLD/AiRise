@@ -184,6 +184,12 @@ fun MultiSelectQuestionScreen(
     questionCount: Int,
     onSelection: (Set<String>) -> Unit
 ) {
+    // User must select 3 to 6 days for question 6
+    val onQuestion6 = if (questionCount == 6) {
+        selectedOptions.value.size in 3..6
+    } else {
+        selectedOptions.value.isNotEmpty()
+    }
 
     Box(
         modifier = Modifier
@@ -317,7 +323,7 @@ fun MultiSelectQuestionScreen(
                     onSelection(selectedOptions.value)
                     navController.navigate(nextScreen.route)
                 },
-                enabled = selectedOptions.value.isNotEmpty(),
+                enabled = onQuestion6,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
                     disabledBackgroundColor = DeepBlue
