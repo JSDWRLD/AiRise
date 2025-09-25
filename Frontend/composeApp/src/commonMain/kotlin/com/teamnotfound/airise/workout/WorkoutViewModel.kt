@@ -2,21 +2,15 @@ package com.teamnotfound.airise.workout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.util.NetworkError
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.data.serializable.ProgramType
-import com.teamnotfound.airise.data.serializable.UserExerciseEntry
-import com.teamnotfound.airise.data.serializable.UserExerciseWeight
-import com.teamnotfound.airise.data.serializable.UserProgram
-import com.teamnotfound.airise.data.serializable.UserProgramDay
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.update
 import notifications.WorkoutReminderUseCase
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -25,7 +19,7 @@ import com.teamnotfound.airise.data.serializable.UserChallenge
 
 
 class WorkoutViewModel(
-    private val userRepository: UserRepository,
+    private val userRepository: IUserRepository,
     private val reminder: WorkoutReminderUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<WorkoutUiState>(WorkoutUiState.Loading)

@@ -45,6 +45,7 @@ import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewMode
 import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.workout.WorkoutScreen
 import com.teamnotfound.airise.health.HealthDataProvider
 @Composable
@@ -66,10 +67,10 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
     }
-    val userRepository = UserRepository(
+    val userRepository: IUserRepository = UserRepository(
         auth = auth,
-        container.userClient,
-        container.userCache
+        userClient = container.userClient,
+        userCache = container.userCache
     )
     val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
     val friendsRepository = remember {

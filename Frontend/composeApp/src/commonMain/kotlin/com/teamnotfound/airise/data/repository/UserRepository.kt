@@ -15,8 +15,8 @@ class UserRepository(
     private val auth: FirebaseAuth,
     private val userClient: UserClient,
     private val userCache: UserCache,
-) {
-    suspend fun fetchUserData(): Result<UserData, NetworkError>{
+) : IUserRepository{
+    override suspend fun fetchUserData(): Result<UserData, NetworkError>{
         return try {
             val firebaseUser = auth.currentUser
             if (firebaseUser != null){
@@ -30,7 +30,7 @@ class UserRepository(
         }
     }
 
-    suspend fun searchUsers(query: String): Result<UsersEnvelope, NetworkError> {
+    override suspend fun searchUsers(query: String): Result<UsersEnvelope, NetworkError> {
         return try {
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
@@ -42,7 +42,7 @@ class UserRepository(
             Result.Error(NetworkError.UNKNOWN)
         }
     }
-    suspend fun getUserChallengeOrNull(): UserChallenge? {
+    override suspend fun getUserChallengeOrNull(): UserChallenge? {
         return try {
             val firebaseUser = auth.currentUser ?: return null
             when (val res = userClient.getUserChallenges(firebaseUser)) {
@@ -54,7 +54,7 @@ class UserRepository(
         }
     }
 
-    suspend fun getUserProgram(): Result<UserProgramDoc, NetworkError> {
+    override suspend fun getUserProgram(): Result<UserProgramDoc, NetworkError> {
         return try {
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
@@ -67,7 +67,7 @@ class UserRepository(
         }
     }
 
-    suspend fun updateUserProgram(userProgram: UserProgram): Result<Boolean, NetworkError> {
+    override suspend fun updateUserProgram(userProgram: UserProgram): Result<Boolean, NetworkError> {
         return try {
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
