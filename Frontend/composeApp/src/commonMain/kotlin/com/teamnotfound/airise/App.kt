@@ -48,7 +48,7 @@ import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 import com.teamnotfound.airise.workout.WorkoutScreen
 import com.teamnotfound.airise.health.HealthDataProvider
 @Composable
-fun App(container: AppContainer) {
+fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
     val navController = rememberNavController()
     val auth = Firebase.auth
     val authService = AuthService(
@@ -233,7 +233,8 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.WORKOUT.name) {
                     WorkoutScreen(
                         userRepository = userRepository,
-                        navController = navController
+                        navController = navController,
+                        reminder = reminder
                     )
                 }
 
