@@ -24,6 +24,7 @@ import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import com.teamnotfound.airise.data.serializable.UserSettingsData
+import com.teamnotfound.airise.data.serializable.UserProgram
 
 class   UserClient(
     private val httpClient: HttpClient
@@ -390,6 +391,11 @@ class   UserClient(
     }
     // GET /api/UserProgram/{firebaseUid}
     // Returns the user's personalized program template
+
+    /**
+     * Get the user's current workout program template
+     * Used when opening the workout screen to load existing program data
+     */
     suspend fun getUserProgram(firebaseUser: FirebaseUser): Result<UserProgramDoc, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
@@ -406,9 +412,47 @@ class   UserClient(
         }
 
         return when (response.status.value) {
-            200 -> Result.Success(response.body<UserProgramDoc>())
+            200 -> {
+                val userProgramDoc = response.body<UserProgramDoc>()
+                Result.Success(userProgramDoc)
+            }
+            404 -> Result.Error(NetworkError.UNKNOWN) // No program assigned yet
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
+            500 -> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    /**
+     * Update the user's workout program with modified weights and reps
+     * Used when saving workout progress from the frontend
+     */
+    suspend fun updateUserProgram(
+        firebaseUser: FirebaseUser,
+        userProgram: UserProgram
+    ): Result<Boolean, NetworkError> {
+        val firebaseUid = firebaseUser.uid
+        val token = firebaseUser.getIdToken(true).toString()
+
+        val response = try {
+            httpClient.put("$baseUrl/UserProgram/$firebaseUid") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+                setBody(userProgram)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+
+        return when (response.status.value) {
+            200 -> Result.Success(true)
+            404 -> Result.Error(NetworkError.UNKNOWN) // Program not found
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            500 -> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }

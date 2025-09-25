@@ -6,19 +6,16 @@ import com.teamnotfound.airise.data.DTOs.LeaderboardEntryDTO
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
-import com.teamnotfound.airise.data.repository.UserRepository
-import com.teamnotfound.airise.data.serializable.User
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class CommunityNavBarViewModel(
-    private val userRepository: UserRepository,
+    private val userRepository: IUserRepository,
     private val userClient: UserClient,
     private val dataClient: DataClient
 ) : ViewModel() {

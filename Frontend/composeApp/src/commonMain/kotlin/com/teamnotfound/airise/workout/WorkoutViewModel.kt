@@ -3,22 +3,14 @@ package com.teamnotfound.airise.workout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.repository.UserRepository
-import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.util.NetworkError
 import com.teamnotfound.airise.data.serializable.UserData
-import com.teamnotfound.airise.data.serializable.ProgramType
-import com.teamnotfound.airise.data.serializable.UserExerciseEntry
-import com.teamnotfound.airise.data.serializable.UserExerciseWeight
-import com.teamnotfound.airise.data.serializable.UserProgram
-import com.teamnotfound.airise.data.serializable.UserProgramDay
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
-import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.update
 import notifications.WorkoutReminderUseCase
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -27,7 +19,7 @@ import com.teamnotfound.airise.data.serializable.UserChallenge
 
 
 class WorkoutViewModel(
-    private val userRepository: UserRepository,
+    private val userRepository: IUserRepository,
     private val reminder: WorkoutReminderUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<WorkoutUiState>(WorkoutUiState.Loading)
@@ -66,8 +58,8 @@ class WorkoutViewModel(
         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
-                when (val result = userRepository.fetchUserProgram()) {
-                    is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error,)
+                when (val result = userRepository.getUserProgram()) {
+                    is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error)
                     is Result.Success<UserProgramDoc> -> {
                         _uiState.value = WorkoutUiState.Success(result.data)
                     }
@@ -89,13 +81,10 @@ class WorkoutViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.value = WorkoutUiState.Error(e)
+                _uiState.value = WorkoutUiState.Error(NetworkError.UNKNOWN)
             }
         }
     }
-
-
-
 
     fun changeSet(dayIndex: Int, exerciseName: String, reps: Int?, weight: Double?) {
         val state = _uiState.value as? WorkoutUiState.Success ?: return
@@ -130,6 +119,24 @@ class WorkoutViewModel(
 
         val today = currentEpochDay()
         _userChallenge.value = _userChallenge.value?.copy(lastCompletionEpochDay = today)
+        val programDoc = state.programDoc
+
+        viewModelScope.launch {
+            try {
+                when (val result = userRepository.updateUserProgram(programDoc.program)) {
+                    is com.teamnotfound.airise.data.network.Result.Success -> {
+                        println("Program saved successfully")
+                        // Optionally show success message to user
+                    }
+                    is com.teamnotfound.airise.data.network.Result.Error -> {
+                        println("Failed to save program: ${result.error}")
+                        // Handle error - maybe show error message to user
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error saving program: ${e.message}")
+            }
+        }
     }
 
 

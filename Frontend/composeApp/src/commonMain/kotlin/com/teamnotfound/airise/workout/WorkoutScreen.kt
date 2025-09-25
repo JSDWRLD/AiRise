@@ -42,15 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.AppScreen
-import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.UserExerciseEntry
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import notifications.WorkoutReminderUseCase
-import androidx.compose.ui.platform.testTag
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController, reminder: WorkoutReminderUseCase) {
+fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostController, reminder: WorkoutReminderUseCase) {
     val viewModel: WorkoutViewModel = remember { WorkoutViewModel(userRepository, reminder) }
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()

@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.DTOs.UserProfile
 import com.teamnotfound.airise.data.auth.IAuthService
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.community.friends.repos.FriendsNetworkRepository
 import com.teamnotfound.airise.community.friends.screens.FriendsListUiState
 import com.teamnotfound.airise.data.DTOs.toDomain
+import com.teamnotfound.airise.data.repository.IUserRepository
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 class FriendsViewModel(
     private val auth: IAuthService,
     private val friendRepo: FriendsNetworkRepository,
-    private val userRepo: UserRepository,
+    private val userRepo: IUserRepository,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 

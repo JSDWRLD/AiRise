@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
-import com.teamnotfound.airise.data.repository.UserRepository
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
@@ -29,7 +29,7 @@ import kotlin.random.Random
     password: @Aa123456
  */
 
-class HomeViewModel(private val userRepository: UserRepository,
+class HomeViewModel(private val userRepository: IUserRepository,
                     private val userClient: UserClient,
                     private val provider: HealthDataProvider
 ) :  ViewModel(){
