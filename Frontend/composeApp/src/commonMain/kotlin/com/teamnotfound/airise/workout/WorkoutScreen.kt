@@ -45,11 +45,13 @@ import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.data.repository.UserRepository
 import com.teamnotfound.airise.data.serializable.UserExerciseEntry
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
+import notifications.WorkoutReminderUseCase
+import androidx.compose.ui.platform.testTag
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController) {
-    val viewModel: WorkoutViewModel = remember { WorkoutViewModel(userRepository) }
+fun WorkoutScreen(userRepository: UserRepository, navController: NavHostController, reminder: WorkoutReminderUseCase) {
+    val viewModel: WorkoutViewModel = remember { WorkoutViewModel(userRepository, reminder) }
     val state by viewModel.uiState.collectAsState()
     val bottomNav = rememberNavController()
 
@@ -81,7 +83,10 @@ fun WorkoutScreen(userRepository: UserRepository, navController: NavHostControll
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Log") },
-                onClick = { viewModel.logAll() },
+                onClick = {
+                    viewModel.logAll()
+                    viewModel.onWorkoutLogged()
+                          },
                 backgroundColor = DeepBlue,
                 contentColor = White,
                 icon = { Icon(Icons.Rounded.PlaylistAddCheck, contentDescription = null) },
