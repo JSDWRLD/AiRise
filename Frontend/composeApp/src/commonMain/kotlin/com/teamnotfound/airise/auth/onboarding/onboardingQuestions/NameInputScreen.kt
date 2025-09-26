@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,9 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState){
 
                     IconButton(
                         onClick = { navController.popBackStack() },
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .testTag("backButton") //test
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
@@ -83,7 +86,8 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState){
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .testTag("firstName"), //test
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = White,
@@ -127,7 +131,8 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState){
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .testTag("lastName"), //test
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     backgroundColor = White,
@@ -159,6 +164,7 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState){
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
+                    .testTag("continueButton") //test
             ) {
                 Text("Continue", color = White)
             }

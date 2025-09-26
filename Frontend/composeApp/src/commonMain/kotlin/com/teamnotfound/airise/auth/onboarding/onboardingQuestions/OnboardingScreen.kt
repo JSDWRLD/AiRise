@@ -82,17 +82,6 @@ fun NavigateQuestions(
                                 modifier = Modifier.align(Alignment.Center)
                             )
 
-                            IconButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier.align(Alignment.CenterStart)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = Orange
-                                )
-                            }
-
                             TextButton(
                                 onClick = { navController.navigate(OnboardingScreens.WeightSelection.route) },
                                 modifier = Modifier.align(Alignment.CenterEnd)

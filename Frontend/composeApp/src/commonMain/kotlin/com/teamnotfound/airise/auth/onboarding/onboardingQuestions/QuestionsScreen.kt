@@ -10,11 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.teamnotfound.airise.util.*
@@ -60,7 +60,9 @@ fun QuestionScreen(
 
                     if (questionCount != 1) {
                         Row(
-                            modifier = Modifier.align(Alignment.CenterStart),
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .testTag("backButton"), //test
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { navController.popBackStack() }) {
@@ -76,7 +78,9 @@ fun QuestionScreen(
                     if (canSkip) {
                         TextButton(
                             onClick = { navController.navigate(nextScreen.route) },
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .testTag("skipButton") //test
                         ) {
                             Text(
                                 "Skip",
@@ -168,6 +172,7 @@ fun QuestionScreen(
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
+                    .testTag("continueButton") //test
             ) {
                 Text("Continue", color = White)
             }
@@ -222,7 +227,9 @@ fun MultiSelectQuestionScreen(
                     )
                     if (questionCount != 1) {
                         Row(
-                            modifier = Modifier.align(Alignment.CenterStart),
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .testTag("backButton"), //test
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { navController.popBackStack() }) {
@@ -238,7 +245,9 @@ fun MultiSelectQuestionScreen(
                     if (canSkip) {
                         TextButton(
                             onClick = { navController.navigate(nextScreen.route) },
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .testTag("skipButton") //test
                         ) {
                             Text(
                                 "Skip",
@@ -340,6 +349,7 @@ fun MultiSelectQuestionScreen(
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(horizontal = 16.dp)
+                    .testTag("continueButton") //test
             ) {
                 Text("Continue", color = White)
             }
