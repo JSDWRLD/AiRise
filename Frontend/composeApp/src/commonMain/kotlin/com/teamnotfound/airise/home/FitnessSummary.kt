@@ -57,7 +57,9 @@ fun FitnessSummarySection(
     selectedTimeframe: String,
     formattedDate: String,
     healthData: HealthData,
-    onTimeFrameSelected: (String) -> Unit
+    onTimeFrameSelected: (String) -> Unit,
+    onRefreshHealth: () -> Unit,
+    onWriteSample: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -120,7 +122,6 @@ fun FitnessSummarySection(
                 }
             }
         }
-
         Spacer(modifier = Modifier.height(0.dp))
 
         // displays date in format
@@ -144,6 +145,16 @@ fun FitnessSummarySection(
             }
             HeartRateBox("Heart", healthData.avgHeartRate.toString(), "bpm", Modifier.weight(1.2f))
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Write sample
+        Button(
+            onClick = onWriteSample,
+            colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+            shape = RoundedCornerShape(180.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+        ) { Text("Write sample", color = White, fontSize = 14.sp) }
     }
 }
 

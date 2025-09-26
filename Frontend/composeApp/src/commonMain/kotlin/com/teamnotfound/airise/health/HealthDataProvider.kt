@@ -6,6 +6,7 @@ interface HealthData {
     val activeCalories : Int
     val steps: Int
     val heartRate: Int
+    val sleepHours: Double
     // Add more fields as needed
 }
 

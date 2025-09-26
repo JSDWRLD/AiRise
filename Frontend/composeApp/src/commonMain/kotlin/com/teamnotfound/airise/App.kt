@@ -45,10 +45,11 @@ import com.teamnotfound.airise.community.communityNavBar.CommunityNavBarViewMode
 import com.teamnotfound.airise.community.friends.models.FriendsViewModel
 import com.teamnotfound.airise.community.leaderboard.LeaderboardScreen
 import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
+import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.workout.WorkoutScreen
-
+import com.teamnotfound.airise.health.HealthDataProvider
 @Composable
-fun App(container: AppContainer) {
+fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
     val navController = rememberNavController()
     val auth = Firebase.auth
     val authService = AuthService(
@@ -66,10 +67,10 @@ fun App(container: AppContainer) {
             navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
     }
-    val userRepository = UserRepository(
+    val userRepository: IUserRepository = UserRepository(
         auth = auth,
-        container.userClient,
-        container.userCache
+        userClient = container.userClient,
+        userCache = container.userCache
     )
     val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
     val friendsRepository = remember {
@@ -82,7 +83,7 @@ fun App(container: AppContainer) {
 
     val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
         UserRepository(auth = auth, container.userClient, container.userCache),
-        container.userClient
+        container.userClient, HealthDataProvider(container.kHealth)
     )}
 
     MaterialTheme {
@@ -188,7 +189,7 @@ fun App(container: AppContainer) {
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        viewModel = HomeViewModel(userRepository, container.userClient),
+                        viewModel = HomeViewModel(userRepository, container.userClient, HealthDataProvider(container.kHealth)),
                         navController = navController
                     )
                 }
@@ -233,7 +234,8 @@ fun App(container: AppContainer) {
                 composable(route = AppScreen.WORKOUT.name) {
                     WorkoutScreen(
                         userRepository = userRepository,
-                        navController = navController
+                        navController = navController,
+                        reminder = reminder
                     )
                 }
 

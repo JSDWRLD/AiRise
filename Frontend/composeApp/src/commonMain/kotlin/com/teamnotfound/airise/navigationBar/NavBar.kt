@@ -30,7 +30,6 @@ fun NavBar(navController: NavHostController,
                 navController = navController,
                 appNavController = appNavController,
                 onCommunityClick = {
-                    // Only navigate if we have the app-level controller
                     appNavController?.navigate(AppScreen.CHALLENGES.name) {
                         launchSingleTop = true
                     }
@@ -43,8 +42,12 @@ fun NavBar(navController: NavHostController,
                         }
                         restoreState = true
                     }
+                },
+                onWorkoutClick = {
+                    appNavController?.navigate(AppScreen.WORKOUT.name) {
+                        launchSingleTop = true
+                    }
                 }
-
             )
         }
     ) { paddingValues ->
@@ -128,12 +131,36 @@ fun BottomNavigationBar(navController: NavHostController,
                 unselectedContentColor = Color.Gray,
                 onClick = {
                     when (screen) {
-                        NavBarItems.Community -> onCommunityClick()
-                        NavBarItems.Overview  -> onOverviewClick()
-                        NavBarItems.Workout  -> onWorkoutClick()
-                        else -> navController.navigate(screen.route) {
-                            launchSingleTop = true
-                            restoreState = true
+                        NavBarItems.Overview -> {
+                            if (appNavController != null) {
+                                appNavController.navigate(AppScreen.HOMESCREEN.name) {
+                                    launchSingleTop = true
+                                    appNavController.graph.startDestinationRoute?.let { start ->
+                                        popUpTo(start) { saveState = true }
+                                    }
+                                    restoreState = true
+                                }
+                            } else onOverviewClick()
+                        }
+                        NavBarItems.Community -> {
+                            if (appNavController != null) {
+                                appNavController.navigate(AppScreen.CHALLENGES.name) {
+                                    launchSingleTop = true
+                                }
+                            } else onCommunityClick()
+                        }
+                        NavBarItems.Workout -> {
+                            if (appNavController != null) {
+                                appNavController.navigate(AppScreen.WORKOUT.name) {
+                                    launchSingleTop = true
+                                }
+                            } else onWorkoutClick()
+                        }
+                        else -> {
+                            navController.navigate(screen.route) {
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 }

@@ -75,7 +75,6 @@ data class UserProgramDoc(
     val lastUpdatedUtc: String = ""
 )
 
-// Kotlin enum matching your C# ProgramType
 @Serializable
 enum class ProgramType {
     Bodyweight,
