@@ -7,7 +7,6 @@ import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.util.NetworkError
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
-import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

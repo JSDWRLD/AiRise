@@ -19,7 +19,10 @@ namespace AiRise.Services
         Task<UserProgramDoc> AssignFromExplicitAsync(string firebaseUid, ProgramType type, List<string> workoutDays, ProgramPreferences? programPreferences = null, CancellationToken ct = default);
 
         // Only rename day labels (count must match); preserves weights/reps
-        Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, CancellationToken ct = default);
+        Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, ProgramPreferences? preferences = null, CancellationToken ct = default);
+
+        // Re-Personalizes template with new preferences, preserving weights/reps
+        Task<bool> UpdatePreferencesAsync(string firebaseUid, ProgramPreferences preferences, CancellationToken ct = default);
     }
 
     public class UserProgramService : IUserProgramService
@@ -141,7 +144,7 @@ namespace AiRise.Services
         }
 
         // NEW: used when only the names changed (count same) — keeps weights/reps intact
-        public async Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, CancellationToken ct = default)
+        public async Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, ProgramPreferences? preferences = null, CancellationToken ct = default)
         {
             var doc = await GetAsync(firebaseUid, ct);
             if (doc?.Program?.Schedule == null || doc.Program.Schedule.Count == 0)
@@ -159,10 +162,23 @@ namespace AiRise.Services
             {
                 sched[i].DayName = normalized[i];
             }
-
+            if (preferences != null)
+            {
+                doc.Program = Personalize(doc.Program, preferences);
+            }
             doc.Program.UpdatedAtUtc = DateTime.UtcNow;
             return await UpdateAsync(firebaseUid, doc.Program, ct);
         }
+
+        public async Task<bool> UpdatePreferencesAsync(string firebaseUid, ProgramPreferences preferences, CancellationToken ct = default)
+        {
+            var doc = await GetAsync(firebaseUid, ct);
+            if (doc?.Program == null)
+                return false;
+
+            var updatedProgram = Personalize(doc.Program, preferences);
+            return await UpdateAsync(firebaseUid, updatedProgram, ct);
+        }              
 
         // ===== internal helpers kept for this service =====
 
@@ -300,7 +316,7 @@ namespace AiRise.Services
             IReadOnlyDictionary<string, int> baseline,
             PersonalizationTuning t)
         {
-            const double TOLERANCE = 10; // seconds
+            const double TOLERANCE = 5; // seconds
             double daySec = EstimateDaySeconds(day, goal, restSec, t);
 
             // Gentle duration scaling for timed entries before touching sets
@@ -348,8 +364,8 @@ namespace AiRise.Services
         private static double EstimateDaySeconds(UserProgramDay day, Goal goal, int restSec, PersonalizationTuning t) =>
             day.Exercises.Sum(ex =>
             {
-                var perSetWork = EstimatePerSetWorkSeconds(ex, goal, t); // work only
-                var restCount  = Math.Max(0, ex.Sets - 1);               // rest is BETWEEN sets    
+                var perSetWork = EstimatePerSetWorkSeconds(ex, goal, t);
+                var restCount  = Math.Max(0, ex.Sets - 1);         
                 return ex.Sets * perSetWork + restCount * restSec;
             });
 
@@ -370,7 +386,7 @@ namespace AiRise.Services
             var secs = ParseSecondsLiteral(ex.TargetReps);
             if (secs.HasValue) return secs.Value;
 
-            // Unknown (e.g., "AMRAP"): treat as 45s work to match your current behavior
+            // Unknown (e.g., "AMRAP"): treat as 45s work
             return 45;
         }
 
@@ -387,8 +403,8 @@ namespace AiRise.Services
                 var min = original * t.TimeSetScaleMin;
                 var max = original * t.TimeSetScaleMax;
 
-                var newVal = scaleUp ? Math.Min(max, original * 1.10)
-                                    : Math.Max(min, original * 0.90);
+                var newVal = scaleUp ? Math.Min(max, original * 1.20)
+                                    : Math.Max(min, original * 0.80);
 
                 if (Math.Abs(newVal - original) <= 0.5) continue;
 
