@@ -58,8 +58,16 @@ namespace AiRise.Services
             var oldEquip = current?.WorkoutEquipment ?? string.Empty;
             var newEquip = updatedData.WorkoutEquipment ?? string.Empty;
 
+            var oldWorkoutGoal = current?.WorkoutGoal ?? string.Empty;
+            var newWorkoutGoal = updatedData.WorkoutGoal ?? string.Empty;
+
+            var oldWorkoutLength = current?.WorkoutLength ?? 0;
+            var newWorkoutLength = updatedData.WorkoutLength;
+
             var daysCountChanged = oldDays.Count != newDays.Count;
             var typeChanged = ProgramTypeMapper.MapEquipmentToProgramType(oldEquip) != ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
+            var workoutGoalChanged = !oldWorkoutGoal.Equals(newWorkoutGoal, StringComparison.OrdinalIgnoreCase);
+            var workoutLengthChanged = oldWorkoutLength != newWorkoutLength;
 
             // 2) Update user.data
             string updatedFullName = prepFullName(updatedData.FirstName, updatedData.MiddleName, updatedData.LastName);
@@ -89,16 +97,27 @@ namespace AiRise.Services
 
             var result = await _userDataCollection.UpdateOneAsync(filter, update);
 
-            // 3) Sync program based on what changed
+            // 3) Check if the user's workout preferences changed
+            var preferences = null as ProgramPreferences;
+            if (workoutGoalChanged || workoutLengthChanged)
+            {
+                preferences = new ProgramPreferences
+                {
+                    WorkoutGoal = newWorkoutGoal,
+                    WorkoutLength = newWorkoutLength
+                };
+            }
+
+            // 4) Sync program based on what changed
             if (daysCountChanged || typeChanged)
             {
                 if (newDays.Count is >= 3 and <= 6)
                 {
                     var primaryType = ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
-                    ProgramPreferences preferences = new ProgramPreferences
+                    preferences = new ProgramPreferences
                     {
-                        WorkoutGoal = updatedData.WorkoutGoal,
-                        WorkoutLength = updatedData.WorkoutLength
+                        WorkoutGoal = newWorkoutGoal,
+                        WorkoutLength = newWorkoutLength
                     };
                     await _userProgramService.AssignFromExplicitAsync(firebaseUid, primaryType, newDays, preferences); // <-- change here
                 }
@@ -107,7 +126,11 @@ namespace AiRise.Services
             {
                 if (!SeqEqualIgnoreCase(oldDays, newDays) && newDays.Count is >= 3 and <= 6)
                 {
-                    await _userProgramService.RelabelDayNamesAsync(firebaseUid, newDays);
+                    await _userProgramService.RelabelDayNamesAsync(firebaseUid, newDays, preferences);
+                }else if (preferences != null)
+                {
+                    var primaryType = ProgramTypeMapper.MapEquipmentToProgramType(newEquip);
+                    await _userProgramService.UpdatePreferencesAsync(firebaseUid, primaryType, newDays, preferences);
                 }
             }
 

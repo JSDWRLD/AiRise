@@ -2,6 +2,8 @@ using AiRise.Data;
 using AiRise.Models.User;
 using AiRise.Models;
 using MongoDB.Driver;
+using System.Text.RegularExpressions;
+using ZstdSharp.Unsafe;
 
 namespace AiRise.Services
 {
@@ -19,7 +21,10 @@ namespace AiRise.Services
         Task<UserProgramDoc> AssignFromExplicitAsync(string firebaseUid, ProgramType type, List<string> workoutDays, ProgramPreferences? programPreferences = null, CancellationToken ct = default);
 
         // Only rename day labels (count must match); preserves weights/reps
-        Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, CancellationToken ct = default);
+        Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, ProgramPreferences? preferences = null, CancellationToken ct = default);
+
+        // Re-Personalizes template with new preferences, preserving weights/reps
+        Task<bool> UpdatePreferencesAsync(string firebaseUid, ProgramType type, List<string> workoutDays, ProgramPreferences preferences, CancellationToken ct = default);
     }
 
     public class UserProgramService : IUserProgramService
@@ -141,7 +146,7 @@ namespace AiRise.Services
         }
 
         // NEW: used when only the names changed (count same) — keeps weights/reps intact
-        public async Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, CancellationToken ct = default)
+        public async Task<bool> RelabelDayNamesAsync(string firebaseUid, List<string> workoutDays, ProgramPreferences? preferences = null, CancellationToken ct = default)
         {
             var doc = await GetAsync(firebaseUid, ct);
             if (doc?.Program?.Schedule == null || doc.Program.Schedule.Count == 0)
@@ -159,9 +164,32 @@ namespace AiRise.Services
             {
                 sched[i].DayName = normalized[i];
             }
-
+            if (preferences != null)
+            {
+                doc.Program = Personalize(doc.Program, preferences);
+            }
             doc.Program.UpdatedAtUtc = DateTime.UtcNow;
             return await UpdateAsync(firebaseUid, doc.Program, ct);
+        }
+
+        public async Task<bool> UpdatePreferencesAsync(string firebaseUid, ProgramType type, List<string> workoutDays, ProgramPreferences preferences, CancellationToken ct = default)
+        {
+            if (workoutDays is null || workoutDays.Count < 3 || workoutDays.Count > 6)
+                throw new ArgumentOutOfRangeException(nameof(workoutDays), "Workout days must contain 3 to 6 entries.");
+
+            var days = workoutDays.Count;
+            var template = ProgramTemplatesData.Programs
+                .Where(p => p.Days == days && p.Type == type)
+                .OrderBy(p => p.Name)
+                .FirstOrDefault();
+
+            if (template == null)
+                throw new InvalidOperationException($"No program template found for days={days}, type={type}.");
+
+            var userProgram = ToUserProgram(template, workoutDays);
+
+            var updatedProgram = Personalize(userProgram, preferences);
+            return await UpdateAsync(firebaseUid, updatedProgram, ct);
         }
 
         // ===== internal helpers kept for this service =====
@@ -271,25 +299,29 @@ namespace AiRise.Services
 
         private static void AdjustRepRangeForGoal(UserExerciseEntry ex, Goal goal)
         {
-            var range = ParseRepRange(ex.TargetReps);
-            if (!range.HasValue) return;
+            var reps = ParseTargetReps(ex.TargetReps);
+            if (reps.Kind == TargetKind.Amrap || reps.Kind == TargetKind.Unknown)
+                return;
 
-            var (low, high) = range.Value;
+            var (low, high) = (reps.Low, reps.High);
             switch (goal)
             {
                 case Goal.MuscleGain:
-                    low = Math.Max(5, low - 2); // min rep range is 5
-                    high = Math.Max(low + 1, high - 2);
+                    low = (int)Math.Round(low * 0.75);
+                    high = (int)Math.Round(high * 0.75);
                     break;
                 case Goal.WeightLoss:
-                    low += 4;
-                    high = Math.Max(low + 1, high + 4);
+                    low = (int)Math.Round(low * 1.25);
+                    high = (int)Math.Round(high * 1.25);
                     break;
                 case Goal.Maintain:
                 default:
                     break;
             }
-            ex.TargetReps = ToRepRange((low, high));
+            low = Math.Max(1, low);
+            high = Math.Max(low, high); // ensure valid range
+
+            ex.TargetReps = ToRepRange((low, high, reps.Unit));
         }
 
         private static void AdjustDayToTarget(
@@ -300,12 +332,12 @@ namespace AiRise.Services
             IReadOnlyDictionary<string, int> baseline,
             PersonalizationTuning t)
         {
-            const double TOLERANCE = 10; // seconds
+            const double TOLERANCE = 5; // seconds
             double daySec = EstimateDaySeconds(day, goal, restSec, t);
 
             // Gentle duration scaling for timed entries before touching sets
             if (Math.Abs(daySec - targetSec) > TOLERANCE)
-                daySec += TryScaleTimedEntries(day, t, scaleUp: daySec < targetSec);
+                daySec += TryScaleEntries(day, t, scaleUp: daySec < targetSec);
 
             // Precompute per-ex metrics
             var perSetInfos = day.Exercises.Select(ex => new
@@ -348,8 +380,8 @@ namespace AiRise.Services
         private static double EstimateDaySeconds(UserProgramDay day, Goal goal, int restSec, PersonalizationTuning t) =>
             day.Exercises.Sum(ex =>
             {
-                var perSetWork = EstimatePerSetWorkSeconds(ex, goal, t); // work only
-                var restCount  = Math.Max(0, ex.Sets - 1);               // rest is BETWEEN sets    
+                var perSetWork = EstimatePerSetWorkSeconds(ex, goal, t);
+                var restCount = Math.Max(0, ex.Sets - 1);
                 return ex.Sets * perSetWork + restCount * restSec;
             });
 
@@ -359,64 +391,100 @@ namespace AiRise.Services
 
         private static double EstimatePerSetWorkSeconds(UserExerciseEntry ex, Goal goal, PersonalizationTuning t)
         {
-            var range = ParseRepRange(ex.TargetReps);
-            if (range.HasValue)
+            var reps = ParseTargetReps(ex.TargetReps);
+            if (reps.Kind != TargetKind.Amrap && reps.Kind != TargetKind.Unknown)
             {
-                var (low, high) = range.Value;
-                int reps = (low + high) / 2;
-                return reps * t.SecondsPerRep;
+                var (low, high) = (reps.Low, reps.High);
+                int avgReps = (low + high) / 2;
+                return avgReps * t.SecondsPerRep;
             }
 
-            var secs = ParseSecondsLiteral(ex.TargetReps);
-            if (secs.HasValue) return secs.Value;
-
-            // Unknown (e.g., "AMRAP"): treat as 45s work to match your current behavior
+            // Unknown (e.g., "AMRAP"): treat as 45s work
             return 45;
         }
 
         // Return a SIGNED delta applied to the day (positive if scaled up, negative if scaled down)
-        private static double TryScaleTimedEntries(UserProgramDay day, PersonalizationTuning t, bool scaleUp)
+        private static double TryScaleEntries(UserProgramDay day, PersonalizationTuning t, bool scaleUp)
         {
             double signedDelta = 0;
             foreach (var ex in day.Exercises)
             {
-                var secs = ParseSecondsLiteral(ex.TargetReps);
-                if (!secs.HasValue) continue;
+                var reps = ParseTargetReps(ex.TargetReps);
 
-                var original = (double)secs.Value;
-                var min = original * t.TimeSetScaleMin;
-                var max = original * t.TimeSetScaleMax;
+                var low = reps.Low;
+                var min_low = low * t.TimeSetScaleMin;
+                var max_low = low * t.TimeSetScaleMax;
 
-                var newVal = scaleUp ? Math.Min(max, original * 1.10)
-                                    : Math.Max(min, original * 0.90);
+                var newLow = scaleUp ? Math.Min(max_low, low * 1.25)
+                                    : Math.Max(min_low, low * 0.75);
 
-                if (Math.Abs(newVal - original) <= 0.5) continue;
+                if (Math.Abs(newLow - low) <= 0.5) continue;
 
-                ex.TargetReps = $"{(int)Math.Round(newVal)} sec";
-                signedDelta += (newVal - original) * ex.Sets;
+                var high = reps.High;
+                var min_high = high * t.TimeSetScaleMin;
+                var max_high = high * t.TimeSetScaleMax;
+
+                var newHigh = scaleUp ? Math.Min(max_high, high * 1.25)
+                                    : Math.Max(min_high, high * 0.75);
+
+                if (Math.Abs(newHigh - high) <= 0.5) continue;
+
+                ex.TargetReps = $"{(int)Math.Round(newLow)}-{(int)Math.Round(newHigh)} {reps.Unit}";
+                signedDelta += (newHigh + newLow) / 2 * ex.Sets;
             }
             return signedDelta;
         }
 
-        private static int? ParseSecondsLiteral(string reps)
-        {
-            if (string.IsNullOrWhiteSpace(reps)) return null;
-            reps = reps.Trim().ToLowerInvariant()
-                    .Replace("seconds", "sec")
-                    .Replace("s", " sec");
-            var toks = reps.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            return (toks.Length >= 1 && int.TryParse(toks[0], out var n)) ? n : (int?)null;
-        }
 
-        private static (int low, int high)? ParseRepRange(string reps)
-        {
-            if (string.IsNullOrWhiteSpace(reps)) return null;
-            var parts = reps.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-            if (parts.Length != 2) return null;
-            return (int.TryParse(parts[0], out var low) && int.TryParse(parts[1], out var high)) ? (low, high) : ((int, int)?)null;
-        }
 
-        private static string ToRepRange((int low, int high) r) => $"{r.low}-{r.high}";
+        private static string ToRepRange((int Low, int High, string Unit) reps) => $"{reps.Low}-{reps.High} {reps.Unit}".Trim();
+        private enum TargetKind { RepRange, ValueRangeUnit, Amrap, Unknown }
+
+        private sealed class TargetSpec
+        {
+            public TargetKind Kind { get; private set; }
+            public int Low { get; private set; }     // for rep range low
+            public int High { get; private set; }    // for rep range high
+            public string Unit { get; private set; } = string.Empty;  // for value range unit (e.g. seconds)
+            public int Sets { get; private set; }    // for sets-of-reps (e.g. 3x8)
+            public string Raw { get; private set; }
+
+            private TargetSpec() { }
+
+            public static TargetSpec RepRange(int low, int high) => new TargetSpec { Kind = TargetKind.RepRange, Low = low, High = high, Raw = $"{low}-{high}" };
+            public static TargetSpec ValueRange(int low, int high, string unit) => new TargetSpec { Kind = TargetKind.ValueRangeUnit, Low = low, High = high, Unit = unit, Raw = $"{low}-{high} {unit}" };
+            public static TargetSpec Amrap() => new TargetSpec { Kind = TargetKind.Amrap, Raw = "AMRAP" };
+            public static TargetSpec Unknown(string raw) => new TargetSpec { Kind = TargetKind.Unknown, Raw = raw };
+        }
+        /// <summary>
+        /// Parse a target reps string into a TargetSpec that describes rep ranges, seconds, amrap, or sets-of-reps.
+        /// </summary>
+        private static TargetSpec ParseTargetReps(string reps)
+        {
+            if (string.IsNullOrWhiteSpace(reps)) return TargetSpec.Unknown(reps ?? string.Empty);
+            var txt = reps.Trim();
+
+            // AMRAP
+            if (Regex.IsMatch(txt, @"^\s*amrap\s*$", RegexOptions.IgnoreCase)) return TargetSpec.Amrap();
+
+            // Rep range e.g. "8-10"
+            var rangeMatch = Regex.Match(txt, @"^(?<low>\d+)\s*-\s*(?<high>\d+)\s*(?<attr>/\w)?$");
+            if (rangeMatch.Success && int.TryParse(rangeMatch.Groups["low"].Value, out var low) && int.TryParse(rangeMatch.Groups["high"].Value, out var high))
+                return TargetSpec.RepRange(low, high);
+
+            // Entries with units: seconds, yds, etc.
+            var valueUnitMatch = Regex.Match(txt, @"^(?<low>\d+)\s*-\s*(?<high>\d+)\s*(?<unit>\w+)?\s*$", RegexOptions.IgnoreCase);
+            if (valueUnitMatch.Success
+                && int.TryParse(valueUnitMatch.Groups["low"].Value, out var low_val)
+                && int.TryParse(valueUnitMatch.Groups["high"].Value, out var high_val))
+            {
+                var unit = valueUnitMatch.Groups["unit"].Success ? valueUnitMatch.Groups["unit"].Value : string.Empty;
+                return TargetSpec.ValueRange(low_val, high_val, unit);
+            }
+
+            // Unknown fallback
+            return TargetSpec.Unknown(txt);
+        }
 
     }
     // HELPER FOR USER DATA
