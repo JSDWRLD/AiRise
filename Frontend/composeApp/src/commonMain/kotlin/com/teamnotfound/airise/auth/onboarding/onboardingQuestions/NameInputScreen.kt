@@ -61,17 +61,7 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState){
                         )
                     }
 
-                    TextButton(
-                        onClick = { navController.navigate(nextScreen) },
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Text(
-                            "Skip",
-                            color = Orange,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+
                 }
             }
 

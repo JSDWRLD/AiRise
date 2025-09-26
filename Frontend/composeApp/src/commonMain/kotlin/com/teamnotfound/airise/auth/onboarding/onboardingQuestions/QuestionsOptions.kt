@@ -95,7 +95,8 @@ fun EquipmentAccessScreen(navController: NavController, newUser: UserDataUiState
             // Save canonical keys (preferred: array). If you must save CSV, join with ","
             val keys = labels.mapNotNull { labelToKey[it] }.toSet()
             newUser.equipmentAccess.value = keys.joinToString(",")
-        }
+        },
+        canSkip = false
     )
 }
 
@@ -110,7 +111,8 @@ fun WorkoutDaysScreen(navController: NavController, newUser: UserDataUiState){
         nextScreen = OnboardingScreens.WorkoutTime,
         navController = navController,
         questionCount = 6,
-        onSelection = { selection -> newUser.workoutDays.value = selection.toList() }
+        onSelection = { selection -> newUser.workoutDays.value = selection.toList() },
+        canSkip = false
     )
 }
 
@@ -125,7 +127,8 @@ fun WorkoutTimeScreen(navController: NavController, newUser: UserDataUiState){
         nextScreen = OnboardingScreens.DietaryGoal,
         navController = navController,
         questionCount = 7,
-        onSelection = { selection -> newUser.workoutTime.value = selection.joinToString(", ") }
+        onSelection = { selection -> newUser.workoutTime.value = selection.joinToString(", ") },
+        canSkip = false
     )
 }
 

@@ -28,7 +28,8 @@ fun QuestionScreen(
     nextScreen: OnboardingScreens,
     navController: NavController,
     questionCount: Int,
-    onSelection: (String) -> Unit
+    onSelection: (String) -> Unit,
+    canSkip: Boolean = true
 ) {
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
@@ -72,16 +73,18 @@ fun QuestionScreen(
                         }
                     }
 
-                    TextButton(
-                        onClick = { navController.navigate(nextScreen.route) },
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Text(
-                            "Skip",
-                            color = Orange,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                    if (canSkip) {
+                        TextButton(
+                            onClick = { navController.navigate(nextScreen.route) },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Text(
+                                "Skip",
+                                color = Orange,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
@@ -182,7 +185,8 @@ fun MultiSelectQuestionScreen(
     nextScreen: OnboardingScreens,
     navController: NavController,
     questionCount: Int,
-    onSelection: (Set<String>) -> Unit
+    onSelection: (Set<String>) -> Unit,
+    canSkip: Boolean = true
 ) {
     // User must select 3 to 6 days for question 6
     val onQuestion6 = if (questionCount == 6) {
@@ -231,16 +235,18 @@ fun MultiSelectQuestionScreen(
                         }
                     }
 
-                    TextButton(
-                        onClick = { navController.navigate(nextScreen.route) },
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Text(
-                            "Skip",
-                            color = Orange,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                    if (canSkip) {
+                        TextButton(
+                            onClick = { navController.navigate(nextScreen.route) },
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Text(
+                                "Skip",
+                                color = Orange,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
