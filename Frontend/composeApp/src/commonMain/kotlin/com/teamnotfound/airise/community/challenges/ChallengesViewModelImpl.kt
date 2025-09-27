@@ -73,7 +73,7 @@ class ChallengesViewModelImpl(
                 is Result.Success -> {
                     val dto = pr.data
                     UserChallengeProgressUI(
-                        activeChallengeId = dto.activeChallengeId.ifBlank { null },
+                        activeChallengeId = dto.activeChallengeId?.ifBlank { null },
                         lastCompletionEpochDay = dto.lastCompletionEpochDay.takeIf { it != 0L }
                     )
                 }
@@ -173,7 +173,7 @@ class ChallengesViewModelImpl(
                     val dto = mc.data
                     UserChallengeProgressUI(
                         // keep current active if server returns blank
-                        activeChallengeId = dto.activeChallengeId.ifBlank { _uiState.value.progress.activeChallengeId },
+                        activeChallengeId = dto.activeChallengeId?.ifBlank { _uiState.value.progress.activeChallengeId },
                         // prefer server-provided epoch day; as a fallback, set to today
                         lastCompletionEpochDay = dto.lastCompletionEpochDay
                             .takeIf { it != 0L }

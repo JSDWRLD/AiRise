@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class UserChallenge(
     val id: String = "",
     val firebaseUid: String = "",
-    val activeChallengeId: String = "",
-    val lastCompletionEpochDay: Long = 0
+    val activeChallengeId: String? = "",
+    val lastCompletionEpochDay: Long? = 0
 )
 
 // --- UserChallenges DTOs for requests ---

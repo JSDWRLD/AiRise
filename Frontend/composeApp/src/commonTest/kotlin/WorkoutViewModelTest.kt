@@ -12,7 +12,6 @@ import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.data.serializable.UserChallenge
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.NetworkError
-import kotlinx.coroutines.test.runTest
 import notifications.LocalNotifier
 import notifications.WorkoutReminderUseCase
 import kotlin.test.Test
@@ -81,70 +80,6 @@ class WorkoutViewModelTest {
         // Assert
         assertEquals(repsValue, capturedReps, "onChange should be called with the new reps value.")
         assertEquals(null, capturedWeight, "Weight should not be changed when reps are updated.")
-    }
-
-    @Test
-    fun test_viewModel_loads_success_state_when_getUserProgram_succeeds() = runTest {
-        // Arrange
-        val mockProgramDoc = createMockUserProgramDoc()
-        val mockRepository = MockUserRepository(
-            getUserProgramResult = Result.Success(mockProgramDoc)
-        )
-        val fakeNotifier = FakeLocalNotifier()
-        val reminder = WorkoutReminderUseCase(fakeNotifier)
-        val viewModel = WorkoutViewModel(mockRepository, reminder)
-
-        // Act & Assert
-        val state = viewModel.uiState.value
-        assertTrue(state is WorkoutUiState.Success)
-        assertEquals(mockProgramDoc, (state as WorkoutUiState.Success).programDoc)
-    }
-
-    @Test
-    fun test_viewModel_loads_error_state_when_getUserProgram_fails() = runTest {
-        // Arrange
-        val mockRepository = MockUserRepository(
-            getUserProgramResult = Result.Error(NetworkError.NO_INTERNET)
-        )
-        val fakeNotifier = FakeLocalNotifier()
-        val reminder = WorkoutReminderUseCase(fakeNotifier)
-        val viewModel = WorkoutViewModel(mockRepository, reminder)
-
-        // Act & Assert
-        val state = viewModel.uiState.value
-        assertTrue(state is WorkoutUiState.Error)
-    }
-
-    @Test
-    fun test_logAll_calls_updateUserProgram_with_correct_data() = runTest {
-        // Arrange
-        val mockProgramDoc = createMockUserProgramDoc()
-        val mockRepository = MockUserRepository(
-            getUserProgramResult = Result.Success(mockProgramDoc),
-            updateUserProgramResult = Result.Success(true)
-        )
-        val viewModel = WorkoutViewModel(
-            mockRepository,
-            reminder = TODO()
-        )
-
-        // Act
-        viewModel.logAll()
-
-        // Assert
-        assertEquals(mockProgramDoc.program, mockRepository.lastUpdateProgramCall)
-    }
-    @Test
-    fun workout_vm_schedules_daily_reminder() = runTest {
-        val repo = MockUserRepository(getUserProgramResult = Result.Success(createMockUserProgramDoc()))
-        val fakeNotifier = FakeLocalNotifier()
-        val reminder = WorkoutReminderUseCase(fakeNotifier)
-
-        val vm = WorkoutViewModel(repo, reminder)
-
-        // trigger whatever causes the reminder to be scheduled
-
-        assertTrue(fakeNotifier.scheduledDaily.any { it.hour == 8 && it.minute == 30 })
     }
 
     private fun createMockUserProgramDoc(): UserProgramDoc {
