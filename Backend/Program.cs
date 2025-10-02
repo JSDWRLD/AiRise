@@ -38,6 +38,7 @@ public class Program
         builder.Services.AddSingleton<UserChatHistoryService>();
         builder.Services.AddSingleton<UserProgramService>();
         builder.Services.AddSingleton<ChallengeService>();
+        builder.Services.AddSingleton<FoodDiaryService>();
 
         builder.Services.AddControllers();
 
