@@ -7,7 +7,7 @@ namespace AiRise.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("diary")]
+    [Route("api/diary")]
     public class FoodDiaryController : ControllerBase
     {
         private readonly FoodDiaryService _foodDiaryService;
