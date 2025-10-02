@@ -36,7 +36,7 @@ public class UserDataController : Controller
         return Ok(new { message = "UserData updated successfully" });
     }
 
-    [HttpPut("/update-name/{firebaseUid}")]
+    [HttpPut("api/update-name/{firebaseUid}")]
     public async Task<IActionResult> UpdateUserName(string firebaseUid, [FromBody] UserData updatedData)
     {
         bool success = await _userDataService.UpdateUserNameAsync(firebaseUid, updatedData);
@@ -47,7 +47,7 @@ public class UserDataController : Controller
         return Ok(new { message = "UserData updated successfully" });
     }
 
-    [HttpPut("/update-height/{firebaseUid}")]
+    [HttpPut("api/update-height/{firebaseUid}")]
     public async Task<IActionResult> UpdateUserHeight(string firebaseUid, [FromBody] UserData updatedData)
     {
         bool success = await _userDataService.UpdateUserHeightAsync(firebaseUid, updatedData);
@@ -58,7 +58,7 @@ public class UserDataController : Controller
         return Ok(new { message = "UserData updated successfully" });
     }
 
-    [HttpPut("/update-dob/{firebaseUid}")]
+    [HttpPut("api/update-dob/{firebaseUid}")]
     public async Task<IActionResult> UpdateUserDOB(string firebaseUid, [FromBody] UserData updatedData)
     {
         bool success = await _userDataService.UpdateUserDOBAsync(firebaseUid, updatedData);
@@ -69,7 +69,7 @@ public class UserDataController : Controller
         return Ok(new { message = "UserData updated successfully" });
     }
 
-    [HttpPut("/update-weight/{firebaseUid}")]
+    [HttpPut("api/update-weight/{firebaseUid}")]
     public async Task<IActionResult> UpdateUserWeight(string firebaseUid, [FromBody] UserData updatedData)
     {
         bool success = await _userDataService.UpdateUserWeightAsync(firebaseUid, updatedData);
