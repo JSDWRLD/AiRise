@@ -48,6 +48,9 @@ import com.teamnotfound.airise.community.leaderboard.LeaderboardViewModel
 import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.workout.WorkoutScreen
 import com.teamnotfound.airise.health.HealthDataProvider
+import com.teamnotfound.airise.meal.FoodLogScreen
+
+
 @Composable
 fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
     val navController = rememberNavController()
@@ -239,6 +242,11 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     )
                 }
 
+                // Meal/food log
+                composable(route = AppScreen.MEAL.name) {
+                    FoodLogScreen(appNavController = navController)
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -252,7 +260,6 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         onBackClick = { navController.popBackStack() }
                     )
                 }
-
 
                 // Account Settings Screen
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
@@ -343,5 +350,6 @@ enum class AppScreen {
     CHALLENGE_EDIT,
     CHALLENGE_DETAILS,
     LEADERBOARD,
-    WORKOUT
+    WORKOUT,
+    MEAL
 }

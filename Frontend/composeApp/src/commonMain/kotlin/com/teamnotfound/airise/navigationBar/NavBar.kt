@@ -17,6 +17,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.util.*
 import com.teamnotfound.airise.AppScreen
+import com.teamnotfound.airise.meal.FoodLogScreen
 
 
 //Defines navigation routes for bottom navigation bar
@@ -123,11 +124,13 @@ fun BottomNavigationBar(navController: NavHostController,
                 },
 
                 selected = when (screen) {
-                    NavBarItems.Overview  -> appRoute == AppScreen.HOMESCREEN.name
+                    NavBarItems.Overview -> appRoute == AppScreen.HOMESCREEN.name
                     NavBarItems.Community -> appRoute == AppScreen.CHALLENGES.name
                     NavBarItems.Workout -> appRoute == AppScreen.WORKOUT.name
-                    else                   -> currentRoute == screen.route
-                },                selectedContentColor = Color.White,
+                    NavBarItems.Meal -> appRoute == AppScreen.MEAL.name
+                    else -> currentRoute == screen.route
+                },
+                selectedContentColor = Color.White,
                 unselectedContentColor = Color.Gray,
                 onClick = {
                     when (screen) {
@@ -155,6 +158,18 @@ fun BottomNavigationBar(navController: NavHostController,
                                     launchSingleTop = true
                                 }
                             } else onWorkoutClick()
+                        }
+                        NavBarItems.Meal -> {
+                            if (appNavController != null) {
+                                appNavController.navigate(AppScreen.MEAL.name) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(screen.route) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
                         }
                         else -> {
                             navController.navigate(screen.route) {
