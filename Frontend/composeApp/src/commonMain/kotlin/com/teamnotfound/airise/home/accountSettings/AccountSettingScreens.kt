@@ -8,4 +8,5 @@ sealed class AccountSettingScreens(val route: String){
     data object AiPersonality : AccountSettingScreens("aiPersonality")
     data object Notifications : AccountSettingScreens("notifications")
     data object HealthDashboard : AccountSettingScreens("healthDashboard")
+    data object NameEdit: AccountSettingScreens("nameEdit")
 }

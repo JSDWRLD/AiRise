@@ -54,8 +54,8 @@ class UserDataUiState {
 
 @Serializable
 data class UserData(
-    val firstName: String, 
-    val lastName: String, 
+    var firstName: String,
+    val lastName: String,
     val middleName: String,
     val fullName: String,
     val workoutGoal: String,
