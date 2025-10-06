@@ -20,10 +20,8 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Edit
@@ -185,27 +183,40 @@ fun AccountSettingScreen(
                     Icon(Icons.Default.Edit, contentDescription = "Edit Profile Picture", tint = Color.White)
                 }
             }
+
             // profile name
-            TextField(
-                value = "${user.firstName.value} ${user.middleName.value} ${user.lastName.value}",
-                onValueChange = {
-                    //name = it
-                    val splitName = it.split(" ")
-                    user.firstName.value = splitName.getOrNull(0) ?: ""
-                    user.middleName.value = splitName.getOrNull(1) ?: ""
-                    user.lastName.value = splitName.getOrNull(2) ?: ""
-                },
-                label = { Text(
-                    text = "Profile Name",
-                    color = Color.White
-                ) },
+            val isNameSelected = selectedSetting == "Name"
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .background(Color.Gray, RoundedCornerShape(16.dp)),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.body1.copy(color = Color.White),
-            )
+                    .clickable {
+                        selectedSetting = "Name"
+                        localNavController.navigate(AccountSettingScreens.NameEdit.route)
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Name",
+                        fontSize = 18.sp,
+                        color = if (isNameSelected) Orange else Color.White
+                    )
+                    Text(
+                        text = "${user.firstName.value} ${user.middleName.value} ${user.lastName.value}",
+                        fontSize = 22.sp,
+                        color = Orange
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Edit Name",
+                    tint = if (isNameSelected) Orange else Color.White
+                )
+            }
+
+            Divider(color = DeepBlue, thickness = 1.dp)
 
             // dob
             val isDOBSelected = selectedSetting == "DOB"

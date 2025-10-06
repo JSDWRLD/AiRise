@@ -2,7 +2,6 @@ package com.teamnotfound.airise.home.accountSettings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,17 +9,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import kotlin.time.Duration.Companion.seconds
-
 
 class AccountSettingsViewModel(private val authService: AuthService,private val userClient: UserClient) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AccountSetttingsUiState())
-    val uiState: StateFlow<AccountSetttingsUiState> = _uiState
+    private val _uiState = MutableStateFlow(AccountSettingsUiState())
+    val uiState: StateFlow<AccountSettingsUiState> = _uiState
 
     fun signout() {
         viewModelScope.launch {
@@ -143,7 +141,81 @@ class AccountSettingsViewModel(private val authService: AuthService,private val 
         updateUserSettings(updatedSettings, firebaseUser)
     }
 
-    private fun mapError(error: NetworkError): String {
+    fun loadUserData() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null,
+                isSuccess = false
+            )
+
+            try {
+                val firebaseUser = authService.firebaseUser
+                if (firebaseUser != null) {
+                    when (val result = userClient.getUserData(firebaseUser)) {
+                        is Result.Success -> {
+                            _uiState.value = _uiState.value.copy(
+                                userData = result.data,
+                                isLoading = false,
+                                errorMessage = null,
+                                isSuccess = true
+                            )
+                        }
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                userData = null,
+                                isLoading = false,
+                                errorMessage = mapError(result.error),
+                                isSuccess = false
+                            )
+                        }
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "User not authenticated",
+                        isSuccess = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to read user data: ${e.message}",
+                    isSuccess = false
+                )
+            }
+        }
+    }
+
+    fun saveUserData(userData: UserDataUiState) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val firebaseUser = authService.firebaseUser
+                if (firebaseUser != null) {
+                    when (val result = userClient.insertUserData(firebaseUser, userData.toData())) {
+                        is Result.Success -> {
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false
+                            )
+                        }
+
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                errorMessage = mapError(result.error),
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+            }
+            _uiState.value = _uiState.value.copy(isLoading = false)
+        }
+    }
+
+    fun mapError(error: NetworkError): String {
         return when (error) {
             NetworkError.NO_INTERNET -> "No internet connection."
             NetworkError.SERIALIZATION -> "Data error. Please try again."
