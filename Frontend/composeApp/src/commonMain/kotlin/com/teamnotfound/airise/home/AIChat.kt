@@ -67,9 +67,9 @@ fun AiChat(
 
     val messageSuggested = remember {
         mutableStateListOf(
-            Message("What should I eat before exercising?", ai = false),
-            Message("How do I stay motivated?", ai = false),
-            Message("What is the best pizza topping?", ai = false)
+            SuggestedMessage("What should I eat before exercising?", "I can't offer nutrition advice right now, but a good general tip is to have a light snack with carbs and protein 30-60 minutes before your workout."),
+            SuggestedMessage("How do I stay motivated?", "Finding motivation can be tough! While I can't give you a personalized plan right now, common strategies include setting small, achievable goals and finding a workout buddy."),
+            SuggestedMessage("What is the best pizza topping?", "While I'm not a food critic, many people enjoy pepperoni. Maybe try asking a chef!")
         )
     }
 
@@ -91,7 +91,7 @@ fun AiChat(
     }
 
 
-    fun send(text: String) {
+    fun send(text: String, fallbackMessage: String? = null) {
         if (text.isBlank()) return
 
         val prior = mapUiHistoryToAiMessages()
@@ -113,7 +113,7 @@ fun AiChat(
                     dailyProgressData= dailyProgressData,
                 )
             } catch (e: Exception) {
-                "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
+                fallbackMessage ?: "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
             }
             messageHistory += Message(reply, ai = true)
         }
@@ -217,7 +217,7 @@ fun AiChat(
                         )
                         .background(Transparent)
                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .clickable { send(suggestion.text) }
+                        .clickable { send(suggestion.text, suggestion.fallback) }
                 ) {
                     Text(
                         text = suggestion.text,
@@ -307,3 +307,4 @@ fun AiChat(
 }
 
 data class Message(val text: String, val ai: Boolean)
+data class SuggestedMessage(val text: String, val fallback: String)
