@@ -45,9 +45,10 @@ namespace AiRise.Models.User
 
         [BsonElement("hydrationTarget")]
         [JsonPropertyName("hydrationTarget")]
-        public int HydrationTarget { get; set; } = 104; // ounces
-        [BsonElement("lastUpdatedAt")]
-        [JsonPropertyName("lastUpdatedAt")]
-        public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
+        public double HydrationTarget { get; set; } = 104; // ounces
+
+        [BsonElement("localDate")]
+        [JsonPropertyName("localDate")]
+        public DateOnly LocalDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
     }
 }
