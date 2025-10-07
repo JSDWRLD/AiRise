@@ -283,7 +283,7 @@ private fun SummaryBanner(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("$goal", color = White, fontSize = 18.sp, fontWeight = FontWeight.Medium)
                         Spacer(Modifier.width(8.dp))
-                        TextButton(onClick = onEditGoal, border = BorderStroke(1.dp, Cyan.copy(alpha = .45f))) { Text("Edit") }
+                        TextButton(onClick = onEditGoal, border = BorderStroke(1.dp, Cyan.copy(alpha = .45f))) { Text("Edit", color=White) }
                     }
                 }
             }
@@ -360,8 +360,13 @@ private fun MealSection(
                     .fillMaxWidth()
                     .padding(top = 8.dp),
                 border = BorderStroke(1.dp, Cyan.copy(alpha = 0.45f)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = White)
-            ) { Text("Add food") }
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Cyan,
+                    backgroundColor = Color.Transparent
+                )
+            ) {
+                Text("Add food", color=White)
+            }
         }
     }
 }
