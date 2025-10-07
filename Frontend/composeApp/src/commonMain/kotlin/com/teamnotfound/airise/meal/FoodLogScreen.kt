@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,26 +32,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import com.teamnotfound.airise.util.*
 import kotlinx.datetime.*
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Delete
 
-//date selector can be edited by arrows/manually - within a year
 @Composable
 fun FoodLogScreen(
     appNavController: NavHostController,
-    vm: MealViewModel = remember { MealViewModel.fake() }
+    vm: MealViewModel
 ) {
-    val s = vm.uiState
+    // Collect the UI state properly
+    val uiState = vm.uiState
+    val totalFood = vm.totalFood
+    val remaining = vm.remaining
 
     var showQuickAdd by remember { mutableStateOf(false) }
     var quickAddMeal by remember { mutableStateOf(MealType.Breakfast) }
     var showGoalEdit by remember { mutableStateOf(false) }
     var showMealPicker by remember { mutableStateOf(false) }
     var showDateInput by remember { mutableStateOf(false) }
-
-    // edit/delete targets
-    var editTarget by remember { mutableStateOf<FoodEntry?>(null) }
-    var deleteTarget by remember { mutableStateOf<FoodEntry?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editingEntry by remember { mutableStateOf<FoodEntry?>(null) }
 
     val bottomNavController = rememberNavController()
 
@@ -74,69 +74,141 @@ fun FoodLogScreen(
                 },
                 onClick = { showMealPicker = true },
                 backgroundColor = DeepBlue,
-                contentColor = Color.White,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                contentColor = White,
+                shape = RoundedCornerShape(28.dp),
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 8.dp
+                )
             )
         },
-        isFloatingActionButtonDocked = false
-    ) { paddingValues ->
-        Column(
+        floatingActionButtonPosition = FabPosition.End
+    ) { padding ->
+        Box(
             Modifier
                 .fillMaxSize()
                 .background(BgBlack)
-                .padding(paddingValues)
         ) {
-            // Header / date + summary
-            Spacer(Modifier.height(8.dp))
-            SummaryBanner(
-                goal = s.goal,
-                food = vm.totalFood,
-                exercise = s.exercise,
-                remaining = vm.remaining,
-                onEditGoal = { showGoalEdit = true },
-                onOpenDate = { showDateInput = true }
-            )
-
-            // Meals list
-            Spacer(Modifier.height(8.dp))
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 100.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .statusBarsPadding()
+                    .padding(top = 8.dp)
             ) {
-                val meals = s.day.meals
-                item {
-                    MealSection(
-                        title = "Breakfast",
-                        items = meals.breakfast,
-                        onAddFood = { quickAddMeal = MealType.Breakfast; showQuickAdd = true },
-                        onEditItem = { editTarget = it },
-                        onDeleteItem = { if (it.id != null) deleteTarget = it }
-                    )
+                DateSelectorDropdown(
+                    currentOffset = uiState.dayOffset,
+                    onPrev = vm::previousDay,
+                    onNext = vm::nextDay,
+                    onSelect = vm::setDayOffset,
+                    onOpenManual = { showDateInput = true }
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                SummaryBanner(
+                    goal = uiState.goal,
+                    food = totalFood,
+                    exercise = uiState.exercise,
+                    remaining = remaining,
+                    onEditGoalClick = { showGoalEdit = true }
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // Show error message if present
+                if (uiState.errorMessage != null) {
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.2f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = uiState.errorMessage,
+                            color = White,
+                            modifier = Modifier.padding(12.dp),
+                            fontSize = 14.sp
+                        )
+                    }
                 }
-                item {
-                    MealSection(
-                        title = "Lunch",
-                        items = meals.lunch,
-                        onAddFood = { quickAddMeal = MealType.Lunch; showQuickAdd = true },
-                        onEditItem = { editTarget = it },
-                        onDeleteItem = { if (it.id != null) deleteTarget = it }
-                    )
+
+                val meals = uiState.day.meals
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 100.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        MealSection(
+                            title = "Breakfast",
+                            items = meals.breakfast,
+                            onAddFood = {
+                                quickAddMeal = MealType.Breakfast
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
+                    }
+                    item {
+                        MealSection(
+                            title = "Lunch",
+                            items = meals.lunch,
+                            onAddFood = {
+                                quickAddMeal = MealType.Lunch
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
+                    }
+                    item {
+                        MealSection(
+                            title = "Dinner",
+                            items = meals.dinner,
+                            onAddFood = {
+                                quickAddMeal = MealType.Dinner
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
+                    }
                 }
-                item {
-                    MealSection(
-                        title = "Dinner",
-                        items = meals.dinner,
-                        onAddFood = { quickAddMeal = MealType.Dinner; showQuickAdd = true },
-                        onEditItem = { editTarget = it },
-                        onDeleteItem = { if (it.id != null) deleteTarget = it }
-                    )
+            }
+
+            // Loading overlay
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Cyan)
                 }
             }
         }
     }
 
-    //dialogs
+    // Dialogs
     if (showMealPicker) {
         MealPickerDialog(
             onDismiss = { showMealPicker = false },
@@ -162,16 +234,15 @@ fun FoodLogScreen(
     if (showGoalEdit) {
         EditNumberDialog(
             title = "Set Daily Calorie Goal",
-            initial = s.goal.toString(),
+            initial = uiState.goal.toString(),
             onConfirm = { vm.setGoal(it); showGoalEdit = false },
             onDismiss = { showGoalEdit = false }
         )
     }
 
     if (showDateInput) {
-        //converts manual date to vm offset and applies
         DateInputDialog(
-            currentOffset = s.dayOffset,
+            currentOffset = uiState.dayOffset,
             onDismiss = { showDateInput = false },
             onConfirmOffset = { newOffset ->
                 vm.setDayOffset(newOffset)
@@ -180,126 +251,113 @@ fun FoodLogScreen(
         )
     }
 
-    // Confirm Delete dialog
-    if (deleteTarget != null) {
-        AlertDialog(
-            onDismissRequest = { deleteTarget = null },
-            title = { Text("Delete entry?", color = White) },
-            text = { Text(deleteTarget!!.name, color = Silver) },
-            confirmButton = {
-                TextButton(onClick = {
-                    deleteTarget?.id?.let { vm.deleteEntry(it) }
-                    deleteTarget = null
-                }) { Text("Delete", color = White) }
+    if (showEditDialog && editingEntry != null) {
+        EditFoodDialog(
+            entry = editingEntry!!,
+            onDismiss = {
+                showEditDialog = false
+                editingEntry = null
             },
-            dismissButton = {
-                TextButton(onClick = { deleteTarget = null }) { Text("Cancel", color = White) }
-            },
-            backgroundColor = BgBlack,
-            shape = MaterialTheme.shapes.large
-        )
-    }
-
-    // Quick Edit dialog
-    if (editTarget != null) {
-        var name by remember { mutableStateOf(editTarget!!.name) }
-        var calories by remember { mutableStateOf(editTarget!!.calories.toInt().toString()) }
-
-        AlertDialog(
-            onDismissRequest = { editTarget = null },
-            title = { Text("Edit food", color = White) },
-            text = {
-                Column(Modifier.fillMaxWidth()) {
-                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = calories,
-                        onValueChange = { calories = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("Calories") }
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val updated = editTarget!!.copy(
-                        name = name,
-                        calories = calories.toDoubleOrNull() ?: editTarget!!.calories
-                    )
-                    editTarget!!.id?.let { vm.editEntry(it, updated) }
-                    editTarget = null
-                }) { Text("Save", color = White) }
-            },
-            dismissButton = { TextButton(onClick = { editTarget = null }) { Text("Cancel", color = White) } },
-            backgroundColor = BgBlack,
-            shape = MaterialTheme.shapes.large
+            onSave = { updated ->
+                vm.editEntry(editingEntry!!.id, updated)
+                showEditDialog = false
+                editingEntry = null
+            }
         )
     }
 }
 
-//summary card
 @Composable
 private fun SummaryBanner(
     goal: Int,
     food: Int,
     exercise: Int,
     remaining: Int,
-    onEditGoal: () -> Unit,
-    onOpenDate: () -> Unit
+    onEditGoalClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(18.dp)
+    val shape = RoundedCornerShape(20.dp)
 
-    Surface(
-        color = BgBlack,
-        contentColor = White,
-        elevation = 0.dp,
-        shape = shape,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .border(
-                BorderStroke(
-                    1.5.dp,
-                    Brush.linearGradient(listOf(Silver.copy(alpha = .35f), Cyan.copy(alpha = .25f)))
-                ),
-                shape
-            )
-    ) {
-        Column(Modifier.fillMaxWidth().padding(14.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+    Box(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 10.dp)) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Brush.radialGradient(colors = listOf(Cyan.copy(alpha = 0.18f), Transparent)))
+                .blur(22.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+        )
+        Card(
+            backgroundColor = BgBlack,
+            contentColor = White,
+            elevation = 0.dp,
+            shape = shape,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .border(
+                    BorderStroke(
+                        1.5.dp,
+                        Brush.linearGradient(listOf(Cyan.copy(alpha = 0.55f), Silver.copy(alpha = 0.25f)))
+                    ),
+                    shape
+                )
+                .clip(shape)
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Brush.linearGradient(listOf(White.copy(alpha = 0.05f), Transparent)))
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
-                Column(Modifier.weight(1f)) {
-                    Text("Calories", color = White, fontSize = 14.sp)
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text("$remaining", color = White, fontSize = 32.sp, fontWeight = FontWeight.ExtraBold)
-                        Spacer(Modifier.width(6.dp))
-                        Text("remaining", color = Silver, fontSize = 12.sp)
+                Column(Modifier.fillMaxWidth()) {
+                    Text("Calories Remaining", color = White.copy(alpha = .9f), fontSize = 14.sp)
+                    Spacer(Modifier.height(10.dp))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        SummaryCell(title = "Goal", value = goal.toString(), onValueClick = onEditGoalClick)
+                        OperatorCell("–")
+                        SummaryCell(title = "Food", value = food.toString())
+                        OperatorCell("+")
+                        SummaryCell(title = "Exercise", value = exercise.toString())
+                        OperatorCell("=")
+                        SummaryCell(title = "Remaining", value = remaining.toString(), highlight = false)
                     }
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("Daily goal", color = Silver, fontSize = 12.sp)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("$goal", color = White, fontSize = 18.sp, fontWeight = FontWeight.Medium)
-                        Spacer(Modifier.width(8.dp))
-                        TextButton(onClick = onEditGoal, border = BorderStroke(1.dp, Cyan.copy(alpha = .45f))) { Text("Edit", color=White) }
-                    }
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                StatChip("Food", food.toString())
-                StatChip("Exercise", exercise.toString())
-                DateChip(onOpen = onOpenDate) { Text("${Clock.System.todayIn(TimeZone.currentSystemDefault())}", color = White) }
             }
         }
     }
 }
 
 @Composable
-private fun StatChip(title: String, value: String, onValueClick: (() -> Unit)? = null, valueText: @Composable () -> Unit = { Text(value, color = White, fontSize = 18.sp, fontWeight = FontWeight.Medium) }) {
+private fun OperatorCell(symbol: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.width(22.dp)
+    ) {
+        Text(symbol, color = Silver.copy(alpha = 0.8f), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun SummaryCell(
+    title: String,
+    value: String,
+    highlight: Boolean = false,
+    onValueClick: (() -> Unit)? = null
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        val valueText = @Composable {
+            Text(
+                value,
+                color = White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         if (onValueClick != null) {
             Box(Modifier.clickable { onValueClick() }) { valueText() }
         } else valueText()
@@ -308,14 +366,13 @@ private fun StatChip(title: String, value: String, onValueClick: (() -> Unit)? =
     }
 }
 
-//meals
 @Composable
 private fun MealSection(
     title: String,
     items: List<FoodEntry>,
     onAddFood: () -> Unit,
-    onEditItem: (FoodEntry) -> Unit,
-    onDeleteItem: (FoodEntry) -> Unit
+    onEditFood: (FoodEntry) -> Unit,
+    onDeleteFood: (String) -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
 
@@ -349,8 +406,8 @@ private fun MealSection(
             items.forEach { item ->
                 FoodRow(
                     item = item,
-                    onEdit = { onEditItem(item) },
-                    onDelete = { onDeleteItem(item) }
+                    onEdit = { onEditFood(item) },
+                    onDelete = { onDeleteFood(item.id) }
                 )
             }
 
@@ -360,74 +417,70 @@ private fun MealSection(
                     .fillMaxWidth()
                     .padding(top = 8.dp),
                 border = BorderStroke(1.dp, Cyan.copy(alpha = 0.45f)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Cyan,
-                    backgroundColor = Color.Transparent
-                )
+                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
+                shape = RoundedCornerShape(14.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp)
             ) {
-                Text("Add food", color=White)
+                Text("ADD FOOD", color = White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
-// ----------------------
-// Row for a single entry
-// ----------------------
 @Composable
 private fun FoodRow(
     item: FoodEntry,
-    onEdit: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
+    var showMenu by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(14.dp)
+
     Surface(
         color = DeepBlue.copy(alpha = 0.20f),
         shape = shape,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = 8.dp)
+            .clickable { showMenu = true },
         elevation = 0.dp
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                Text("1 item", color = Silver, fontSize = 12.sp)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                Spacer(Modifier.width(8.dp))
-                if (onEdit != null) {
-                    IconButton(onClick = onEdit) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = White
-                        )
-                    }
+        Box {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("1 item", color = Silver, fontSize = 12.sp)
                 }
-                if (onDelete != null) {
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = White
-                        )
-                    }
+                Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(BgBlack)
+            ) {
+                DropdownMenuItem(onClick = {
+                    showMenu = false
+                    onEdit()
+                }) {
+                    Text("Edit", color = White)
+                }
+                DropdownMenuItem(onClick = {
+                    showMenu = false
+                    onDelete()
+                }) {
+                    Text("Delete", color = Color.Red.copy(alpha = 0.8f))
                 }
             }
         }
     }
 }
 
-// ----------------------
-// Dialogs and inputs
-// ----------------------
 @Composable
 private fun EditNumberDialog(
     title: String,
@@ -454,69 +507,75 @@ private fun EditNumberDialog(
                 value = text,
                 onValueChange = { v -> text = v.filter { it.isDigit() }.take(5) },
                 label = { Text("Calories") },
-                colors = fieldColors,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                singleLine = true,
+                colors = fieldColors
             )
         },
-        confirmButton = {
-            TextButton(onClick = { text.toIntOrNull()?.let(onConfirm) }) { Text("Save", color = White) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
-        },
-        backgroundColor = BgBlack
+        confirmButton = { TextButton(onClick = { onConfirm(text.toIntOrNull() ?: 0) }) { Text("Save", color = White) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
     )
 }
 
 @Composable
-private fun DateChip(onOpen: () -> Unit, content: @Composable RowScope.() -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = DeepBlue,
-        contentColor = White
-    ) {
-        Row(
-            Modifier
-                .clip(RoundedCornerShape(24.dp))
-                .clickable { onOpen() }
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) { content() }
-    }
-}
-
-@Composable
-private fun MealPickerDialog(onDismiss: () -> Unit, onPick: (MealType) -> Unit) {
-    var expanded by remember { mutableStateOf(true) }
+private fun MealPickerDialog(
+    onDismiss: () -> Unit,
+    onPick: (MealType) -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Log to which meal?", color = White) },
+        title = { Text("Log to", color = White) },
         text = {
-            Column(Modifier.fillMaxWidth()) {
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    DropdownMenuItem(onClick = { onPick(MealType.Breakfast) }) { Text("Breakfast") }
-                    DropdownMenuItem(onClick = { onPick(MealType.Lunch) }) { Text("Lunch") }
-                    DropdownMenuItem(onClick = { onPick(MealType.Dinner) }) { Text("Dinner") }
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                MealPickRow("Breakfast") { onPick(MealType.Breakfast) }
+                MealPickRow("Lunch") { onPick(MealType.Lunch) }
+                MealPickRow("Dinner") { onPick(MealType.Dinner) }
             }
         },
         confirmButton = {},
-        backgroundColor = BgBlack
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
     )
+}
+
+@Composable
+private fun MealPickRow(label: String, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(14.dp)
+    Surface(
+        color = DeepBlue.copy(alpha = 0.25f),
+        shape = shape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .clickable { onClick() }
+    ) {
+        Box(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Text(label, color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
+    }
 }
 
 @Composable
 private fun QuickAddDialog(
     meal: MealType,
     onDismiss: () -> Unit,
-    onAdd: (calories: Int, name: String, serving: String, fats: Double, carbs: Double, proteins: Double) -> Unit
+    onAdd: (cal: Int, name: String, serving: String, fats: Double, carbs: Double, proteins: Double) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
     var calories by remember { mutableStateOf("") }
-    var serving by remember { mutableStateOf("1") }
+    var name by remember { mutableStateOf("") }
+    var serving by remember { mutableStateOf("") }
     var fats by remember { mutableStateOf("") }
     var carbs by remember { mutableStateOf("") }
     var proteins by remember { mutableStateOf("") }
+
+    fun numericDecimal(s: String): String {
+        val filtered = s.filter { it.isDigit() || it == '.' }
+        val dots = filtered.count { it == '.' }
+        return if (dots <= 1) filtered.take(7)
+        else filtered.replaceFirst(".", "#").replace(".", "").replace("#", ".").take(7)
+    }
 
     val fieldColors = TextFieldDefaults.outlinedTextFieldColors(
         textColor = White,
@@ -529,19 +588,56 @@ private fun QuickAddDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Quick add to ${'$'}meal", color = White) },
+        title = { Text("Quick Add — ${meal.name}", color = White) },
         text = {
-            Column(Modifier.fillMaxWidth()) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, colors = fieldColors)
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = calories, onValueChange = { v -> calories = v.filter { it.isDigit() } }, label = { Text("Calories") }, colors = fieldColors, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = serving, onValueChange = { serving = it }, label = { Text("Serving") }, colors = fieldColors)
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = fats, onValueChange = { fats = it }, label = { Text("Fat g") }, colors = fieldColors, modifier = Modifier.weight(1f))
-                    OutlinedTextField(value = carbs, onValueChange = { carbs = it }, label = { Text("Carbs g") }, colors = fieldColors, modifier = Modifier.weight(1f))
-                    OutlinedTextField(value = proteins, onValueChange = { proteins = it }, label = { Text("Protein g") }, colors = fieldColors, modifier = Modifier.weight(1f))
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = calories,
+                    onValueChange = { calories = it.filter(Char::isDigit).take(5) },
+                    label = { Text("Calories") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                OutlinedTextField(
+                    value = serving,
+                    onValueChange = { serving = it },
+                    label = { Text("Serving") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                Divider(color = DeepBlue.copy(alpha = 0.35f))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = fats,
+                        onValueChange = { fats = numericDecimal(it) },
+                        label = { Text("Fat   (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = carbs,
+                        onValueChange = { carbs = numericDecimal(it) },
+                        label = { Text("Carbs (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = proteins,
+                        onValueChange = { proteins = numericDecimal(it) },
+                        label = { Text("Protein (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
                 }
             }
         },
@@ -549,7 +645,7 @@ private fun QuickAddDialog(
             TextButton(onClick = {
                 onAdd(
                     calories.toIntOrNull() ?: 0,
-                    name.ifBlank { "Quick Add" },
+                    name,
                     serving,
                     fats.toDoubleOrNull() ?: 0.0,
                     carbs.toDoubleOrNull() ?: 0.0,
@@ -558,8 +654,183 @@ private fun QuickAddDialog(
             }) { Text("Add", color = White) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
     )
+}
+
+@Composable
+private fun EditFoodDialog(
+    entry: FoodEntry,
+    onDismiss: () -> Unit,
+    onSave: (FoodEntry) -> Unit
+) {
+    var calories by remember { mutableStateOf(entry.calories.toInt().toString()) }
+    var name by remember { mutableStateOf(entry.name) }
+    var fats by remember { mutableStateOf(entry.fats.toString()) }
+    var carbs by remember { mutableStateOf(entry.carbs.toString()) }
+    var proteins by remember { mutableStateOf(entry.proteins.toString()) }
+
+    fun numericDecimal(s: String): String {
+        val filtered = s.filter { it.isDigit() || it == '.' }
+        val dots = filtered.count { it == '.' }
+        return if (dots <= 1) filtered.take(7)
+        else filtered.replaceFirst(".", "#").replace(".", "").replace("#", ".").take(7)
+    }
+
+    val fieldColors = TextFieldDefaults.outlinedTextFieldColors(
+        textColor = White,
+        focusedBorderColor = Cyan,
+        unfocusedBorderColor = Silver,
+        cursorColor = White,
+        focusedLabelColor = Silver,
+        unfocusedLabelColor = Silver
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Food", color = White) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = calories,
+                    onValueChange = { calories = it.filter(Char::isDigit).take(5) },
+                    label = { Text("Calories") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                Divider(color = DeepBlue.copy(alpha = 0.35f))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = fats,
+                        onValueChange = { fats = numericDecimal(it) },
+                        label = { Text("Fat   (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = carbs,
+                        onValueChange = { carbs = numericDecimal(it) },
+                        label = { Text("Carbs (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = proteins,
+                        onValueChange = { proteins = numericDecimal(it) },
+                        label = { Text("Protein (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val updated = entry.copy(
+                    calories = calories.toDoubleOrNull() ?: 0.0,
+                    name = name,
+                    fats = fats.toDoubleOrNull() ?: 0.0,
+                    carbs = carbs.toDoubleOrNull() ?: 0.0,
+                    proteins = proteins.toDoubleOrNull() ?: 0.0
+                )
+                onSave(updated)
+            }) { Text("Save", color = White) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
+    )
+}
+
+@Composable
+private fun DateSelectorDropdown(
+    currentOffset: Int,
+    onPrev: () -> Unit,
+    onNext: () -> Unit,
+    onSelect: (Int) -> Unit,
+    onOpenManual: () -> Unit
+) {
+    val shape = RoundedCornerShape(18.dp)
+    var expanded by remember { mutableStateOf(false) }
+
+    val tz = remember { TimeZone.currentSystemDefault() }
+    val today = remember { Clock.System.todayIn(tz) }
+    val dateLabel = remember(currentOffset, today) {
+        offsetToDate(currentOffset, today).formatYmd()
+    }
+
+    val minOffsetExclusive = 1 - 364
+    val maxOffsetExclusive = 1 + 364
+    val canPrev = currentOffset > minOffsetExclusive
+    val canNext = currentOffset < maxOffsetExclusive
+
+    Surface(
+        color = BgBlack,
+        contentColor = White,
+        elevation = 0.dp,
+        shape = shape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .border(
+                BorderStroke(1.5.dp, Brush.linearGradient(listOf(Silver.copy(.35f), Cyan.copy(.25f)))),
+                shape
+            )
+    ) {
+        Box {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "←",
+                    color = if (canPrev) White else Silver,
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .let { if (canPrev) it.clickable { onPrev() } else it }
+                )
+                Text(
+                    text = dateLabel,
+                    color = White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { expanded = !expanded }
+                )
+                Text(
+                    "→",
+                    color = if (canNext) White else Silver,
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .let { if (canNext) it.clickable { onNext() } else it }
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth().background(BgBlack)
+            ) {
+                DropdownMenuItem(onClick = {
+                    expanded = false
+                    onOpenManual()
+                }) {
+                    Text("Enter Date", color = White)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -568,21 +839,129 @@ private fun DateInputDialog(
     onDismiss: () -> Unit,
     onConfirmOffset: (Int) -> Unit
 ) {
-    var text by remember { mutableStateOf(currentOffset.toString()) }
+    val tz = remember { TimeZone.currentSystemDefault() }
+    val today = remember { Clock.System.todayIn(tz) }
+
+    val minInclusive = remember { today.minus(DatePeriod(years = 1)).plus(1, DateTimeUnit.DAY) }
+    val maxInclusive = remember { today.plus(DatePeriod(years = 1)).minus(1, DateTimeUnit.DAY) }
+
+    val prefill = remember { offsetToDate(currentOffset, today) }
+
+    var year by remember { mutableStateOf(prefill.year.toString()) }
+    var month by remember { mutableStateOf(prefill.monthNumber.toString()) }
+    var day by remember { mutableStateOf(prefill.dayOfMonth.toString()) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    fun digitsOnly(src: String, maxLen: Int): String =
+        src.filter(Char::isDigit).take(maxLen)
+
+    fun validateAndConfirm() {
+        val y = year.toIntOrNull()
+        val m = month.toIntOrNull()
+        val d = day.toIntOrNull()
+        if (y == null || m == null || d == null) {
+            error = "Please enter numbers for all fields."
+            return
+        }
+        if (year.length != 4) { error = "Year must be 4 digits."; return }
+        if (m !in 1..12) { error = "Month must be 1–12."; return }
+        if (d !in 1..31) { error = "Day must be 1–31."; return }
+
+        val picked = try { LocalDate(y, m, d) } catch (_: Exception) {
+            error = "That date isn't valid."; return
+        }
+
+        if (picked < minInclusive || picked > maxInclusive) {
+            error = "Pick a date within 1 year of today."
+            return
+        }
+
+        error = null
+        onConfirmOffset(dateToOffset(picked, today))
+    }
+
+    val fieldColors = TextFieldDefaults.outlinedTextFieldColors(
+        textColor = White,
+        focusedBorderColor = Cyan,
+        unfocusedBorderColor = Silver,
+        cursorColor = White,
+        focusedLabelColor = Silver,
+        unfocusedLabelColor = Silver,
+        placeholderColor = Silver
+    )
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Jump to day offset", color = White) },
+        title = { Text("Enter date", color = White) },
         text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { v -> text = v.filter { it.isDigit() }.take(4) },
-                label = { Text("Offset") }
-            )
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = year,
+                        onValueChange = { year = digitsOnly(it, 4) },
+                        label = { Text("YYYY") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = fieldColors,
+                        modifier = Modifier.weight(1.2f)
+                    )
+                    OutlinedTextField(
+                        value = month,
+                        onValueChange = { month = digitsOnly(it, 2) },
+                        label = { Text("MM") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = fieldColors,
+                        modifier = Modifier.weight(0.9f)
+                    )
+                    OutlinedTextField(
+                        value = day,
+                        onValueChange = { day = digitsOnly(it, 2) },
+                        label = { Text("DD") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = fieldColors,
+                        modifier = Modifier.weight(0.9f)
+                    )
+                }
+
+                Spacer(Modifier.height(6.dp))
+                if (error != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(error!!, color = White, fontSize = 12.sp)
+                }
+            }
         },
         confirmButton = {
-            TextButton(onClick = { text.toIntOrNull()?.let(onConfirmOffset) }) { Text("Go", color = White) }
+            TextButton(onClick = { validateAndConfirm() }) { Text("Go", color = White) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
     )
+}
+
+private fun dateToOffset(
+    date: LocalDate,
+    today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+): Int {
+    val delta = today.daysUntil(date)
+    return 1 + delta
+}
+
+private fun offsetToDate(
+    offset: Int,
+    today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
+): LocalDate {
+    val delta = offset - 1
+    return today.plus(delta, DateTimeUnit.DAY)
+}
+
+private fun LocalDate.formatYmd(): String {
+    val monthName = month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+    return "$year $monthName $dayOfMonth"
 }
