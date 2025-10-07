@@ -18,38 +18,30 @@ class GeminiApiHelperTest {
     @Test
     fun `healthSnapshot includes all fields when present`() {
         val health = HealthData(
-            id = "test-id",
-            userDataHealthId = "user-123",
             steps = 5000,
-            workout = 30,
             caloriesBurned = 250,
-            sleepHours = 7.5,
-            avgHeartRate = 70,
-            hydration = 2.0f
+            caloriesEaten = 1640,
+            sleep = 7.5,
+            hydration = 2.0
         )
 
         val result = api.testHealthSnapshot(health)
 
         assertNotNull(result)
         assertTrue(result.contains("steps=5000"))
-        assertTrue(result.contains("workout_min=30"))
+        assertTrue(result.contains("kcal_eaten=1640"))
         assertTrue(result.contains("kcal_burned=250"))
         assertTrue(result.contains("sleep_h=7.5"))
-        assertTrue(result.contains("avg_hr=70"))
-        assertTrue(result.contains("water_l=2.0"))
+        assertTrue(result.contains("water_oz=2.0"))
     }
 
     @Test
     fun `healthSnapshot excludes zero values`() {
         val health = HealthData(
-            id = "test-id",
-            userDataHealthId = "user-123",
             steps = 5000,
-            workout = 0,
             caloriesBurned = 0,
-            sleepHours = 7.5,
-            avgHeartRate = 0,
-            hydration = 0f
+            sleep = 7.5,
+            hydration = 0.0
         )
 
         val result = api.testHealthSnapshot(health)
@@ -57,7 +49,6 @@ class GeminiApiHelperTest {
         assertNotNull(result)
         assertTrue(result.contains("steps=5000"))
         assertTrue(result.contains("sleep_h=7.5"))
-        assertFalse(result.contains("workout"))
         assertFalse(result.contains("kcal_burned"))
     }
 
@@ -71,7 +62,7 @@ class GeminiApiHelperTest {
     fun `progressSnapshot clamps values to 0-100 range`() {
         val progress = DailyProgressData(
             totalProgress = 150f,  // over 100
-            workoutProgress = -10f,  // negative
+            caloriesProgress = -10f,  // negative
             sleepProgress = 50f,
             hydrationProgress = 75f
         )
@@ -80,7 +71,6 @@ class GeminiApiHelperTest {
 
         assertNotNull(result)
         assertTrue(result.contains("progress_total=100"))
-        assertTrue(result.contains("workout=0"))
         assertTrue(result.contains("sleep=50"))
         assertTrue(result.contains("hydration=75"))
     }
@@ -158,11 +148,10 @@ class GeminiApiTestHelper {
         if (h == null) return null
         val parts = buildList {
             if (h.steps > 0) add("steps=${h.steps}")
-            if (h.workout > 0) add("workout_min=${h.workout}")
             if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
-            if (h.sleepHours > 0.0) add("sleep_h=${h.sleepHours}")
-            if (h.avgHeartRate > 0) add("avg_hr=${h.avgHeartRate}")
-            if (h.hydration > 0f) add("water_l=${h.hydration}")
+            if (h.caloriesEaten > 0) add ("kcal_eaten=${h.caloriesEaten}")
+            if (h.sleep > 0.0) add("sleep_h=${h.sleep}")
+            if (h.hydration > 0f) add("water_oz=${h.hydration}")
         }
         return parts.takeIf { it.isNotEmpty() }?.joinToString("; ")
     }
@@ -173,11 +162,11 @@ class GeminiApiTestHelper {
         fun pct(x: Float) = x.coerceIn(0f, 100f).toInt()
 
         val total = pct(p.totalProgress)
-        val workout = pct(p.workoutProgress)
+        val calories = pct(p.caloriesProgress)
         val sleep = pct(p.sleepProgress)
         val hydra = pct(p.hydrationProgress)
 
-        return "progress_total=$total; workout=$workout; sleep=$sleep; hydration=$hydra"
+        return "progress_total=$total; calories=$calories; sleep=$sleep; hydration=$hydra"
     }
 
     fun testBuildProfileBlock(

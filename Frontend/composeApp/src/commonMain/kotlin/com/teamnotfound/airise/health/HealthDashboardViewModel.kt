@@ -10,8 +10,8 @@ class HealthDashboardViewModel(
     private val provider: HealthDataProvider
 ) : ViewModel() {
 
-    private val _healthData = MutableStateFlow<HealthData?>(null)
-    val healthData: StateFlow<HealthData?> = _healthData
+    private val _healthData = MutableStateFlow<IHealthData?>(null)
+    val healthData: StateFlow<IHealthData?> = _healthData
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading

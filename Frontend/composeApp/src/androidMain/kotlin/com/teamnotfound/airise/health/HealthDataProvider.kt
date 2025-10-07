@@ -65,7 +65,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         return permissionResponse.isNotEmpty()
     }
 
-    actual suspend fun getHealthData(): HealthData = withContext(Dispatchers.Default) {
+    actual suspend fun getHealthData(): IHealthData = withContext(Dispatchers.Default) {
         // Init start and end time when fun is called
         val startTime = Clock.System.now().minus(1.days)
         val endTime = Clock.System.now()
@@ -74,7 +74,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         // Reading records
         val activeCaloriesRecord = kHealth.readRecords(KHReadRequest.ActiveCaloriesBurned(KHUnit.Energy.Calorie, startTime, endTime))
         val stepRecord = kHealth.readRecords(KHReadRequest.StepCount(startTime, endTime))
-        val heartRateRecord = kHealth.readRecords(KHReadRequest.HeartRate(startTime, endTime))
+        val hydrationRecord = kHealth.readRecords(KHReadRequest.Hydration(unit = KHUnit.Volume.FluidOunceUS, startTime, endTime))
         val sleepRecord = kHealth.readRecords(KHReadRequest.SleepSession(sleepStart, endTime))
 
 
@@ -85,14 +85,9 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         }
 
         // Flatten heart rate samples and calculate the average BPM
-        val heartRateSamples = heartRateRecord
-            .filterIsInstance<KHRecord.HeartRate>()
-            .flatMap { it.samples }
-            .map { it.beatsPerMinute }
-
-        val heartRate = if (heartRateSamples.isNotEmpty())
-            heartRateSamples.average().toInt()
-        else 0
+        val hydration = hydrationRecord.sumOf {
+            (it as? KHRecord.Hydration)?.value ?: 0.0
+        }
 
         // Calculating active calories
         val activeCalories = activeCaloriesRecord.sumOf {
@@ -104,11 +99,11 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         val sleepHours = mostRecentSession?.totalSleepHours() ?: 0.0
 
         // Passing to Health Data object for UI
-        object : HealthData {
-            override val activeCalories = activeCalories
+        object : IHealthData {
+            override val caloriesBurned = activeCalories
             override val steps = steps
-            override val heartRate = heartRate
-            override val sleepHours = sleepHours
+            override val sleep = sleepHours
+            override val hydration = hydration
         }
     }
 

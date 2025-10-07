@@ -31,10 +31,8 @@ class HomeViewModelKHealthTest {
                 HealthData(
                     caloriesBurned = 123,
                     steps = 1200,
-                    avgHeartRate = 61,
-                    sleepHours = 6.5,
-                    workout = 3,
-                    hydration = 2850f
+                    sleep = 6.5,
+                    hydration = 32.0
                 )
             }
         )

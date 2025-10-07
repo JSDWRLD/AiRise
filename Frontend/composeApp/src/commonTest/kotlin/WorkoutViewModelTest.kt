@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import com.teamnotfound.airise.data.serializable.ProgramType
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.repository.IUserRepository
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserChallenge
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.util.NetworkError
@@ -167,6 +168,15 @@ class MockUserRepository(
     override suspend fun updateUserProgram(userProgram: UserProgram): Result<Boolean, NetworkError> {
         lastUpdateProgramCall = userProgram
         return updateUserProgramResult
+    }
+
+    override suspend fun getHealthData(): Result<HealthData, NetworkError> {
+        val hd = HealthData()
+        return Result.Success(hd)
+    }
+
+    override suspend fun updateHealthData(healthData: HealthData): Result<Boolean, NetworkError> {
+        return Result.Success(true)
     }
 }
 

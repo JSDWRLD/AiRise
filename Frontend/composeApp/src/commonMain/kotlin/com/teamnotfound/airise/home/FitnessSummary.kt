@@ -143,7 +143,7 @@ fun FitnessSummarySection(
                 Spacer(modifier = Modifier.height(16.dp))
                 FitnessStatBox("Steps", healthData.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
             }
-            HeartRateBox("Heart", healthData.avgHeartRate.toString(), "bpm", Modifier.weight(1.2f))
+            HeartRateBox("Hydration", healthData.hydration.toString(), "fluid ounces", Modifier.weight(1.2f))
         }
 
         Spacer(modifier = Modifier.height(4.dp))
