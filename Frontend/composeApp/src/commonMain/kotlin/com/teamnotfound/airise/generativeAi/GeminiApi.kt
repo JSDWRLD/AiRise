@@ -13,8 +13,6 @@ import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
 
 class GeminiApi {
-    private val promptTodaysOverview =
-        "With a 100 word limit and , write a fitness summary for today to a user using the data provided from the perspective a of a coach."
     private val apiKey = BuildKonfig.GEMINI_API_KEY
 
 
@@ -32,11 +30,42 @@ class GeminiApi {
         return generativeModel.generateContent(prompt)
     }
 
-    suspend fun generateTodaysOverview(healthData: HealthData): GenerateContentResponse {
-        val healthDataString = Json.encodeToString(healthData)
-        val promptWithData =
-            "Use the following health data for today's overview:\n$healthDataString\n\n$promptTodaysOverview"
-        return generativeModel.generateContent(promptWithData)
+    suspend fun generateTodaysOverview(
+        healthData: HealthData,
+        dailyProgress: DailyProgressData? = null
+    ): GenerateContentResponse {
+        // Build compact context blocks
+        val snapshot = healthSnapshot(healthData)
+        val progress = progressSnapshot(dailyProgress)
+
+        // If everything is zero/empty, still send a minimal prompt
+        val contextBlock = buildString {
+            snapshot?.let {
+                appendLine("[SNAPSHOT_TODAY]")
+                appendLine(it)
+            }
+            progress?.let {
+                appendLine()
+                appendLine("[PROGRESS]")
+                appendLine(it)
+            }
+        }.ifBlank { "[SNAPSHOT_TODAY]\n(no metrics available)" }
+
+        val prompt = buildString {
+            appendLine("You are Coach Rise, a concise, supportive, evidence-based fitness coach.")
+            appendLine("Write ONE short paragraph of 3–4 sentences (≤100 words).")
+            appendLine("Use metrics below only as evidence—mention numbers/units and weave them into sentences.")
+            appendLine("Start with quick praise tied to a metric, then give 1–2 specific next actions (time-bound or quantity-based).")
+            appendLine("Prioritize the lowest areas in PROGRESS if present; otherwise suggest a small stretch goal for tomorrow.")
+            appendLine("Do NOT list metrics, repeat the metrics block, or output headings/brackets/bullets. No 'Goal:' or 'Status:'.")
+            appendLine("Do NOT invent numbers; copy exactly if you choose to mention them.")
+            appendLine()
+            appendLine("METRICS (context only):")
+            appendLine(contextBlock) // your snapshot/progress text
+        }.trim()
+
+
+        return generativeModel.generateContent(prompt)
     }
 
     suspend fun generateContentOnce(
@@ -71,11 +100,12 @@ class GeminiApi {
         if (h == null) return null
         val parts = buildList {
             if (h.steps > 0) add("steps=${h.steps}")
-            if (h.workout > 0) add("workout_min=${h.workout}")
             if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
-            if (h.sleepHours > 0f) add("sleep_h=${h.sleepHours}")
-            if (h.avgHeartRate > 0) add("avg_hr=${h.avgHeartRate}")
-            if (h.hydration > 0f) add("water_l=${h.hydration}")
+            if (h.caloriesEaten > 0) add("kcal_eaten = ${h.caloriesEaten}")
+            if (h.caloriesTarget > 0) add("kcal_eaten_target = ${h.caloriesTarget}")
+            if (h.sleep > 0f) add("sleep_h=${h.sleep}")
+            if (h.hydration > 0f) add("water_oz=${h.hydration}")
+            if (h.hydrationTarget > 0f) add("water_oz_target=${h.hydrationTarget}")
         }
         return parts.takeIf { it.isNotEmpty() }?.joinToString("; ")
     }
@@ -86,7 +116,7 @@ class GeminiApi {
         fun pct(x: Float) = x.coerceIn(0f, 100f).roundToInt()
 
         val total = pct(p.totalProgress)
-        val workout = pct(p.workoutProgress)
+        val workout = pct(p.caloriesProgress)
         val sleep   = pct(p.sleepProgress)
         val hydra   = pct(p.hydrationProgress)
 
