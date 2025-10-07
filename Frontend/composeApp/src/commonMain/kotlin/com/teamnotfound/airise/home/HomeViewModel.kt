@@ -136,14 +136,36 @@ class HomeViewModel(private val userRepository: IUserRepository,
                     errorMessage = null
                 )
             } catch (e: Exception) {
+                val fallbackOverview = generateFallbackOverview(updatedHealthData)
                 _uiState.value = _uiState.value.copy(
-                    overview = "Error generating Today's Overview",
+                    overview = fallbackOverview,
                     isOverviewLoaded = true,
-                    errorMessage = e.toString()
+                    errorMessage = "Couldn't generate AI summary. Showing basic data."
                 )
             }
         }
     }
+
+    private fun generateFallbackOverview(data: HealthData): String {
+        val stepsComment = when {
+            data.steps > 10000 -> "Fantastic job on your steps today! You're crushing it."
+            data.steps > 5000 -> "Great work staying active! You're well on your way to your step goal."
+            data.steps > 0 -> "A good start to the day. Let's keep that momentum going!"
+            else -> "Ready to get moving? Every step counts towards your goal!"
+        }
+
+        val caloriesComment = when {
+            data.caloriesBurned > 500 -> "You've been burning a lot of energy. Excellent effort!"
+            data.caloriesBurned > 200 -> "You're making solid progress on your calorie burn. Keep it up!"
+            data.caloriesBurned > 0 -> "You've started the day strong. Let's see what else you can do!"
+            else -> "Your body is fueled and ready for a great workout today."
+        }
+
+        return "Here's your current progress report for the day:\n" +
+                "Activity: $stepsComment\n" +
+                "Energy: $caloriesComment"
+    }
+
     private fun loadDailyProgress(){
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
@@ -240,7 +262,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
                 // Push to backend (if signed in)
                 Firebase.auth.currentUser?.let { user ->
                     when (val res = userClient.updateHealthData(user, mapped)) {
-                        is com.teamnotfound.airise.data.network.Result.Error -> {
+                        is Result.Error -> {
                             _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
                         }
                         else -> Unit

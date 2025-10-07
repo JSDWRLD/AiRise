@@ -12,9 +12,8 @@ import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
 
-class GeminiApi {
+open class GeminiApi {
     private val apiKey = BuildKonfig.GEMINI_API_KEY
-
 
     val generativeVisionModel = GenerativeModel(
         modelName = "gemini-2.0-flash",
@@ -142,7 +141,7 @@ class GeminiApi {
         return lines.takeIf { it.isNotEmpty() }?.joinToString("\n")
     }
 
-    suspend fun chatReplyWithContext(
+    open suspend fun chatReplyWithContext(
         userMsg: String,
         priorTurns: List<AiMessage> = emptyList(),
         workoutGoal: String? = null,
@@ -254,8 +253,7 @@ class GeminiApi {
 
         return try {
             val text = generateContentOnce(prompt, imageData)
-            if (text.isNotBlank()) text
-            else "I couldn’t read that image. Try another photo or add a brief note about what you want me to analyze."
+            text.ifBlank { "I couldn’t read that image. Try another photo or add a brief note about what you want me to analyze." }
         } catch (e: Exception) {
             // (optional) println("vision error: ${e.message}")
             "Sorry, I couldn’t analyze that image right now."
