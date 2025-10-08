@@ -28,6 +28,9 @@ import com.khealth.KHealth
 import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.notifications.LocalNotifierAndroid
 import notifications.WorkoutReminderUseCase
+import notifications.MealReminderUseCase
+import notifications.NudgeReminderUseCase
+import notifications.WaterReminderUseCase
 import android.os.Build
 import android.app.AlarmManager
 import android.content.Context
@@ -67,6 +70,10 @@ class MainActivity : ComponentActivity() {
         val httpClient = createHttpClient(OkHttp.create())
         val notifier: LocalNotifier = LocalNotifierAndroid(this)
         val reminder = WorkoutReminderUseCase(notifier)
+        val mealReminder = MealReminderUseCase(notifier)
+        val waterReminder = WaterReminderUseCase(notifier)
+        val nudgeReminder = NudgeReminderUseCase(notifier)
+
 
 
         val container = AppContainer(
@@ -96,6 +103,10 @@ class MainActivity : ComponentActivity() {
 
         requestExactAlarmIfNeeded()
 
+        mealReminder.scheduleDailyMeals()
+        waterReminder.scheduleEvery2h()
+        nudgeReminder.scheduleDailyLogin()
+        nudgeReminder.scheduleDailyChallenge()
 
 
     }
