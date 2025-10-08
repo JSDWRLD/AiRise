@@ -3,6 +3,7 @@ package com.teamnotfound.airise.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
+import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.data.serializable.DailyProgressData
@@ -12,6 +13,7 @@ import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
