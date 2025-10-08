@@ -3,28 +3,41 @@ package notifications
 class WaterReminderUseCase(private val notifier: LocalNotifier) {
     private val baseId = 4000
 
-    fun scheduleEvery2h(startHour: Int = 9, endHour: Int = 21, intervalMinutes: Int = 120) {
-        // clear previous
-        for (i in 0..12) notifier.cancel(baseId + i)
+    fun scheduleEvery2h(
+        startHour: Int = 9,
+        startMinute: Int = 0,
+        endHour: Int = 21,
+        endMinute: Int = 0,
+        intervalMinutes: Int = 120
+    ) {
+        require(intervalMinutes in 1..(24 * 60)) { "intervalMinutes must be 1..1440" }
 
-        var h = startHour
-        var id = baseId
-        while (h <= endHour) {
+        cancelAll()
+
+        val start = startHour * 60 + startMinute
+        val end   = endHour   * 60 + endMinute
+        var t     = start
+        var id    = baseId
+
+        var iterations = 0
+        val maxIterations = 200
+
+        while (t <= end && iterations < maxIterations) {
+            val h = t / 60
+            val m = t % 60
             notifier.scheduleDaily(
                 id = id++,
                 title = "Hydration time!",
-                body = "Don't forget to drink some water",
+                body = "Don’t forget to drink some water",
                 hour = h,
-                minute = 0
+                minute = m
             )
-            h += intervalMinutes / 60
+            t += intervalMinutes
+            iterations++
         }
     }
 
     fun cancelAll() {
-        for (i in 0..12) notifier.cancel(baseId + i)
+        for (i in 0..200) notifier.cancel(baseId + i)
     }
 }
-
-
-
