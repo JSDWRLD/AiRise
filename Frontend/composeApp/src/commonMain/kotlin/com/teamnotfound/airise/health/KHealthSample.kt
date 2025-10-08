@@ -206,8 +206,8 @@ fun sampleWriteData(kHealth: KHealth) {
                 time = Clock.System.now(),
             ),
             KHRecord.Hydration(
-                unit = KHUnit.Volume.Liter,
-                value = 3.3,
+                unit = KHUnit.Volume.FluidOunceUS,
+                value = 19.5,
                 startTime = Clock.System.now().minus(2.minutes),
                 endTime = Clock.System.now(),
             ),
@@ -456,7 +456,7 @@ fun sampleReadData(kHealth: KHealth) {
                     ) +
                     readRecords(
                         KHReadRequest.Hydration(
-                            unit = KHUnit.Volume.Liter,
+                            unit = KHUnit.Volume.FluidOunceUS,
                             startTime = startTime,
                             endTime = endTime
                         )

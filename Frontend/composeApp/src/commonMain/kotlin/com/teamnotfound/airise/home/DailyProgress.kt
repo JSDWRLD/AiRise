@@ -81,7 +81,7 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
                         }
 
                         drawProgressArc(NeonGreen, dailyProgressData.sleepProgress, 0, strokeWidth, gap)
-                        drawProgressArc(Orange, dailyProgressData.workoutProgress, 1, strokeWidth, gap)
+                        drawProgressArc(Orange, dailyProgressData.caloriesProgress, 1, strokeWidth, gap)
                         drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
                     }
 
@@ -109,7 +109,7 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
-                Legend(Orange, "Workouts: ", dailyProgressData.workoutProgress.toInt())
+                Legend(Orange, "Calorie Intake: ", dailyProgressData.caloriesProgress.toInt())
                 Spacer(modifier = Modifier.height(6.dp))
                 Legend(Cyan, "Hydration: ", dailyProgressData.hydrationProgress.toInt())
             }

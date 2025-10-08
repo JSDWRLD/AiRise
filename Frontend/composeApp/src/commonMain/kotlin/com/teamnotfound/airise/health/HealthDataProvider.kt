@@ -2,17 +2,16 @@ package com.teamnotfound.airise.health
 
 import com.khealth.KHealth
 
-interface HealthData {
-    val activeCalories : Int
+interface IHealthData {
+    val caloriesBurned: Int
     val steps: Int
-    val heartRate: Int
-    val sleepHours: Double
-    // Add more fields as needed
+    val hydration: Double
+    val sleep: Double
 }
 
 expect class HealthDataProvider(kHealth: KHealth) {
     suspend fun requestPermissions(): Boolean
-    suspend fun getHealthData(): HealthData
+    suspend fun getHealthData(): IHealthData
     suspend fun writeHealthData() : Boolean
     // Add more functions as needed
 }

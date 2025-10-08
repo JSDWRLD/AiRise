@@ -107,7 +107,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 DailyProgressSection(
                     dailyProgressData = uiState.value.dailyProgressData,
                     isLoaded = uiState.value.isDailyProgressLoaded,
-                    lastNightSleepHours = uiState.value.healthData.sleepHours
+                    lastNightSleepHours = uiState.value.healthData.sleep
                     )
 
                 Spacer(modifier = Modifier.height(10.dp))

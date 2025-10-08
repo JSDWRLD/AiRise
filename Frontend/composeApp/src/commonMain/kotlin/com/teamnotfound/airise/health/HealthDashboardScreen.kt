@@ -70,11 +70,11 @@ fun HealthDashboardScreen(
             } else if (error != null) {
                 Text("Error: $error", color = Orange)
             } else if (healthData != null) {
-                HealthMetricCard(label = "Active Calories", value = "${healthData!!.activeCalories}", unit = "cal")
+                HealthMetricCard(label = "Active Calories", value = "${healthData!!.caloriesBurned}", unit = "cal")
                 Spacer(modifier = Modifier.height(12.dp))
                 HealthMetricCard(label = "Steps", value = "${healthData!!.steps}", unit = "steps")
                 Spacer(modifier = Modifier.height(12.dp))
-                HealthMetricCard(label = "Heart Rate", value = "${healthData!!.heartRate}", unit = "bpm")
+                HealthMetricCard(label = "Hydration", value = "${healthData!!.hydration}", unit = "fluid ounces")
             } else {
                 Text("No data available", color = Silver)
             }

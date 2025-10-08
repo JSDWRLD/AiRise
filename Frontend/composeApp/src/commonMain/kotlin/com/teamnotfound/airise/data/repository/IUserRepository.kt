@@ -1,15 +1,12 @@
 package com.teamnotfound.airise.data.repository
 
-import com.teamnotfound.airise.data.cache.UserCache
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserProgram
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import com.teamnotfound.airise.util.NetworkError
-import dev.gitlive.firebase.auth.FirebaseAuth
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
-import com.teamnotfound.airise.data.serializable.User
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserChallenge
 
 /**
@@ -42,5 +39,14 @@ interface IUserRepository {
      * Update the user's workout program
      */
     suspend fun updateUserProgram(userProgram: UserProgram): Result<Boolean, NetworkError>
+
+    /**
+     * Get the user's Health Data
+     */
+    suspend fun getHealthData(): Result<HealthData, NetworkError>
+    /**
+     * Update the user's health data
+     */
+    suspend fun updateHealthData(healthData: HealthData): Result<Boolean, NetworkError>
 
 }

@@ -23,11 +23,8 @@ import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.min
 import kotlin.random.Random
-/*FOR PRESENTATION
-    email: nd131814@gmail.com
-    password: @Aa123456
- */
 
 class HomeViewModel(private val userRepository: IUserRepository,
                     private val userClient: UserClient,
@@ -37,18 +34,13 @@ class HomeViewModel(private val userRepository: IUserRepository,
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    private lateinit var todaysHealthData: HealthData
     private var hasRequestedHealthPerms = false
     private lateinit var updatedHealthData: HealthData
 
     init {
         generateGreeting()
         getUsername()
-        getTodaysHealthData()
-        generateOverview()
-        loadDailyProgress()
-        loadFitnessSummary()
-        getUserProfilePic()
+        getHealthDataAndLoadWithData()
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
@@ -64,7 +56,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
-    fun getUserProfilePic() {
+    private fun getUserProfilePic() {
         viewModelScope.launch {
             val user = Firebase.auth.currentUser
             if (user == null) {
@@ -118,29 +110,26 @@ class HomeViewModel(private val userRepository: IUserRepository,
         val randomIndex = Random.nextInt(generalGreetings.size)
         _uiState.value = _uiState.value.copy(greeting = generalGreetings[randomIndex])
     }
-    private fun getTodaysHealthData(){
-        //Gets overwritten by KHealth once permissions are given
-        todaysHealthData = HealthData(
-            caloriesBurned = 0,
-            steps = 0,
-            avgHeartRate = 0,
-            sleepHours = 6.5,
-            workout = 3,
-            hydration = 2850f
-        )
+
+    private fun getHealthDataAndLoadWithData(){
+        viewModelScope.launch {
+            when (val result = userRepository.getHealthData()) {
+                is Result.Error<NetworkError> -> _uiState.value = _uiState.value.copy(username = result.error.toString(), isUserDataLoaded = true)
+                is Result.Success<HealthData> -> {
+                    _uiState.value = _uiState.value.copy(healthData =  result.data)
+                }
+            }
+            generateOverview()
+            loadDailyProgress()
+            loadFitnessSummary()
+            getUserProfilePic()
+        }
+
     }
     private fun generateOverview() {
         viewModelScope.launch {
             try {
-                if (!::updatedHealthData.isInitialized) {
-                    _uiState.value = _uiState.value.copy(
-                        overview = "Looks like you just got started! Congratulations on taking the first step in your physical wellbeing. For more detailed info on your progress, sync your health data to see your overview.",
-                        isOverviewLoaded = true,
-                        errorMessage = null
-                    )
-                    return@launch
-                }
-                val result = geminiApi.generateTodaysOverview(healthData = updatedHealthData)
+                val result = geminiApi.generateTodaysOverview(healthData = uiState.value.healthData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoaded = true,
@@ -180,13 +169,14 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun loadDailyProgress(){
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
-        val sleepPercentage = (todaysHealthData.sleepHours.toFloat() / 8f) * 100
-        val workoutPercentage = (todaysHealthData.workout / 5f) * 100
-        val hydrationPercentage = (todaysHealthData.hydration / 4000f) * 100
-        val totalPercentage = (sleepPercentage + workoutPercentage + hydrationPercentage) / 3f
+        val healthData = uiState.value.healthData
+        val sleepPercentage = min(healthData.sleep.toFloat() / 8f, 1f) * 100
+        val caloriesPercentage = min(healthData.caloriesEaten / healthData.caloriesTarget.toFloat(), 1f ) * 100
+        val hydrationPercentage = min((healthData.hydration.toFloat() / 104f), 1f) * 100
+        val totalPercentage = (sleepPercentage + caloriesPercentage + hydrationPercentage) / 3f
         val progressData = DailyProgressData(
             sleepProgress = sleepPercentage,
-            workoutProgress = workoutPercentage,
+            caloriesProgress = caloriesPercentage,
             hydrationProgress = hydrationPercentage,
             totalProgress = totalPercentage
         )
@@ -219,7 +209,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
         //Use real data for given time frame once available
-        updatedHealthData = todaysHealthData
+        updatedHealthData = uiState.value.healthData
 
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
@@ -247,17 +237,17 @@ class HomeViewModel(private val userRepository: IUserRepository,
 
                 val platformHealth = provider.getHealthData()
                 // Map platform health into serializable HealthData model
-                val mapped = com.teamnotfound.airise.data.serializable.HealthData(
-                    caloriesBurned = platformHealth.activeCalories,
+                val mapped = HealthData(
+                    caloriesEaten = uiState.value.healthData.caloriesEaten,
+                    caloriesTarget = uiState.value.healthData.caloriesTarget,
+                    hydrationTarget = uiState.value.healthData.hydrationTarget,
+                    caloriesBurned = platformHealth.caloriesBurned,
                     steps = platformHealth.steps,
-                    avgHeartRate = platformHealth.heartRate,
-                    sleepHours =  platformHealth.sleepHours,
-                    workout = todaysHealthData.workout, // TODO replace with .platformhealth
-                    hydration = todaysHealthData.hydration // TODO replace with .platformhealth
+                    sleep =  platformHealth.sleep,
+                    hydration = platformHealth.hydration
                 )
 
                 updatedHealthData = mapped
-                todaysHealthData = mapped
 
                 // Update UI
                 _uiState.value = _uiState.value.copy(
@@ -271,8 +261,8 @@ class HomeViewModel(private val userRepository: IUserRepository,
 
                 // Push to backend (if signed in)
                 Firebase.auth.currentUser?.let { user ->
-                    when (val res = userClient.insertHealthData(user, mapped)) {
-                        is com.teamnotfound.airise.data.network.Result.Error -> {
+                    when (val res = userClient.updateHealthData(user, mapped)) {
+                        is Result.Error -> {
                             _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
                         }
                         else -> Unit
@@ -300,7 +290,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
     // Used for Unit testing
     data class ProviderOverrides(
         val requestPermissions: (suspend () -> Boolean)? = null,
-        val getMappedHealthData: (suspend () -> com.teamnotfound.airise.data.serializable.HealthData)? = null,
+        val getMappedHealthData: (suspend () -> HealthData)? = null,
         val writeHealthData: (suspend () -> Boolean)? = null
     )
 }

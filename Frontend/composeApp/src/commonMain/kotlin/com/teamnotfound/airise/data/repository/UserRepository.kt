@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.serializable.UserProgramDoc
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseAuth
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserChallenge
 
 class UserRepository(
@@ -72,6 +73,32 @@ class UserRepository(
             val firebaseUser = auth.currentUser
             if (firebaseUser != null) {
                 userClient.updateUserProgram(firebaseUser, userProgram)
+            } else {
+                Result.Error(NetworkError.UNAUTHORIZED)
+            }
+        } catch (e: Exception) {
+            Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    override suspend fun getHealthData(): Result<HealthData, NetworkError> {
+        return try {
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                userClient.getHealthData(firebaseUser)
+            } else {
+                Result.Error(NetworkError.UNAUTHORIZED)
+            }
+        } catch (e: Exception) {
+            Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    override suspend fun updateHealthData(healthData: HealthData): Result<Boolean, NetworkError> {
+        return try {
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                userClient.updateHealthData(firebaseUser, healthData)
             } else {
                 Result.Error(NetworkError.UNAUTHORIZED)
             }
