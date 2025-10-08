@@ -115,8 +115,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar"
-        android:usesCleartextTraffic="true">
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <!-- For supported versions through Android 13, create an activity to show the rationale
      of Health Connect permissions once users click the privacy policy link. -->

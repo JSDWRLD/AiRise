@@ -29,7 +29,7 @@ import com.teamnotfound.airise.data.serializable.UserProgram
 class   UserClient(
     private val httpClient: HttpClient
 ) {
-    private val baseUrl = "http://10.0.2.2:5249/api"//"https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
+    private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
 
     /**
      * API call to register a new user.
@@ -65,7 +65,6 @@ class   UserClient(
     suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
-        println(token)
         val response = try {
             httpClient.get("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
