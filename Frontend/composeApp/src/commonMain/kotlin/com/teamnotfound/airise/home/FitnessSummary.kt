@@ -52,7 +52,7 @@ fun FitnessSummarySection(
     onTimeFrameSelected: (String) -> Unit,
     onRefreshHealth: () -> Unit,
     onWriteSample: () -> Unit,
-    onHydrationUpdated: (Float) -> Unit
+    onHydrationUpdated: (Double) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -210,16 +210,16 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
 
 @Composable
 fun HydrationBox(
-    hydration: Float,
-    onHydrationUpdated: (Float) -> Unit,
+    hydration: Double,
+    onHydrationUpdated: (Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var manualInput by remember { mutableStateOf("") }
     var inputError by remember { mutableStateOf<String?>(null) }
 
-    val waterBottleSize = 16.9f // oz per water bottle
+    val waterBottleSize = 16.9 // oz per water bottle
     val totalBottles = 8
-    val maxHydration = 200f
+    val maxHydration = 200.0
 
     Column(
         modifier = modifier
@@ -273,7 +273,7 @@ fun HydrationBox(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 for (i in 0 until totalBottles) {
-                    val bottleFillPercentage = ((hydration - (i * waterBottleSize)) / waterBottleSize).coerceIn(0f, 1f)
+                    val bottleFillPercentage = ((hydration - (i * waterBottleSize)) / waterBottleSize).coerceIn(0.0, 1.0)
 
                     Box(
                         modifier = Modifier
@@ -283,11 +283,11 @@ fun HydrationBox(
                             .background(DeepBlue.copy(alpha = 0.5f))
                     ) {
                         // Water fill for this bottle
-                        if (bottleFillPercentage > 0) {
+                        if (bottleFillPercentage > 0.0) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .fillMaxWidth(bottleFillPercentage)
+                                    .fillMaxWidth()
                                     .align(Alignment.BottomStart)
                                     .background(
                                         brush = Brush.verticalGradient(
@@ -310,7 +310,7 @@ fun HydrationBox(
                         // Bottle number
                         Text(
                             text = "${i + 1}",
-                            color = if (bottleFillPercentage > 0.5f) White else Silver,
+                            color = if (bottleFillPercentage > 0.5) White else Silver,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.align(Alignment.Center)
@@ -382,13 +382,13 @@ fun HydrationBox(
 
                 Button(
                     onClick = {
-                        val newHydration = manualInput.toFloatOrNull()
+                        val newHydration = manualInput.toDoubleOrNull()
                         when {
                             newHydration == null -> {
                                 inputError = "Please enter a valid number"
                             }
                             !isHydrationInputValid(newHydration, maxHydration) -> {
-                                inputError = "Enter 0-${maxHydration.toInt()} oz"
+                                inputError = "Enter 0-${maxHydration.toFloat()} oz"
                             }
                             else -> {
                                 onHydrationUpdated(newHydration)
@@ -416,6 +416,6 @@ fun HydrationBox(
     }
 }
 
-private fun isHydrationInputValid(input: Float, maxHydration: Float): Boolean {
-    return input in 0f..maxHydration
+private fun isHydrationInputValid(input: Double, maxHydration: Double): Boolean {
+    return input in 0.0..maxHydration
 }

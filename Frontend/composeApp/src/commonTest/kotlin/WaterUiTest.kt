@@ -7,8 +7,8 @@ class WaterUiTest {
     @Test
     fun hydration_update_button_should_only_enable_on_input() {
         // Arrange
-        val hydration = 100f
-        val maxHydration = 200f
+        val hydration = 100.0
+        val maxHydration = 200.0
         var updateEnable = false
 
         // Act
@@ -23,17 +23,17 @@ class WaterUiTest {
 
     @Test
     fun isHydrationInputValid_should_validate_input_range_correctly() {
-        val maxHydration = 200f
+        val maxHydration = 200.0
 
         // Valid inputs
-        assertEquals(isHydrationInputValid(0f, maxHydration), true)
-        assertEquals(isHydrationInputValid(50f, maxHydration), true)
-        assertEquals(isHydrationInputValid(135.2f, maxHydration), true)
+        assertEquals(isHydrationInputValid(0.0, maxHydration), true)
+        assertEquals(isHydrationInputValid(50.0, maxHydration), true)
+        assertEquals(isHydrationInputValid(135.2, maxHydration), true)
 
         // Invalid inputs
-        assertEquals(isHydrationInputValid(-1f, maxHydration), false)
-        assertEquals(isHydrationInputValid(-100f, maxHydration), false)
-        assertEquals(isHydrationInputValid(201f, maxHydration), false)
+        assertEquals(isHydrationInputValid(-1.0, maxHydration), false)
+        assertEquals(isHydrationInputValid(-100.0, maxHydration), false)
+        assertEquals(isHydrationInputValid(201.0, maxHydration), false)
     }
 
     @Test
@@ -53,15 +53,15 @@ class WaterUiTest {
     @Test
     fun test_hydration_input_updates_value_correctly() {
         // Arrange
-        var capturedValue: Float? = null
-        val newValue = 100.5f
+        var capturedValue: Double? = null
+        val newValue = 100.5
 
         // Act
-        val onValueChange: (Float) -> Unit = { capturedValue = it }
+        val onValueChange: (Double) -> Unit = { capturedValue = it }
 
         // Simulating the user typing "100.5"
         val newText = "100.5"
-        onValueChange(newText.toFloatOrNull() ?: 0f)
+        onValueChange(newText.toDoubleOrNull() ?: 0.0)
 
         // Assert
         assertEquals(newValue, capturedValue)
@@ -70,8 +70,8 @@ class WaterUiTest {
     @Test
     fun test_hydration_value_is_displayed_as_integer() {
         // Arrange
-        val hydration = 16.9f
-        val maxHydration = 200f
+        val hydration = 16.9
+        val maxHydration = 200.0
         val expectedValue = 16
 
         // Act
@@ -81,8 +81,8 @@ class WaterUiTest {
         assertEquals(expectedValue, displayedValue)
     }
 
-    private fun isHydrationInputValid(input: Float, maxHydration: Float): Boolean {
-        return input in 0f..maxHydration
+    private fun isHydrationInputValid(input: Double, maxHydration: Double): Boolean {
+        return input in 0.0..maxHydration
     }
 
     private fun isValidHydrationInput(input: String): Boolean {

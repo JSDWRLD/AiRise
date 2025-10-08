@@ -289,7 +289,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
-    fun updateHydration(newHydration: Float) {
+    fun updateHydration(newHydration: Double) {
         viewModelScope.launch {
             try {
                 val updatedHealthData = _uiState.value.healthData.copy(
@@ -302,7 +302,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
 
                 // Update backend
                 Firebase.auth.currentUser?.let { user ->
-                    when (val result = userClient.insertHealthData(user, updatedHealthData)) {
+                    when (val result = userClient.updateHealthData(user, updatedHealthData)) {
                         is Result.Success -> {
                             _uiState.value = _uiState.value.copy(errorMessage = null)
                         }
