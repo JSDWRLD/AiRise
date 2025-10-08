@@ -287,6 +287,38 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
+    fun updateHydration(newHydration: Float) {
+        viewModelScope.launch {
+            try {
+                val updatedHealthData = _uiState.value.healthData.copy(
+                    hydration = newHydration
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    healthData = updatedHealthData
+                )
+
+                // Update backend
+                Firebase.auth.currentUser?.let { user ->
+                    when (val result = userClient.insertHealthData(user, updatedHealthData)) {
+                        is Result.Success -> {
+                            _uiState.value = _uiState.value.copy(errorMessage = null)
+                        }
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(errorMessage = "Failed to update hydration: ${result.error}")
+                        }
+                    }
+                }
+
+                // Update daily progress with new hydration data
+                loadDailyProgress()
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Error updating hydration: ${e.message}")
+            }
+        }
+    }
+
     // Used for Unit testing
     data class ProviderOverrides(
         val requestPermissions: (suspend () -> Boolean)? = null,

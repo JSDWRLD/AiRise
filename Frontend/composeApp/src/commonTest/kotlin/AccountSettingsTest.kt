@@ -97,7 +97,7 @@ class AccountSettingsTest {
     }
 
     @Test
-    fun `date validation should handle leap years correctly`() {
+    fun date_validation_should_handle_leap_years_correctly() {
         // Test cases: (year, month, day, expectedIsValid)
         val testCases = listOf(
             Triple(2020, 2, 29),   // Leap year
