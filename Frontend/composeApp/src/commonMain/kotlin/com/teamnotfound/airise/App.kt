@@ -49,6 +49,7 @@ import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.workout.WorkoutScreen
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.meal.FoodLogScreen
+import com.teamnotfound.airise.meal.MealViewModel
 
 
 @Composable
@@ -244,7 +245,14 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
 
                 // Meal/food log
                 composable(route = AppScreen.MEAL.name) {
-                    FoodLogScreen(appNavController = navController)
+                    val vm = remember {
+                        MealViewModel.network(
+                            dataClient = container.dataClient,
+                            firebaseUser = Firebase.auth.currentUser
+                                ?: error("Not logged in")
+                        )
+                    }
+                    FoodLogScreen(appNavController = navController, vm = vm)
                 }
 
                 //Navigation Bar and overview screen

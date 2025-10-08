@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.DropdownMenu
@@ -34,19 +33,23 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.teamnotfound.airise.util.*
 import kotlinx.datetime.*
 
-//date selector can be edited by arrows/manually - within a year
 @Composable
 fun FoodLogScreen(
     appNavController: NavHostController,
-    vm: MealViewModel = remember { MealViewModel.fake() }
+    vm: MealViewModel
 ) {
-    val s = vm.uiState
+    // Collect the UI state properly
+    val uiState = vm.uiState
+    val totalFood = vm.totalFood
+    val remaining = vm.remaining
 
     var showQuickAdd by remember { mutableStateOf(false) }
     var quickAddMeal by remember { mutableStateOf(MealType.Breakfast) }
     var showGoalEdit by remember { mutableStateOf(false) }
     var showMealPicker by remember { mutableStateOf(false) }
     var showDateInput by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editingEntry by remember { mutableStateOf<FoodEntry?>(null) }
 
     val bottomNavController = rememberNavController()
 
@@ -81,61 +84,131 @@ fun FoodLogScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
-        Column(
+        Box(
             Modifier
                 .fillMaxSize()
                 .background(BgBlack)
-                .padding(padding)
-                .statusBarsPadding()
-                .padding(top = 8.dp)
         ) {
-            //shows actual date from offset
-            DateSelectorDropdown(
-                currentOffset = s.dayOffset,
-                onPrev = vm::previousDay,
-                onNext = vm::nextDay,
-                onSelect = vm::setDayOffset,
-                onOpenManual = { showDateInput = true }
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            SummaryBanner(
-                goal = s.goal,
-                food = vm.totalFood,
-                exercise = s.exercise,
-                remaining = vm.remaining,
-                onEditGoalClick = { showGoalEdit = true }
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            val meals = s.day.meals
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 100.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .statusBarsPadding()
+                    .padding(top = 8.dp)
             ) {
-                item {
-                    MealSection("Breakfast", meals.breakfast) {
-                        quickAddMeal = MealType.Breakfast; showQuickAdd = true
+                DateSelectorDropdown(
+                    currentOffset = uiState.dayOffset,
+                    onPrev = vm::previousDay,
+                    onNext = vm::nextDay,
+                    onSelect = vm::setDayOffset,
+                    onOpenManual = { showDateInput = true }
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                SummaryBanner(
+                    goal = uiState.goal,
+                    food = totalFood,
+                    exercise = uiState.exercise,
+                    remaining = remaining,
+                    onEditGoalClick = { showGoalEdit = true }
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // Show error message if present
+                if (uiState.errorMessage != null) {
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.2f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = uiState.errorMessage,
+                            color = White,
+                            modifier = Modifier.padding(12.dp),
+                            fontSize = 14.sp
+                        )
                     }
                 }
-                item {
-                    MealSection("Lunch", meals.lunch) {
-                        quickAddMeal = MealType.Lunch; showQuickAdd = true
+
+                val meals = uiState.day.meals
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 100.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        MealSection(
+                            title = "Breakfast",
+                            items = meals.breakfast,
+                            onAddFood = {
+                                quickAddMeal = MealType.Breakfast
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
+                    }
+                    item {
+                        MealSection(
+                            title = "Lunch",
+                            items = meals.lunch,
+                            onAddFood = {
+                                quickAddMeal = MealType.Lunch
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
+                    }
+                    item {
+                        MealSection(
+                            title = "Dinner",
+                            items = meals.dinner,
+                            onAddFood = {
+                                quickAddMeal = MealType.Dinner
+                                showQuickAdd = true
+                            },
+                            onEditFood = { entry ->
+                                editingEntry = entry
+                                showEditDialog = true
+                            },
+                            onDeleteFood = { entryId ->
+                                vm.deleteEntry(entryId)
+                            }
+                        )
                     }
                 }
-                item {
-                    MealSection("Dinner", meals.dinner) {
-                        quickAddMeal = MealType.Dinner; showQuickAdd = true
-                    }
+            }
+
+            // Loading overlay
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Cyan)
                 }
             }
         }
     }
 
-    //dialogs
+    // Dialogs
     if (showMealPicker) {
         MealPickerDialog(
             onDismiss = { showMealPicker = false },
@@ -161,17 +234,15 @@ fun FoodLogScreen(
     if (showGoalEdit) {
         EditNumberDialog(
             title = "Set Daily Calorie Goal",
-            initial = s.goal.toString(),
+            initial = uiState.goal.toString(),
             onConfirm = { vm.setGoal(it); showGoalEdit = false },
             onDismiss = { showGoalEdit = false }
         )
     }
 
-
     if (showDateInput) {
-        //converts manual date to vm offset and applies
         DateInputDialog(
-            currentOffset = s.dayOffset,
+            currentOffset = uiState.dayOffset,
             onDismiss = { showDateInput = false },
             onConfirmOffset = { newOffset ->
                 vm.setDayOffset(newOffset)
@@ -179,9 +250,23 @@ fun FoodLogScreen(
             }
         )
     }
+
+    if (showEditDialog && editingEntry != null) {
+        EditFoodDialog(
+            entry = editingEntry!!,
+            onDismiss = {
+                showEditDialog = false
+                editingEntry = null
+            },
+            onSave = { updated ->
+                vm.editEntry(editingEntry!!.id, updated)
+                showEditDialog = false
+                editingEntry = null
+            }
+        )
+    }
 }
 
-//summary card
 @Composable
 private fun SummaryBanner(
     goal: Int,
@@ -193,7 +278,6 @@ private fun SummaryBanner(
     val shape = RoundedCornerShape(20.dp)
 
     Box(Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 10.dp)) {
-        //added glow for each card
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -282,12 +366,13 @@ private fun SummaryCell(
     }
 }
 
-//meals
 @Composable
 private fun MealSection(
     title: String,
     items: List<FoodEntry>,
-    onAddFood: () -> Unit
+    onAddFood: () -> Unit,
+    onEditFood: (FoodEntry) -> Unit,
+    onDeleteFood: (String) -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
 
@@ -318,7 +403,13 @@ private fun MealSection(
                 if (total > 0) Text("$total", color = White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
             }
 
-            items.forEach { item -> FoodRow(item) }
+            items.forEach { item ->
+                FoodRow(
+                    item = item,
+                    onEdit = { onEditFood(item) },
+                    onDelete = { onDeleteFood(item.id) }
+                )
+            }
 
             OutlinedButton(
                 onClick = onAddFood,
@@ -337,32 +428,59 @@ private fun MealSection(
 }
 
 @Composable
-private fun FoodRow(item: FoodEntry) {
+private fun FoodRow(
+    item: FoodEntry,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(14.dp)
+
     Surface(
         color = DeepBlue.copy(alpha = 0.20f),
         shape = shape,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = 8.dp)
+            .clickable { showMenu = true },
         elevation = 0.dp
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                Text("1 item", color = Silver, fontSize = 12.sp)
+        Box {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text("1 item", color = Silver, fontSize = 12.sp)
+                }
+                Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
             }
-            Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                modifier = Modifier.background(BgBlack)
+            ) {
+                DropdownMenuItem(onClick = {
+                    showMenu = false
+                    onEdit()
+                }) {
+                    Text("Edit", color = White)
+                }
+                DropdownMenuItem(onClick = {
+                    showMenu = false
+                    onDelete()
+                }) {
+                    Text("Delete", color = Color.Red.copy(alpha = 0.8f))
+                }
+            }
         }
     }
 }
 
-//dialogs
 @Composable
 private fun EditNumberDialog(
     title: String,
@@ -541,7 +659,100 @@ private fun QuickAddDialog(
     )
 }
 
-//date selector - vm keeps offset, arrows disabled if past a year, dropdown for entering date
+@Composable
+private fun EditFoodDialog(
+    entry: FoodEntry,
+    onDismiss: () -> Unit,
+    onSave: (FoodEntry) -> Unit
+) {
+    var calories by remember { mutableStateOf(entry.calories.toInt().toString()) }
+    var name by remember { mutableStateOf(entry.name) }
+    var fats by remember { mutableStateOf(entry.fats.toString()) }
+    var carbs by remember { mutableStateOf(entry.carbs.toString()) }
+    var proteins by remember { mutableStateOf(entry.proteins.toString()) }
+
+    fun numericDecimal(s: String): String {
+        val filtered = s.filter { it.isDigit() || it == '.' }
+        val dots = filtered.count { it == '.' }
+        return if (dots <= 1) filtered.take(7)
+        else filtered.replaceFirst(".", "#").replace(".", "").replace("#", ".").take(7)
+    }
+
+    val fieldColors = TextFieldDefaults.outlinedTextFieldColors(
+        textColor = White,
+        focusedBorderColor = Cyan,
+        unfocusedBorderColor = Silver,
+        cursorColor = White,
+        focusedLabelColor = Silver,
+        unfocusedLabelColor = Silver
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Food", color = White) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = calories,
+                    onValueChange = { calories = it.filter(Char::isDigit).take(5) },
+                    label = { Text("Calories") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    colors = fieldColors
+                )
+                Divider(color = DeepBlue.copy(alpha = 0.35f))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = fats,
+                        onValueChange = { fats = numericDecimal(it) },
+                        label = { Text("Fat   (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = carbs,
+                        onValueChange = { carbs = numericDecimal(it) },
+                        label = { Text("Carbs (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                    OutlinedTextField(
+                        value = proteins,
+                        onValueChange = { proteins = numericDecimal(it) },
+                        label = { Text("Protein (g)") },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        colors = fieldColors
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val updated = entry.copy(
+                    calories = calories.toDoubleOrNull() ?: 0.0,
+                    name = name,
+                    fats = fats.toDoubleOrNull() ?: 0.0,
+                    carbs = carbs.toDoubleOrNull() ?: 0.0,
+                    proteins = proteins.toDoubleOrNull() ?: 0.0
+                )
+                onSave(updated)
+            }) { Text("Save", color = White) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
+        backgroundColor = BgBlack,
+        shape = MaterialTheme.shapes.large
+    )
+}
+
 @Composable
 private fun DateSelectorDropdown(
     currentOffset: Int,
@@ -553,14 +764,12 @@ private fun DateSelectorDropdown(
     val shape = RoundedCornerShape(18.dp)
     var expanded by remember { mutableStateOf(false) }
 
-    //label real date
     val tz = remember { TimeZone.currentSystemDefault() }
     val today = remember { Clock.System.todayIn(tz) }
     val dateLabel = remember(currentOffset, today) {
         offsetToDate(currentOffset, today).formatYmd()
     }
 
-    //cannot reach exactly ±1 year
     val minOffsetExclusive = 1 - 364
     val maxOffsetExclusive = 1 + 364
     val canPrev = currentOffset > minOffsetExclusive
@@ -624,7 +833,6 @@ private fun DateSelectorDropdown(
     }
 }
 
-//manual date input with three fields
 @Composable
 private fun DateInputDialog(
     currentOffset: Int,
@@ -634,11 +842,9 @@ private fun DateInputDialog(
     val tz = remember { TimeZone.currentSystemDefault() }
     val today = remember { Clock.System.todayIn(tz) }
 
-    // strictly within (today-1year, today+1year)
     val minInclusive = remember { today.minus(DatePeriod(years = 1)).plus(1, DateTimeUnit.DAY) }
     val maxInclusive = remember { today.plus(DatePeriod(years = 1)).minus(1, DateTimeUnit.DAY) }
 
-    //current offset
     val prefill = remember { offsetToDate(currentOffset, today) }
 
     var year by remember { mutableStateOf(prefill.year.toString()) }
@@ -662,7 +868,7 @@ private fun DateInputDialog(
         if (d !in 1..31) { error = "Day must be 1–31."; return }
 
         val picked = try { LocalDate(y, m, d) } catch (_: Exception) {
-            error = "That date isn’t valid."; return
+            error = "That date isn't valid."; return
         }
 
         if (picked < minInclusive || picked > maxInclusive) {
@@ -739,17 +945,6 @@ private fun DateInputDialog(
     )
 }
 
-//helpers
-//vm offset/label
-private fun dayLabel(offset: Int): String =
-    when (offset) {
-        0 -> "Yesterday"
-        1 -> "Today"
-        2 -> "Tomorrow"
-        else -> if (offset > 2) "+${offset - 1} days" else "${offset - 1} days"
-    }
-
-// 0 today, -1 yesterday, +1 tomorrow
 private fun dateToOffset(
     date: LocalDate,
     today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -758,7 +953,6 @@ private fun dateToOffset(
     return 1 + delta
 }
 
-//convert offset back to a LocalDate
 private fun offsetToDate(
     offset: Int,
     today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -767,9 +961,7 @@ private fun offsetToDate(
     return today.plus(delta, DateTimeUnit.DAY)
 }
 
-//format for LocalDate
 private fun LocalDate.formatYmd(): String {
     val monthName = month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
     return "$year $monthName $dayOfMonth"
 }
-
