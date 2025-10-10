@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AiRise.Models.DTOs;
 using AiRise.Models.FoodDiary;
+using AiRise.Models.User;
 using MongoDB.Driver;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AiRise.Services
 {
     public class FoodDiaryService
     {
         private readonly IMongoCollection<FoodDiaryMonth> _foodDiaryCollection;
+        private readonly IMongoCollection<UserHealthData> _userHealthDataCollection;
+        private readonly IUserHealthDataService _userHealthDataService;
 
         // Production ctor (creates unique index on UserId+Year+Month)
-        public FoodDiaryService(MongoDBService mongoDBService)
+        public FoodDiaryService(MongoDBService mongoDBService, IUserHealthDataService userHealthDataService)
         {
             _foodDiaryCollection = mongoDBService.GetCollection<FoodDiaryMonth>("food.diary");
+            _userHealthDataCollection = mongoDBService.GetCollection<UserHealthData>("user.healthdata");
+            _userHealthDataService = userHealthDataService;
 
             var keys = Builders<FoodDiaryMonth>.IndexKeys
                 .Ascending(x => x.UserId)
@@ -93,6 +100,8 @@ namespace AiRise.Services
                 monthDoc,
                 new ReplaceOptions { IsUpsert = true },
                 ct);
+            // sync the calories with Health Data (only if present local date for user)
+            await syncUserHealthDataCaloriesAsync(userId, year, month, day, (int)dayDoc.TotalCalories);
         }
 
         // EDIT (by explicit y/m/d/meal/entryId)
@@ -124,6 +133,8 @@ namespace AiRise.Services
                 monthDoc,
                 new ReplaceOptions { IsUpsert = true },
                 ct);
+            // sync the calories with Health Data (only if present local date for user)
+            await syncUserHealthDataCaloriesAsync(userId, year, month, day, (int)dayDoc.TotalCalories);
         }
 
         // DELETE (by explicit y/m/d/meal/entryId)
@@ -152,6 +163,8 @@ namespace AiRise.Services
                 monthDoc,
                 new ReplaceOptions { IsUpsert = true },
                 ct);
+            // sync the calories with Health Data (only if present local date for user)
+            await syncUserHealthDataCaloriesAsync(userId, year, month, day, (int)dayDoc.TotalCalories);
         }
 
         // EDIT (by entryId only — scans user's months/days/meals)
@@ -183,6 +196,14 @@ namespace AiRise.Services
                             monthDoc,
                             new ReplaceOptions { IsUpsert = true },
                             ct);
+                        // Sync total calories with UserHealthData (if present local date for user)
+                        await syncUserHealthDataCaloriesAsync(
+                            userId,
+                            monthDoc.Year,
+                            monthDoc.Month,
+                            day.Day,
+                            (int)day.TotalCalories
+                        );
                         return;
                     }
                 }
@@ -219,6 +240,14 @@ namespace AiRise.Services
                             monthDoc,
                             new ReplaceOptions { IsUpsert = true },
                             ct);
+                        // Sync total calories with UserHealthData (if present local date for user)
+                        await syncUserHealthDataCaloriesAsync(
+                            userId,
+                            monthDoc.Year,
+                            monthDoc.Month,
+                            day.Day,
+                            (int)day.TotalCalories
+                        );
                         return;
                     }
                 }
@@ -307,6 +336,22 @@ namespace AiRise.Services
                 (meals.Lunch?.Sum(e => e.Calories) ?? 0) +
                 (meals.Dinner?.Sum(e => e.Calories) ?? 0);
             return total;
+        }
+
+        // sync the total eaten calories with the CaloriesEaten field in HealthData
+        // only if the date matches the user's HealthData LocalDate field
+        private async Task syncUserHealthDataCaloriesAsync(string userId, int year, int month, int day, int caloires)
+        {
+            UserHealthData userHealthData = await _userHealthDataCollection.Find(u => u.FirebaseUid == userId).FirstOrDefaultAsync();
+            DateOnly entryDate = new DateOnly(year, month, day);
+            if (entryDate.Equals(userHealthData.LocalDate))
+            {
+                var hd = new HealthData
+                {
+                    CaloriesEaten = caloires
+                };
+                await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
+            }
         }
     }
 }

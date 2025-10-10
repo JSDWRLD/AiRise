@@ -10,10 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class UserHealthDataController : Controller
 {
-    private readonly UserHealthDataService _userHealthDataService;
+    private readonly IUserHealthDataService _userHealthDataService;
     private readonly ILogger<UserController> _logger;
 
-    public UserHealthDataController(UserHealthDataService userHealthDataService, ILogger<UserController> logger)
+    public UserHealthDataController(IUserHealthDataService userHealthDataService, ILogger<UserController> logger)
     {
         _userHealthDataService = userHealthDataService;
         _logger = logger;
