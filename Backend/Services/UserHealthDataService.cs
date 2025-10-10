@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using AiRise.Models.User;
 using AiRise.Models.DTOs;
+using MongoDB.Bson;
 
 namespace AiRise.Services
 {
@@ -52,8 +53,6 @@ namespace AiRise.Services
             // Validate and adjust data before updating
             updatedData = await verifyUserHealthData(firebaseUid, updatedData);
 
-            var newDate = DateOnly.Parse(updatedData.LocalDate);
-
             var filter = Builders<UserHealthData>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
             var update = Builders<UserHealthData>.Update
                 .Set(u => u.CaloriesBurned, updatedData.CaloriesBurned)
@@ -63,7 +62,7 @@ namespace AiRise.Services
                 .Set(u => u.Sleep, updatedData.Sleep)
                 .Set(u => u.Hydration, updatedData.Hydration)
                 .Set(u => u.HydrationTarget, updatedData.HydrationTarget)
-                .Set(u => u.LocalDate, newDate);
+                .Set(u => u.LocalDate, updatedData.LocalDate);
             var result = await _userHealthDataCollection.UpdateOneAsync(filter, update);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
@@ -104,33 +103,19 @@ namespace AiRise.Services
             {
                 throw new ArgumentException("No existing health data found for the given user.");
             }
-            if (data.LocalDate == null)
-            {
-                throw new ArgumentException("LocalDate cannot be null.");
-            }
 
-            // Validate date and reset the fields if on a new day
-            try
+            //Reset daily fields if last update was on a previous day
+            if (oldData.LocalDate < data.LocalDate)
             {
-                var newDate = DateOnly.Parse(data.LocalDate);
-
-                if (oldData.LocalDate < newDate)
-                {
-                    //Reset daily fields if last update was on a previous day
-                    oldData.CaloriesBurned = 0;
-                    oldData.CaloriesEaten = 0;
-                    oldData.Steps = 0;
-                    oldData.Sleep = 0;
-                    oldData.Hydration = 0;
-                }
-            }
-            catch (FormatException)
-            {
-                throw new ArgumentException("LocalDate format is invalid. Expected format: 'YYYY-MM-DD'.");
+                oldData.CaloriesBurned = 0;
+                oldData.CaloriesEaten = 0;
+                oldData.Steps = 0;
+                oldData.Sleep = 0;
+                oldData.Hydration = 0;
             }
 
             // Ensure no negative values
-            if (data.CaloriesBurned < 0 || data.CaloriesEaten < 0 || data.CaloriesTarget < 0 || 
+            if (data.CaloriesBurned < 0 || data.CaloriesEaten < 0 || data.CaloriesTarget < 0 ||
                 data.Steps < 0 || data.Sleep < 0 || data.Hydration < 0 || data.HydrationTarget < 0)
             {
                 throw new ArgumentException("Health data values cannot be negative.");

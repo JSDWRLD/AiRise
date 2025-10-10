@@ -17,7 +17,7 @@ namespace AiRise.Services
         private readonly UserMealPlanService _userMealPlanService;
         private readonly UserProgressService _userProgressService;
         private readonly UserChallengesService _userChallengesService;
-        private readonly UserHealthDataService _userHealthDataService;
+        private readonly IUserHealthDataService _userHealthDataService;
         private readonly UserChatHistoryService _userChatHistoryService;
 
         public UserService(
@@ -30,7 +30,7 @@ namespace AiRise.Services
             UserMealPlanService userMealPlanService,
             UserProgressService userProgressService,
             UserChallengesService userChallengesService,
-            UserHealthDataService userHealthDataService,
+            IUserHealthDataService userHealthDataService,
             UserChatHistoryService userChatHistoryService
         )
         {

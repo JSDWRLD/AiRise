@@ -168,7 +168,7 @@ public class UserHealthData_Tests
             Sleep = 6.5,
             Hydration = 20.0,
             HydrationTarget = 110,
-            LocalDate = "2025-10-06"
+            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow)
         };
         var result = await svc.UpdateUserHealthDataAsync("testuid", updatedData);
 
@@ -180,7 +180,7 @@ public class UserHealthData_Tests
         Assert.Equal(6.5, doc.Sleep);
         Assert.Equal(20.0, doc.Hydration);
         Assert.Equal(110, doc.HydrationTarget);
-        Assert.Equal(DateOnly.Parse(updatedData.LocalDate), doc.LocalDate);
+        Assert.Equal(updatedData.LocalDate, doc.LocalDate);
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class UserHealthData_Tests
 
         var svc = new UserHealthDataService(collMock.Object);
         var result  = await svc.UpdateUserHealthDataAsync("u1", new HealthData {
-            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd"),
+            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow),
             Steps = 100
         });
 
@@ -213,7 +213,7 @@ public class UserHealthData_Tests
         var svc = new UserHealthDataService(collMock.Object);
         var updatedData = new HealthData
         {
-            LocalDate = "date"
+            LocalDate = new DateOnly()
         };
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.UpdateUserHealthDataAsync("NOTFOUND", updatedData));
@@ -248,39 +248,10 @@ public class UserHealthData_Tests
             Sleep = sleep,
             Hydration = hydration,
             HydrationTarget = hydrationTarget,
-            LocalDate = "2025-10-06"
+            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow)
         };
         await Assert.ThrowsAsync<ArgumentException>(() => svc.UpdateUserHealthDataAsync("testuid", updatedData));
     }
-
-    [Fact]
-    public async Task UpdateUserHealthDataAsync_Throws_WhenLocalDateNull()
-    {
-        var doc = new UserHealthData
-        {
-            FirebaseUid = "testuid",
-            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow)
-        };
-        var collMock = CreateMockCollection(doc);
-        var svc  = new UserHealthDataService(collMock.Object);
-
-        await Assert.ThrowsAsync<ArgumentException>(() => svc.UpdateUserHealthDataAsync("testuid", new HealthData { LocalDate = null! }));
-    }
-
-    [Fact]
-    public async Task UpdateUserHealthDataAsync_Throws_WhenLocalDateInvalid()
-    {
-        var doc = new UserHealthData
-        {
-            FirebaseUid = "testuid",
-            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow)
-        };
-        var collMock = CreateMockCollection(doc);
-        var svc  = new UserHealthDataService(collMock.Object);
-
-        await Assert.ThrowsAsync<ArgumentException>(() => svc.UpdateUserHealthDataAsync("testuid", new HealthData { LocalDate = "not-a-date" }));
-    }
-
 
     [Fact]
     public async Task UpdateUserHealthDataAsync_NewDay_ResetsUnprovided_AndAppliesProvided()
@@ -300,7 +271,7 @@ public class UserHealthData_Tests
         var svc  = new UserHealthDataService(coll.Object);
 
         var update = new HealthData {
-            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd"),
+            LocalDate = DateOnly.FromDateTime(DateTime.UtcNow),
             Steps = 500 // only this provided
         };
 

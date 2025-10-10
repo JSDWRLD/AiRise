@@ -26,6 +26,6 @@ namespace AiRise.Models.DTOs
         public double? HydrationTarget { get; set; }
 
         [JsonPropertyName("localDate")]
-        public string? LocalDate { get; set; } // Format: "YYYY-MM-DD"
+        public DateOnly LocalDate { get; set; } // Format: "YYYY-MM-DD"
     }
 }

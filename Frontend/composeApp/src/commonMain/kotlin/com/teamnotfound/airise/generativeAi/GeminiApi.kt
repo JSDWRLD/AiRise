@@ -9,6 +9,9 @@ import dev.shreyaspatil.ai.client.generativeai.type.Content
 import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
 import dev.shreyaspatil.ai.client.generativeai.type.PlatformImage
 import dev.shreyaspatil.ai.client.generativeai.type.content
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
 
@@ -36,9 +39,17 @@ open class GeminiApi {
         // Build compact context blocks
         val snapshot = healthSnapshot(healthData)
         val progress = progressSnapshot(dailyProgress)
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val timeContext = buildString {
+            appendLine("It is currently ${now.hour.toString().padStart(2, '0')}:${now.minute.toString().padStart(2, '0')} local time.")
+            appendLine("This indicates how far into their day the user is.")
+        }
+
 
         // If everything is zero/empty, still send a minimal prompt
         val contextBlock = buildString {
+            appendLine("[LOCAL_TIME]")
+            appendLine(timeContext)
             snapshot?.let {
                 appendLine("[SNAPSHOT_TODAY]")
                 appendLine(it)
@@ -52,17 +63,18 @@ open class GeminiApi {
 
         val prompt = buildString {
             appendLine("You are Coach Rise, a concise, supportive, evidence-based fitness coach.")
-            appendLine("Write ONE short paragraph of 3–4 sentences (≤100 words).")
-            appendLine("Use metrics below only as evidence—mention numbers/units and weave them into sentences.")
-            appendLine("Start with quick praise tied to a metric, then give 1–2 specific next actions (time-bound or quantity-based).")
-            appendLine("Prioritize the lowest areas in PROGRESS if present; otherwise suggest a small stretch goal for tomorrow.")
-            appendLine("Do NOT list metrics, repeat the metrics block, or output headings/brackets/bullets. No 'Goal:' or 'Status:'.")
-            appendLine("Do NOT invent numbers; copy exactly if you choose to mention them.")
+            appendLine("Write exactly ONE short paragraph (4–5 sentences, ≤100 words).")
+            appendLine("The output must be a single paragraph — no lists, headings, or formatting.\n")
+            appendLine("Begin with quick praise connected to one metric.")
+            appendLine("Then give 1–2 clear next actions (each should be time-bound or quantity-based).")
+            appendLine("Focus on the lowest PROGRESS areas if any; otherwise, suggest one small stretch goal for tomorrow.")
+            appendLine("Use the METRICS only as evidence — mention numbers/units naturally in sentences. Be careful not to confuse metric values.")
+            appendLine("Do NOT restate or list the metrics, invent new numbers, or include “Goal:”, “Status:”, or brackets.")
+            appendLine("If almost all or all metrics are close to or equal to 0 focus on encouragement.")
             appendLine()
             appendLine("METRICS (context only):")
-            appendLine(contextBlock) // your snapshot/progress text
+            appendLine(contextBlock)
         }.trim()
-
 
         return generativeModel.generateContent(prompt)
     }

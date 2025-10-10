@@ -24,6 +24,7 @@ public class Program
         });
 
         builder.Services.AddSingleton<IUserProgramService, UserProgramService>();
+        builder.Services.AddSingleton<IUserHealthDataService, UserHealthDataService>();
 
         builder.Services.AddSingleton<UserService>();
         builder.Services.AddSingleton<UserDataService>();
@@ -34,7 +35,6 @@ public class Program
         builder.Services.AddSingleton<UserMealPlanService>();
         builder.Services.AddSingleton<UserProgressService>();
         builder.Services.AddSingleton<UserChallengesService>();
-        builder.Services.AddSingleton<UserHealthDataService>();
         builder.Services.AddSingleton<UserChatHistoryService>();
         builder.Services.AddSingleton<UserProgramService>();
         builder.Services.AddSingleton<ChallengeService>();
