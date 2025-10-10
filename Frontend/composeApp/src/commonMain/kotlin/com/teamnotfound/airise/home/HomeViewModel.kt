@@ -3,7 +3,6 @@ package com.teamnotfound.airise.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.repository.IUserRepository
 import com.teamnotfound.airise.data.serializable.DailyProgressData
@@ -13,7 +12,6 @@ import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +35,6 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private val geminiApi = GeminiApi()
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     private var hasRequestedHealthPerms = false
-    private lateinit var updatedHealthData: HealthData
 
     init {
         generateGreeting()
@@ -138,7 +135,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
                     errorMessage = null
                 )
             } catch (e: Exception) {
-                val fallbackOverview = generateFallbackOverview(updatedHealthData)
+                val fallbackOverview = generateFallbackOverview(uiState.value.healthData)
                 _uiState.value = _uiState.value.copy(
                     overview = fallbackOverview,
                     isOverviewLoaded = true,
@@ -210,12 +207,10 @@ class HomeViewModel(private val userRepository: IUserRepository,
 
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
-        //Use real data for given time frame once available
-        updatedHealthData = uiState.value.healthData
 
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
-            healthData = updatedHealthData,
+            healthData = uiState.value.healthData,
             isFitnessSummaryLoaded = true
         )
         _uiState.value = _uiState.value.copy(
@@ -248,8 +243,6 @@ class HomeViewModel(private val userRepository: IUserRepository,
                     sleep =  platformHealth.sleep,
                     hydration = platformHealth.hydration
                 )
-
-                updatedHealthData = mapped
 
                 // Update UI
                 _uiState.value = _uiState.value.copy(

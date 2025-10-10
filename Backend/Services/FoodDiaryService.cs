@@ -348,7 +348,8 @@ namespace AiRise.Services
             {
                 var hd = new HealthData
                 {
-                    CaloriesEaten = caloires
+                    CaloriesEaten = caloires,
+                    LocalDate = userHealthData.LocalDate
                 };
                 await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
             }
