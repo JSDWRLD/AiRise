@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
+import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.DiaryDay
 import com.teamnotfound.airise.data.serializable.FoodDiaryMonth
 import com.teamnotfound.airise.data.serializable.FoodEntry
+import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.Meals
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -32,10 +34,10 @@ import kotlinx.datetime.todayIn
  */
 class MealViewModel private constructor(
     private val dataClient: DataClient?,
+    private val userClient: UserClient?,
     private val firebaseUser: FirebaseUser?,
     private val useNetwork: Boolean,
-    startOffset: Int = 1,
-    startGoal: Int = 1900
+    startOffset: Int = 1
 ) {
     // Ui States
     data class UiState(
@@ -90,7 +92,7 @@ class MealViewModel private constructor(
             val d = offsetToDate(startOffset)
             UiState(
                 dayOffset = startOffset,
-                goal = startGoal,
+                goal = 2000, // Default
                 exercise = 0,
                 day = readDay(d),
                 isLoading = useNetwork,
@@ -106,6 +108,7 @@ class MealViewModel private constructor(
             // Load the current month up-front
             val date = offsetToDate(_ui.dayOffset)
             refreshMonth(date)
+            loadGoalAndExerciseFromHealth()
         }
     }
 
@@ -130,7 +133,42 @@ class MealViewModel private constructor(
 
     // Set the daily calorie goal
     fun setGoal(goal: Int) {
-        _ui = _ui.copy(goal = goal.coerceAtLeast(0))
+        if (!useNetwork || userClient == null || firebaseUser == null) return
+        _ui = _ui.copy(isLoading = true, errorMessage = null)
+        scope.launch {
+            val res = userClient.updateHealthData(firebaseUser, HealthData(caloriesTarget = goal))
+            _ui = when (res) {
+                is Result.Success -> {
+                    _ui.copy(goal = goal, isLoading = false, errorMessage = null)
+                }
+
+                is Result.Error -> {
+                    _ui.copy(isLoading = false, errorMessage = networkErrorMessage(res.error))
+                }
+            }
+        }
+    }
+
+    private fun loadGoalAndExerciseFromHealth() {
+        if (!useNetwork || userClient == null || firebaseUser == null) return
+        _ui = _ui.copy(isLoading = true, errorMessage = null)
+        scope.launch {
+            when (val res = userClient.getHealthData(firebaseUser)) {
+                is Result.Success -> {
+                    val healthData = res.data
+                    val goal = healthData.caloriesTarget ?: 2000
+                    _ui = _ui.copy(
+                        goal = goal,
+                        exercise = healthData.caloriesBurned,
+                        isLoading = false,
+                        errorMessage = null
+                    )
+                }
+                is Result.Error -> {
+                    _ui = _ui.copy(isLoading = false, errorMessage = networkErrorMessage(res.error))
+                }
+            }
+        }
     }
 
     // Sync and refresh the current month
@@ -273,24 +311,24 @@ class MealViewModel private constructor(
         /** Real, network-backed VM */
         fun network(
             dataClient: DataClient,
+            userClient: UserClient,
             firebaseUser: FirebaseUser,
             startOffset: Int = 1,
-            startGoal: Int = 1900
         ): MealViewModel = MealViewModel(
             dataClient = dataClient,
+            userClient = userClient,
             firebaseUser = firebaseUser,
             useNetwork = true,
-            startOffset = startOffset,
-            startGoal = startGoal
+            startOffset = startOffset
         )
 
         /** Offline preview VM */
         fun fake(startOffset: Int = 1, startGoal: Int = 1900): MealViewModel = MealViewModel(
             dataClient = null,
+            userClient =  null,
             firebaseUser = null,
             useNetwork = false,
             startOffset = startOffset,
-            startGoal = startGoal
         )
 
         private fun randomId(): String =

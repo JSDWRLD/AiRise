@@ -12,8 +12,8 @@ data class HealthData(
     val steps: Int = 0,
     val caloriesBurned: Int = 0,
     val caloriesEaten: Int = 0,
-    val caloriesTarget: Int = 2000,
+    val caloriesTarget: Int = 0,
     val hydration: Double = 0.0,
-    val hydrationTarget: Double = 104.0, //ounces
-    val localDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val hydrationTarget: Double = 0.0, //ounces
+    var localDate: LocalDate? = null
 )

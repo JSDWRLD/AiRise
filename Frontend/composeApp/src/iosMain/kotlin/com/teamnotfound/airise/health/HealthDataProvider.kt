@@ -1,7 +1,6 @@
 package com.teamnotfound.airise.health
 
 import com.khealth.KHealth
-import com.khealth.KHHeartRateSample
 import com.khealth.KHPermission
 import com.khealth.KHReadRequest
 import com.khealth.KHRecord
@@ -55,7 +54,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
 
         val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
             KHPermission.ActiveCaloriesBurned(read = true, write = true),
-            KHPermission.HeartRate(read = true, write = true),
+            KHPermission.Hydration(read = true, write = true),
             KHPermission.StepCount(read = true, write = true),
             KHPermission.SleepSession(read = true, write = true)
             // Add as many requests as you want
@@ -65,7 +64,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         return permissionResponse.isNotEmpty()
     }
 
-    actual suspend fun getHealthData(): HealthData = withContext(Dispatchers.Default) {
+    actual suspend fun getHealthData(): IHealthData = withContext(Dispatchers.Default) {
         // Init start and end time when fun is called
         val startTime = Clock.System.now().minus(1.days)
         val endTime = Clock.System.now()
@@ -74,7 +73,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         // Reading records
         val activeCaloriesRecord = kHealth.readRecords(KHReadRequest.ActiveCaloriesBurned(KHUnit.Energy.Calorie, startTime, endTime))
         val stepRecord = kHealth.readRecords(KHReadRequest.StepCount(startTime, endTime))
-        val heartRateRecord = kHealth.readRecords(KHReadRequest.HeartRate(startTime, endTime))
+        val hydrationRecord = kHealth.readRecords(KHReadRequest.Hydration(KHUnit.Volume.FluidOunceUS, startTime, endTime))
         val sleepRecord = kHealth.readRecords(KHReadRequest.SleepSession(sleepStart, endTime))
 
 
@@ -84,15 +83,9 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
             (it as? KHRecord.StepCount)?.count?.toInt() ?: 0
         }
 
-        // Flatten heart rate samples and calculate the average BPM
-        val heartRateSamples = heartRateRecord
-            .filterIsInstance<KHRecord.HeartRate>()
-            .flatMap { it.samples }
-            .map { it.beatsPerMinute }
-
-        val heartRate = if (heartRateSamples.isNotEmpty())
-            heartRateSamples.average().toInt()
-        else 0
+        val hydration = hydrationRecord.sumOf {
+            (it as? KHRecord.Hydration)?.value ?: 0.0
+        }
 
         // Calculating active calories
         val activeCalories = activeCaloriesRecord.sumOf {
@@ -104,11 +97,11 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         val sleepHours = mostRecentSession?.totalSleepHours() ?: 0.0
 
         // Passing to Health Data object for UI
-        object : HealthData {
-            override val activeCalories = activeCalories
+        object : IHealthData {
+            override val caloriesBurned = activeCalories
             override val steps = steps
-            override val heartRate = heartRate
-            override val sleepHours = sleepHours
+            override val hydration: Double = hydration
+            override val sleep = sleepHours
         }
     }
 
@@ -128,10 +121,11 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
             endTime = Clock.System.now(),
         )
 
-        val sampleHeartRate = KHRecord.HeartRate(
-            samples = listOf(
-                KHHeartRateSample(beatsPerMinute = 135, time = Clock.System.now())
-            ),
+        val sampleHydration = KHRecord.Hydration(
+            unit = KHUnit.Volume.FluidOunceUS,
+            value = 16.5,
+            startTime = Clock.System.now().minus(10.minutes),
+            endTime = Clock.System.now(),
         )
         val sleepStartTime = Clock.System.now().minus(8.hours)
         val sleepEndTime = Clock.System.now().minus(2.hours)
@@ -172,7 +166,7 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         )
         // Add more sample data here
 
-        val result = kHealth.writeRecords(sampleSteps, sampleHeartRate, sampleActiveCalories, sampleSleep)
+        val result = kHealth.writeRecords(sampleSteps, sampleHydration, sampleActiveCalories, sampleSleep)
         return@withContext result is com.khealth.KHWriteResponse.Success
     }
 }

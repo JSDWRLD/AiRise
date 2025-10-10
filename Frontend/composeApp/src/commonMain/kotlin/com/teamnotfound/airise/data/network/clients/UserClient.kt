@@ -148,7 +148,7 @@ class   UserClient(
 
     /**
      * API call to insert user health data
-     * Sends a POST request with the health data
+     * Sends a PUT request with the health data
      */
     suspend fun updateHealthData(
         firebaseUser: FirebaseUser,
@@ -158,7 +158,7 @@ class   UserClient(
         val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
-            httpClient.post("$baseUrl/UserHealthData/update-health-data/$firebaseUid") {
+            httpClient.put("$baseUrl/UserHealthData/update-health-data/$firebaseUid") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
                 setBody(healthData)

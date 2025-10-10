@@ -248,6 +248,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     val vm = remember {
                         MealViewModel.network(
                             dataClient = container.dataClient,
+                            userClient = container.userClient,
                             firebaseUser = Firebase.auth.currentUser
                                 ?: error("Not logged in")
                         )

@@ -129,7 +129,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun generateOverview() {
         viewModelScope.launch {
             try {
-                val result = geminiApi.generateTodaysOverview(healthData = uiState.value.healthData)
+                val result = geminiApi.generateTodaysOverview(healthData = uiState.value.healthData, dailyProgress = uiState.value.dailyProgressData)
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoaded = true,
@@ -172,7 +172,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         val healthData = uiState.value.healthData
         val sleepPercentage = min(healthData.sleep.toFloat() / 8f, 1f) * 100
         val caloriesPercentage = min(healthData.caloriesEaten / healthData.caloriesTarget.toFloat(), 1f ) * 100
-        val hydrationPercentage = min((healthData.hydration.toFloat() / 104f), 1f) * 100
+        val hydrationPercentage = min(healthData.hydration.toFloat() / healthData.hydrationTarget.toFloat(), 1f) * 100
         val totalPercentage = (sleepPercentage + caloriesPercentage + hydrationPercentage) / 3f
         val progressData = DailyProgressData(
             sleepProgress = sleepPercentage,
