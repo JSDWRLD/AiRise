@@ -120,7 +120,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         viewModel.onEvent(HomeUiEvent.SelectedTimeFrameChanged(timeFrame))
                     },
                     onRefreshHealth = { viewModel.syncHealthOnEnter() },
-                    onWriteSample = { viewModel.writeSampleHealth() }
+                    onWriteSample = { viewModel.writeSampleHealth() },
+                    onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) }
                 )
             }
         }
