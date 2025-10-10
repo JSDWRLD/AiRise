@@ -37,9 +37,15 @@ namespace AiRise.Services
         }
 
         // Unit-test ctor
-        public FoodDiaryService(IMongoCollection<FoodDiaryMonth> collection)
+        public FoodDiaryService(IMongoCollection<FoodDiaryMonth> collection,
+            IMongoCollection<UserHealthData>? userHealthDataCollection = null,
+            IUserHealthDataService? userHealthDataService = null
+        )
         {
             _foodDiaryCollection = collection;
+            _userHealthDataCollection = userHealthDataCollection;
+            _userHealthDataService = userHealthDataService;
+
         }
 
         // READ (with 1-year lookback rule). Creates the month if not found.
@@ -342,16 +348,18 @@ namespace AiRise.Services
         // only if the date matches the user's HealthData LocalDate field
         private async Task syncUserHealthDataCaloriesAsync(string userId, int year, int month, int day, int caloires)
         {
-            UserHealthData userHealthData = await _userHealthDataCollection.Find(u => u.FirebaseUid == userId).FirstOrDefaultAsync();
-            DateOnly entryDate = new DateOnly(year, month, day);
-            if (entryDate.Equals(userHealthData.LocalDate))
-            {
-                var hd = new HealthData
+            if (_userHealthDataCollection != null && _userHealthDataService != null) {
+                UserHealthData userHealthData = await _userHealthDataCollection.Find(u => u.FirebaseUid == userId).FirstOrDefaultAsync();
+                DateOnly entryDate = new DateOnly(year, month, day);
+                if (entryDate.Equals(userHealthData.LocalDate))
                 {
-                    CaloriesEaten = caloires,
-                    LocalDate = userHealthData.LocalDate
-                };
-                await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
+                    var hd = new HealthData
+                    {
+                        CaloriesEaten = caloires,
+                        LocalDate = userHealthData.LocalDate
+                    };
+                    await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
+                }
             }
         }
     }

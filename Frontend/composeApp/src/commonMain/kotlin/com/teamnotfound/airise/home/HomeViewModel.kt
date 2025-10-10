@@ -128,7 +128,10 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun generateOverview() {
         viewModelScope.launch {
             try {
-                val result = geminiApi.generateTodaysOverview(healthData = uiState.value.healthData, dailyProgress = uiState.value.dailyProgressData)
+                val result = geminiApi.generateTodaysOverview(
+                    healthData = uiState.value.healthData,
+                    dailyProgress = uiState.value.dailyProgressData
+                )
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoaded = true,
