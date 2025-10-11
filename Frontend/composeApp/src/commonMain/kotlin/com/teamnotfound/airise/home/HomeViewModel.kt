@@ -35,7 +35,6 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private val geminiApi = GeminiApi()
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     private var hasRequestedHealthPerms = false
-    private lateinit var updatedHealthData: HealthData
 
     init {
         generateGreeting()
@@ -129,14 +128,17 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun generateOverview() {
         viewModelScope.launch {
             try {
-                val result = geminiApi.generateTodaysOverview(healthData = uiState.value.healthData, dailyProgress = uiState.value.dailyProgressData)
+                val result = geminiApi.generateTodaysOverview(
+                    healthData = uiState.value.healthData,
+                    dailyProgress = uiState.value.dailyProgressData
+                )
                 _uiState.value = _uiState.value.copy(
                     overview = result.text.toString(),
                     isOverviewLoaded = true,
                     errorMessage = null
                 )
             } catch (e: Exception) {
-                val fallbackOverview = generateFallbackOverview(updatedHealthData)
+                val fallbackOverview = generateFallbackOverview(uiState.value.healthData)
                 _uiState.value = _uiState.value.copy(
                     overview = fallbackOverview,
                     isOverviewLoaded = true,
@@ -208,12 +210,10 @@ class HomeViewModel(private val userRepository: IUserRepository,
 
             else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
         }
-        //Use real data for given time frame once available
-        updatedHealthData = uiState.value.healthData
 
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
-            healthData = updatedHealthData,
+            healthData = uiState.value.healthData,
             isFitnessSummaryLoaded = true
         )
         _uiState.value = _uiState.value.copy(
@@ -246,8 +246,6 @@ class HomeViewModel(private val userRepository: IUserRepository,
                     sleep =  platformHealth.sleep,
                     hydration = platformHealth.hydration
                 )
-
-                updatedHealthData = mapped
 
                 // Update UI
                 _uiState.value = _uiState.value.copy(
@@ -284,6 +282,38 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
             // Refresh UI + server with the newest readings
             syncHealthOnEnter()
+        }
+    }
+
+    fun updateHydration(newHydration: Double) {
+        viewModelScope.launch {
+            try {
+                val updatedHealthData = _uiState.value.healthData.copy(
+                    hydration = newHydration
+                )
+
+                _uiState.value = _uiState.value.copy(
+                    healthData = updatedHealthData
+                )
+
+                // Update backend
+                Firebase.auth.currentUser?.let { user ->
+                    when (val result = userClient.updateHealthData(user, updatedHealthData)) {
+                        is Result.Success -> {
+                            _uiState.value = _uiState.value.copy(errorMessage = null)
+                        }
+                        is Result.Error -> {
+                            _uiState.value = _uiState.value.copy(errorMessage = "Failed to update hydration: ${result.error}")
+                        }
+                    }
+                }
+
+                // Update daily progress with new hydration data
+                loadDailyProgress()
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = "Error updating hydration: ${e.message}")
+            }
         }
     }
 

@@ -25,6 +25,9 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 import com.teamnotfound.airise.data.serializable.UserProgram
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 
 class   UserClient(
     private val httpClient: HttpClient
@@ -156,7 +159,7 @@ class   UserClient(
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val token = firebaseUser.getIdToken(true).toString()
-
+        healthData.localDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val response = try {
             httpClient.put("$baseUrl/UserHealthData/update-health-data/$firebaseUid") {
                 contentType(ContentType.Application.Json)

@@ -9,6 +9,9 @@ import dev.shreyaspatil.ai.client.generativeai.type.Content
 import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
 import dev.shreyaspatil.ai.client.generativeai.type.PlatformImage
 import dev.shreyaspatil.ai.client.generativeai.type.content
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlin.math.roundToInt
 
@@ -36,9 +39,17 @@ open class GeminiApi {
         // Build compact context blocks
         val snapshot = healthSnapshot(healthData)
         val progress = progressSnapshot(dailyProgress)
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val timeContext = buildString {
+            appendLine("It is currently ${now.hour.toString().padStart(2, '0')}:${now.minute.toString().padStart(2, '0')} local time.")
+            appendLine("This indicates how far into their day the user is.")
+        }
+
 
         // If everything is zero/empty, still send a minimal prompt
         val contextBlock = buildString {
+            appendLine("[LOCAL_TIME]")
+            appendLine(timeContext)
             snapshot?.let {
                 appendLine("[SNAPSHOT_TODAY]")
                 appendLine(it)
