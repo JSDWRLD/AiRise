@@ -57,7 +57,9 @@ namespace AiRise.Services
                 return doc; // already marked today
 
             var filter = Builders<UserChallenges>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
-            var update = Builders<UserChallenges>.Update.Set(x => x.LastCompletionEpochDay, today);
+            var update = Builders<UserChallenges>.Update
+                .Set(x => x.LastCompletionEpochDay, today)
+                .Unset(x => x.ActiveChallengeId);
 
             await _userChallengesCollection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
             doc.LastCompletionEpochDay = today;
