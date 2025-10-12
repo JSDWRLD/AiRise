@@ -71,7 +71,7 @@ kotlin {
             implementation(libs.kmpauth.uihelper)
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
-            implementation(libs.coil.network)
+            implementation(libs.coil.network.ktor3)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
@@ -79,6 +79,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.material3.android)
+            implementation(libs.coil.network)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
