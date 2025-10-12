@@ -128,7 +128,7 @@ private fun LeaderboardContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    items(users, key = { it.name }) { user ->
+                    items(users) { user ->
                         LeaderboardUserItem(user = user)
                     }
                 }
