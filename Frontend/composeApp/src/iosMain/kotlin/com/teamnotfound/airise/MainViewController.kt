@@ -18,18 +18,20 @@ fun MainViewController() = ComposeUIViewController {
     CompositionLocalProvider(
         LocalDensity provides platformConfig.density
     ) {
-            App(
-                container = AppContainer(
-                    userClient = remember {
-                        UserClient(createHttpClient(Darwin.create()))
-                    },
-                    dataClient = remember {
-                        DataClient(createHttpClient(Darwin.create()))
-                    },
-                    kHealth = kHealth,
-                    userCache = FakeUserCache(),
-                    summaryCache = FakeSummaryCache(),
-                )
-            )
+        App(
+            container = AppContainer(
+                httpClient = createHttpClient(Darwin.create()),
+                userClient = remember {
+                    UserClient(createHttpClient(Darwin.create()))
+                },
+                dataClient = remember {
+                    DataClient(createHttpClient(Darwin.create()))
+                },
+                kHealth = kHealth,
+                userCache = FakeUserCache(),
+                summaryCache = FakeSummaryCache(),
+            ),
+            reminder = TODO()
+        )
     }
 }
