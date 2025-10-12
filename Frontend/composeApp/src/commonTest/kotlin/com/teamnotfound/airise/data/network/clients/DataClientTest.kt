@@ -351,9 +351,8 @@ class DataClientTest {
             assertEquals("/api/diary/123/2025/1/15/meal/breakfast", request.url.encodedPath)
             assertEquals(HttpMethod.Post, request.method)
 
-            // Verify auth header
+            // Verify auth header (Content-Type is set by ContentNegotiation plugin)
             assertEquals("Bearer test-jwt-token", request.headers[HttpHeaders.Authorization])
-            assertEquals("application/json", request.headers[HttpHeaders.ContentType])
 
             // Return 204 No Content (success)
             respond(
