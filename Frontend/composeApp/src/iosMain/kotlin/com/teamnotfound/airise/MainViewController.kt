@@ -44,10 +44,7 @@ fun MainViewController() = ComposeUIViewController {
                 userCache = FakeUserCache(),
                 summaryCache = FakeSummaryCache(),
             ),
-            reminder = workoutReminder,
-            mealReminder = mealReminder,
-            waterReminder = waterReminder,
-            nudgeReminder = nudgeReminder
+            reminder = workoutReminder
         )
     }
 }
