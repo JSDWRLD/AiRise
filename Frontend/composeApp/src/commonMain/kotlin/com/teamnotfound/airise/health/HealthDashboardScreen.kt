@@ -37,7 +37,7 @@ fun HealthDashboardScreen(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.requestAndLoadData()
+        viewModel.loadData()
     }
 
     Scaffold(
@@ -89,6 +89,21 @@ fun HealthDashboardScreen(
                     colors = ButtonDefaults.buttonColors(backgroundColor = Cyan)
                 ) {
                     Text("Refresh", color = White)
+                }
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            // Re-open permissions flow and reload if granted
+                            val granted = provider.requestPermissions()
+                            if (granted) {
+                                viewModel.requestAndLoadData()
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                ) {
+                    Text("Permissions", color = White)
                 }
 
                 Button(
