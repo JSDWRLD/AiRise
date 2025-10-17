@@ -30,12 +30,12 @@ public class Program
         builder.Services.AddSingleton<UserDataService>();
         builder.Services.AddSingleton<UserFriendsService>();
         builder.Services.AddSingleton<UserSettingsService>();
-        builder.Services.AddSingleton<UserGoalsService>();
-        builder.Services.AddSingleton<UserWorkoutsService>();
-        builder.Services.AddSingleton<UserMealPlanService>();
-        builder.Services.AddSingleton<UserProgressService>();
+    // UserGoalsService removed
+    // UserWorkoutsService removed
+    // UserMealPlanService removed
+    // UserProgressService removed
         builder.Services.AddSingleton<UserChallengesService>();
-        builder.Services.AddSingleton<UserChatHistoryService>();
+    // UserChatHistoryService removed
         builder.Services.AddSingleton<UserProgramService>();
         builder.Services.AddSingleton<ChallengeService>();
         builder.Services.AddSingleton<FoodDiaryService>();
@@ -101,6 +101,14 @@ public class Program
         });
 
         var app = builder.Build();
+
+        // Seed challenges if empty
+        using (var scope = app.Services.CreateScope())
+        {
+            var challengeService = scope.ServiceProvider.GetRequiredService<ChallengeService>();
+            var seedChallenges = AiRise.Data.ChallengeData.Challenges;
+            challengeService.SeedChallengesIfEmptyAsync(seedChallenges).GetAwaiter().GetResult();
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())

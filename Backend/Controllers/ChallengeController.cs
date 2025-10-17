@@ -16,10 +16,18 @@ namespace AiRise.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Challenge>> GetAllChallenges()
+        public async Task<ActionResult<List<Challenge>>> GetAllChallenges()
         {
-            var challenges = _challengeService.GetAllChallenges();
+            var challenges = await _challengeService.GetAllChallengesAsync();
             return Ok(challenges);
+        }
+
+        // Insert a new challenge
+        [HttpPost]
+        public async Task<IActionResult> InsertChallenge([FromBody] Challenge challenge)
+        {
+            await _challengeService.InsertChallengeAsync(challenge);
+            return Ok();
         }
     }
 }

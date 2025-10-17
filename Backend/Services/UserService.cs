@@ -12,39 +12,24 @@ namespace AiRise.Services
         private readonly UserFriendsService _userFriendsService;
         private readonly UserDataService _userDataService;
         private readonly UserSettingsService _userSettingsService;
-        private readonly UserGoalsService _userGoalsService;
-        private readonly UserWorkoutsService _userWorkoutsService;
-        private readonly UserMealPlanService _userMealPlanService;
-        private readonly UserProgressService _userProgressService;
         private readonly UserChallengesService _userChallengesService;
         private readonly IUserHealthDataService _userHealthDataService;
-        private readonly UserChatHistoryService _userChatHistoryService;
 
         public UserService(
             MongoDBService mongoDBService,
             UserFriendsService userFriendsService,
             UserDataService userDataService,
             UserSettingsService userSettingsService,
-            UserGoalsService userGoalsService,
-            UserWorkoutsService userWorkoutsService,
-            UserMealPlanService userMealPlanService,
-            UserProgressService userProgressService,
             UserChallengesService userChallengesService,
-            IUserHealthDataService userHealthDataService,
-            UserChatHistoryService userChatHistoryService
+            IUserHealthDataService userHealthDataService
         )
         {
             _userCollection = mongoDBService.GetCollection<User>("users");
             _userFriendsService = userFriendsService;
             _userDataService = userDataService;
             _userSettingsService = userSettingsService;
-            _userGoalsService = userGoalsService;
-            _userWorkoutsService = userWorkoutsService;
-            _userMealPlanService = userMealPlanService;
-            _userProgressService = userProgressService;
             _userChallengesService = userChallengesService;
             _userHealthDataService = userHealthDataService;
-            _userChatHistoryService = userChatHistoryService;
         }
 
         public async Task CreateAsync(User user)
@@ -52,13 +37,8 @@ namespace AiRise.Services
             user.Friends = await _userFriendsService.CreateAsync(user.FirebaseUid);
             user.Data = await _userDataService.CreateAsync(user.FirebaseUid);
             user.Settings = await _userSettingsService.CreateAsync(user.FirebaseUid);
-            user.Goals = await _userGoalsService.CreateAsync(user.FirebaseUid);
-            user.Workouts = await _userWorkoutsService.CreateAsync(user.FirebaseUid);
-            user.MealPlan = await _userMealPlanService.CreateAsync(user.FirebaseUid);
-            user.Progress = await _userProgressService.CreateAsync(user.FirebaseUid);
             user.Challenges = await _userChallengesService.CreateAsync(user.FirebaseUid);
             user.HealthData = await _userHealthDataService.CreateAsync(user.FirebaseUid);
-            user.ChatHistory = await _userChatHistoryService.CreateAsync(user.FirebaseUid);
 
             await _userCollection.InsertOneAsync(user);
             
