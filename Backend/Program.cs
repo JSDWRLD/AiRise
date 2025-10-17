@@ -26,17 +26,12 @@ public class Program
         builder.Services.AddSingleton<IUserProgramService, UserProgramService>();
         builder.Services.AddSingleton<IUserHealthDataService, UserHealthDataService>();
 
-        builder.Services.AddSingleton<UserService>();
         builder.Services.AddSingleton<UserDataService>();
         builder.Services.AddSingleton<UserFriendsService>();
         builder.Services.AddSingleton<UserSettingsService>();
-    // UserGoalsService removed
-    // UserWorkoutsService removed
-    // UserMealPlanService removed
-    // UserProgressService removed
         builder.Services.AddSingleton<UserChallengesService>();
-    // UserChatHistoryService removed
         builder.Services.AddSingleton<UserProgramService>();
+        builder.Services.AddSingleton<LeaderboardService>();
         builder.Services.AddSingleton<ChallengeService>();
         builder.Services.AddSingleton<FoodDiaryService>();
 

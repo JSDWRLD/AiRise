@@ -11,5 +11,4 @@ data class AccountSettingsUiState(
     val userSettings: UserSettingsData? = null,
     val errorMessage: String? = null,
     val userData: UserData? = null
-
 )
