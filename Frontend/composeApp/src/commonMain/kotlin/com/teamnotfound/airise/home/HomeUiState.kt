@@ -13,7 +13,6 @@ data class HomeUiState(
     val overview: String = "",
     val isOverviewLoaded: Boolean = false,
     val dailyProgressData: DailyProgressData = DailyProgressData(),
-    val selectedTimeFrame: String = "Daily",
     val formattedDateRange: String = "",
     val healthData: HealthData = HealthData(),
     val isDailyProgressLoaded: Boolean = false,

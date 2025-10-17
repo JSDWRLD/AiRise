@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,11 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.*
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.WaterDrop
@@ -46,12 +43,8 @@ import com.teamnotfound.airise.util.White
 //displays stats based on user time selection and includes dropdown
 @Composable
 fun FitnessSummarySection(
-    selectedTimeframe: String,
     formattedDate: String,
     healthData: HealthData,
-    onTimeFrameSelected: (String) -> Unit,
-    onRefreshHealth: () -> Unit,
-    onWriteSample: () -> Unit,
     onHydrationUpdated: (Double) -> Unit
 ) {
     Column(
@@ -64,7 +57,8 @@ fun FitnessSummarySection(
         // title and time dropdown
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Fitness Summary",
@@ -73,56 +67,12 @@ fun FitnessSummarySection(
                 color = White
             )
 
-            // dropdown menu for time
-            var expanded by remember { mutableStateOf(false) }
-
-            Box {
-                Button(
-                    onClick = { expanded = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                    shape = RoundedCornerShape(180.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    modifier = Modifier.width(120.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = selectedTimeframe, color = White, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            Icons.Outlined.ArrowDropDown,
-                            contentDescription = "Select timeframe",
-                            tint = White
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(DeepBlue)
-                ) {
-                    listOf("Daily", "Weekly", "Monthly", "Yearly").forEach { timeframe ->
-                        DropdownMenuItem(onClick = {
-                            onTimeFrameSelected(timeframe)
-                            expanded = false
-                        }) {
-                            Text(text = timeframe, color = White)
-                        }
-                    }
-                }
-            }
+            Text(
+                text = formattedDate,
+                fontSize = 14.sp,
+                color = Silver
+            )
         }
-        Spacer(modifier = Modifier.height(0.dp))
-
-        // displays date in format
-        Text(
-            text = formattedDate,
-            fontSize = 14.sp,
-            color = Silver
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -144,14 +94,6 @@ fun FitnessSummarySection(
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-
-        // Write sample
-        Button(
-            onClick = onWriteSample,
-            colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-            shape = RoundedCornerShape(180.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-        ) { Text("Write sample", color = White, fontSize = 14.sp) }
     }
 }
 
