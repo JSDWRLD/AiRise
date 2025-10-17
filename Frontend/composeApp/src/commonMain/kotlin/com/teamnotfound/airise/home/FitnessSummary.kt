@@ -46,10 +46,8 @@ import com.teamnotfound.airise.util.White
 //displays stats based on user time selection and includes dropdown
 @Composable
 fun FitnessSummarySection(
-    selectedTimeframe: String,
     formattedDate: String,
     healthData: HealthData,
-    onTimeFrameSelected: (String) -> Unit,
     onRefreshHealth: () -> Unit,
     onWriteSample: () -> Unit,
     onHydrationUpdated: (Double) -> Unit
@@ -64,7 +62,8 @@ fun FitnessSummarySection(
         // title and time dropdown
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Fitness Summary",
@@ -73,56 +72,12 @@ fun FitnessSummarySection(
                 color = White
             )
 
-            // dropdown menu for time
-            var expanded by remember { mutableStateOf(false) }
-
-            Box {
-                Button(
-                    onClick = { expanded = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                    shape = RoundedCornerShape(180.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    modifier = Modifier.width(120.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = selectedTimeframe, color = White, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            Icons.Outlined.ArrowDropDown,
-                            contentDescription = "Select timeframe",
-                            tint = White
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(DeepBlue)
-                ) {
-                    listOf("Daily", "Weekly", "Monthly", "Yearly").forEach { timeframe ->
-                        DropdownMenuItem(onClick = {
-                            onTimeFrameSelected(timeframe)
-                            expanded = false
-                        }) {
-                            Text(text = timeframe, color = White)
-                        }
-                    }
-                }
-            }
+            Text(
+                text = formattedDate,
+                fontSize = 14.sp,
+                color = Silver
+            )
         }
-        Spacer(modifier = Modifier.height(0.dp))
-
-        // displays date in format
-        Text(
-            text = formattedDate,
-            fontSize = 14.sp,
-            color = Silver
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
