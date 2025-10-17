@@ -70,15 +70,6 @@ fun TopNavBar(greeting: String, username: String, navController: NavController, 
             }
         },
         actions = {
-            // Notifications icone4
-            IconButton(onClick = { }) { // TODO: make notifications screen to show curr notifs
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications",
-                    tint = Color.LightGray
-                )
-            }
-
             // Account icon
             IconButton(onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS.name) }) {
                 Icon(
