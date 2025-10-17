@@ -52,6 +52,13 @@ class HealthDashboardViewModel(
         }
     }
     suspend fun writeHealthData(): Boolean {
-        return provider.writeHealthData()
+        val ok = provider.writeHealthData()
+        if (ok) {
+            // notify subscribers that platform health changed
+            kotlinx.coroutines.GlobalScope.launch {
+                HealthEvents.updates.emit(Unit)
+            }
+        }
+        return ok
     }
 }

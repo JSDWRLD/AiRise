@@ -115,8 +115,6 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 FitnessSummarySection(
                     formattedDate = uiState.value.formattedDateRange,
                     healthData = uiState.value.healthData,
-                    onRefreshHealth = { viewModel.syncHealthOnEnter() },
-                    onWriteSample = { viewModel.writeSampleHealth() },
                     onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) }
                 )
             }

@@ -10,6 +10,7 @@ import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
+import com.teamnotfound.airise.health.HealthEvents
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -40,6 +41,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         generateGreeting()
         getUsername()
         getHealthDataAndLoadWithData()
+        subscribeToHealthEvents()
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
@@ -258,6 +260,15 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
             // Refresh UI + server with the newest readings
             syncHealthOnEnter()
+        }
+    }
+
+    private fun subscribeToHealthEvents() {
+        viewModelScope.launch {
+            HealthEvents.updates.collect {
+                // Re-sync when platform health data changes elsewhere
+                syncHealthOnEnter()
+            }
         }
     }
 
