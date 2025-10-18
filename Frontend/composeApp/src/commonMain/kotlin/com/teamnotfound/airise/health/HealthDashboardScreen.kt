@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.khealth.KHealth
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.util.DeepBlue
@@ -87,16 +88,10 @@ fun HealthDashboardScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(
-                    onClick = { viewModel.requestAndLoadData() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Cyan)
-                ) {
-                    Text("Refresh", color = White)
-                }
-
                 Button(
                     onClick = {
                         coroutineScope.launch {
@@ -107,9 +102,24 @@ fun HealthDashboardScreen(
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
                 ) {
                     Text("Permissions", color = White)
+                }
+
+                Button(
+                    onClick = { viewModel.requestAndLoadData() },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text("Sync", color = White)
                 }
 
                 Button(
@@ -119,7 +129,11 @@ fun HealthDashboardScreen(
                             if (!success) println("Failed to write sample data.")
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen),
+                    shape = RoundedCornerShape(28.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
                 ) {
                     Text("Write Sample", color = BgBlack)
                 }
