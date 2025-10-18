@@ -1,0 +1,56 @@
+name: Frontend Gradle CI
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'Frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'Frontend/**'
+  workflow_dispatch:
+
+jobs:
+  android-linux:
+    name: Build & Test (Android/KMP) on Linux
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Use JDK 21 to match khealth (classfile version 65)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Restore google-services.json from secret (optional)
+      - name: Restore google-services.json (optional)
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          if [ -n "${GOOGLE_SERVICES_JSON_B64:-}" ]; then
+            echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > composeApp/google-services.json
+            test -s composeApp/google-services.json
+            echo "google-services.json restored."
+          else
+            echo "GOOGLE_SERVICES_JSON_B64 not set; skipping restore."
+          fi
+
+      - name: Gradle Build (with cache)
+        uses: gradle/gradle-build-action@v3
+        env:
+          GRADLE_OPTS: -Djava.net.preferIPv4Stack=true
+        with:
+          arguments: |
+            clean
+            :composeApp:assembleDebug
+            :composeApp:testDebugUnitTest
+          build-root-directory: Frontend
