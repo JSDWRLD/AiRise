@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
+import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.WaterDrop
+import androidx.compose.material.icons.filled.Bed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,10 +22,7 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.White
 import com.teamnotfound.airise.util.Cyan
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.RoundedCornerShape
+import com.teamnotfound.airise.home.FitnessStatBox
 
 @Composable
 fun HealthDashboardScreen(
@@ -70,11 +71,16 @@ fun HealthDashboardScreen(
             } else if (error != null) {
                 Text("Error: $error", color = Orange)
             } else if (healthData != null) {
-                HealthMetricCard(label = "Active Calories", value = "${healthData!!.caloriesBurned}", unit = "cal")
-                Spacer(modifier = Modifier.height(12.dp))
-                HealthMetricCard(label = "Steps", value = "${healthData!!.steps}", unit = "steps")
-                Spacer(modifier = Modifier.height(12.dp))
-                HealthMetricCard(label = "Hydration", value = "${healthData!!.hydration}", unit = "fluid ounces")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FitnessStatBox("Calories", healthData!!.caloriesBurned.toString(), "Kcal", Icons.Outlined.LocalFireDepartment)
+                        FitnessStatBox("Steps", healthData!!.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
+                    }
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        FitnessStatBox("Hydration", healthData!!.hydration.toString(), "fl oz", Icons.Outlined.WaterDrop)
+                        FitnessStatBox("Sleep", healthData!!.sleep.toString(), "hrs", Icons.Filled.Bed)
+                    }
+                }
             } else {
                 Text("No data available", color = Silver)
             }
@@ -119,25 +125,5 @@ fun HealthDashboardScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun HealthMetricCard(label: String, value: String, unit: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(DeepBlue)
-            .padding(16.dp)
-    ) {
-        Text(text = label, color = Silver, fontSize = 14.sp)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "$value $unit",
-            color = White,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
