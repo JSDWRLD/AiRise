@@ -17,7 +17,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.NavHostController
 import com.teamnotfound.airise.util.*
 import com.teamnotfound.airise.AppScreen
-import com.teamnotfound.airise.meal.FoodLogScreen
+import com.teamnotfound.airise.customize.CustomizingScreen
 
 
 //Defines navigation routes for bottom navigation bar
@@ -58,7 +58,6 @@ fun NavBar(navController: NavHostController,
                 composable(NavBarItems.Meal.route) { Text(text = "Meal Screen") }
                 composable(NavBarItems.Overview.route) { Text(text = "Overview Screen") }
                 composable(NavBarItems.Community.route) { Text("Community") }
-                composable(NavBarItems.Progress.route) { Text(text = "Progress Screen") }
             }
         }
     }
@@ -77,7 +76,7 @@ fun BottomNavigationBar(navController: NavHostController,
         NavBarItems.Meal,
         NavBarItems.Overview,
         NavBarItems.Community,
-        NavBarItems.Progress
+        NavBarItems.Customize
     )
     BottomNavigation(
         backgroundColor = Transparent,
@@ -128,6 +127,7 @@ fun BottomNavigationBar(navController: NavHostController,
                     NavBarItems.Community -> appRoute == AppScreen.CHALLENGES.name
                     NavBarItems.Workout -> appRoute == AppScreen.WORKOUT.name
                     NavBarItems.Meal -> appRoute == AppScreen.MEAL.name
+                    NavBarItems.Customize -> appRoute == AppScreen.CUSTOMIZE.name
                     else -> currentRoute == screen.route
                 },
                 selectedContentColor = Color.White,
@@ -162,6 +162,18 @@ fun BottomNavigationBar(navController: NavHostController,
                         NavBarItems.Meal -> {
                             if (appNavController != null) {
                                 appNavController.navigate(AppScreen.MEAL.name) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                navController.navigate(screen.route) {
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                        NavBarItems.Customize -> {
+                            if (appNavController != null) {
+                                appNavController.navigate(AppScreen.CUSTOMIZE.name) {
                                     launchSingleTop = true
                                 }
                             } else {
