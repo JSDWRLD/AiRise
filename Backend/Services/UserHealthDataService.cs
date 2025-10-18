@@ -42,7 +42,20 @@ namespace AiRise.Services
 
         public async Task<UserHealthData?> GetUserHealthDataAsync(string firebaseUid)
         {
-            return await _userHealthDataCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
+            var existing = await _userHealthDataCollection
+                .Find(u => u.FirebaseUid == firebaseUid)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+                return existing;
+
+            // Nothing found → create a default record using your existing helper
+            var id = await CreateAsync(firebaseUid);
+
+            // Fetch the newly inserted record and return it
+            return await _userHealthDataCollection
+                .Find(u => u.FirebaseUid == firebaseUid)
+                .FirstOrDefaultAsync();
         }
 
         // Update the user's health data. This does not update the user's targets for calories or hydration.

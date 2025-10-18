@@ -6,34 +6,37 @@ namespace AiRise.Services
     public class UserChallengesService
     {
         private readonly IMongoCollection<UserChallenges> _userChallengesCollection;
+        private readonly IMongoCollection<UserChallenges> _col;
 
         public UserChallengesService(MongoDBService mongoDBService)
         {
-            _userChallengesCollection = mongoDBService.GetCollection<UserChallenges>("user.challenges");
+            _col = _userChallengesCollection = mongoDBService.GetCollection<UserChallenges>("user.challenges");
+            // Ensure unique index on firebaseUid
+            var keys = Builders<UserChallenges>.IndexKeys.Ascending(x => x.FirebaseUid);
+            _col.Indexes.CreateOne(new CreateIndexModel<UserChallenges>(keys, new CreateIndexOptions { Unique = true }));
         }
 
         public async Task<string> CreateAsync(string firebaseUid)
         {
             var userChallenges = new UserChallenges { FirebaseUid = firebaseUid };
-            await _userChallengesCollection.InsertOneAsync(userChallenges);
+            await _col.InsertOneAsync(userChallenges);
             return userChallenges.Id!;
         }
 
         public async Task<UserChallenges> GetAsync(string firebaseUid, CancellationToken ct = default)
         {
-            var doc = await _userChallengesCollection.Find(x => x.FirebaseUid == firebaseUid)
-                                                     .FirstOrDefaultAsync(ct);
+            var doc = await _col.Find(x => x.FirebaseUid == firebaseUid).FirstOrDefaultAsync(ct);
             return doc ?? new UserChallenges { FirebaseUid = firebaseUid };
         }
 
         public async Task<UserChallenges> GetOrCreateAsync(string firebaseUid, CancellationToken ct = default)
         {
-            var doc = await _userChallengesCollection.Find(x => x.FirebaseUid == firebaseUid)
+            var doc = await _col.Find(x => x.FirebaseUid == firebaseUid)
                                                      .FirstOrDefaultAsync(ct);
             if (doc != null) return doc;
 
             doc = new UserChallenges { FirebaseUid = firebaseUid };
-            await _userChallengesCollection.InsertOneAsync(doc, cancellationToken: ct);
+            await _col.InsertOneAsync(doc, cancellationToken: ct);
             return doc;
         }
 
@@ -41,7 +44,7 @@ namespace AiRise.Services
         {
             var filter = Builders<UserChallenges>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
             var update = Builders<UserChallenges>.Update.Set(x => x.ActiveChallengeId, challengeId);
-            await _userChallengesCollection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
+            await _col.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
         }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace AiRise.Services
                 .Set(x => x.LastCompletionEpochDay, today)
                 .Unset(x => x.ActiveChallengeId);
 
-            await _userChallengesCollection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
+            await _col.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
             doc.LastCompletionEpochDay = today;
             return doc;
         }
@@ -73,7 +76,7 @@ namespace AiRise.Services
         {
             var filter = Builders<UserChallenges>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
             var update = Builders<UserChallenges>.Update.Unset(x => x.LastCompletionEpochDay);
-            await _userChallengesCollection.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
+            await _col.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
         }
 
         public async Task<bool> CompletedTodayAsync(string firebaseUid, CancellationToken ct = default)
@@ -82,6 +85,19 @@ namespace AiRise.Services
             var today = (long)(DateTime.UtcNow.Date - DateTime.UnixEpoch).TotalDays;
             return doc.LastCompletionEpochDay.HasValue && doc.LastCompletionEpochDay.Value == today;
         }
+
+        public Task ResetStreakAsync(string firebaseUid, CancellationToken ct = default)
+        {
+            var f = Builders<UserChallenges>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
+            var u = Builders<UserChallenges>.Update.Set(x => x.StreakCount, 0);
+            return _col.UpdateOneAsync(f, u, cancellationToken: ct);
+        }
+
+        public Task<List<UserChallenges>> GetTopByStreakAsync(int topN, CancellationToken ct = default) =>
+            _col.Find(FilterDefinition<UserChallenges>.Empty)
+                .SortByDescending(x => x.StreakCount)
+                .Limit(topN)
+                .ToListAsync(ct);
 
         private static long TodayEpochDayUtc() =>
             (long)(DateTime.UtcNow.Date - DateTime.UnixEpoch).TotalDays;

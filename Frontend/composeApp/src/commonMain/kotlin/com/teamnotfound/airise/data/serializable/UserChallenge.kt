@@ -7,7 +7,8 @@ data class UserChallenge(
     val id: String = "",
     val firebaseUid: String = "",
     val activeChallengeId: String? = "",
-    val lastCompletionEpochDay: Long? = 0
+    val lastCompletionEpochDay: Long? = 0,
+    val streakCount: Int = 0
 )
 
 // --- UserChallenges DTOs for requests ---

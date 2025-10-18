@@ -60,7 +60,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         topBar = {
             TopNavBar(
                 greeting = uiState.value.greeting,
-                username = uiState.value.username,
+                username = uiState.value.userData.firstName,
                 isLoaded = uiState.value.isUserDataLoaded,
                 navController = navController,
                 currentImageUrl = currentImageUrl

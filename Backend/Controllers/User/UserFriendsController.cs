@@ -19,32 +19,29 @@ public class UserFriendsController : Controller
         _logger = logger;
     }
 
+    // GET /api/UserFriends/{firebaseUid}
     [HttpGet("{firebaseUid}")]
-    public async Task<UserList> GetUserFriendsList(string firebaseUid)
+    public async Task<ActionResult<UserList>> GetUserFriendsList(string firebaseUid, CancellationToken ct)
     {
-        return await _userFriendService.GetUserFriendsList(firebaseUid);
+        var list = await _userFriendService.GetUserFriendsList(firebaseUid);
+        return Ok(list ?? new UserList { Users = new List<UserProfile>() });
     }
 
+    // POST /api/UserFriends/{firebaseUid}?friendFirebaseUid=abc
     [HttpPost("{firebaseUid}")]
-    public async Task<IActionResult> AddFriend(string firebaseUid, string friendFirebaseUid)
+    public async Task<IActionResult> AddFriend(string firebaseUid, [FromQuery] string friendFirebaseUid, CancellationToken ct)
     {
-        bool success = await _userFriendService.AddFriend(firebaseUid, friendFirebaseUid);
-
-        if (!success)
-        {
-            return NotFound(new { message = "UserFriend not found or adding failed" });
-        }
-        return Ok(new { message = "Friend added successfully" });
+        var success = await _userFriendService.AddFriend(firebaseUid, friendFirebaseUid);
+        return success ? Ok(new { message = "Friend added successfully" })
+                       : NotFound(new { message = "UserFriend not found or adding failed" });
     }
 
+    // DELETE /api/UserFriends/{firebaseUid}?friendFirebaseUid=abc
     [HttpDelete("{firebaseUid}")]
-    public async Task<IActionResult> DeleteFriend(string firebaseUid, string friendFirebaseUid)
+    public async Task<IActionResult> DeleteFriend(string firebaseUid, [FromQuery] string friendFirebaseUid, CancellationToken ct)
     {
-        bool success = await _userFriendService.DeleteFriend(firebaseUid, friendFirebaseUid);
-
-        if (!success)
-            return NotFound(new { message = "UserFriend not found or deleting failed" });
-        return Ok(new { message = "Friend deleted successfully" });
+        var success = await _userFriendService.DeleteFriend(firebaseUid, friendFirebaseUid);
+        return success ? Ok(new { message = "Friend deleted successfully" })
+                       : NotFound(new { message = "UserFriend not found or deleting failed" });
     }
-
 }

@@ -26,6 +26,7 @@ class UserDataUiState {
     var dobMonth: MutableState<Int> = mutableStateOf(0)
     var dobYear: MutableState<Int> = mutableStateOf(0)
     var activityLevel: MutableState<String> = mutableStateOf("")
+    var email: MutableState<String> = mutableStateOf("")
 
     // Convert to a serializable data class for MongoDB storage
     fun toData(): UserData = UserData(
@@ -48,7 +49,8 @@ class UserDataUiState {
         dobDay = dobDay.value,
         dobMonth = dobMonth.value,
         dobYear = dobYear.value,
-        activityLevel = activityLevel.value
+        activityLevel = activityLevel.value,
+        email = email.value
     )
 }
 
@@ -73,5 +75,7 @@ data class UserData(
     val dobDay: Int,
     val dobMonth: Int,
     val dobYear: Int,
-    val activityLevel: String
+    val activityLevel: String,
+    // (safe default so older responses still parse)
+    val email: String = ""
 )
