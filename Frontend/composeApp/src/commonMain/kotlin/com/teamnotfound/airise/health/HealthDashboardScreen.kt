@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.material.icons.filled.Bed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +53,8 @@ fun HealthDashboardScreen(
                     }
                 },
                 backgroundColor = DeepBlue,
-                elevation = 8.dp
+                elevation = 8.dp,
+                modifier = Modifier.statusBarsPadding()
             )
         },
         backgroundColor = BgBlack
