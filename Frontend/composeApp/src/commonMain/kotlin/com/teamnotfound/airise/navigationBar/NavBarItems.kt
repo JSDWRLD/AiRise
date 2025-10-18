@@ -10,5 +10,5 @@ sealed class NavBarItems(val route: String, val title: String, val icon: ImageVe
     data object Meal : NavBarItems("meal", "Meal", Icons.Filled.Restaurant)
     data object Overview : NavBarItems("overview", "Overview", Icons.Filled.LightMode)
     data object Community : NavBarItems("community", "Community", Icons.Filled.QuestionAnswer)
-    data object Progress : NavBarItems("progress", "Progress", Icons.Filled.Insights)
+    data object Customize : NavBarItems("customize", "Customize", Icons.Filled.Insights)
 }
