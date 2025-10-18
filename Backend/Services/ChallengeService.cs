@@ -1,7 +1,5 @@
 using AiRise.Models;
 using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace AiRise.Services
 {
@@ -12,6 +10,11 @@ namespace AiRise.Services
         public ChallengeService(MongoDBService mongoDBService)
         {
             _challengeCollection = mongoDBService.GetCollection<Challenge>("challenges");
+        }
+
+        public ChallengeService(IMongoCollection<Challenge> collection)
+        {
+            _challengeCollection = collection;
         }
 
         public async Task<List<Challenge>> GetAllChallengesAsync()
