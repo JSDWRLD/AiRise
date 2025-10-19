@@ -50,7 +50,11 @@ import com.teamnotfound.airise.workout.WorkoutScreen
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.meal.FoodLogScreen
 import com.teamnotfound.airise.meal.MealViewModel
-
+import com.teamnotfound.airise.customize.CustomizingScreen
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.customize.CustomizationViewModel
+import com.teamnotfound.airise.data.serializable.UserDataUiState
 
 @Composable
 fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
@@ -256,6 +260,26 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     FoodLogScreen(appNavController = navController, vm = vm)
                 }
 
+                // Customize Screen
+                composable(route = AppScreen.CUSTOMIZE.name) {
+                    val customizeVM = viewModel {
+                        CustomizationViewModel(
+                            authService = authService,
+                            summaryCache = container.summaryCache,
+                            userClient = container.userClient
+                        )
+                    }
+
+                    LaunchedEffect(Unit) {
+                        customizeVM.loadFromServer()
+                    }
+
+                    CustomizingScreen(
+                        appNavController = navController,
+                        viewModel = customizeVM
+                    )
+                }
+
                 //Navigation Bar and overview screen
                 composable(route = AppScreen.NAVBAR.name) {
                     val bottomNavController = rememberNavController()
@@ -355,10 +379,8 @@ enum class AppScreen {
     EMAIL_VERIFICATION,
     FRIENDS_LIST,
     CHALLENGES,
-    CHALLENGE_NEW,
-    CHALLENGE_EDIT,
-    CHALLENGE_DETAILS,
     LEADERBOARD,
     WORKOUT,
-    MEAL
+    MEAL,
+    CUSTOMIZE
 }
