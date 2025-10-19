@@ -363,7 +363,7 @@ fun HydrationBox(
                     OutlinedTextField(
                         value = customInput,
                         onValueChange = { newValue ->
-                            if (newValue.matches("^\\d*\\.?\\d*\$".toRegex())) {
+                            if (newValue.matches("^[0-9]*\\.?[0-9]*$".toRegex())) {
                                 customInput = newValue
                                 inputError = null
                             }
