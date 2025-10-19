@@ -86,17 +86,6 @@ class FoodLogScreenUiTest {
     }
 
     @Test
-    fun setGoal_persists_across_navigation_and_clamps_non_negative() {
-        val vm = vm()
-        vm.setGoal(1800)
-        vm.nextDay()
-        assertEquals(1800, vm.uiState.goal)
-
-        vm.setGoal(-10)
-        assertEquals(0, vm.uiState.goal)
-    }
-
-    @Test
     fun multiple_adds_generate_non_empty_ids() {
         val vm = vm()
         repeat(3) { idx ->

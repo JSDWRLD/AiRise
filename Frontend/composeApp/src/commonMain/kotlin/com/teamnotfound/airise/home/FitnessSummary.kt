@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,12 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.*
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.WaterDrop
@@ -37,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
@@ -46,12 +45,8 @@ import com.teamnotfound.airise.util.White
 //displays stats based on user time selection and includes dropdown
 @Composable
 fun FitnessSummarySection(
-    selectedTimeframe: String,
     formattedDate: String,
     healthData: HealthData,
-    onTimeFrameSelected: (String) -> Unit,
-    onRefreshHealth: () -> Unit,
-    onWriteSample: () -> Unit,
     onHydrationUpdated: (Double) -> Unit
 ) {
     Column(
@@ -64,7 +59,8 @@ fun FitnessSummarySection(
         // title and time dropdown
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Fitness Summary",
@@ -73,60 +69,16 @@ fun FitnessSummarySection(
                 color = White
             )
 
-            // dropdown menu for time
-            var expanded by remember { mutableStateOf(false) }
-
-            Box {
-                Button(
-                    onClick = { expanded = true },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                    shape = RoundedCornerShape(180.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    modifier = Modifier.width(120.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = selectedTimeframe, color = White, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            Icons.Outlined.ArrowDropDown,
-                            contentDescription = "Select timeframe",
-                            tint = White
-                        )
-                    }
-                }
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(DeepBlue)
-                ) {
-                    listOf("Daily", "Weekly", "Monthly", "Yearly").forEach { timeframe ->
-                        DropdownMenuItem(onClick = {
-                            onTimeFrameSelected(timeframe)
-                            expanded = false
-                        }) {
-                            Text(text = timeframe, color = White)
-                        }
-                    }
-                }
-            }
+            Text(
+                text = formattedDate,
+                fontSize = 14.sp,
+                color = Silver
+            )
         }
-        Spacer(modifier = Modifier.height(0.dp))
-
-        // displays date in format
-        Text(
-            text = formattedDate,
-            fontSize = 14.sp,
-            color = Silver
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // summary layout for information such as calories, steps, and heart rate
+        // summary layout for information such as calories, steps, and hydration
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -144,14 +96,6 @@ fun FitnessSummarySection(
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-
-        // Write sample
-        Button(
-            onClick = onWriteSample,
-            colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-            shape = RoundedCornerShape(180.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-        ) { Text("Write sample", color = White, fontSize = 14.sp) }
     }
 }
 
@@ -160,6 +104,7 @@ fun FitnessSummarySection(
 fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVector) {
     Column(
         modifier = Modifier
+            .height(150.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, Silver, RoundedCornerShape(16.dp))
@@ -190,7 +135,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        //format to display heart rate, calories, steps
+        //format to display hydration, calories, steps
         Text(
             text = value,
             fontSize = 26.sp,
@@ -214,16 +159,17 @@ fun HydrationBox(
     onHydrationUpdated: (Double) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var manualInput by remember { mutableStateOf("") }
+    var showCustomInput by remember { mutableStateOf(false) }
+    var customInput by remember { mutableStateOf("") }
     var inputError by remember { mutableStateOf<String?>(null) }
 
     val waterBottleSize = 16.9 // oz per water bottle
     val totalBottles = 8
-    val maxHydration = 200.0
+    val maxHydration = 300.0
 
     Column(
         modifier = modifier
-            .height(260.dp)
+            .height(320.dp)
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, Silver, RoundedCornerShape(16.dp))
             .background(Transparent)
@@ -249,13 +195,13 @@ fun HydrationBox(
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Water bottle visualization with 8 chunks
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(70.dp)
+                .height(80.dp)
         ) {
             Text(
                 text = "Water Bottles: ${(hydration / waterBottleSize).toInt()}",
@@ -270,7 +216,7 @@ fun HydrationBox(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 for (i in 0 until totalBottles) {
                     val bottleFillPercentage = ((hydration - (i * waterBottleSize)) / waterBottleSize).coerceIn(0.0, 1.0)
@@ -279,7 +225,7 @@ fun HydrationBox(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(6.dp))
                             .background(DeepBlue.copy(alpha = 0.5f))
                     ) {
                         // Water fill for this bottle
@@ -287,7 +233,7 @@ fun HydrationBox(
                             Box(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .fillMaxWidth()
+                                    .fillMaxWidth(bottleFillPercentage.toFloat())
                                     .align(Alignment.BottomStart)
                                     .background(
                                         brush = Brush.verticalGradient(
@@ -318,16 +264,9 @@ fun HydrationBox(
                     }
                 }
             }
-
-            Text(
-                text = "${hydration.toInt()} oz / ${maxHydration.toInt()} oz",
-                fontSize = 10.sp,
-                color = Silver,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Current hydration value
         Text(
@@ -338,84 +277,163 @@ fun HydrationBox(
             modifier = Modifier.align(Alignment.Start)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-        // Input water amount in oz
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "Update Amount:",
-                fontSize = 12.sp,
-                color = Silver,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Add 8 oz button
+            Button(
+                onClick = {
+                    val newHydration = (hydration + 8.0).coerceAtMost(maxHydration)
+                    onHydrationUpdated(newHydration)
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                enabled = hydration < maxHydration
             ) {
-                OutlinedTextField(
-                    value = manualInput,
-                    onValueChange = { newValue ->
-                        if (newValue.matches("^\\d*\\.?\\d*\$".toRegex())) {
-                            manualInput = newValue
-                            inputError = null
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = White,
-                        cursorColor = Orange,
-                        focusedBorderColor = Orange,
-                        unfocusedBorderColor = Silver,
-                        focusedLabelColor = Orange,
-                        unfocusedLabelColor = Silver
-                    ),
-                    singleLine = true,
-                    placeholder = {
-                        Text("oz", color = Silver)
-                    },
-                    isError = inputError != null
-                )
+                Text("Add 8oz", fontSize = 12.sp, color = White)
+            }
 
+            // Add 16 oz button
+            Button(
+                onClick = {
+                    val newHydration = (hydration + 16.0).coerceAtMost(maxHydration)
+                    onHydrationUpdated(newHydration)
+                },
+                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                enabled = hydration < maxHydration
+            ) {
+                Text("Add 16oz", fontSize = 12.sp, color = White)
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Custom button
+            Button(
+                onClick = { showCustomInput = true },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Orange),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                enabled = hydration < maxHydration
+            ) {
+                Text("Custom", fontSize = 12.sp, color = White)
+            }
+
+            // Reset button
+            Button(
+                onClick = { onHydrationUpdated(0.0)},
+                colors = ButtonDefaults.buttonColors(backgroundColor = Orange),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                enabled = hydration > 0
+            ) {
+                Text("Reset", fontSize = 12.sp, color = White)
+            }
+        }
+    }
+
+    // Custom input dialog
+    if (showCustomInput) {
+        AlertDialog(
+            onDismissRequest = {
+                showCustomInput = false
+                customInput = ""
+                inputError = null
+            },
+            title = {
+                Text("Add Custom Amount", color = White)
+            },
+            text = {
+                Column {
+                    Text(
+                        "Enter amount to add (oz):",
+                        color = Silver,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = customInput,
+                        onValueChange = { newValue ->
+                            if (newValue.matches("^[0-9]*\\.?[0-9]*$".toRegex())) {
+                                customInput = newValue
+                                inputError = null
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text("Enter ounces", color = Silver)
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = White,
+                            cursorColor = Orange,
+                            focusedBorderColor = Orange,
+                            unfocusedBorderColor = DeepBlue,
+                            focusedLabelColor = Orange,
+                            unfocusedLabelColor = Silver
+                        ),
+                        singleLine = true,
+                        isError = inputError != null
+                    )
+
+                    inputError?.let { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
                 Button(
                     onClick = {
-                        val newHydration = manualInput.toDoubleOrNull()
+                        val amountToAdd = customInput.toDoubleOrNull()
                         when {
-                            newHydration == null -> {
+                            amountToAdd == null -> {
                                 inputError = "Please enter a valid number"
                             }
-                            !isHydrationInputValid(newHydration, maxHydration) -> {
-                                inputError = "Enter 0-${maxHydration.toFloat()} oz"
+                            amountToAdd <= 0 -> {
+                                inputError = "Please enter a positive amount"
+                            }
+                            amountToAdd > (maxHydration - hydration) -> {
+                                inputError = "Amount exceeds daily recommended amount"
                             }
                             else -> {
+                                val newHydration = hydration + amountToAdd
                                 onHydrationUpdated(newHydration)
-                                manualInput = ""
+                                showCustomInput = false
+                                customInput = ""
                                 inputError = null
                             }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Orange),
-                    enabled = manualInput.isNotBlank()
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Orange)
                 ) {
-                    Text("Update", fontSize = 12.sp, color = White)
+                    Text("Add", color = White)
                 }
-            }
-
-            inputError?.let { error ->
-                Text(
-                    text = error,
-                    color = Color.Red,
-                    fontSize = 10.sp,
-                    modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-                )
-            }
-        }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showCustomInput = false
+                        customInput = ""
+                        inputError = null
+                    }
+                ) {
+                    Text("Cancel", color = Silver)
+                }
+            },
+            backgroundColor = BgBlack
+        )
     }
-}
-
-private fun isHydrationInputValid(input: Double, maxHydration: Double): Boolean {
-    return input in 0.0..maxHydration
 }

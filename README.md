@@ -32,7 +32,7 @@ AiRise bridges the gap between convenience and results. Built with full-stack fl
 <h2>📂 Project Structure</h2>
 
 ```
-/frontend   # Android (Kotlin) mobile application
+/frontend   # (Kotlin Multiplatform) mobile application
 /backend    # RESTful backend API (.NET 9)
 ```
 
@@ -240,33 +240,33 @@ type: short description
     <td>Completed</td>
   </tr>
   <tr>
-    <td>🧑‍🤝‍🧑 SPRINT 5 Community Engagement</td>
-    <td>Aug 25, 2025</td>
+    <td>✅ SPRINT 5 Community Engagement</td>
+    <td>Aug 27, 2025</td>
     <td>In Progress</td>
   </tr>
   <tr>
-    <td>🏋️ SPRINT 6 Workout Plan & Screen</td>
-    <td>Sep 08, 2025</td>
+    <td>✅  SPRINT 6 Workout Plan & Screen</td>
+    <td>Sep 17, 2025</td>
     <td>Upcoming</td>
   </tr>
   <tr>
-    <td>🗣️ SPRINT 7 AI Chat & Notifications</td>
-    <td>Sep 23, 2025</td>
+    <td>✅  SPRINT 7 Meal Plan</td>
+    <td>Oct 1, 2025</td>
     <td>Upcoming</td>
   </tr>
   <tr>
-    <td>📊 SPRINT 8 User Insights and Progress</td>
-    <td>Oct 7, 2025</td>
+    <td>✅ SPRINT 8 Customization & Stretch Goals</td>
+    <td>Oct 15, 2025</td>
     <td>Upcoming</td>
   </tr>
   <tr>
-    <td>🥩 SPRINT 9 Nutrition Tracking and Food Entry</td>
-    <td>Oct 21, 2025</td>
+    <td>✅ SPRINT 9 Handoff</td>
+    <td>Oct 29, 2025</td>
     <td>Upcoming</td>
   </tr>
   <tr>
     <td>🎓 Final Presentation & Demo Day</td>
-    <td>Dec 7, 2025</td>
+    <td>Nov 19, 2025</td>
     <td>Upcoming</td>
   </tr>
 </table>

@@ -60,7 +60,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         topBar = {
             TopNavBar(
                 greeting = uiState.value.greeting,
-                username = uiState.value.username,
+                username = uiState.value.userData.firstName,
                 isLoaded = uiState.value.isUserDataLoaded,
                 navController = navController,
                 currentImageUrl = currentImageUrl
@@ -113,14 +113,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 FitnessSummarySection(
-                    selectedTimeframe = uiState.value.selectedTimeFrame,
                     formattedDate = uiState.value.formattedDateRange,
                     healthData = uiState.value.healthData,
-                    onTimeFrameSelected = { timeFrame ->
-                        viewModel.onEvent(HomeUiEvent.SelectedTimeFrameChanged(timeFrame))
-                    },
-                    onRefreshHealth = { viewModel.syncHealthOnEnter() },
-                    onWriteSample = { viewModel.writeSampleHealth() },
                     onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) }
                 )
             }

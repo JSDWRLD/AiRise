@@ -7,12 +7,10 @@ namespace AiRise.Services
 
     public class UserSettingsService
     {
-        private readonly IMongoCollection<User> _userCollection;
         private readonly IMongoCollection<UserSettings> _userSettingsCollection;
 
         public UserSettingsService(MongoDBService mongoDBService)
         {
-            _userCollection = mongoDBService.GetCollection<User>("users"); // Use the Users collection
             _userSettingsCollection = mongoDBService.GetCollection<UserSettings>("user.settings");
         }
 
@@ -27,7 +25,27 @@ namespace AiRise.Services
 
         public async Task<UserSettings?> GetUserSettings(string firebaseUid)
         {
-            return await _userSettingsCollection.Find(u => u.FirebaseUid == firebaseUid).FirstOrDefaultAsync();
+            var existing = await _userSettingsCollection
+            .Find(u => u.FirebaseUid == firebaseUid)
+            .FirstOrDefaultAsync();
+
+            if (existing != null)
+                return existing;
+
+            // Create defaults if nothing found
+            var defaults = new UserSettings
+            {
+                FirebaseUid = firebaseUid,
+                PictureUrl = "",
+                AiPersonality = "default",
+                ChallengeNotifsEnabled = true,
+                FriendReqNotifsEnabled = true,
+                StreakNotifsEnabled = true,
+                MealNotifsEnabled = true
+            };
+
+            await _userSettingsCollection.InsertOneAsync(defaults);
+            return defaults;
         }
 
         public async Task<bool> UpdateUserSettingsAsync(string firebaseUid, UserSettings updatedSettings)
@@ -45,38 +63,25 @@ namespace AiRise.Services
             return result.ModifiedCount > 0;
         }
 
-        /*
-        public async Task<bool> UpdateUserDataAsync(string firebaseUid, UserSettings updatedSettings)
+        /// <summary>
+        /// Bulk fetch settings for many Firebase UIDs (used by leaderboard join).
+        /// </summary>
+        public async Task<List<UserSettings>> GetManyAsync(IEnumerable<string> firebaseUids, CancellationToken ct = default)
         {
-            var filter = Builders<UserSettings>.Filter.Eq(u => u.FirebaseUid, firebaseUid);
-            var updates = new List<UpdateDefinition<UserSettings>>();
+            var list = firebaseUids?.ToList() ?? new List<string>();
+            if (list.Count == 0) return new List<UserSettings>();
 
-            if (updatedSettings.PictureUrl != null)
-            {
-                updates.Add(Builders<UserSettings>.Update.Set(u => u.PictureUrl, updatedSettings.PictureUrl));
-            }
-
-            if (updatedSettings.AiPersonality != null)
-            {
-                updates.Add(Builders<UserSettings>.Update.Set(u => u.AiPersonality, updatedSettings.AiPersonality));
-            }
-
-            if (updatedSettings.StreakNotifsEnabled.HasValue) //
-            {
-                updates.Add(Builders<UserSettings>.Update.Set(u => u.StreakNotifsEnabled, true));
-            }
-
-
-            if (updates.Count == 0)
-            {
-                // No updates to apply
-                return false;
-            }
-
-            var combinedUpdate = Builders<UserSettings>.Update.Combine(updates);
-            var result = await _userSettingsCollection.UpdateOneAsync(filter, combinedUpdate);
-            return result.ModifiedCount > 0;
+            var filter = Builders<UserSettings>.Filter.In(x => x.FirebaseUid, list);
+            return await _userSettingsCollection.Find(filter).ToListAsync(ct);
         }
-        */
+
+        /// <summary>
+        /// Convenience: returns a UID→PictureUrl map (missing entries map to "").
+        /// </summary>
+        public async Task<Dictionary<string, string>> GetPictureUrlMapAsync(IEnumerable<string> firebaseUids, CancellationToken ct = default)
+        {
+            var settings = await GetManyAsync(firebaseUids, ct);
+            return settings.ToDictionary(s => s.FirebaseUid, s => s.PictureUrl ?? string.Empty, StringComparer.Ordinal);
+        }
     }
 }

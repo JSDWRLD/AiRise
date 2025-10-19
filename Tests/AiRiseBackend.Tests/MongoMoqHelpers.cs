@@ -3,25 +3,35 @@ using Moq;
 
 public static class MongoMoqHelpers
 {
+    /// <summary>
+    /// Cursor that iterates ALL items, batch-by-batch, compatible with ToListAsync().
+    /// </summary>
     public static Mock<IAsyncCursor<T>> MakeCursor<T>(IEnumerable<T> items)
     {
+        var data = (items ?? Enumerable.Empty<T>()).ToList();
+        var index = 0;
+        var currentBatch = new List<T>();
+
         var cursor = new Mock<IAsyncCursor<T>>();
-        var enumerator = items.GetEnumerator();
 
-        // Current returns the "batch" for the current MoveNext
-        cursor.SetupGet(c => c.Current).Returns(() =>
-        {
-            // Return a single-item batch if enumerator is on a valid item; empty batch otherwise
-            return enumerator.Current is null ? Array.Empty<T>() : new[] { enumerator.Current };
-        });
+        cursor.SetupGet(c => c.Current).Returns(() => currentBatch);
 
-        // MoveNext / MoveNextAsync simulate one batch per item (simple + good enough)
-        cursor.SetupSequence(c => c.MoveNext(It.IsAny<CancellationToken>()))
-              .Returns(() => enumerator.MoveNext())   // first call
-              .Returns(false);                        // then end
-        cursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>()))
-              .ReturnsAsync(() => enumerator.MoveNext())
-              .ReturnsAsync(false);
+        cursor.Setup(c => c.MoveNext(It.IsAny<CancellationToken>()))
+              .Returns(() =>
+              {
+                  if (index >= data.Count) { currentBatch = new List<T>(); return false; }
+                  // emit a simple 1-item batch each time (works with ToListAsync accumulation)
+                  currentBatch = new List<T> { data[index++] };
+                  return true;
+              });
+
+        cursor.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>()))
+              .ReturnsAsync(() =>
+              {
+                  if (index >= data.Count) { currentBatch = new List<T>(); return false; }
+                  currentBatch = new List<T> { data[index++] };
+                  return true;
+              });
 
         return cursor;
     }
@@ -38,7 +48,5 @@ public static class MongoMoqHelpers
     }
 
     public static void SetupFindAsyncSingle<T>(this Mock<IMongoCollection<T>> collMock, T? item)
-    {
-        collMock.SetupFindAsync(item is null ? Enumerable.Empty<T>() : new[] { item });
-    }
+        => collMock.SetupFindAsync(item is null ? Enumerable.Empty<T>() : new[] { item });
 }

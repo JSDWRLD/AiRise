@@ -10,6 +10,7 @@ import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
+import com.teamnotfound.airise.health.HealthEvents
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -40,17 +41,13 @@ class HomeViewModel(private val userRepository: IUserRepository,
         generateGreeting()
         getUsername()
         getHealthDataAndLoadWithData()
+        subscribeToHealthEvents()
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
         when (uiEvent) {
             is HomeUiEvent.GenerateOverview -> {
                 generateOverview()
-            }
-            is HomeUiEvent.SelectedTimeFrameChanged -> {
-
-                _uiState.value = _uiState.value.copy(isFitnessSummaryLoaded = false, selectedTimeFrame = uiEvent.selectedTimeFrame, errorMessage = null)
-                loadFitnessSummary()
             }
         }
     }
@@ -188,28 +185,9 @@ class HomeViewModel(private val userRepository: IUserRepository,
         )
     }
     private fun loadFitnessSummary() {
-        // date Formatting based on time selected
+        // date Formatting based on date
         val currentDate = currentDateTime.date
-        val formattedDate = when (_uiState.value.selectedTimeFrame) {
-            "Daily" -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-
-            "Weekly" -> {
-                val weekStart = currentDate.minus(DatePeriod(days = 6))
-                "${weekStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${weekStart.dayOfMonth} - ${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-            }
-
-            "Monthly" -> {
-                val monthStart = LocalDate(currentDate.year, currentDate.month, 1)
-                "${monthStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${monthStart.dayOfMonth} - ${currentDate.dayOfMonth}, ${currentDate.year}"
-            }
-
-            "Yearly" -> {
-                val yearStart = LocalDate(currentDate.year, Month.JANUARY, 1)
-                "${yearStart.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${yearStart.dayOfMonth} - ${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-            }
-
-            else -> "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
-        }
+        val formattedDate = "${currentDate.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${currentDate.dayOfMonth}, ${currentDate.year}"
 
         _uiState.value = _uiState.value.copy(
             formattedDateRange = formattedDate,
@@ -282,6 +260,15 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
             // Refresh UI + server with the newest readings
             syncHealthOnEnter()
+        }
+    }
+
+    private fun subscribeToHealthEvents() {
+        viewModelScope.launch {
+            HealthEvents.updates.collect {
+                // Re-sync when platform health data changes elsewhere
+                syncHealthOnEnter()
+            }
         }
     }
 
