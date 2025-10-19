@@ -115,6 +115,6 @@ class WaterUiTest {
     }
 
     private fun isValidHydrationInput(input: String): Boolean {
-        return input.matches("^\\d*\\.?\\d*\$".toRegex())
+        return input.matches("^[0-9]*\\.?[0-9]*\$".toRegex())
     }
 }
