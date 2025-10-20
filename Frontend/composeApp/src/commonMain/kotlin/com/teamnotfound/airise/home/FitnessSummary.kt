@@ -2,6 +2,7 @@ package com.teamnotfound.airise.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
 import androidx.compose.material.*
 import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teamnotfound.airise.data.serializable.HealthData
@@ -42,12 +46,14 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
 
-//displays stats based on user time selection and includes dropdown
+// Displays stats based on user time selection and includes dropdown
 @Composable
 fun FitnessSummarySection(
     formattedDate: String,
     healthData: HealthData,
-    onHydrationUpdated: (Double) -> Unit
+    onHydrationUpdated: (Double) -> Unit,
+    hasHealthSyncPermissions: Boolean,
+    onEnableHealthSync: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -78,28 +84,116 @@ fun FitnessSummarySection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // summary layout for information such as calories, steps, and hydration
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                FitnessStatBox("Calories", healthData.caloriesBurned.toString(), "Kcal", Icons.Outlined.LocalFireDepartment)
-                Spacer(modifier = Modifier.height(16.dp))
-                FitnessStatBox("Steps", healthData.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
+        // Summary layout for information such as calories, steps, and hydration
+        if (hasHealthSyncPermissions) {
+            // Show normal Steps and Calories cards when permissions are granted
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    FitnessStatBox("Calories", healthData.caloriesBurned.toString(), "Kcal", Icons.Outlined.LocalFireDepartment)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    FitnessStatBox("Steps", healthData.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
+                }
+                HydrationBox(
+                    hydration = healthData.hydration,
+                    onHydrationUpdated = onHydrationUpdated,
+                    modifier = Modifier.weight(1.2f)
+                )
             }
-            HydrationBox(
-                hydration = healthData.hydration,
-                onHydrationUpdated = onHydrationUpdated,
-                modifier = Modifier.weight(1.2f)
-            )
+        } else {
+            // Show Enable Health Sync card when permissions are not granted
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                EnableHealthSyncCard(
+                    onEnableHealthSync = onEnableHealthSync,
+                    modifier = Modifier.weight(1f)
+                )
+                HydrationBox(
+                    hydration = healthData.hydration,
+                    onHydrationUpdated = onHydrationUpdated,
+                    modifier = Modifier.weight(1.2f)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
-//displays the stat for the factors measured
+// Enable Health Sync CTA card - shown when permissions are not granted
+@Composable
+fun EnableHealthSyncCard(
+    onEnableHealthSync: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .height(320.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Silver, RoundedCornerShape(16.dp))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        DeepBlue.copy(alpha = 0.3f),
+                        Orange.copy(alpha = 0.2f)
+                    )
+                )
+            )
+            .clickable { onEnableHealthSync() }
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.Sync,
+            contentDescription = "Enable Health Sync",
+            tint = Orange,
+            modifier = Modifier.size(48.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Enable Health Sync",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = White,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Connect your health data to track steps, calories burned, and sleep automatically",
+            fontSize = 12.sp,
+            color = Silver,
+            textAlign = TextAlign.Center,
+            lineHeight = 16.sp
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onEnableHealthSync,
+            colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text(
+                text = "Connect Now",
+                color = White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+// Displays the stat for the factors measured
 @Composable
 fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVector) {
     Column(
@@ -113,20 +207,20 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
         horizontalAlignment = Alignment.Start
     ) {
 
-        //title and icon on the saw row
+        // title and icon on the same row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = label, //format title to each section
+                text = label, // format title to each section
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
             Icon(
-                imageVector = iconType, //displays the icons for each section
+                imageVector = iconType, // displays the icons for each section
                 contentDescription = "$label Icon",
                 tint = Orange,
                 modifier = Modifier.size(24.dp)
@@ -135,7 +229,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        //format to display hydration, calories, steps
+        // format to display hydration, calories, steps
         Text(
             text = value,
             fontSize = 26.sp,
@@ -144,7 +238,7 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        //format to display the unit
+        // format to display the unit
         Text(
             text = unit,
             fontSize = 12.sp,

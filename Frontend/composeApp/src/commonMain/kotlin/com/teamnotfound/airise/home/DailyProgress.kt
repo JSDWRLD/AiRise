@@ -26,9 +26,14 @@ import com.teamnotfound.airise.util.Silver
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
-//Displays the daily progress section
+// Displays the daily progress section
 @Composable
-fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean, lastNightSleepHours: Double? = null) {
+fun DailyProgressSection(
+    dailyProgressData: DailyProgressData,
+    isLoaded: Boolean,
+    lastNightSleepHours: Double? = null,
+    hasHealthSyncPermissions: Boolean
+) {
 
     Column(
         modifier = Modifier
@@ -72,17 +77,35 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
                         val strokeWidth = 30f
                         val gap = 8f
 
-                        listOf(0, 1, 2).forEach { index ->
-                            drawCircle(
-                                color = Silver,
-                                radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
-                                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                            )
-                        }
+                        // Draw background circles based on permissions
+                        if (hasHealthSyncPermissions) {
+                            // Show all three rings when permissions granted
+                            listOf(0, 1, 2).forEach { index ->
+                                drawCircle(
+                                    color = Silver,
+                                    radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
+                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                                )
+                            }
 
-                        drawProgressArc(NeonGreen, dailyProgressData.sleepProgress, 0, strokeWidth, gap)
-                        drawProgressArc(Orange, dailyProgressData.caloriesProgress, 1, strokeWidth, gap)
-                        drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
+                            // Draw progress arcs
+                            drawProgressArc(NeonGreen, dailyProgressData.sleepProgress, 0, strokeWidth, gap)
+                            drawProgressArc(Orange, dailyProgressData.caloriesProgress, 1, strokeWidth, gap)
+                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
+                        } else {
+                            // Hide sleep ring when no permissions - only show 2 rings
+                            listOf(0, 1).forEach { index ->
+                                drawCircle(
+                                    color = Silver,
+                                    radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
+                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                                )
+                            }
+
+                            // Draw only calorie intake and hydration arcs
+                            drawProgressArc(Orange, dailyProgressData.caloriesProgress, 0, strokeWidth, gap)
+                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 1, strokeWidth, gap)
+                        }
                     }
 
                     Text(
@@ -99,16 +122,20 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
-                if (isLoaded && lastNightSleepHours != null) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Last night: ${formatHours(lastNightSleepHours)}",
-                        fontSize = 11.sp,
-                        color = Silver
-                    )
+                // Only show sleep legend if permissions are granted
+                if (hasHealthSyncPermissions) {
+                    Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
+                    if (isLoaded && lastNightSleepHours != null) {
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Last night: ${formatHours(lastNightSleepHours)}",
+                            fontSize = 11.sp,
+                            color = Silver
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
                 }
-                Spacer(modifier = Modifier.height(6.dp))
+
                 Legend(Orange, "Calorie Intake: ", dailyProgressData.caloriesProgress.toInt())
                 Spacer(modifier = Modifier.height(6.dp))
                 Legend(Cyan, "Hydration: ", dailyProgressData.hydrationProgress.toInt())
@@ -117,7 +144,7 @@ fun DailyProgressSection(dailyProgressData: DailyProgressData, isLoaded: Boolean
     }
 }
 
-//Displays the legend for the progress
+// Displays the legend for the progress
 @Composable
 fun Legend(color: Color, label: String, percentage: Int) {
     Row(
@@ -138,7 +165,7 @@ fun Legend(color: Color, label: String, percentage: Int) {
     }
 }
 
-//Helper function to draw the progress arcs
+// Helper function to draw the progress arcs
 fun DrawScope.drawProgressArc(
     color: Color,
     percentage: Float,
@@ -159,10 +186,8 @@ fun DrawScope.drawProgressArc(
 }
 
 // Helper for formatting sleep hours
-
 private fun formatHours(hours: Double): String {
     val h = floor(hours).toInt()
     val m = ((hours - h) * 60).roundToInt().coerceIn(0, 59)
     return if (h > 0) "${h}h ${m}m" else "${m}m"
 }
-
