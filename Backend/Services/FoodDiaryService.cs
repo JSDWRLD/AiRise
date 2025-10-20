@@ -346,20 +346,28 @@ namespace AiRise.Services
 
         // sync the total eaten calories with the CaloriesEaten field in HealthData
         // only if the date matches the user's HealthData LocalDate field
-        private async Task syncUserHealthDataCaloriesAsync(string userId, int year, int month, int day, int caloires)
+        private async Task syncUserHealthDataCaloriesAsync(string userId, int year, int month, int day, int calories)
         {
-            if (_userHealthDataCollection != null && _userHealthDataService != null) {
-                UserHealthData userHealthData = await _userHealthDataCollection.Find(u => u.FirebaseUid == userId).FirstOrDefaultAsync();
-                DateOnly entryDate = new DateOnly(year, month, day);
-                if (entryDate.Equals(userHealthData.LocalDate))
+            if (_userHealthDataService == null)
+                return;
+
+            // Get-or-create the user's health data (prevents nulls/404s)
+            var userHealthData = await _userHealthDataService.GetUserHealthDataAsync(userId);
+            if (userHealthData == null)
+                return; // extremely defensive; Get should have created one
+
+            var entryDate = new DateOnly(year, month, day);
+
+            // Only sync when the diary entry date is the same as the user's tracked LocalDate
+            if (entryDate.Equals(userHealthData.LocalDate))
+            {
+                var hd = new HealthData
                 {
-                    var hd = new HealthData
-                    {
-                        CaloriesEaten = caloires,
-                        LocalDate = userHealthData.LocalDate
-                    };
-                    await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
-                }
+                    CaloriesEaten = calories,
+                    LocalDate = userHealthData.LocalDate
+                };
+
+                await _userHealthDataService.UpdateUserHealthDataAsync(userHealthData.FirebaseUid, hd);
             }
         }
     }

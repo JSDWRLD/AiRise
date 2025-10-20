@@ -32,7 +32,7 @@ AiRise bridges the gap between convenience and results. Built with full-stack fl
 <h2>📂 Project Structure</h2>
 
 ```
-/frontend   # Android (Kotlin) mobile application
+/frontend   # (Kotlin Multiplatform) mobile application
 /backend    # RESTful backend API (.NET 9)
 ```
 

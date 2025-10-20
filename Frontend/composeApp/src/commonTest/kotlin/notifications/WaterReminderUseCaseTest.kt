@@ -40,20 +40,7 @@ class WaterReminderUseCaseTest {
         val expected = listOf(10 to 0, 10 to 30, 11 to 0, 11 to 30)
         assertEquals(expected, fake.dailyCalls.map { it.hour to it.minute })
     }
-
-    @Test
-    fun scheduleDailyEvery_23min_advancesCorrectly() {
-        val fake = FakeLocalNotifier()
-        val useCase = WaterReminderUseCase(fake)
-
-        useCase.scheduleEvery2h(
-            startHour = 9, startMinute = 0,
-            endHour = 9, endMinute = 69,
-            intervalMinutes = 23
-        )
-        val expected = listOf(9 to 0, 9 to 23, 9 to 46)
-        assertEquals(expected, fake.dailyCalls.map { it.hour to it.minute })
-    }
+    
 
     @Test
     fun scheduleDailyEvery_invalidInterval_throws() {

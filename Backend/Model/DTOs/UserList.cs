@@ -1,7 +1,8 @@
 public class UserList
 {
-    public List<UserProfile> Users { get; set; }
+    public List<UserProfile> Users { get; set; } = new List<UserProfile>();
 }
+
 public class UserProfile
 {
     public string firebaseUid { get; set; }

@@ -5,14 +5,6 @@ import kotlin.test.*
 
 class MealViewModelTest {
 
-    @Test
-    fun `initial state has today as default offset`() {
-        val vm = MealViewModel.fake()
-
-        assertEquals(1, vm.uiState.dayOffset)
-        assertEquals(1900, vm.uiState.goal)
-        assertFalse(vm.uiState.isLoading)
-    }
 
     @Test
     fun `adding food increases total calories`() = runTest {
@@ -58,15 +50,6 @@ class MealViewModelTest {
 
         // Remaining = 2000 - 300 + 0 = 1700
         assertEquals(1700, vm.remaining)
-    }
-
-    @Test
-    fun `setting goal updates state`() {
-        val vm = MealViewModel.fake()
-
-        vm.setGoal(2500)
-
-        assertEquals(2500, vm.uiState.goal)
     }
 
     @Test

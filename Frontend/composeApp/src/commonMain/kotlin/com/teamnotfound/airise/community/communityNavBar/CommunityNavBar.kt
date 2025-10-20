@@ -46,6 +46,10 @@ fun CommunityNavBar(
         viewModel.updatePage(currentPage)
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
     // Simple helpers for display
     val userData = uiState.userData  // <-- local immutable copy enables smart cast
 
