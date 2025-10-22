@@ -104,19 +104,23 @@ fun CustomizingScreen(
             // Workout Days
             CustomizationCard(
                 title = "Training Days",
-                caption = "Pick the days you're most likely to work out.",
+                caption = "Pick 3–6 days per week.",
                 saving = ui.isSaving,
                 onSave = {
-                    viewModel.save(
-                        OnboardingDataUpdate(workoutDays = selectedDays.toList())
-                    )
+                    if (selectedDays.size in 3..6) {
+                        viewModel.save(OnboardingDataUpdate(workoutDays = selectedDays.toList()))
+                    }
                 }
             ) {
                 DayOfWeekChips(
                     selected = selectedDays,
                     onToggle = { day ->
                         selectedDays = selectedDays.toMutableSet().apply {
-                            if (!add(day)) remove(day)
+                            if (day in this) {
+                                if (size > 3) remove(day)   // prevent < 3
+                            } else if (size < 6) {           // prevent > 6
+                                add(day)
+                            }
                         }
                     }
                 )
@@ -165,6 +169,7 @@ fun CustomizingScreen(
             Spacer(Modifier.height(20.dp))
 
             // --- TDEE Calculator Placeholder Box ---
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -441,8 +446,6 @@ private fun EquipmentSegmented(
         }
     }
 }
-
-/* ============================ Data ============================ */
 
 private val EQUIPMENT_LABEL_TO_KEY = mapOf(
     "Bodyweight" to "bodyweight",
