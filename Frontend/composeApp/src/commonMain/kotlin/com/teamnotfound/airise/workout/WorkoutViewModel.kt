@@ -33,6 +33,9 @@ class WorkoutViewModel(
 
     private var hasScheduledDaily = false
 
+    private var cachedProgramDoc: UserProgramDoc? = null
+    private var cachedChallenge: UserChallenge? = null
+
 
     init {
         refresh()
@@ -54,18 +57,33 @@ class WorkoutViewModel(
         )
     }
 
-     fun refresh() {
-        viewModelScope.launch {
+    fun manualRefresh() {
+        cachedProgramDoc = null
+        cachedChallenge = null
+        refresh(force = true)
+    }
+
+     fun refresh(force: Boolean = false) {
+         if (!force && cachedProgramDoc != null) {
+             _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
+             _userChallenge.value = cachedChallenge
+             ensureDailyReminderFromState()
+             return
+         }
+
+         viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
                 when (val result = userRepository.getUserProgram()) {
                     is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error)
                     is Result.Success<UserProgramDoc> -> {
+                        cachedProgramDoc = result.data //Caching
                         _uiState.value = WorkoutUiState.Success(result.data)
                     }
                 }
 
                 val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
+                cachedChallenge = uc //Caching
                 _userChallenge.value = uc
 
                 if (!hasScheduledDaily) {
@@ -109,6 +127,7 @@ class WorkoutViewModel(
 
         val updatedDoc = programDoc.copy(program = programDoc.program.copy(schedule = updatedSchedule))
         _uiState.value = WorkoutUiState.Success(updatedDoc)
+        cachedProgramDoc = updatedDoc // Keep our cache up to date with updates
     }
 
     fun logAll() {
@@ -120,6 +139,8 @@ class WorkoutViewModel(
         val today = currentEpochDay()
         _userChallenge.value = _userChallenge.value?.copy(lastCompletionEpochDay = today)
         val programDoc = state.programDoc
+
+        cachedProgramDoc = programDoc
 
         viewModelScope.launch {
             try {
