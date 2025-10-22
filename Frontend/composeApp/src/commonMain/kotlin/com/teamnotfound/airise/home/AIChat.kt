@@ -39,6 +39,8 @@ import com.teamnotfound.airise.util.White
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.generativeAi.AiMessage
+import com.teamnotfound.airise.generativeAi.GeminiSessionManager
+
 
 
 @Composable
@@ -58,6 +60,7 @@ fun AiChat(
     val scope = rememberCoroutineScope()
 
     val api = remember { GeminiApi() }
+    val session = remember { GeminiSessionManager(api, debounceMs = 500, maxChars = 4000) }
 
     val messageHistory = remember { mutableStateListOf<Message>() }
 
@@ -95,28 +98,28 @@ fun AiChat(
         if (text.isBlank()) return
 
         val prior = mapUiHistoryToAiMessages()
-
         messageHistory += Message(text, ai = false)
 
         scope.launch {
             val reply = try {
-                api.chatReplyWithContext(
-                    userMsg = text,
+                session.sendPrompt(
+                    prompt = text,
                     priorTurns = prior,
                     workoutGoal = workoutGoal,
-                    dietaryGoal= dietaryGoal,
-                    activityLevel= activityLevel,
-                    fitnessLevel= fitnessLevel,
-                    workoutLength= workoutLength,
-                    workoutRestrictions= workoutRestrictions,
-                    healthData= healthData,
-                    dailyProgressData= dailyProgressData,
+                    dietaryGoal = dietaryGoal,
+                    activityLevel = activityLevel,
+                    fitnessLevel = fitnessLevel,
+                    workoutLength = workoutLength,
+                    workoutRestrictions = workoutRestrictions,
+                    healthData = healthData,
+                    dailyProgressData = dailyProgressData
                 )
             } catch (e: Exception) {
                 fallbackMessage ?: "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
             }
             messageHistory += Message(reply, ai = true)
         }
+
     }
 
 
