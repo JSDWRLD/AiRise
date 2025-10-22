@@ -42,7 +42,25 @@ class ChallengesViewModelImpl(
 
     init { refresh() }
 
-    override fun refresh() {
+    override fun refresh() = refresh(false)
+
+    fun refresh(force: Boolean = false) {
+        // Serve snapshot if available and not forcing
+        val (snapItems, snapProgress) = ChallengesCache.snapshot()
+        if (!force && snapItems != null && snapProgress != null) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = null,
+                    items = snapItems,
+                    progress = snapProgress
+                )
+            }
+            return
+        }
+
+        // Slow path: do exactly what you already do
+        _uiState.update { it.copy(isLoading = true, error = null) }
         loadChallengesAndProgress()
     }
 
@@ -56,6 +74,7 @@ class ChallengesViewModelImpl(
 
     private fun loadChallengesAndProgress() {
         _uiState.update { it.copy(isLoading = true, error = null) }
+
         viewModelScope.launch {
             // 1) challenges
             val items = when (val r = dataClient.getChallenges()) {
@@ -103,6 +122,10 @@ class ChallengesViewModelImpl(
                     progress = baseProgress.copy(completedToday = completedToday)
                 )
             }
+            ChallengesCache.put(
+                newItems = items,
+                newProgress = baseProgress.copy(completedToday = completedToday)
+            )
         }
     }
     override fun onChallengeClick(id: String) {
@@ -276,7 +299,7 @@ class ChallengesViewModelImpl(
 
 // --- Mappers & helpers
 
-private fun com.teamnotfound.airise.data.serializable.Challenge.toUI(): ChallengeUI =
+internal fun com.teamnotfound.airise.data.serializable.Challenge.toUI(): ChallengeUI =
     ChallengeUI(
         id = id ?: name,                 // fallback if id missing
         name = name,
