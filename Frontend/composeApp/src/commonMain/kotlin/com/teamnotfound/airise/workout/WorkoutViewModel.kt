@@ -32,11 +32,10 @@ class WorkoutViewModel(
     val activeDayIndex: StateFlow<Int?> = _activeDayIndex.asStateFlow()
 
     private var hasScheduledDaily = false
-
-
+    private var isRefreshing = false
 
     init {
-        loadData()
+        refresh()
     }
 
     private fun currentEpochDay(): Long {
@@ -55,80 +54,51 @@ class WorkoutViewModel(
         )
     }
 
-
-    private fun loadData(forceRefresh: Boolean = false) {
-        viewModelScope.launch {
-            // Try to serve whatever we have instantly
-            val (snapProgram, snapChallenge) = WorkoutCache.snapshot()
-            if (!forceRefresh && snapProgram != null) {
-                _uiState.value = WorkoutUiState.Success(snapProgram)
-                _userChallenge.value = snapChallenge
-                return@launch
-            }
-
-            _uiState.value = WorkoutUiState.Loading
-            when (val r = WorkoutCache.getOrFetch(userRepository, force = forceRefresh)) {
-                is Result.Success -> {
-                    val (programDoc, challenge) = r.data
-                    _uiState.value = WorkoutUiState.Success(programDoc)
-                    _userChallenge.value = challenge
-
-                    // schedule reminder only after first real load
-                    if (!hasScheduledDaily) {
-                        hasScheduledDaily = true
-                        reminder.cancelActive()
-                        val (hour, minute) = resolveUserWorkoutTimeOrFallback()
-                        reminder.scheduleDailyAt(hour, minute, "AiRise", "Time to workout!")
-                    }
-                }
-                is Result.Error -> {
-                    _uiState.value = WorkoutUiState.Error(r.error)
-                }
-            }
-        }
+    //Need to add swipeRefresh or pullToRefresh module -- for now not used
+    fun manualRefresh() {
+        WorkoutCache.clear()
+        refresh(force = true)
     }
 
 
-    fun refresh() {
+    fun refresh(force: Boolean = false) {
+        if (isRefreshing) return
+        isRefreshing = true
+
         viewModelScope.launch {
-            _uiState.value = WorkoutUiState.Loading
             try {
-                when (val result = userRepository.getUserProgram()) {
-                    is Result.Error<NetworkError> -> {
-                        if (cachedProgramDoc != null) {
-                            _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
-                        } else {
-                            _uiState.value = WorkoutUiState.Error(result.error)
+                val (snapProgram, snapChallenge) = WorkoutCache.snapshot()
+                if (!force && snapProgram != null) {
+                    _uiState.value = WorkoutUiState.Success(snapProgram)
+                    _userChallenge.value = snapChallenge
+                    return@launch
+                }
+
+                _uiState.value = WorkoutUiState.Loading
+                when (val r = WorkoutCache.getOrFetch(userRepository, force = force)) {
+                    is Result.Success -> {
+                        val (programDoc, challenge) = r.data
+                        _uiState.value = WorkoutUiState.Success(programDoc)
+                        _userChallenge.value = challenge
+
+                        if (!hasScheduledDaily) {
+                            hasScheduledDaily = true
+                            reminder.cancelActive()
+                            val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+                            reminder.scheduleDailyAt(hour, minute, "AiRise", "Time to workout!")
                         }
                     }
-                    is Result.Success<UserProgramDoc> -> {
-                        cachedProgramDoc = result.data
-                        _uiState.value = WorkoutUiState.Success(result.data)
+                    is Result.Error -> {
+                        if (snapProgram != null) {
+                            _uiState.value = WorkoutUiState.Success(snapProgram)
+                            _userChallenge.value = snapChallenge
+                        } else {
+                            _uiState.value = WorkoutUiState.Error(r.error)
+                        }
                     }
                 }
-
-                val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
-                _userChallenge.value = uc
-                cachedUserChallenge = uc
-
-                if (!hasScheduledDaily) {
-                    hasScheduledDaily = true
-                    reminder.cancelActive()
-
-                    val (hour, minute) = resolveUserWorkoutTimeOrFallback()
-                    reminder.scheduleDailyAt(
-                        hour = hour,
-                        minute = minute,
-                        title = "AiRise",
-                        body  = "Time to workout!"
-                    )
-                }
-            } catch (e: Exception) {
-                if (cachedProgramDoc != null) {
-                    _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
-                } else {
-                    _uiState.value = WorkoutUiState.Error(NetworkError.UNKNOWN)
-                }
+            } finally {
+                isRefreshing = false
             }
         }
     }
