@@ -33,12 +33,10 @@ class WorkoutViewModel(
 
     private var hasScheduledDaily = false
 
-    private var cachedProgramDoc: UserProgramDoc? = null
-    private var cachedChallenge: UserChallenge? = null
 
 
     init {
-        refresh()
+        loadData()
     }
 
     private fun currentEpochDay(): Long {
@@ -57,34 +55,61 @@ class WorkoutViewModel(
         )
     }
 
-    fun manualRefresh() {
-        cachedProgramDoc = null
-        cachedChallenge = null
-        refresh(force = true)
+
+    private fun loadData(forceRefresh: Boolean = false) {
+        viewModelScope.launch {
+            // Try to serve whatever we have instantly
+            val (snapProgram, snapChallenge) = WorkoutCache.snapshot()
+            if (!forceRefresh && snapProgram != null) {
+                _uiState.value = WorkoutUiState.Success(snapProgram)
+                _userChallenge.value = snapChallenge
+                return@launch
+            }
+
+            _uiState.value = WorkoutUiState.Loading
+            when (val r = WorkoutCache.getOrFetch(userRepository, force = forceRefresh)) {
+                is Result.Success -> {
+                    val (programDoc, challenge) = r.data
+                    _uiState.value = WorkoutUiState.Success(programDoc)
+                    _userChallenge.value = challenge
+
+                    // schedule reminder only after first real load
+                    if (!hasScheduledDaily) {
+                        hasScheduledDaily = true
+                        reminder.cancelActive()
+                        val (hour, minute) = resolveUserWorkoutTimeOrFallback()
+                        reminder.scheduleDailyAt(hour, minute, "AiRise", "Time to workout!")
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.value = WorkoutUiState.Error(r.error)
+                }
+            }
+        }
     }
 
-     fun refresh(force: Boolean = false) {
-         if (!force && cachedProgramDoc != null) {
-             _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
-             _userChallenge.value = cachedChallenge
-             ensureDailyReminderFromState()
-             return
-         }
 
-         viewModelScope.launch {
+    fun refresh() {
+        viewModelScope.launch {
             _uiState.value = WorkoutUiState.Loading
             try {
                 when (val result = userRepository.getUserProgram()) {
-                    is Result.Error<NetworkError> -> _uiState.value = WorkoutUiState.Error(result.error)
+                    is Result.Error<NetworkError> -> {
+                        if (cachedProgramDoc != null) {
+                            _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
+                        } else {
+                            _uiState.value = WorkoutUiState.Error(result.error)
+                        }
+                    }
                     is Result.Success<UserProgramDoc> -> {
-                        cachedProgramDoc = result.data //Caching
+                        cachedProgramDoc = result.data
                         _uiState.value = WorkoutUiState.Success(result.data)
                     }
                 }
 
                 val uc = try { userRepository.getUserChallengeOrNull() } catch (_: Throwable) { null }
-                cachedChallenge = uc //Caching
                 _userChallenge.value = uc
+                cachedUserChallenge = uc
 
                 if (!hasScheduledDaily) {
                     hasScheduledDaily = true
@@ -99,7 +124,11 @@ class WorkoutViewModel(
                     )
                 }
             } catch (e: Exception) {
-                _uiState.value = WorkoutUiState.Error(NetworkError.UNKNOWN)
+                if (cachedProgramDoc != null) {
+                    _uiState.value = WorkoutUiState.Success(cachedProgramDoc!!)
+                } else {
+                    _uiState.value = WorkoutUiState.Error(NetworkError.UNKNOWN)
+                }
             }
         }
     }
@@ -127,7 +156,12 @@ class WorkoutViewModel(
 
         val updatedDoc = programDoc.copy(program = programDoc.program.copy(schedule = updatedSchedule))
         _uiState.value = WorkoutUiState.Success(updatedDoc)
-        cachedProgramDoc = updatedDoc // Keep our cache up to date with updates
+
+        val (_, snapChallenge) = WorkoutCache.snapshot()
+        viewModelScope.launch {
+            WorkoutCache.put(updatedDoc, snapChallenge)
+        }
+
     }
 
     fun logAll() {
@@ -139,8 +173,6 @@ class WorkoutViewModel(
         val today = currentEpochDay()
         _userChallenge.value = _userChallenge.value?.copy(lastCompletionEpochDay = today)
         val programDoc = state.programDoc
-
-        cachedProgramDoc = programDoc
 
         viewModelScope.launch {
             try {
