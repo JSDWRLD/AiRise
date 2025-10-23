@@ -63,14 +63,7 @@ fun CustomizingScreen(
     }
 
     var selectedDays by remember(ui.initialDays) { mutableStateOf(ui.initialDays.toMutableSet()) }
-    var selectedTimes by remember(ui.initialTimesCsv) {
-        mutableStateOf(
-            ui.initialTimesCsv.split(',')
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .toMutableSet()
-        )
-    }
+    var selectedLength by remember(ui.initialLength) { mutableStateOf(ui.initialLength) }
     var selectedEquipmentKey by remember(ui.initialEquipmentKey) { mutableStateOf(ui.initialEquipmentKey) }
 
     val scroll = rememberScrollState()
@@ -128,26 +121,21 @@ fun CustomizingScreen(
 
             // Workout Times
             CustomizationCard(
-                title = "Preferred Times",
-                caption = "Select when you prefer to train.",
+                title = "Workout Length",
+                caption = "Choose your session duration.",
                 saving = ui.isSaving,
                 onSave = {
-                    viewModel.save(
-                        OnboardingDataUpdate(
-                            workoutTime = selectedTimes.joinToString(", ")
-                        )
-                    )
+                    if (selectedLength in listOf(15, 30, 45, 60)) {
+                        viewModel.save(OnboardingDataUpdate(workoutLength = selectedLength))
+                    }
                 }
             ) {
-                TimeChips(
-                    selected = selectedTimes,
-                    onToggle = { pref ->
-                        selectedTimes = selectedTimes.toMutableSet().apply {
-                            if (!add(pref)) remove(pref)
-                        }
-                    }
+                LengthChips(
+                    selectedMinutes = selectedLength,
+                    onSelect = { selectedLength = it }
                 )
             }
+
 
             // Equipment
             CustomizationCard(
@@ -369,6 +357,28 @@ private fun TimeChips(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LengthChips(
+    selectedMinutes: Int,
+    onSelect: (Int) -> Unit
+) {
+    val options = listOf(15, 30, 45, 60)
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        options.forEach { min ->
+            SelectableChip(
+                text = "$min min",
+                selected = (min == selectedMinutes),
+                onClick = { onSelect(min) }
+            )
+        }
+    }
+}
+
 @Composable
 private fun SelectableChip(
     text: String,
@@ -455,6 +465,6 @@ private val EQUIPMENT_LABEL_TO_KEY = mapOf(
 
 data class OnboardingDataUpdate(
     val workoutDays: List<String>? = null,
-    val workoutTime: String? = null,
+    val workoutLength: Int? = null,
     val workoutEquipment: String? = null
 )
