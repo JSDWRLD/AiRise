@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.NetworkError
+import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -173,6 +174,9 @@ class CustomizationViewModel(
         }
     }
 
+    fun getUserClient(): UserClient = userClient
+    
+    fun getFirebaseUser(): FirebaseUser? = authService.firebaseUser
 
     private fun mapError(error: NetworkError): String = when (error) {
         NetworkError.NO_INTERNET       -> "No internet connection."

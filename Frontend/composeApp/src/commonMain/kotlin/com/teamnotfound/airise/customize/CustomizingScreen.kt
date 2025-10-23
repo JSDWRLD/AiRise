@@ -168,8 +168,7 @@ fun CustomizingScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // --- TDEE Calculator Placeholder Box ---
-
+            // --- TDEE Calculator Widget ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,7 +179,10 @@ fun CustomizingScreen(
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TDEEWidget()
+                TDEEWidget(
+                    userClient = viewModel.getUserClient(),
+                    firebaseUser = viewModel.getFirebaseUser()
+                )
             }
 
             Spacer(Modifier.height(80.dp))
