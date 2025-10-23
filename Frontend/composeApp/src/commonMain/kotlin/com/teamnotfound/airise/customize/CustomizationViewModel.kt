@@ -30,7 +30,7 @@ class CustomizationViewModel(
             isLoaded = true,
             error = null,
             initialDays = user.workoutDays.value,
-            initialTimesCsv = user.workoutTime.value.orEmpty(),
+            initialLength = user.workoutLength.value,
             initialEquipmentKey = user.equipmentAccess.value.ifBlank { "bodyweight" }
         )
     }
@@ -147,8 +147,8 @@ class CustomizationViewModel(
             update.workoutDays?.let { days ->
                 if (days.isNotEmpty()) base.workoutDays.value = days
             }
-            update.workoutTime?.let { timeCsv ->
-                if (timeCsv.isNotBlank()) base.workoutTime.value = timeCsv
+            update.workoutLength?.let {
+                if (it > 0) base.workoutLength.value = it
             }
             update.workoutEquipment?.let { eq ->
                 if (eq.isNotBlank()) base.equipmentAccess.value = eq
@@ -195,6 +195,6 @@ data class CustomizationUiState(
     val error: String? = null,
 
     val initialDays: List<String> = emptyList(),
-    val initialTimesCsv: String = "",
+    val initialLength: Int = 30,
     val initialEquipmentKey: String = "bodyweight",
 )
