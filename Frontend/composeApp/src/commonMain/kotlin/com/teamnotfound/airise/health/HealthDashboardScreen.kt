@@ -80,7 +80,6 @@ fun HealthDashboardScreen(
                         FitnessStatBox("Steps", healthData!!.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
                     }
                     Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FitnessStatBox("Hydration", healthData!!.hydration.toString(), "fl oz", Icons.Outlined.WaterDrop)
                         FitnessStatBox("Sleep", healthData!!.sleep.toString(), "hrs", Icons.Filled.Bed)
                     }
                 }
@@ -95,15 +94,7 @@ fun HealthDashboardScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            // Re-open permissions flow and reload if granted
-                            val granted = provider.requestPermissions()
-                            if (granted) {
-                                viewModel.requestAndLoadData()
-                            }
-                        }
-                    },
+                    onClick = { viewModel.requestAndLoadData() },
                     colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
                     shape = RoundedCornerShape(28.dp),
                     modifier = Modifier
@@ -128,7 +119,11 @@ fun HealthDashboardScreen(
                     onClick = {
                         coroutineScope.launch {
                             val success = viewModel.writeHealthData()
-                            if (!success) println("Failed to write sample data.")
+                            if (!success) {
+                                println("Failed to write sample data.")
+                            } else {
+                                viewModel.requestAndLoadData()
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen),
