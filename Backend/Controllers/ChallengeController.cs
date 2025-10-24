@@ -1,6 +1,8 @@
 using AiRise.Models;
 using AiRise.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 namespace AiRise.Controllers
 {
@@ -22,12 +24,34 @@ namespace AiRise.Controllers
             return Ok(challenges);
         }
 
-        // Insert a new challenge
-        [HttpPost]
+        /************** ADMIN ONLY *******************/
+
+        [Authorize("Admin")]
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateChallenge(Challenge challenge)
+        {
+            var success = await _challengeService.UpdateChallengeAsync(challenge);
+            return success ? Ok(new { message = "Challenge updated successfully" })
+                : NotFound(new { message = "Challenge not found or update failed" });
+        }
+
+        // Insert a new challenge 
+        [Authorize("Admin")]
+        [HttpPost("insert")]
         public async Task<IActionResult> InsertChallenge([FromBody] Challenge challenge)
         {
-            await _challengeService.InsertChallengeAsync(challenge);
-            return Ok();
+            var success = await _challengeService.InsertChallengeAsync(challenge);
+            return success ? Ok(new {message = "Challenge inserted successfully"})
+                : Conflict("There is already another challenge with the same name");
+        }
+
+        [Authorize("Admin")]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteChallenge(string id)
+        {
+            var success = await _challengeService.DeleteChallengeAsync(id);
+            return success ? Ok(new { message = "Successfully deleted the challenge" })
+                : NotFound(new { message = "Unable to find a challenge with a matching ID" }); 
         }
     }
 }
