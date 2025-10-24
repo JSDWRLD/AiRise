@@ -11,10 +11,23 @@ import com.khealth.KHealth
 import com.teamnotfound.airise.cache.FakeUserCache
 import com.teamnotfound.airise.cache.FakeSummaryCache
 import com.teamnotfound.airise.data.network.clients.DataClient
+import notifications.TempNotifier
+import notifications.WorkoutReminderUseCase
+import notifications.MealReminderUseCase
+import notifications.WaterReminderUseCase
+import notifications.NudgeReminderUseCase
 
 fun MainViewController() = ComposeUIViewController {
     val platformConfig = defaultPlatformConfiguration()
     val kHealth = KHealth()
+
+
+    val temp = TempNotifier()
+    val workoutReminder = WorkoutReminderUseCase(temp)
+    val mealReminder    = MealReminderUseCase(temp)
+    val waterReminder   = WaterReminderUseCase(temp)
+    val nudgeReminder   = NudgeReminderUseCase(temp)
+
     CompositionLocalProvider(
         LocalDensity provides platformConfig.density
     ) {
@@ -31,7 +44,7 @@ fun MainViewController() = ComposeUIViewController {
                 userCache = FakeUserCache(),
                 summaryCache = FakeSummaryCache(),
             ),
-            reminder = TODO()
+            reminder = workoutReminder
         )
     }
 }
