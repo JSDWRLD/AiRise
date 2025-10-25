@@ -2,23 +2,22 @@ package com.teamnotfound.airise.generativeAi
 
 import com.teamnotfound.airise.data.serializable.DailyProgressData
 import com.teamnotfound.airise.data.serializable.HealthData
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
+import dev.shreyaspatil.ai.client.generativeai.type.TextPart
 
-/**
- * Per-screen/session helper: caches prompt->reply and overview,
- * normalizes inputs, debounces, truncates, and logs hit/miss.
- */
 class GeminiSessionManager(
     private val api: GeminiApi,
     private val debounceMs: Long = 500,
     private val maxChars: Int = 4000
 ) {
     private val mutex = Mutex()
-    private val promptCache = LinkedHashMap<String, String>()      // normalized prompt -> reply
+    private val promptCache = LinkedHashMap<String, String>() // normalized prompt -> reply
     private var overviewCache: String? = null
-    private var lastPromptAt: Long = 0L
+    private var lastPromptAtMs: Long = 0L
 
     suspend fun sendPrompt(
         prompt: String,
@@ -35,22 +34,22 @@ class GeminiSessionManager(
         val norm = normalize(prompt)
         if (norm.isEmpty()) return ""
 
-        // prompt cache
+        // cache
         promptCache[norm]?.let {
             println("[Gemini] cache HIT prompt=\"$norm\"")
             return it
         }
         println("[Gemini] cache MISS prompt=\"$norm\"")
 
-        // debounce consecutive sends
-        val now = System.currentTimeMillis()
-        if (now - lastPromptAt < debounceMs) {
-            val wait = debounceMs - (now - lastPromptAt)
-            if (wait > 0) delay(wait)
+        // debounce
+        val now = nowMillis()
+        val elapsed = now - lastPromptAtMs
+        if (elapsed in 0 until debounceMs) {
+            delay(debounceMs - elapsed)
         }
-        lastPromptAt = System.currentTimeMillis()
+        lastPromptAtMs = nowMillis()
 
-        // truncate (char-safe)
+        // truncate
         val safePrompt = truncate(prompt)
 
         val reply = api.chatReplyWithContext(
@@ -81,11 +80,30 @@ class GeminiSessionManager(
             }
         }
         println("[Gemini] overview cache MISS/REFRESH")
-        // If your API returns String already, keep as-is:
-        val text = api.generateTodaysOverview(healthData, progress)
+
+        val res: GenerateContentResponse = api.generateTodaysOverview(healthData, progress)
+        val text = flatten(res)
+
         overviewCache = text
         return text
     }
+
+    private fun flatten(res: GenerateContentResponse): String {
+        val cand = res.candidates?.firstOrNull() ?: return ""
+        val parts = cand.content?.parts ?: return ""
+        return buildString {
+            for (part in parts) {
+                when (part) {
+                    is TextPart -> append(part.text)
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+
+    private fun nowMillis(): Long = Clock.System.now().toEpochMilliseconds()
 
     private fun normalize(s: String): String =
         s.trim().lowercase().replace(Regex("\\s+"), " ")
