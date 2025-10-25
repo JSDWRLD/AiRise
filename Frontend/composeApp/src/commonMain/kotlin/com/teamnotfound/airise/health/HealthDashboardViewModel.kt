@@ -51,6 +51,30 @@ class HealthDashboardViewModel(
             }
         }
     }
+
+    /**
+     * Load health data without requesting permissions.
+     * Use this on screen start so we do not automatically open the OS permission dialog.
+     * Callers that want to request permissions should use requestAndLoadData().
+     */
+    fun loadData() {
+        if (_isLoading.value) return
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                val data = provider.getHealthData()
+                _healthData.value = data
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Unknown error"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     suspend fun writeHealthData(): Boolean {
         val ok = provider.writeHealthData()
         if (ok) {
