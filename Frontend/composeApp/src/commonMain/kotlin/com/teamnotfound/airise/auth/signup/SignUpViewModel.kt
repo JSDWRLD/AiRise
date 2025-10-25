@@ -90,6 +90,7 @@ class SignUpViewModel(private val authService: AuthService, private val userCach
             NetworkError.PAYLOAD_TOO_LARGE -> TODO()
             NetworkError.SERVER_ERROR -> TODO()
             NetworkError.BAD_REQUEST -> TODO()
+            NetworkError.FORBIDDEN -> TODO()
         }
     }
     // This function is to be uncommented & ran once Firebase keys are configured

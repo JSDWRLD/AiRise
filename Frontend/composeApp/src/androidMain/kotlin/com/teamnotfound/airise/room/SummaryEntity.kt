@@ -40,5 +40,8 @@ data class SummaryEntity(
     val preferredActivityLevel: String,
 
     // Timestamp
-    val timestamp: Long
+    val timestamp: Long,
+
+    // Admin
+    val isAdmin: Boolean
 )

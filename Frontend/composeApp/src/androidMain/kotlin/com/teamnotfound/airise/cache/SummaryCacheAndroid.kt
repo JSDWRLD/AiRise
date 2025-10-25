@@ -51,7 +51,8 @@ class SummaryCacheAndroid(private val context: Context) : SummaryCache {
                     isWeightMetric = summary.weightMetric,
                     dateOfBirth = dobTimestamp,
                     preferredActivityLevel = summary.activityLevel,
-                    timestamp = System.currentTimeMillis()
+                    timestamp = System.currentTimeMillis(),
+                    isAdmin = summary.isAdmin
                 )
                 val insertedId = db.summaryDao().insertSummary(entity)
                 Log.d("SummaryCacheAndroid", "Inserted summary with ID: $insertedId")
@@ -85,7 +86,8 @@ class SummaryCacheAndroid(private val context: Context) : SummaryCache {
                     dobDay = 0,
                     dobMonth = 0,
                     dobYear = 0,
-                    activityLevel = entity.preferredActivityLevel
+                    activityLevel = entity.preferredActivityLevel,
+                    isAdmin = entity.isAdmin
                 )
             }
         }
