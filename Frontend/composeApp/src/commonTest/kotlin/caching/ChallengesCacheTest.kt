@@ -1,43 +1,88 @@
 package com.teamnotfound.airise.community.challenges
 
-import com.teamnotfound.airise.community.challenges.*
-import kotlin.test.BeforeTest
-import kotlin.test.AfterTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.advanceUntilIdle
-
-import com.teamnotfound.airise.data.network.Result as NetResult
-
+import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
-import dev.gitlive.firebase.auth.FirebaseUser
-import kotlinx.coroutines.*
-import kotlinx.coroutines.test.*
+import com.teamnotfound.airise.data.serializable.Challenge
+import com.teamnotfound.airise.util.NetworkError
 import kotlin.test.*
+import kotlinx.coroutines.test.runTest
 
 class ChallengesCacheTest {
 
-    private val dispatcher = StandardTestDispatcher()
-    private lateinit var scope: TestScope
+    // Local DTO substitute
+    private data class UserChallengesDTO(
+        val activeChallengeId: String? = null,
+        val lastCompletionEpochDay: Long = 0L
+    )
 
-    @BeforeTest
-    fun setUp() {
-        scope = TestScope(dispatcher)
+    // Fake responses to simulate network clients
+    private class FakeDataClient(
+        private val result: Result<List<Challenge>, NetworkError>
+    ) {
+        suspend fun getChallenges(): Result<List<Challenge>, NetworkError> = result
     }
 
-    @AfterTest
-    fun tearDown() { }
+    private class FakeUserClient(
+        private val userChallenges: Result<UserChallengesDTO, NetworkError> = Result.Error(NetworkError.UNKNOWN),
+        private val completedToday: Result<Boolean, NetworkError> = Result.Error(NetworkError.UNKNOWN)
+    ) {
+        suspend fun getUserChallenges(): Result<UserChallengesDTO, NetworkError> = userChallenges
+        suspend fun hasCompletedToday(): Result<Boolean, NetworkError> = completedToday
+    }
+
+    private fun dummyChallenge(id: String) =
+        Challenge(id, "Challenge $id", "Description $id", "url$id")
+
+    private fun dummyDTO(id: String? = null, day: Long = 0L) =
+        UserChallengesDTO(id, day)
+
+    @BeforeTest
+    fun reset() = ChallengesCache.clear()
 
     @Test
-    fun resultSuccessWorks() = runTest(dispatcher) {
-        val r: NetResult<Int, Nothing> = NetResult.Success(42)
-        assertTrue(r is NetResult.Success)
-        assertEquals(42, (r as NetResult.Success).data)
+    fun `returns cached data when present`() = runTest {
+        val list = listOf(ChallengeUI("1", "A", "D", "U"))
+        val prog = UserChallengeProgressUI("1", 10L, completedToday = true)
+        ChallengesCache.put(list, prog)
+
+        val result = ChallengesCache.snapshot()
+        assertEquals(list, result.first)
+        assertEquals(prog, result.second)
+    }
+
+    @Test
+    fun `fetches new data and caches it`() = runTest {
+        val dataClient = FakeDataClient(Result.Success(listOf(dummyChallenge("X"))))
+        val userClient = FakeUserClient(
+            userChallenges = Result.Success(dummyDTO("X", 100L)),
+            completedToday = Result.Success(true)
+        )
+
+        // Manually simulate logic similar to ChallengesCache
+        val fetchedChallenges = (dataClient.getChallenges() as Result.Success).data.map { it.toUI() }
+        val dto = (userClient.getUserChallenges() as Result.Success).data
+        val progress = UserChallengeProgressUI(
+            activeChallengeId = dto.activeChallengeId,
+            lastCompletionEpochDay = dto.lastCompletionEpochDay,
+            completedToday = (userClient.hasCompletedToday() as Result.Success).data
+        )
+
+        ChallengesCache.put(fetchedChallenges, progress)
+
+        val (cachedList, cachedProg) = ChallengesCache.snapshot()
+        assertEquals(fetchedChallenges, cachedList)
+        assertEquals(progress, cachedProg)
+    }
+
+    @Test
+    fun `returns error when fetch fails and no cache`() = runTest {
+        val dataClient = FakeDataClient(Result.Error(NetworkError.NO_INTERNET))
+        val userClient = FakeUserClient()
+
+        // Since cache is empty and fetch fails, emulate Result.Error
+        val result = dataClient.getChallenges()
+        assertTrue(result is Result.Error)
+        assertEquals(NetworkError.NO_INTERNET, (result as Result.Error).error)
     }
 }

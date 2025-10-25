@@ -86,4 +86,42 @@ object MealCache {
             }
         }
     }
+    suspend fun getOrFetchMonth(
+        year: Int,
+        month: Int,
+        force: Boolean = false,
+        fetch: suspend () -> Result<FoodDiaryMonth, NetworkError>
+    ): Result<FoodDiaryMonth, NetworkError> = lock.withLock {
+        val key = year to month
+        if (!force) months[key]?.let { return Result.Success(it) }
+        return when (val res = fetch()) {
+            is Result.Success -> {
+                months[key] = res.data
+                Result.Success(res.data)
+            }
+            is Result.Error -> {
+                months[key]?.let { Result.Success(it) } ?: Result.Error(res.error)
+            }
+        }
+    }
+
+    suspend fun getOrFetchHealth(
+        defaultGoal: Int = 2000,
+        force: Boolean = false,
+        fetch: suspend () -> Result<com.teamnotfound.airise.data.serializable.HealthData, NetworkError>
+    ): Result<HealthSnapshot, NetworkError> = lock.withLock {
+        if (!force) health?.let { return Result.Success(it) }
+        return when (val res = fetch()) {
+            is Result.Success -> {
+                val goal = res.data.caloriesTarget ?: defaultGoal
+                val snap = HealthSnapshot(goalCalories = goal, caloriesBurned = res.data.caloriesBurned)
+                health = snap
+                Result.Success(snap)
+            }
+            is Result.Error -> {
+                health?.let { Result.Success(it) } ?: Result.Error(res.error)
+            }
+        }
+    }
+
 }
