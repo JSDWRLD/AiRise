@@ -1,30 +1,24 @@
 package com.teamnotfound.airise.health
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.LocalFireDepartment
-import androidx.compose.material.icons.outlined.WaterDrop
-import androidx.compose.material.icons.filled.Bed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.khealth.KHealth
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.NeonGreen
 import com.teamnotfound.airise.util.Orange
-import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.White
-import com.teamnotfound.airise.util.Cyan
-import com.teamnotfound.airise.home.FitnessStatBox
 
 @Composable
 fun HealthDashboardScreen(
@@ -69,22 +63,23 @@ fun HealthDashboardScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Compute whether the device is effectively empty / not synced.
+            val allZero = healthData?.let {
+                it.caloriesBurned == 0 && it.steps == 0 && it.hydration == 0.0 && it.sleep == 0.0
+            } ?: true
+
             if (isLoading) {
                 CircularProgressIndicator(color = Orange)
             } else if (error != null) {
                 Text("Error: $error", color = Orange)
-            } else if (healthData != null) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FitnessStatBox("Calories", healthData!!.caloriesBurned.toString(), "Kcal", Icons.Outlined.LocalFireDepartment)
-                        FitnessStatBox("Steps", healthData!!.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
-                    }
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        FitnessStatBox("Sleep", healthData!!.sleep.toString(), "hrs", Icons.Filled.Bed)
-                    }
-                }
             } else {
-                Text("No data available", color = Silver)
+                val statusText = if (allZero) "Device not available" else "Device synced"
+                Text(
+                    text = statusText,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = White
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -93,46 +88,52 @@ fun HealthDashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(
-                    onClick = { viewModel.requestAndLoadData() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                    shape = RoundedCornerShape(28.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text("Permissions", color = White)
+                // Show the Permissions button only when the device appears not synced.
+                if (allZero) {
+                    Button(
+                        onClick = { viewModel.requestAndLoadData() },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text("Permissions", color = White)
+                    }
                 }
 
-                Button(
-                    onClick = { viewModel.requestAndLoadData() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
-                    shape = RoundedCornerShape(28.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text("Sync", color = White)
-                }
+                // Show Sync and Write only when we have non-zero data (device synced).
+                if (!allZero) {
+                    Button(
+                        onClick = { viewModel.requestAndLoadData() },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue),
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text("Sync", color = White)
+                    }
 
-                Button(
-                    onClick = {
-                        coroutineScope.launch {
-                            val success = viewModel.writeHealthData()
-                            if (!success) {
-                                println("Failed to write sample data.")
-                            } else {
-                                viewModel.requestAndLoadData()
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                val success = viewModel.writeHealthData()
+                                if (!success) {
+                                    println("Failed to write sample data.")
+                                } else {
+                                    viewModel.requestAndLoadData()
+                                }
                             }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen),
-                    shape = RoundedCornerShape(28.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text("Write Sample", color = BgBlack)
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = NeonGreen),
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Text("Write Sample", color = BgBlack)
+                    }
                 }
             }
         }
