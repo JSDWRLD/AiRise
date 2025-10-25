@@ -9,11 +9,26 @@ import kotlinx.datetime.Clock
 import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
 import dev.shreyaspatil.ai.client.generativeai.type.TextPart
 
+fun flatten(res: GenerateContentResponse): String {
+    val cand = res.candidates?.firstOrNull() ?: return ""
+    val parts = cand.content?.parts ?: return ""
+    return buildString {
+        for (part in parts) {
+            if (part is TextPart) append(part.text)
+        }
+    }
+}
+
+
 class GeminiSessionManager(
     private val api: GeminiApi,
     private val debounceMs: Long = 500,
-    private val maxChars: Int = 4000
+    private val maxChars: Int = 4000,
+    private val overviewFetcher: suspend (HealthData, DailyProgressData?) -> String =
+        { h, p -> flatten(api.generateTodaysOverview(h, p)) },
+    private val nowMillis: () -> Long = { Clock.System.now().toEpochMilliseconds() }
 ) {
+
     private val mutex = Mutex()
     private val promptCache = LinkedHashMap<String, String>() // normalized prompt -> reply
     private var overviewCache: String? = null
@@ -73,20 +88,17 @@ class GeminiSessionManager(
         progress: DailyProgressData? = null,
         forceRefresh: Boolean = false
     ): String = mutex.withLock {
-        if (!forceRefresh) {
-            overviewCache?.let {
-                println("[Gemini] overview cache HIT")
-                return it
-            }
+        if (!forceRefresh) overviewCache?.let {
+            println("[Gemini] overview cache HIT")
+            return it
         }
         println("[Gemini] overview cache MISS/REFRESH")
 
-        val res: GenerateContentResponse = api.generateTodaysOverview(healthData, progress)
-        val text = flatten(res)
-
+        val text = overviewFetcher(healthData, progress)
         overviewCache = text
         return text
     }
+
 
     private fun flatten(res: GenerateContentResponse): String {
         val cand = res.candidates?.firstOrNull() ?: return ""
@@ -95,15 +107,11 @@ class GeminiSessionManager(
             for (part in parts) {
                 when (part) {
                     is TextPart -> append(part.text)
-
                     else -> Unit
                 }
             }
         }
     }
-
-
-    private fun nowMillis(): Long = Clock.System.now().toEpochMilliseconds()
 
     private fun normalize(s: String): String =
         s.trim().lowercase().replace(Regex("\\s+"), " ")
