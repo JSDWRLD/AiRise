@@ -55,7 +55,7 @@ class DataClient(
     suspend fun upsertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
         val token = firebaseUser.getIdToken(false).toString()
         val response = try {
-            httpClient.post("$baseUrl/Challenge/upsert"){
+            httpClient.post("$baseUrl/Challenge"){
                 contentType(ContentType.Application.Json)
                 setBody(challenge)
                 bearerAuth(token)
@@ -80,7 +80,7 @@ class DataClient(
     suspend fun deleteChallenge(firebaseUser: FirebaseUser, id: String) : Result<Boolean, NetworkError>{
         val token = firebaseUser.getIdToken(false).toString()
         val response = try {
-            httpClient.delete("$baseUrl/Challenge/delete?id=$id") {
+            httpClient.delete("$baseUrl/Challenge?id=$id") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
             }

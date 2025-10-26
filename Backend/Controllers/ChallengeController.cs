@@ -27,7 +27,7 @@ namespace AiRise.Controllers
         /************** ADMIN ONLY *******************/
 
         [Authorize("Admin")]
-        [HttpPost("upsert")]
+        [HttpPost]
         public async Task<IActionResult> UpsertChallenge([FromBody] Challenge challenge)
         {
             var success = await _challengeService.UpsertChallengeAsync(challenge);
@@ -36,7 +36,7 @@ namespace AiRise.Controllers
         }
 
         [Authorize("Admin")]
-        [HttpDelete("delete")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteChallenge(string id)
         {
             var success = await _challengeService.DeleteChallengeAsync(id);
