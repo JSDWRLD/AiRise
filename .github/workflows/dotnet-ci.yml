@@ -25,5 +25,13 @@ jobs:
       - name: Build
         run: dotnet build Tests/AiRiseBackend.Tests/AiRise.Tests.csproj -c Release --no-restore
 
+      # NEW STEP: Install MongoDB dependencies for Ubuntu (fixes libssl1.1 issue)
+      - name: Install MongoDB dependencies
+        run: |
+          sudo apt update
+          echo "deb http://security.ubuntu.com/ubuntu focal-security main" | sudo tee /etc/apt/sources.list.d/focal-security.list
+          sudo apt update
+          sudo apt install -y libssl1.1
+
       - name: Test
         run: dotnet test  Tests/AiRiseBackend.Tests/AiRise.Tests.csproj -c Release --no-build --verbosity normal

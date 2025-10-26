@@ -65,6 +65,7 @@ class OnboardingViewModel(
             NetworkError.PAYLOAD_TOO_LARGE -> "Data too large to process."
             NetworkError.SERVER_ERROR -> "Server error occurred."
             NetworkError.BAD_REQUEST -> "Invalid request. Please check your data."
+            NetworkError.FORBIDDEN -> TODO()
         }
     }
 }

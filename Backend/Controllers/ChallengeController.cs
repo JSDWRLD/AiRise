@@ -1,6 +1,8 @@
 using AiRise.Models;
 using AiRise.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 namespace AiRise.Controllers
 {
@@ -22,12 +24,24 @@ namespace AiRise.Controllers
             return Ok(challenges);
         }
 
-        // Insert a new challenge
-        [HttpPost]
-        public async Task<IActionResult> InsertChallenge([FromBody] Challenge challenge)
+        /************** ADMIN ONLY *******************/
+
+        [Authorize("Admin")]
+        [HttpPost("upsert")]
+        public async Task<IActionResult> UpsertChallenge([FromBody] Challenge challenge)
         {
-            await _challengeService.InsertChallengeAsync(challenge);
-            return Ok();
+            var success = await _challengeService.UpsertChallengeAsync(challenge);
+            return success ? Ok(new { message = "Challenge upserted successfully" })
+                : BadRequest(new { message = "Challenge upsert failed" });
+        }
+
+        [Authorize("Admin")]
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteChallenge(string id)
+        {
+            var success = await _challengeService.DeleteChallengeAsync(id);
+            return success ? Ok(new { message = "Successfully deleted the challenge" })
+                : NotFound(new { message = "Unable to find a challenge with a matching ID" }); 
         }
     }
 }
