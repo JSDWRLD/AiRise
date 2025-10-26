@@ -43,7 +43,8 @@ class AccountSettingsTest {
             dobDay = 1,
             dobMonth = 1,
             dobYear = 1995,
-            activityLevel = "Moderate"
+            activityLevel = "Moderate",
+            isAdmin = false
         )
 
         val copied = original.copy(
