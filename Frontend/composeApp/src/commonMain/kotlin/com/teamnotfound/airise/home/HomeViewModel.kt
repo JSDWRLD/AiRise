@@ -18,11 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.min
 import kotlin.random.Random
@@ -35,13 +31,13 @@ class HomeViewModel(private val userRepository: IUserRepository,
     val uiState: StateFlow<HomeUiState> = _uiState
     private val geminiApi = GeminiApi()
     private val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    private var hasRequestedHealthPerms = false
 
     init {
         generateGreeting()
         getUsername()
         getHealthDataAndLoadWithData()
         subscribeToHealthEvents()
+        checkHealthSyncPermissions() // Check if permissions are already granted
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
@@ -56,7 +52,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         viewModelScope.launch {
             val user = Firebase.auth.currentUser
             if (user == null) {
-                // not signed in – show default avatar or a message
+                // not signed in â€" show default avatar or a message
                 _uiState.value = _uiState.value.copy(
                     userProfilePicture = null,
                     errorMessage = "Not signed in"
@@ -95,6 +91,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
         }
     }
+
     private fun generateGreeting(){
         val generalGreetings = arrayOf(
             "Hello",
@@ -122,6 +119,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
 
     }
+
     private fun generateOverview() {
         viewModelScope.launch {
             try {
@@ -184,6 +182,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
             isDailyProgressLoaded = true
         )
     }
+
     private fun loadFitnessSummary() {
         // date Formatting based on date
         val currentDate = currentDateTime.date
@@ -200,29 +199,85 @@ class HomeViewModel(private val userRepository: IUserRepository,
         )
     }
 
-    // Sync health data on screen view
+    /**
+     * Check if health sync permissions are already granted without requesting them.
+     * This is called on init to set the initial flag state.
+     */
+    private fun checkHealthSyncPermissions() {
+        viewModelScope.launch {
+            try {
+                // Try to read health data - if successful, permissions are granted
+                val canReadHealth = try {
+                    provider.getHealthData()
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+
+                _uiState.value = _uiState.value.copy(hasHealthSyncPermissions = canReadHealth)
+            } catch (t: Throwable) {
+                _uiState.value = _uiState.value.copy(
+                    hasHealthSyncPermissions = false,
+                    errorMessage = "Unable to check health permissions"
+                )
+            }
+        }
+    }
+
+    /**
+     * Refresh health sync status and sync data if permissions are granted.
+     * Call this when returning to HomeScreen to update UI after permissions may have changed.
+     */
+    fun refreshHealthSyncStatus() {
+        viewModelScope.launch {
+            try {
+                // Try to read health data - if successful, permissions are granted
+                val canReadHealth = try {
+                    provider.getHealthData()
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+
+                val previousState = _uiState.value.hasHealthSyncPermissions
+                _uiState.value = _uiState.value.copy(hasHealthSyncPermissions = canReadHealth)
+
+                // If permissions were just granted, sync the data
+                if (canReadHealth && !previousState) {
+                    syncHealthOnEnter()
+                }
+            } catch (t: Throwable) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Unable to refresh health sync status"
+                )
+            }
+        }
+    }
+
+    /**
+     * Sync health data only if permissions are already granted.
+     * Does NOT request permissions - that should only happen via requestHealthSyncPermissions()
+     */
     fun syncHealthOnEnter() {
         viewModelScope.launch {
             try {
-                if (!hasRequestedHealthPerms) {
-                    val granted = provider.requestPermissions()
-                    hasRequestedHealthPerms = true
-                    if (!granted) {
-                        _uiState.value = _uiState.value.copy(errorMessage = "Health permissions not granted")
-                        return@launch
-                    }
+                // Only sync if we already have permissions
+                if (!uiState.value.hasHealthSyncPermissions) {
+                    return@launch
                 }
 
                 val platformHealth = provider.getHealthData()
+
                 // Map platform health into serializable HealthData model
+                // NOTE: Hydration is NOT fetched from KHealth - user-entered hydration remains intact
                 val mapped = HealthData(
                     caloriesEaten = uiState.value.healthData.caloriesEaten,
                     caloriesTarget = uiState.value.healthData.caloriesTarget,
                     hydrationTarget = uiState.value.healthData.hydrationTarget,
+                    hydration = uiState.value.healthData.hydration, // Keep existing user-entered hydration
                     caloriesBurned = platformHealth.caloriesBurned,
                     steps = platformHealth.steps,
-                    sleep =  platformHealth.sleep,
-                    hydration = platformHealth.hydration
+                    sleep = platformHealth.sleep
                 )
 
                 // Update UI
@@ -231,6 +286,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
                     isFitnessSummaryLoaded = true,
                     errorMessage = null
                 )
+
                 // Recompute progress + overview with fresh health metrics
                 loadDailyProgress()
                 generateOverview()
@@ -250,8 +306,46 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
+    /**
+     * Request health sync permissions. This should only be called when user explicitly
+     * taps the "Enable Health Sync" CTA.
+     */
+    fun requestHealthSyncPermissions(onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val granted = provider.requestPermissions()
+
+                _uiState.value = _uiState.value.copy(
+                    hasHealthSyncPermissions = granted,
+                    errorMessage = if (!granted) "Health permissions not granted" else null
+                )
+
+                // If permissions granted, immediately sync data
+                if (granted) {
+                    syncHealthOnEnter()
+                }
+
+                onComplete(granted)
+            } catch (t: Throwable) {
+                _uiState.value = _uiState.value.copy(
+                    hasHealthSyncPermissions = false,
+                    errorMessage = t.message ?: "Failed to request health permissions"
+                )
+                onComplete(false)
+            }
+        }
+    }
+
     fun writeSampleHealth() {
         viewModelScope.launch {
+            // Only write sample health if we have permissions
+            if (!uiState.value.hasHealthSyncPermissions) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Health sync permissions required to write sample data"
+                )
+                return@launch
+            }
+
             // Ask KHealth to insert sample records (platform-specific actual code handles this)
             val ok = provider.writeHealthData()
             if (!ok) {
@@ -267,7 +361,10 @@ class HomeViewModel(private val userRepository: IUserRepository,
         viewModelScope.launch {
             HealthEvents.updates.collect {
                 // Re-sync when platform health data changes elsewhere
-                syncHealthOnEnter()
+                // Only sync if permissions are already granted
+                if (uiState.value.hasHealthSyncPermissions) {
+                    syncHealthOnEnter()
+                }
             }
         }
     }

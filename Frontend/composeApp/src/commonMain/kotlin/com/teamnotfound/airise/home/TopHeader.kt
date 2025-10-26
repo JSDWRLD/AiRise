@@ -21,7 +21,7 @@ import com.teamnotfound.airise.util.BgBlack
 @Composable
 fun TopNavBar(greeting: String, username: String, navController: NavController, isLoaded: Boolean, currentImageUrl: String?) {
     TopAppBar(
-        modifier = Modifier.padding(top = 25.dp),
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
         backgroundColor = BgBlack, // Dark background color
         contentColor = Color.White,
         elevation = 0.dp,

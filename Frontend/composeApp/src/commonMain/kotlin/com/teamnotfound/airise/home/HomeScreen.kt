@@ -30,10 +30,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     val currentImageUrl = uiState.value.userProfilePicture
 
-    // Pull Apple/Android Health data when user lands here
-    LaunchedEffect(Unit) {
-        viewModel.syncHealthOnEnter()
-    }
+    // NOTE: Do NOT auto-sync health data on screen entry
+    // Health sync only occurs after user explicitly grants permissions via the CTA
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -107,15 +105,21 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 DailyProgressSection(
                     dailyProgressData = uiState.value.dailyProgressData,
                     isLoaded = uiState.value.isDailyProgressLoaded,
-                    lastNightSleepHours = uiState.value.healthData.sleep
-                    )
+                    lastNightSleepHours = uiState.value.healthData.sleep,
+                    hasHealthSyncPermissions = uiState.value.hasHealthSyncPermissions
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 FitnessSummarySection(
                     formattedDate = uiState.value.formattedDateRange,
                     healthData = uiState.value.healthData,
-                    onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) }
+                    onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) },
+                    hasHealthSyncPermissions = uiState.value.hasHealthSyncPermissions,
+                    onEnableHealthSync = {
+                        // Navigate to Health Dashboard screen (Account Settings → Sync)
+                        navController.navigate(AppScreen.HEALTH_DASHBOARD.name)
+                    }
                 )
             }
         }
