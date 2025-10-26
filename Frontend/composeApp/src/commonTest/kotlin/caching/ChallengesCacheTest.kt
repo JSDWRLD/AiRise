@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.community.challenges
 
+import androidx.compose.runtime.mutableStateOf
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
