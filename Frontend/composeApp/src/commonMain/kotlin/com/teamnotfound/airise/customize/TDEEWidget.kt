@@ -61,11 +61,18 @@ fun TDEEWidget(
                 state = uiState,
                 onStateChange = { uiState = it },
                 onCalculate = {
+                    // Convert imperial units to metric for calculation
+                    val heightCm = feetInchesToCm(
+                        uiState.heightFeet.toIntOrNull() ?: 0,
+                        uiState.heightInches.toIntOrNull() ?: 0
+                    )
+                    val weightKg = lbsToKg(uiState.weightLbs.toDoubleOrNull() ?: 0.0)
+                    
                     val tdee = calculateTDEE(
                         gender = uiState.gender,
                         goalType = uiState.goalType,
-                        heightCm = uiState.height.toDoubleOrNull() ?: 0.0,
-                        weightKg = uiState.weight.toDoubleOrNull() ?: 0.0,
+                        heightCm = heightCm,
+                        weightKg = weightKg,
                         age = uiState.age.toIntOrNull() ?: 0,
                         activityLevel = uiState.activityLevel
                     )
@@ -86,10 +93,26 @@ fun TDEEWidget(
                     if (userClient != null && firebaseUser != null) {
                         uiState = uiState.copy(isLoading = true, errorMessage = null, successMessage = null)
                         scope.launch {
-                            val result = userClient.updateHealthData(
-                                firebaseUser,
-                                HealthData(caloriesTarget = uiState.calculatedCalories)
-                            )
+                            // First, fetch existing health data to preserve other fields
+                            val existingDataResult = userClient.getHealthData(firebaseUser)
+                            
+                            val result = when (existingDataResult) {
+                                is Result.Success -> {
+                                    // Update only the caloriesTarget field, preserving all other data
+                                    val updatedHealthData = existingDataResult.data.copy(
+                                        caloriesTarget = uiState.calculatedCalories
+                                    )
+                                    userClient.updateHealthData(firebaseUser, updatedHealthData)
+                                }
+                                is Result.Error -> {
+                                    // If no existing data, create new with just caloriesTarget
+                                    userClient.updateHealthData(
+                                        firebaseUser,
+                                        HealthData(caloriesTarget = uiState.calculatedCalories)
+                                    )
+                                }
+                            }
+                            
                             uiState = when (result) {
                                 is Result.Success -> uiState.copy(
                                     isLoading = false,
@@ -203,39 +226,93 @@ private fun InputMode(
             shape = RoundedCornerShape(12.dp)
         )
 
-        // Height Input
+        // Height Input (Feet and Inches)
         Text(
-            text = "Height (cm)",
+            text = "Height",
             color = White,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
-        OutlinedTextField(
-            value = state.height,
-            onValueChange = { onStateChange(state.copy(height = it.filter { c -> c.isDigit() || c == '.' })) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                textColor = White,
-                backgroundColor = BgBlack,
-                cursorColor = Cyan,
-                focusedBorderColor = Cyan,
-                unfocusedBorderColor = DeepBlue
-            ),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp)
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Feet Input
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Feet",
+                    color = Silver,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                OutlinedTextField(
+                    value = state.heightFeet,
+                    onValueChange = {
+                        val filtered = it.filter { c -> c.isDigit() }
+                        if (filtered.isEmpty() || filtered.toIntOrNull()?.let { it in 0..8 } == true) {
+                            onStateChange(state.copy(heightFeet = filtered))
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = White,
+                        backgroundColor = BgBlack,
+                        cursorColor = Cyan,
+                        focusedBorderColor = Cyan,
+                        unfocusedBorderColor = DeepBlue
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = {
+                        Text("0", color = Silver.copy(alpha = 0.5f))
+                    }
+                )
+            }
+            
+            // Inches Input
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Inches",
+                    color = Silver,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                OutlinedTextField(
+                    value = state.heightInches,
+                    onValueChange = {
+                        val filtered = it.filter { c -> c.isDigit() }
+                        if (filtered.isEmpty() || filtered.toIntOrNull()?.let { it in 0..11 } == true) {
+                            onStateChange(state.copy(heightInches = filtered))
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = White,
+                        backgroundColor = BgBlack,
+                        cursorColor = Cyan,
+                        focusedBorderColor = Cyan,
+                        unfocusedBorderColor = DeepBlue
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    placeholder = {
+                        Text("0", color = Silver.copy(alpha = 0.5f))
+                    }
+                )
+            }
+        }
 
-        // Weight Input
+        // Weight Input (Pounds)
         Text(
-            text = "Weight (kg)",
+            text = "Weight (lbs)",
             color = White,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
         OutlinedTextField(
-            value = state.weight,
-            onValueChange = { onStateChange(state.copy(weight = it.filter { c -> c.isDigit() || c == '.' })) },
+            value = state.weightLbs,
+            onValueChange = { onStateChange(state.copy(weightLbs = it.filter { c -> c.isDigit() || c == '.' })) },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 textColor = White,
@@ -246,7 +323,10 @@ private fun InputMode(
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             singleLine = true,
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            placeholder = {
+                Text("0", color = Silver.copy(alpha = 0.5f))
+            }
         )
 
         // Activity Level Dropdown
@@ -265,8 +345,9 @@ private fun InputMode(
         val isValid = state.gender.isNotBlank() &&
                 state.goalType.isNotBlank() &&
                 state.age.isNotBlank() &&
-                state.height.isNotBlank() &&
-                state.weight.isNotBlank() &&
+                state.heightFeet.isNotBlank() &&
+                state.heightInches.isNotBlank() &&
+                state.weightLbs.isNotBlank() &&
                 state.activityLevel.isNotBlank()
 
         Button(
@@ -552,6 +633,16 @@ private fun ActivityLevelDropdown(
     }
 }
 
+// Unit Conversion Functions
+private fun feetInchesToCm(feet: Int, inches: Int): Double {
+    val totalInches = (feet * 12) + inches
+    return totalInches * 2.54
+}
+
+private fun lbsToKg(lbs: Double): Double {
+    return lbs * 0.453592
+}
+
 // TDEE Calculation Logic
 private fun calculateTDEE(
     gender: String,
@@ -597,8 +688,9 @@ private data class TDEEUiState(
     val gender: String = "",
     val goalType: String = "",
     val age: String = "",
-    val height: String = "",
-    val weight: String = "",
+    val heightFeet: String = "",
+    val heightInches: String = "",
+    val weightLbs: String = "",
     val activityLevel: String = "",
     val isCalculated: Boolean = false,
     val calculatedCalories: Int = 0,
