@@ -13,6 +13,9 @@ namespace AiRise.Models.User
         [BsonElement("firebaseUid")]
         [JsonPropertyName("firebaseUid")]
         public string FirebaseUid { get; set; } = null!;
+        [BsonElement("isAdmin")]
+        [JsonPropertyName("isAdmin")]
+        public bool IsAdmin { get; set; } = false;
 
         [BsonElement("firstName")]
         [JsonPropertyName("firstName")]

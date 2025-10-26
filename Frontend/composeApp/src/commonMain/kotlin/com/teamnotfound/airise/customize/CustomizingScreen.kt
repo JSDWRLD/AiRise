@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.*
 
@@ -47,7 +49,23 @@ fun CustomizingScreen(
                     navController = bottomNavController,
                     appNavController = appNavController
                 )
-            }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        appNavController.navigate(AppScreen.AI_CHAT.name)
+                    },
+                    backgroundColor = DeepBlue,
+                    contentColor = White,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Chat,
+                        contentDescription = "Open Ai Chat"
+                    )
+                }
+            },
+            floatingActionButtonPosition = FabPosition.End
         ) { padding ->
             Box(
                 modifier = Modifier
@@ -76,7 +94,23 @@ fun CustomizingScreen(
                 navController = bottomNavController,
                 appNavController = appNavController
             )
-        }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    appNavController.navigate(AppScreen.AI_CHAT.name)
+                },
+                backgroundColor = DeepBlue,
+                contentColor = White,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Open Ai Chat"
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { padding ->
         Column(
             modifier = modifier

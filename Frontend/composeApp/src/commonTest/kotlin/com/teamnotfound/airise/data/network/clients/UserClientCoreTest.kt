@@ -184,7 +184,8 @@ class UserClientCoreTest {
                         "dobDay": 15,
                         "dobMonth": 6,
                         "dobYear": 1990,
-                        "activityLevel": "Moderate"
+                        "activityLevel": "Moderate",
+                        "isAdmin": false
                     }
                 """.trimIndent()),
                 status = HttpStatusCode.OK,
@@ -280,7 +281,8 @@ class UserClientCoreTest {
                         "dobDay": 10,
                         "dobMonth": 3,
                         "dobYear": 1995,
-                        "activityLevel": "Light"
+                        "activityLevel": "Light",
+                        "isAdmin": false
                     }
                 """.trimIndent()),
                 status = HttpStatusCode.OK,
@@ -312,7 +314,8 @@ class UserClientCoreTest {
             dobDay = 10,
             dobMonth = 3,
             dobYear = 1995,
-            activityLevel = "Light"
+            activityLevel = "Light",
+            isAdmin = false
         )
         
         val result = insertUserData(httpClient, "123", "test-jwt-token", userData)
@@ -348,7 +351,8 @@ class UserClientCoreTest {
                         "dobDay": 1,
                         "dobMonth": 1,
                         "dobYear": 2000,
-                        "activityLevel": "Sedentary"
+                        "activityLevel": "Sedentary",
+                        "isAdmin": false
                     }
                 """.trimIndent()),
                 status = HttpStatusCode.Created,
@@ -380,7 +384,8 @@ class UserClientCoreTest {
             dobDay = 1,
             dobMonth = 1,
             dobYear = 2000,
-            activityLevel = "Sedentary"
+            activityLevel = "Sedentary",
+            isAdmin = false
         )
         
         val result = insertUserData(httpClient, "123", "test-jwt-token", userData)
@@ -425,7 +430,8 @@ class UserClientCoreTest {
             dobDay = 1,
             dobMonth = 1,
             dobYear = 2000,
-            activityLevel = "Sedentary"
+            activityLevel = "Sedentary",
+            isAdmin = false
         )
         
         val result = insertUserData(httpClient, "123", "test-jwt-token", userData)

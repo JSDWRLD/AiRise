@@ -305,6 +305,7 @@ class MealViewModel private constructor(
         NetworkError.TOO_MANY_REQUESTS-> "Too many requests. Please slow down."
         NetworkError.PAYLOAD_TOO_LARGE-> "Payload too large."
         NetworkError.UNKNOWN          -> "Unknown error."
+        NetworkError.FORBIDDEN -> TODO()
     }
 
     companion object {
