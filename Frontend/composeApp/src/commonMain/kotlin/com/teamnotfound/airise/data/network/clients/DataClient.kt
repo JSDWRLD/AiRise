@@ -51,34 +51,11 @@ class DataClient(
         }
     }
 
-    // Update an existing Challenge (only for ADMINS)
-    suspend fun updateChallenge(firebaseUser: FirebaseUser, challenge: Challenge): Result<Boolean, NetworkError>{
+    // Upserts new Challenge (only available to ADMINS)
+    suspend fun upsertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
         val token = firebaseUser.getIdToken(false).toString()
         val response = try {
-            httpClient.post("$baseUrl/Challenge/update"){
-                contentType(ContentType.Application.Json)
-                setBody(challenge)
-                bearerAuth(token)
-            }
-        } catch (e: UnresolvedAddressException) {
-            return Result.Error(NetworkError.NO_INTERNET)
-        } catch (e: SerializationException) {
-            return Result.Error(NetworkError.SERIALIZATION)
-        }
-        return when (response.status.value) {
-            200 -> Result.Success(true)
-            400 -> Result.Error(NetworkError.BAD_REQUEST)
-            403 -> Result.Error(NetworkError.FORBIDDEN)
-            500-> Result.Error(NetworkError.SERVER_ERROR)
-            else -> Result.Error(NetworkError.UNKNOWN)
-        }
-    }
-
-    //Inserts new Challenge (only available to ADMINS)
-    suspend fun insertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
-        val token = firebaseUser.getIdToken(false).toString()
-        val response = try {
-            httpClient.post("$baseUrl/Challenge/insert"){
+            httpClient.post("$baseUrl/Challenge/upsert"){
                 contentType(ContentType.Application.Json)
                 setBody(challenge)
                 bearerAuth(token)
@@ -90,7 +67,7 @@ class DataClient(
         }
         println(response)
         return when (response.status.value) {
-            201 -> Result.Success(true)
+            200 -> Result.Success(true)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
             403 -> Result.Error(NetworkError.FORBIDDEN)
             409 -> Result.Error(NetworkError.CONFLICT)
