@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -96,8 +97,18 @@ fun ChallengesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = DeepBlue, contentColor = White) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(AppScreen.AI_CHAT.name)
+                },
+                backgroundColor = DeepBlue,
+                contentColor = White,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Open Ai Chat"
+                )
             }
         }
     ) { innerPadding ->
