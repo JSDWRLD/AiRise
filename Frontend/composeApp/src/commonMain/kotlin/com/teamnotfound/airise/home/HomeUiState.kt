@@ -19,4 +19,5 @@ data class HomeUiState(
     val isFitnessSummaryLoaded: Boolean = false,
     val errorMessage: String? = null,
     val userProfilePicture: String? = "",
+    val hasHealthSyncPermissions: Boolean = false,
 )
