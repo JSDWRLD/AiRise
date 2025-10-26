@@ -42,7 +42,7 @@ class ChallengesCacheTest {
 
     @Test
     fun `returns cached data when present`() = runTest {
-        val list = listOf(ChallengeUI("1", "A", "D", "U"))
+        val list = listOf(ChallengeUI("1", mutableStateOf( "A"), mutableStateOf("D"), mutableStateOf("U")))
         val prog = UserChallengeProgressUI("1", 10L, completedToday = true)
         ChallengesCache.put(list, prog)
 
