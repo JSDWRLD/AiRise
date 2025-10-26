@@ -152,7 +152,6 @@ fun ChallengesScreen(
                     }
                 }
 
-
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(AppScreen.AI_CHAT.name)
