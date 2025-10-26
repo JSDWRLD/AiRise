@@ -27,22 +27,12 @@ namespace AiRise.Controllers
         /************** ADMIN ONLY *******************/
 
         [Authorize("Admin")]
-        [HttpPost("update")]
-        public async Task<IActionResult> UpdateChallenge(Challenge challenge)
+        [HttpPost("upsert")]
+        public async Task<IActionResult> UpsertChallenge([FromBody] Challenge challenge)
         {
-            var success = await _challengeService.UpdateChallengeAsync(challenge);
-            return success ? Ok(new { message = "Challenge updated successfully" })
-                : NotFound(new { message = "Challenge not found or update failed" });
-        }
-
-        // Insert a new challenge 
-        [Authorize("Admin")]
-        [HttpPost("insert")]
-        public async Task<IActionResult> InsertChallenge([FromBody] Challenge challenge)
-        {
-            var success = await _challengeService.InsertChallengeAsync(challenge);
-            return success ? Ok(new {message = "Challenge inserted successfully"})
-                : Conflict("There is already another challenge with the same name");
+            var success = await _challengeService.UpsertChallengeAsync(challenge);
+            return success ? Ok(new { message = "Challenge upserted successfully" })
+                : BadRequest(new { message = "Challenge upsert failed" });
         }
 
         [Authorize("Admin")]

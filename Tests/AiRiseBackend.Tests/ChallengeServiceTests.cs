@@ -1,5 +1,6 @@
 using AiRise.Models;
 using AiRise.Services;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 
@@ -77,5 +78,93 @@ public class ChallengeService_Tests
         var items = await svc.GetAllChallengesAsync();
 
         Assert.Equal(new[] { "Alpha", "Beta" }, items.Select(i => i.Name));
+    }
+
+    [Fact]
+    public async Task UpsertChallengeAsync_Returns_True_When_Inserts_New_Challenge(){
+        var coll = new Mock<IMongoCollection<Challenge>>();
+        var svc = new ChallengeService(coll.Object);
+
+        coll.Setup(c => c.UpdateOneAsync(
+            It.IsAny<FilterDefinition<Challenge>>(),
+            It.IsAny<UpdateDefinition<Challenge>>(),
+            It.IsAny<UpdateOptions>(),
+            It.IsAny<CancellationToken>()
+        )).ReturnsAsync(new UpdateResult.Acknowledged(0, 0, BsonObjectId.Create(ObjectId.GenerateNewId())));
+
+        var challenge = C("New Insert");
+        var result = await svc.UpsertChallengeAsync(challenge);
+
+        coll.Verify(c => c.UpdateOneAsync(
+        It.IsAny<FilterDefinition<Challenge>>(),
+        It.IsAny<UpdateDefinition<Challenge>>(),
+        It.Is<UpdateOptions>(o => o.IsUpsert),
+        It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(result);
+        Assert.NotNull(challenge.Id);
+    }
+
+    [Fact]
+    public async Task UpsertChallengeAsync_Returns_True_When_Updates_Challenge()
+    {
+        var coll = new Mock<IMongoCollection<Challenge>>();
+        var svc = new ChallengeService(coll.Object);
+
+        coll.Setup(c => c.UpdateOneAsync(
+            It.IsAny<FilterDefinition<Challenge>>(),
+            It.IsAny<UpdateDefinition<Challenge>>(),
+            It.IsAny<UpdateOptions>(),
+            It.IsAny<CancellationToken>()
+        )).ReturnsAsync(new UpdateResult.Acknowledged(1, 1, null));
+
+        var challenge = new Challenge { Id = "existing", Name = "Updated Name", Description = "d", Url = "u" };
+        var result = await svc.UpsertChallengeAsync(challenge);
+
+        Assert.True(result);
+        Assert.Equal("existing", challenge.Id);
+        coll.Verify(c => c.UpdateOneAsync(
+            It.IsAny<FilterDefinition<Challenge>>(),
+            It.IsAny<UpdateDefinition<Challenge>>(),
+            It.IsAny<UpdateOptions>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+
+    }
+
+    [Fact]
+    public async Task DeleteChallengeAsync_Returns_True_When_Acknowledged()
+    {
+        var coll = new Mock<IMongoCollection<Challenge>>();
+        var svc = new ChallengeService(coll.Object);
+
+        coll.Setup(c => c.DeleteOneAsync(
+                It.IsAny<FilterDefinition<Challenge>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DeleteResult.Acknowledged(1));
+
+        var result = await svc.DeleteChallengeAsync("id123");
+
+        Assert.True(result);
+        coll.Verify(c => c.DeleteOneAsync(
+            It.IsAny<FilterDefinition<Challenge>>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteChallengeAsync_Returns_False_When_No_Match()
+    {
+        var coll = new Mock<IMongoCollection<Challenge>>();
+        var svc = new ChallengeService(coll.Object);
+
+        coll.Setup(c => c.DeleteOneAsync(
+                It.IsAny<FilterDefinition<Challenge>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DeleteResult.Acknowledged(0));
+
+        var result = await svc.DeleteChallengeAsync("missing_id");
+
+        Assert.False(result);
+        coll.Verify(c => c.DeleteOneAsync(
+            It.IsAny<FilterDefinition<Challenge>>(),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

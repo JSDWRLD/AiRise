@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using AiRise.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace AiRise.Services
@@ -41,27 +42,25 @@ namespace AiRise.Services
             }
         }
 
-        public async Task<bool> UpdateChallengeAsync(Challenge challenge)
+        public async Task<bool> UpsertChallengeAsync(Challenge challenge)
         {
+            // Generate a new ID if none is provided
+            if (string.IsNullOrWhiteSpace(challenge.Id))
+            {
+                challenge.Id = ObjectId.GenerateNewId().ToString();
+            }
+            if (string.IsNullOrWhiteSpace(challenge.Name)) return false;
+            
             var filter = Builders<Challenge>.Filter.Eq(c => c.Id, challenge.Id);
             var update = Builders<Challenge>.Update
                 .Set(c => c.Name, challenge.Name)
                 .Set(c => c.Description, challenge.Description)
                 .Set(c => c.Url, challenge.Url);
-            var result = await _challengeCollection.UpdateOneAsync(filter, update);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
-        }
+            var options = new UpdateOptions { IsUpsert = true };
 
-        public async Task<bool> InsertChallengeAsync(Challenge challenge)
-        {
-            var dupe = _challengeCollection.Find<Challenge>(c => c.Id == challenge.Id).FirstOrDefaultAsync;
-            if (dupe != null)
-            {
-                return false;
-            }
-            await _challengeCollection.InsertOneAsync(challenge);
-            return true;
-        }  
+            var result = await _challengeCollection.UpdateOneAsync(filter, update, options);
+            return result.IsAcknowledged && (result.ModifiedCount > 0 || result.UpsertedId != null);
+        }
             
         public async Task<bool> DeleteChallengeAsync(string id)
         {
