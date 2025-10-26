@@ -228,9 +228,10 @@ class ChallengesViewModelImpl(
 
     fun updateSelectedDescription(newDesc: String) {
         val current = _selected.value ?: return
-        current.description.value =  newDesc
+        val updated = current.copy(description = newDesc)
+        _selected.value = updated
         _uiState.value = _uiState.value.copy(
-            items = _uiState.value.items.map { if (it.id == current.id) current else it }
+            items = _uiState.value.items.map { if (it.id == current.id) updated else it }
         )
     }
 
@@ -296,16 +297,15 @@ class ChallengesViewModelImpl(
     }
 }
 
+// --- Mappers & helpers
 
 internal fun com.teamnotfound.airise.data.serializable.Challenge.toUI(): ChallengeUI =
     ChallengeUI(
-        id = id ?: name,                
-        name = name,
-        description = description,
-        imageUrl = url                   
+        id = id ?: name,
+        name = mutableStateOf( name),
+        description = mutableStateOf(description),
+        imageUrl = mutableStateOf(url)
     )
-
-    
 
 // --- Mappers & helpers
 
