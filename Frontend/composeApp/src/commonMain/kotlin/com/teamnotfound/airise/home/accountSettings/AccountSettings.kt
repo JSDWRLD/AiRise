@@ -74,9 +74,6 @@ fun AccountSettings(
         composable(AccountSettingScreens.AiPersonality.route) {
             AiPersonalityScreen(user, localNavController)
         }
-        composable(AccountSettingScreens.Notifications.route) {
-            NotificationSettingsScreen(localNavController)
-        }
         composable(AccountSettingScreens.HealthDashboard.route) {
             HealthDashboardScreen(kHealth, onBackClick = { localNavController.popBackStack() })
         }
