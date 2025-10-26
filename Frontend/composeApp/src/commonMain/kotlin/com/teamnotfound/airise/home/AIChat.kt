@@ -1,15 +1,22 @@
 package com.teamnotfound.airise.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -36,11 +43,12 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.DeepBlue
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
+import com.teamnotfound.airise.util.Orange
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.generativeAi.AiMessage
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AiChat(
     navController: NavHostController,
@@ -56,10 +64,22 @@ fun AiChat(
 ) {
     var messageText by remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
 
     val api = remember { GeminiApi() }
 
     val messageHistory = remember { mutableStateListOf<Message>() }
+
+    // Auto-scroll to bottom when new messages are added
+    LaunchedEffect(messageHistory.size) {
+        if (messageHistory.isNotEmpty()) {
+            try {
+                listState.animateScrollToItem(messageHistory.size - 1)
+            } catch (e: Exception) {
+                listState.scrollToItem(messageHistory.size - 1)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         messageHistory += Message("Hello! How can I help you?", ai = true)
@@ -90,7 +110,6 @@ fun AiChat(
         return turns.takeLast(maxTurns)
     }
 
-
     fun send(text: String, fallbackMessage: String? = null) {
         if (text.isBlank()) return
 
@@ -113,12 +132,11 @@ fun AiChat(
                     dailyProgressData= dailyProgressData,
                 )
             } catch (e: Exception) {
-                fallbackMessage ?: "Sorry, I couldn’t reach the coach right now. Please try again in a moment."
+                fallbackMessage ?: "Sorry, I couldn't reach the coach right now. Please try again in a moment."
             }
             messageHistory += Message(reply, ai = true)
         }
     }
-
 
     // body
     Column(
@@ -134,71 +152,31 @@ fun AiChat(
                 .padding(12.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Silver)
-            ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Back",
-                        tint = Color.Red
-                    )
-                }
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Back",
+                    tint = Silver
+                )
             }
-
         }
+
         // message history list
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .weight(1f)
-                .padding(8.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            state = listState
         ) {
-            messageHistory.forEach { message ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (message.ai) Arrangement.Start else Arrangement.End
-                ) {
-                    Column {
-                        Row (modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)) {
-                            if (message.ai) {
-                                Icon(
-                                    imageVector = Icons.Filled.TagFaces,
-                                    contentDescription = "Smiley Face",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "Coach Rise",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = White
-                                )
-                            }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(
-                                    if (message.ai) Silver else DeepBlue
-                                )
-                                .padding(12.dp)
-                                .widthIn(max = 280.dp)
-                        ) {
-                            Text(
-                                message.text,
-                                fontSize = 16.sp,
-                                color = if (message.ai) Color.Black else Color.White
-                            )
-                        }
-                    }
-                }
+            items(messageHistory, key = { it.hashCode() }) { message ->
+                AnimatedMessageBubble(
+                    message = message,
+                    modifier = Modifier.animateItemPlacement()
+                )
             }
         }
+
         // message suggestion list
         LazyRow(
             modifier = Modifier
@@ -206,28 +184,18 @@ fun AiChat(
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(messageSuggested) { suggestion ->
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(
-                            width = 1.dp,
-                            color = White,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .background(Transparent)
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .clickable { send(suggestion.text, suggestion.fallback) }
-                ) {
-                    Text(
-                        text = suggestion.text,
-                        color = White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+            items(messageSuggested, key = { it.text }) { suggestion ->
+                SimpleSuggestionChip(
+                    text = suggestion.text,
+                    onClick = {
+                        if (messageHistory.none { it.text == suggestion.text }) {
+                            send(suggestion.text, suggestion.fallback)
+                        }
+                    }
+                )
             }
         }
+
         // message input
         Row(
             modifier = Modifier
@@ -255,7 +223,7 @@ fun AiChat(
                             dailyProgressData = dailyProgressData
                         )
                     } catch (_: Exception) {
-                        "Sorry, I couldn’t analyze that image right now."
+                        "Sorry, I couldn't analyze that image right now."
                     }
                     messageHistory += Message(reply, ai = true)
                     messageText = TextFieldValue("")
@@ -264,9 +232,10 @@ fun AiChat(
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "Add Image",
-                    tint = White
+                    tint = Silver
                 )
             }
+
             BasicTextField(
                 value = messageText.text,
                 onValueChange = { messageText = TextFieldValue(it) },
@@ -290,19 +259,131 @@ fun AiChat(
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = {
-                if (messageText.text.isNotBlank()) {
-                    send(messageText.text)
-                    messageText = TextFieldValue("")
-                }
-            }) {
+            IconButton(
+                onClick = {
+                    if (messageText.text.isNotBlank()) {
+                        send(messageText.text)
+                        messageText = TextFieldValue("")
+                    }
+                },
+                enabled = messageText.text.isNotBlank()
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = "Send",
-                    tint = White
+                    tint = if (messageText.text.isNotBlank()) Orange else Silver
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AnimatedMessageBubble(
+    message: Message,
+    modifier: Modifier = Modifier
+) {
+    var isVisible by remember { mutableStateOf(false) }
+
+    // Trigger the animation when the composable enters composition
+    LaunchedEffect(Unit) {
+        isVisible = true
+    }
+
+    val enterAnimation = remember {
+        fadeIn(
+            animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing)
+        ) + slideInHorizontally(
+            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+            initialOffsetX = { if (message.ai) -300 else 300 }
+        )
+    }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = enterAnimation,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (message.ai) Arrangement.Start else Arrangement.End
+        ) {
+            Column {
+                // Simple sender label for AI only
+                if (message.ai) {
+                    Row(
+                        modifier = Modifier.padding(start = 4.dp, bottom = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.TagFaces,
+                            contentDescription = "AI",
+                            tint = Silver,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Coach Rise",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Silver
+                        )
+                    }
+                }
+
+                // Message bubble with subtle styling
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            if (message.ai) DeepBlue else Orange
+                        )
+                        .padding(horizontal = 12.dp, vertical = 10.dp)
+                        .widthIn(max = 280.dp)
+                ) {
+                    Text(
+                        text = message.text,
+                        fontSize = 14.sp,
+                        color = White,
+                        lineHeight = 18.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SimpleSuggestionChip(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isClicked by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .border(
+                width = 1.dp,
+                color = if (isClicked) Orange else Silver,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .background(Transparent)
+            .clickable {
+                if (!isClicked) {
+                    isClicked = true
+                    onClick()
+                }
+            }
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = text,
+            color = if (isClicked) Orange else Silver,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal
+        )
     }
 }
 
