@@ -3,6 +3,7 @@ package com.teamnotfound.airise.meal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.teamnotfound.airise.meal.MealCache
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.data.network.clients.UserClient
@@ -74,17 +75,34 @@ class MealViewModel private constructor(
         months.getOrPut(monthKey(date)) { emptyMonth(date) }
 
     private fun readDay(date: LocalDate): DiaryDay {
-        val m = getOrCreateMonth(date)
         val idx = date.dayOfMonth - 1
-        return m.days[idx] ?: DiaryDay(day = date.dayOfMonth)
+        val monthDoc = if (useNetwork) {
+            MealCache.snapshotMonth(date.year, date.monthNumber) ?: emptyMonth(date)
+        } else {
+            getOrCreateMonth(date)
+        }
+        return monthDoc.days[idx] ?: DiaryDay(day = date.dayOfMonth)
     }
 
     private fun writeDay(date: LocalDate, newDay: DiaryDay) {
-        val m = getOrCreateMonth(date)
         val idx = date.dayOfMonth - 1
-        val newDays = m.days.toMutableList().apply { this[idx] = newDay }
-        months[monthKey(date)] = m.copy(days = newDays)
+        if (useNetwork) {
+            val monthDoc = MealCache.snapshotMonth(date.year, date.monthNumber) ?: emptyMonth(date)
+            val newDays = monthDoc.days.toMutableList()
+            while (newDays.size <= idx) newDays.add(null)
+            newDays[idx] = newDay
+            val newMonth = monthDoc.copy(days = newDays)
+
+            _ui = _ui.copy(day = newDay)
+            scope.launch { MealCache.putMonth(newMonth) }
+        } else {
+            val m = getOrCreateMonth(date)
+            val newDays = m.days.toMutableList().apply { this[idx] = newDay }
+            months[monthKey(date)] = m.copy(days = newDays)
+            _ui = _ui.copy(day = newDay)
+        }
     }
+
 
     // UI States
     private var _ui by mutableStateOf(
@@ -149,20 +167,28 @@ class MealViewModel private constructor(
         }
     }
 
-    private fun loadGoalAndExerciseFromHealth() {
+    private fun loadGoalAndExerciseFromHealth(force: Boolean = false) {
         if (!useNetwork || userClient == null || firebaseUser == null) return
+
+        // Fast path
+        if (!force) {
+            MealCache.snapshotHealth()?.let { snap ->
+                _ui = _ui.copy(goal = snap.goalCalories, exercise = snap.caloriesBurned ?: _ui.exercise, isLoading = false, errorMessage = null)
+                return
+            }
+        }
+
         _ui = _ui.copy(isLoading = true, errorMessage = null)
         scope.launch {
-            when (val res = userClient.getHealthData(firebaseUser)) {
+            when (val res = MealCache.getOrFetchHealth(
+                userClient = userClient!!,
+                user = firebaseUser!!,
+                defaultGoal = 2000,
+                force = force
+            )) {
                 is Result.Success -> {
-                    val healthData = res.data
-                    val goal = healthData.caloriesTarget ?: 2000
-                    _ui = _ui.copy(
-                        goal = goal,
-                        exercise = healthData.caloriesBurned,
-                        isLoading = false,
-                        errorMessage = null
-                    )
+                    val snap = res.data
+                    _ui = _ui.copy(goal = snap.goalCalories, exercise = snap.caloriesBurned ?: _ui.exercise, isLoading = false, errorMessage = null)
                 }
                 is Result.Error -> {
                     _ui = _ui.copy(isLoading = false, errorMessage = networkErrorMessage(res.error))
@@ -171,18 +197,43 @@ class MealViewModel private constructor(
         }
     }
 
+    fun manualRefresh() {
+        val date = offsetToDate(_ui.dayOffset)
+        MealCache.clearMonth(date.year, date.monthNumber)
+        MealCache.clearHealth()
+        refreshMonth(date, force = true)
+        loadGoalAndExerciseFromHealth(force = true)
+    }
+
     // Sync and refresh the current month
-    private fun refreshMonth(date: LocalDate) {
-        if (!useNetwork || dataClient == null || firebaseUser == null) return
+    private fun refreshMonth(date: LocalDate, force: Boolean = false) {
+        if (!useNetwork || dataClient == null || firebaseUser == null) {
+            // still serve snapshot if we have it
+            MealCache.snapshotMonth(date.year, date.monthNumber)?.let {
+                _ui = _ui.copy(day = readDay(date), isLoading = false, errorMessage = null)
+            }
+            return
+        }
+
+        //serve cache immediately
+        if (!force) {
+            MealCache.snapshotMonth(date.year, date.monthNumber)?.let {
+                _ui = _ui.copy(day = readDay(date), isLoading = false, errorMessage = null)
+                return
+            }
+        }
+
         _ui = _ui.copy(isLoading = true, errorMessage = null)
         scope.launch {
-            val res = dataClient.getFoodDiaryMonth(firebaseUser, date.year, date.monthNumber)
-            when (res) {
+            when (val res = MealCache.getOrFetchMonth(
+                dataClient = dataClient!!,
+                user = firebaseUser!!,
+                year = date.year,
+                month = date.monthNumber,
+                force = force
+            )) {
                 is Result.Success -> {
-                    months[monthKey(date)] = res.data
-                    // After updating the month, update the visible day
-                    val newDay = readDay(date)
-                    _ui = _ui.copy(day = newDay, isLoading = false, errorMessage = null)
+                    _ui = _ui.copy(day = readDay(date), isLoading = false, errorMessage = null)
                 }
                 is Result.Error -> {
                     _ui = _ui.copy(isLoading = false, errorMessage = networkErrorMessage(res.error))
@@ -190,6 +241,7 @@ class MealViewModel private constructor(
             }
         }
     }
+
 
     private fun syncAndRefresh(date: LocalDate, block: suspend () -> Result<Unit, NetworkError>) {
         if (!useNetwork || dataClient == null || firebaseUser == null) return
@@ -197,7 +249,7 @@ class MealViewModel private constructor(
         scope.launch {
             val res = block()
             when (res) {
-                is Result.Success -> refreshMonth(date) // this will also turn off loading
+                is Result.Success -> refreshMonth(date, force = true) // this will also turn off loading
                 is Result.Error -> _ui = _ui.copy(isLoading = false, errorMessage = networkErrorMessage(res.error))
             }
         }
@@ -241,7 +293,7 @@ class MealViewModel private constructor(
                 MealType.Lunch -> m.copy(lunch = m.lunch + entry)
                 MealType.Dinner -> m.copy(dinner = m.dinner + entry)
             }
-            val newTotal = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
+            val newTotal: Double = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
                 .sumOf { e: FoodEntry -> e.calories }
             val newDay = day.copy(meals = newMeals, totalCalories = newTotal)
             writeDay(date, newDay)
@@ -263,7 +315,7 @@ class MealViewModel private constructor(
                 lunch = m.lunch.replace(),
                 dinner = m.dinner.replace()
             )
-            val newTotal = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
+            val newTotal: Double = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
                 .sumOf { e: FoodEntry -> e.calories }
             val newDay = day.copy(meals = newMeals, totalCalories = newTotal)
             writeDay(date, newDay)
@@ -285,7 +337,7 @@ class MealViewModel private constructor(
                 lunch = m.lunch.remove(),
                 dinner = m.dinner.remove()
             )
-            val newTotal = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
+            val newTotal: Double = (newMeals.breakfast + newMeals.lunch + newMeals.dinner)
                 .sumOf { e: FoodEntry -> e.calories }
             val newDay = day.copy(meals = newMeals, totalCalories = newTotal)
             writeDay(date, newDay)
@@ -324,13 +376,17 @@ class MealViewModel private constructor(
         )
 
         /** Offline preview VM */
-        fun fake(startOffset: Int = 1, startGoal: Int = 1900): MealViewModel = MealViewModel(
-            dataClient = null,
-            userClient =  null,
-            firebaseUser = null,
-            useNetwork = false,
-            startOffset = startOffset,
-        )
+        fun fake(startOffset: Int = 1, startGoal: Int = 1900): MealViewModel {
+            MealCache.clearAll()
+            return MealViewModel(
+                dataClient = null,
+                userClient =  null,
+                firebaseUser = null,
+                useNetwork = false,
+                startOffset = startOffset,
+            )
+        }
+
 
         private fun randomId(): String =
             kotlin.random.Random.nextBytes(8).joinToString("") { b ->

@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.community.challenges
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
@@ -42,7 +43,25 @@ class ChallengesViewModelImpl(
 
     init { refresh() }
 
-    override fun refresh() {
+    override fun refresh() = refresh(false)
+
+    fun refresh(force: Boolean = false) {
+        // Serve snapshot if available and not forcing
+        val (snapItems, snapProgress) = ChallengesCache.snapshot()
+        if (!force && snapItems != null && snapProgress != null) {
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = null,
+                    items = snapItems,
+                    progress = snapProgress
+                )
+            }
+            return
+        }
+
+        // Slow path: do exactly what you already do
+        _uiState.update { it.copy(isLoading = true, error = null) }
         loadChallengesAndProgress()
     }
 
@@ -56,6 +75,7 @@ class ChallengesViewModelImpl(
 
     private fun loadChallengesAndProgress() {
         _uiState.update { it.copy(isLoading = true, error = null) }
+
         viewModelScope.launch {
             // 1) challenges
             val items = when (val r = dataClient.getChallenges()) {
@@ -103,6 +123,10 @@ class ChallengesViewModelImpl(
                     progress = baseProgress.copy(completedToday = completedToday)
                 )
             }
+            ChallengesCache.put(
+                newItems = items,
+                newProgress = baseProgress.copy(completedToday = completedToday)
+            )
         }
     }
     override fun onChallengeClick(id: String) {
@@ -203,13 +227,6 @@ class ChallengesViewModelImpl(
         }
     }
 
-    fun updateSelectedDescription(newDesc: String) {
-        val current = _selected.value ?: return
-        current.description.value =  newDesc
-        _uiState.value = _uiState.value.copy(
-            items = _uiState.value.items.map { if (it.id == current.id) current else it }
-        )
-    }
 
     fun checkAndAutoResetOnResume() {
         viewModelScope.launch {
@@ -272,6 +289,7 @@ class ChallengesViewModelImpl(
         }
     }
 }
+
 
 // --- Mappers & helpers
 
