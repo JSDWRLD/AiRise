@@ -42,6 +42,7 @@ import com.teamnotfound.airise.util.White
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
 import com.teamnotfound.airise.auth.admin.AdminVerifyDialog
+import com.teamnotfound.airise.auth.admin.AdminVerifyUiEvent
 import com.teamnotfound.airise.auth.admin.AdminVerifyUiState
 import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorDialog
 import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorUiEvent
@@ -115,27 +116,41 @@ fun ChallengesScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 if (adminState.isAdmin) {
-                    // Add Challenge FAB (Admin only)
-                    ExtendedFloatingActionButton(
-                        text = { Text("Add Challenge") },
+                    ExtendedFloatingActionButton(text = { Text("Admin Mode") },
                         onClick = {
                             if (adminState.isVerified) {
-                                editorViewModel.onEvent(
-                                    ChallengeEditorUiEvent.OpenEditor(
-                                        ChallengeUI()
-                                    )
-                                )
+                                adminVerifyViewModel.onEvent(AdminVerifyUiEvent.ToggleAdminModeActive)
                             } else {
                                 // Not verified, show password dialog
                                 adminVerifyViewModel.showPasswordPrompt()
                             }
                         },
                         backgroundColor = Orange,
-                        contentColor = BgBlack
+                        contentColor = BgBlack,
                     )
+                    if (adminState.isAdminModeActive){
+                        // Add Challenge FAB (Admin only)
+                        ExtendedFloatingActionButton(
+                            text = { Text("Add Challenge") },
+                            onClick = {
+                                if (adminState.isAdminModeActive && adminState.isVerified) {
+                                    editorViewModel.onEvent(
+                                        ChallengeEditorUiEvent.OpenEditor(
+                                            ChallengeUI()
+                                        )
+                                    )
+                                } else {
+                                    // Not verified, show password dialog
+                                    adminVerifyViewModel.showPasswordPrompt()
+                                }
+                            },
+                            backgroundColor = Orange,
+                            contentColor = BgBlack
+                        )
+                    }
                 }
-
 
                 FloatingActionButton(
                     onClick = {
@@ -295,7 +310,7 @@ private fun ChallengeCard(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    if(adminState.isAdmin){
+                    if(adminState.isAdminModeActive && adminState.isAdmin){
                         Box(
                             modifier = Modifier
                                 .matchParentSize()
@@ -309,7 +324,7 @@ private fun ChallengeCard(
                         ) {
                             IconButton(
                                 onClick = {
-                                    if (adminState.isVerified) {
+                                    if (adminState.isAdminModeActive && adminState.isVerified) {
                                         editorViewModel.delete(challengeUI.id)
                                     } else {
                                         // Not verified, show password dialog
@@ -331,7 +346,7 @@ private fun ChallengeCard(
                             }
                             IconButton(
                                 onClick = {
-                                    if (adminState.isVerified) {
+                                    if (adminState.isAdminModeActive && adminState.isVerified) {
                                         editorViewModel.onEvent(
                                             ChallengeEditorUiEvent.OpenEditor(
                                                 challengeUI
