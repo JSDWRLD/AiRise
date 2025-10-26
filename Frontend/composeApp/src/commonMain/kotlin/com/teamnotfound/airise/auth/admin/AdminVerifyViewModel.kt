@@ -36,6 +36,10 @@ class AdminVerifyViewModel(
                 _uiState.value =
                     _uiState.value.copy(password = uiEvent.password, errorMessage = null)
             }
+            is AdminVerifyUiEvent.ToggleAdminModeActive -> {
+                val toggledBool = !_uiState.value.isAdminModeActive
+                _uiState.value = _uiState.value.copy(isAdminModeActive = toggledBool)
+            }
         }
     }
 
