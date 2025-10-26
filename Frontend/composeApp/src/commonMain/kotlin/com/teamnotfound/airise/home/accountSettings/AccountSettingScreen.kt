@@ -152,7 +152,7 @@ fun AccountSettingScreen(
     ) {
         AccountSettingsTopBar(
             title = "Account Settings",
-            subtitle = Firebase.auth.currentUser?.email ?: "Manage your profile",
+            subtitle = "Manage your profile",
             onBackClick = {
                 navController.navigate(AppScreen.HOMESCREEN.name) {
                     popUpTo("home") { inclusive = true }
