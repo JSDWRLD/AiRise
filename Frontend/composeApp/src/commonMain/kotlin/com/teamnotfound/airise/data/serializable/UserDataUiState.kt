@@ -50,7 +50,8 @@ class UserDataUiState {
         dobMonth = dobMonth.value,
         dobYear = dobYear.value,
         activityLevel = activityLevel.value,
-        email = email.value
+        email = email.value,
+        isAdmin = false
     )
 }
 
@@ -77,5 +78,6 @@ data class UserData(
     val dobYear: Int,
     val activityLevel: String,
     // (safe default so older responses still parse)
-    val email: String = ""
+    val email: String = "",
+    val isAdmin: Boolean
 )

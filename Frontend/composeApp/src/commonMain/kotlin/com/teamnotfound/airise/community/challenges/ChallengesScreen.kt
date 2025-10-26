@@ -5,10 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,15 +40,25 @@ import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.Transparent
 import com.teamnotfound.airise.util.White
 import com.teamnotfound.airise.AppScreen
-import kotlinx.coroutines.flow.collect
+import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
+import com.teamnotfound.airise.auth.admin.AdminVerifyDialog
+import com.teamnotfound.airise.auth.admin.AdminVerifyUiState
+import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorDialog
+import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorUiEvent
+import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorViewModel
+
 
 @Composable
 fun ChallengesScreen(
     viewModel: ChallengesViewModelImpl,
+    adminVerifyViewModel: AdminVerifyViewModel,
+    editorViewModel: ChallengeEditorViewModel,
     navController: NavHostController,
     communityNavBarViewModel: CommunityNavBarViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
+    val editorState by editorViewModel.uiState.collectAsState()
+    val adminState by adminVerifyViewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
     LaunchedEffect(Unit) {
@@ -96,8 +109,47 @@ fun ChallengesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }, backgroundColor = DeepBlue, contentColor = White) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            Row(
+                modifier = Modifier
+                    .padding(end = 12.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (adminState.isAdmin) {
+                    // Add Challenge FAB (Admin only)
+                    ExtendedFloatingActionButton(
+                        text = { Text("Add Challenge") },
+                        onClick = {
+                            if (adminState.isVerified) {
+                                editorViewModel.onEvent(
+                                    ChallengeEditorUiEvent.OpenEditor(
+                                        ChallengeUI()
+                                    )
+                                )
+                            } else {
+                                // Not verified, show password dialog
+                                adminVerifyViewModel.showPasswordPrompt()
+                            }
+                        },
+                        backgroundColor = Orange,
+                        contentColor = BgBlack
+                    )
+                }
+
+
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(AppScreen.AI_CHAT.name)
+                    },
+                    backgroundColor = DeepBlue,
+                    contentColor = White,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Chat,
+                        contentDescription = "Open Ai Chat"
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -142,10 +194,8 @@ fun ChallengesScreen(
                         items(state.items, key = { it.id }) { c ->
                             val isActive = activeId == c.id
                             ChallengeCard(
-                                name = c.name,
-                                description = c.description,
-                                label = if (c.name.isNotBlank()) c.name else "Challenge ${c.id}",
-                                imageUrl = c.imageUrl,
+                                challengeUI = c,
+                                label = if (c.name.value.isNotBlank()) c.name.value else "Challenge ${c.id}",
                                 isActive = isActive,
                                 completedToday = completedAnyToday && isActive,
                                 completedAnyToday = completedAnyToday,
@@ -159,9 +209,27 @@ fun ChallengesScreen(
                                     if (isActive && !completedAnyToday) {
                                         viewModel.completeToday()
                                     }
-                                }
+                                },
+                                adminState = adminState,
+                                adminVerifyViewModel = adminVerifyViewModel,
+                                editorViewModel = editorViewModel
                             )
                         }
+                    }
+                    if (adminState.showAdminPasswordPrompt) {
+                        AdminVerifyDialog(
+                            onDismiss = { adminVerifyViewModel.dismissPasswordPrompt() },
+                            onEvent = { adminVerifyViewModel.onEvent(it) },
+                            uiState = adminState
+                        )
+                    }
+                    if (editorState.isEditing) {
+                        ChallengeEditorDialog(
+                            viewModel = editorViewModel,
+                            onAuthorizationError = {
+                                adminVerifyViewModel.resetVerification()
+                            }
+                        )
                     }
                 }
             }
@@ -171,16 +239,17 @@ fun ChallengesScreen(
 
 @Composable
 private fun ChallengeCard(
-    name: String,
-    description: String,
+    challengeUI: ChallengeUI,
     label: String,
-    imageUrl: String?,
     isActive: Boolean,
     completedToday: Boolean,
     completedAnyToday: Boolean,
     hasActive: Boolean,
     onStartToday: () -> Unit,
-    onCompleteToday: () -> Unit
+    onCompleteToday: () -> Unit,
+    adminState: AdminVerifyUiState,
+    adminVerifyViewModel : AdminVerifyViewModel,
+    editorViewModel: ChallengeEditorViewModel
 ) {
     val shape = RoundedCornerShape(18.dp)
 
@@ -220,23 +289,74 @@ private fun ChallengeCard(
                         .background(BgBlack)
                 ) {
                     AsyncImage(
-                        model = imageUrl,
-                        contentDescription = if (name.isNotBlank()) name else label,
+                        model = challengeUI.imageUrl.value,
+                        contentDescription = challengeUI.name.value.ifBlank { label },
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    0f to Transparent,
-                                    0.6f to BgBlack.copy(alpha = 0.2f),
-                                    1f to BgBlack.copy(alpha = 0.75f)
+                    if(adminState.isAdmin){
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        0f to Transparent,
+                                        0.6f to BgBlack.copy(alpha = 0.2f),
+                                        1f to BgBlack.copy(alpha = 0.75f)
+                                    )
                                 )
-                            )
-                    )
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    if (adminState.isVerified) {
+                                        editorViewModel.delete(challengeUI.id)
+                                    } else {
+                                        // Not verified, show password dialog
+                                        adminVerifyViewModel.showPasswordPrompt()
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(10.dp)
+                                    .background(color = DeepBlue, shape = CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete Challenge",
+                                    tint = White,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    if (adminState.isVerified) {
+                                        editorViewModel.onEvent(
+                                            ChallengeEditorUiEvent.OpenEditor(
+                                                challengeUI
+                                            )
+                                        )
+                                    } else {
+                                        // Not verified, show password dialog
+                                        adminVerifyViewModel.showPasswordPrompt()
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(10.dp)
+                                    .background(color = DeepBlue, shape = CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit Challenge",
+                                    tint = White,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                )
+                            }
+                        }
+                    }
 
                     Row(
                         modifier = Modifier
@@ -254,9 +374,9 @@ private fun ChallengeCard(
                     }
                 }
 
-                if (description.isNotBlank()) {
+                if (challengeUI.description.value.isNotBlank()) {
                     Text(
-                        text = description,
+                        text = challengeUI.description.value,
                         color = Silver,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
                     )

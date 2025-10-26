@@ -52,9 +52,9 @@ import com.teamnotfound.airise.meal.FoodLogScreen
 import com.teamnotfound.airise.meal.MealViewModel
 import com.teamnotfound.airise.customize.CustomizingScreen
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
+import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorViewModel
 import com.teamnotfound.airise.customize.CustomizationViewModel
-import com.teamnotfound.airise.data.serializable.UserDataUiState
 
 @Composable
 fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
@@ -233,6 +233,8 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
 
                     ChallengesScreen(
                         viewModel = vm,
+                        adminVerifyViewModel = AdminVerifyViewModel(authService, userRepository),
+                        editorViewModel = ChallengeEditorViewModel(container.dataClient),
                         navController = navController,
                         communityNavBarViewModel = communityNavBarViewModel
                     )

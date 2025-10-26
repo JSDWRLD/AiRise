@@ -11,5 +11,6 @@ enum class NetworkError : Error {
     SERVER_ERROR,
     SERIALIZATION,
     UNKNOWN,
-    BAD_REQUEST;
+    BAD_REQUEST,
+    FORBIDDEN;
 }

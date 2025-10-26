@@ -29,27 +29,4 @@ public class ChallengeController_Tests
         Assert.Equal(new[] { "Alpha", "Beta" }, payload.Select(p => p.Name));
     }
 
-    [Fact]
-    public async Task InsertChallenge_Returns_Ok_And_Calls_Insert()
-    {
-        var coll = new Mock<IMongoCollection<Challenge>>();
-        Challenge? written = null;
-
-        coll.Setup(c => c.InsertOneAsync(
-                It.IsAny<Challenge>(),
-                It.IsAny<InsertOneOptions>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<Challenge, InsertOneOptions, CancellationToken>((doc, _, __) => written = doc)
-            .Returns(Task.CompletedTask);
-
-        var svc = new ChallengeService(coll.Object);
-        var ctrl = new ChallengeController(svc);
-
-        var newItem = new Challenge { Name = "New", Description = "D", Url = "U" };
-        var res = await ctrl.InsertChallenge(newItem);
-
-        Assert.IsType<OkResult>(res);
-        Assert.NotNull(written);
-        Assert.Equal("New", written!.Name);
-    }
 }

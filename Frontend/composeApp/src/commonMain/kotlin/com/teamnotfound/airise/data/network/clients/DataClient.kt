@@ -51,6 +51,51 @@ class DataClient(
         }
     }
 
+    // Upserts new Challenge (only available to ADMINS)
+    suspend fun upsertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
+        val token = firebaseUser.getIdToken(false).toString()
+        val response = try {
+            httpClient.post("$baseUrl/Challenge/upsert"){
+                contentType(ContentType.Application.Json)
+                setBody(challenge)
+                bearerAuth(token)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        }
+        println(response)
+        return when (response.status.value) {
+            200 -> Result.Success(true)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            403 -> Result.Error(NetworkError.FORBIDDEN)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    // Delete a challenge (only for ADMINS)
+    suspend fun deleteChallenge(firebaseUser: FirebaseUser, id: String) : Result<Boolean, NetworkError>{
+        val token = firebaseUser.getIdToken(false).toString()
+        val response = try {
+            httpClient.delete("$baseUrl/Challenge/delete?id=$id") {
+                contentType(ContentType.Application.Json)
+                bearerAuth(token)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        }
+        return when (response.status.value) {
+            201 -> Result.Success(true)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            403 -> Result.Error(NetworkError.FORBIDDEN)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
     // Gets a list on entries for the global leaderboard top 10
     // Already in sorted order, highest streak at top
     suspend fun getLeaderboardTop10(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {

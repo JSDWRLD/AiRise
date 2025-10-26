@@ -1,21 +1,35 @@
 package com.teamnotfound.airise.community.challenges
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import com.teamnotfound.airise.data.serializable.Challenge
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.Serializable
 
 //data for single challenge
-data class ChallengeUI(
-    val id: String,
-    val name: String,
-    val description: String,
-    val imageUrl: String
-)
+@Serializable
+data class ChallengeUI (
+    var id: String = "",
+    var name: MutableState<String> = mutableStateOf(""),
+    var description: MutableState<String> = mutableStateOf(""),
+    var imageUrl: MutableState<String> = mutableStateOf(""))
+{
+    fun toData() : Challenge = Challenge(
+        id = id,
+        name = name.value,
+        description = description.value,
+        url = imageUrl.value
+    )
+}
+
 
 data class ChallengesUiState(
     val isLoading: Boolean = false,
     val items: List<ChallengeUI> = emptyList(),
     val error: String? = null,
-    val progress: UserChallengeProgressUI = UserChallengeProgressUI()
+    val progress: UserChallengeProgressUI = UserChallengeProgressUI(),
+    var showAdminPasswordPrompt: Boolean = false
 )
 
 //ex challenge view model implementation
@@ -35,3 +49,11 @@ data class UserChallengeProgressUI(
     fun completedOn(epochDay: Long): Boolean =
         lastCompletionEpochDay != null && lastCompletionEpochDay == epochDay
 }
+
+data class ChallengeEditorUIState(
+    val isEditing: Boolean = false,
+    val challengeUI: ChallengeUI = ChallengeUI(),
+    val isLoading: Boolean = false,
+    val authFailed: Boolean = false,
+    val error: String? = null
+)

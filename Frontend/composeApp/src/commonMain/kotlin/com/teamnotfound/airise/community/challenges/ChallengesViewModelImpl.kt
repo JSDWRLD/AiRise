@@ -228,10 +228,9 @@ class ChallengesViewModelImpl(
 
     fun updateSelectedDescription(newDesc: String) {
         val current = _selected.value ?: return
-        val updated = current.copy(description = newDesc)
-        _selected.value = updated
+        current.description.value =  newDesc
         _uiState.value = _uiState.value.copy(
-            items = _uiState.value.items.map { if (it.id == current.id) updated else it }
+            items = _uiState.value.items.map { if (it.id == current.id) current else it }
         )
     }
 
@@ -297,15 +296,18 @@ class ChallengesViewModelImpl(
     }
 }
 
-// --- Mappers & helpers
 
 internal fun com.teamnotfound.airise.data.serializable.Challenge.toUI(): ChallengeUI =
     ChallengeUI(
-        id = id ?: name,                 // fallback if id missing
+        id = id ?: name,                
         name = name,
         description = description,
-        imageUrl = url                   // server field is 'url'
+        imageUrl = url                   
     )
+
+    
+
+// --- Mappers & helpers
 
 private fun NetworkError.humanMessage(): String = when (this) {
     NetworkError.NO_INTERNET   -> "No internet connection."

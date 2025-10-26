@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using AiRise.Authorization;
 using AiRise.Models;
 using AiRise.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -56,7 +58,18 @@ public class Program
                 };
             });
 
-        builder.Services.AddAuthorization();
+        // Add memory cache for admin authentication
+        builder.Services.AddMemoryCache();
+        builder.Services.AddScoped<IAuthorizationHandler, AdminAuthorizationHandler>();
+        
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("Admin", policy =>
+            {
+                policy.Requirements.Add(new AdminRequirement());
+            });
+        });
+        
 
         // Enable CORS
         builder.Services.AddCors(options =>
