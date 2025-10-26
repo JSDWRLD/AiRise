@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.PlaylistAddCheck
 import androidx.compose.runtime.*
@@ -80,17 +81,39 @@ fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostControl
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("Log") },
-                onClick = {
-                    viewModel.logAll()
-                    viewModel.onWorkoutLogged()
-                          },
-                backgroundColor = DeepBlue,
-                contentColor = White,
-                icon = { Icon(Icons.Rounded.PlaylistAddCheck, contentDescription = null) },
-                modifier = Modifier.testTag("log_button")
-            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.BottomEnd
+            ){
+                ExtendedFloatingActionButton(
+                    text = { Text("Log") },
+                    onClick = {
+                        viewModel.logAll()
+                        viewModel.onWorkoutLogged()
+                    },
+                    backgroundColor = DeepBlue,
+                    contentColor = White,
+                    icon = { Icon(Icons.Rounded.PlaylistAddCheck, contentDescription = null) },
+                    modifier = Modifier
+                        .testTag("log_button")
+                        .padding(bottom = 64.dp)
+                )
+
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(AppScreen.AI_CHAT.name)
+                    },
+                    backgroundColor = DeepBlue,
+                    contentColor = White
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Chat,
+                        contentDescription = "Open Ai Chat"
+                    )
+                }
+            }
         }
     ) { inner ->
         Column(

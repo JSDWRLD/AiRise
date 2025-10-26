@@ -9,7 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
@@ -115,15 +115,17 @@ fun ChallengesScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if(adminState.isAdmin){
+                if (adminState.isAdmin) {
                     // Add Challenge FAB (Admin only)
                     ExtendedFloatingActionButton(
                         text = { Text("Add Challenge") },
                         onClick = {
                             if (adminState.isVerified) {
-                                editorViewModel.onEvent(ChallengeEditorUiEvent.OpenEditor(
-                                    ChallengeUI()
-                                ))
+                                editorViewModel.onEvent(
+                                    ChallengeEditorUiEvent.OpenEditor(
+                                        ChallengeUI()
+                                    )
+                                )
                             } else {
                                 // Not verified, show password dialog
                                 adminVerifyViewModel.showPasswordPrompt()
@@ -134,13 +136,19 @@ fun ChallengesScreen(
                     )
                 }
 
-                // Existing circular FAB (chat or add action)
+
                 FloatingActionButton(
-                    onClick = { /* Existing action */ },
+                    onClick = {
+                        navController.navigate(AppScreen.AI_CHAT.name)
+                    },
                     backgroundColor = DeepBlue,
-                    contentColor = White
+                    contentColor = White,
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Chat,
+                        contentDescription = "Open Ai Chat"
+                    )
                 }
             }
         }
@@ -261,6 +269,7 @@ private fun ChallengeCard(
                 )
                 .blur(radius = 28.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
         )
+
         Card(
             backgroundColor = BgBlack,
             contentColor = White,

@@ -29,7 +29,9 @@ import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.data.serializable.FoodEntry
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.ui.text.input.KeyboardType
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
 import kotlinx.datetime.*
 
@@ -63,24 +65,19 @@ fun FoodLogScreen(
         },
         topBar = {},
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("Log") },
-                icon = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(2.dp))
-                        Icon(Icons.Default.Done, contentDescription = null, modifier = Modifier.size(16.dp))
-                    }
+            FloatingActionButton(
+                onClick = {
+                    appNavController.navigate(AppScreen.AI_CHAT.name)
                 },
-                onClick = { showMealPicker = true },
                 backgroundColor = DeepBlue,
                 contentColor = White,
-                shape = RoundedCornerShape(28.dp),
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 6.dp,
-                    pressedElevation = 8.dp
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = "Open Ai Chat"
                 )
-            )
+            }
         },
         floatingActionButtonPosition = FabPosition.End
     ) { padding ->
