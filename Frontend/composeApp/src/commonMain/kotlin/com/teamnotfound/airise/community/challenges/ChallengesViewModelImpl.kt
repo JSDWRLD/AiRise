@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.community.challenges
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teamnotfound.airise.data.network.Result
@@ -228,7 +229,7 @@ class ChallengesViewModelImpl(
 
     fun updateSelectedDescription(newDesc: String) {
         val current = _selected.value ?: return
-        val updated = current.copy(description = newDesc)
+        val updated = current.copy(description = mutableStateOf(newDesc))
         _selected.value = updated
         _uiState.value = _uiState.value.copy(
             items = _uiState.value.items.map { if (it.id == current.id) updated else it }
@@ -297,15 +298,6 @@ class ChallengesViewModelImpl(
     }
 }
 
-// --- Mappers & helpers
-
-internal fun com.teamnotfound.airise.data.serializable.Challenge.toUI(): ChallengeUI =
-    ChallengeUI(
-        id = id ?: name,
-        name = mutableStateOf( name),
-        description = mutableStateOf(description),
-        imageUrl = mutableStateOf(url)
-    )
 
 // --- Mappers & helpers
 
