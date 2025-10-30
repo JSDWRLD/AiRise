@@ -76,19 +76,11 @@ fun HealthDashboardScreen(
         )
     }
 
-    // Single source of truth for permission state (replace with viewModel flag if you expose one)
+    // Check if we need permissions based on whether we could read health data
+    // If healthData is null, the read failed (likely no permissions)
+    // If healthData exists (even with 0 values), the read succeeded (we have permissions)
     val needsPermissions by remember(healthData, isLoading) {
-        mutableStateOf(
-            !isLoading && (
-                    healthData == null ||
-                            (
-                                    (healthData?.caloriesBurned ?: 0) == 0 &&
-                                            (healthData?.steps ?: 0) == 0 &&
-                                            (healthData?.hydration ?: 0.0) == 0.0 &&
-                                            (healthData?.sleep ?: 0.0) == 0.0
-                                    )
-                    )
-        )
+        mutableStateOf(!isLoading && healthData == null)
     }
 
     LaunchedEffect(error) {

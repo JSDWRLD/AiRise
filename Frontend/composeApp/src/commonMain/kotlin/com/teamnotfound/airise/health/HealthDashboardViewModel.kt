@@ -19,8 +19,10 @@ class HealthDashboardViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    private var hasRequestedPermissions = false
-
+    /**
+     * Request permissions from the platform and then load health data.
+     * This should be called when the user explicitly wants to grant permissions.
+     */
     fun requestAndLoadData() {
         if (_isLoading.value) return
 
@@ -29,18 +31,16 @@ class HealthDashboardViewModel(
             _error.value = null
 
             try {
-                // Only request permissions once
-                if (!hasRequestedPermissions) {
-                    val granted = provider.requestPermissions()
-                    hasRequestedPermissions = true
+                // Request permissions from the platform
+                val granted = provider.requestPermissions()
 
-                    if (!granted) {
-                        _error.value = "Permissions not granted"
-                        _isLoading.value = false
-                        return@launch
-                    }
+                if (!granted) {
+                    _error.value = "Permissions not granted"
+                    _isLoading.value = false
+                    return@launch
                 }
 
+                // Permissions granted - try to read data
                 val data = provider.getHealthData()
                 _healthData.value = data
 
@@ -55,7 +55,7 @@ class HealthDashboardViewModel(
     /**
      * Load health data without requesting permissions.
      * Use this on screen start so we do not automatically open the OS permission dialog.
-     * Callers that want to request permissions should use requestAndLoadData().
+     * If reading fails (no permissions), the UI will show the permission prompt.
      */
     fun loadData() {
         if (_isLoading.value) return
@@ -68,17 +68,24 @@ class HealthDashboardViewModel(
                 val data = provider.getHealthData()
                 _healthData.value = data
             } catch (e: Exception) {
-                _error.value = e.message ?: "Unknown error"
+                // Failed to read data - likely no permissions
+                // Don't set error, just leave healthData as null
+                // The UI will detect this and show the permission prompt
+                _healthData.value = null
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
+    /**
+     * Write sample health data to the platform.
+     * Returns true if successful, false otherwise.
+     */
     suspend fun writeHealthData(): Boolean {
         val ok = provider.writeHealthData()
         if (ok) {
-            // notify subscribers that platform health changed
+            // Notify subscribers that platform health changed
             kotlinx.coroutines.GlobalScope.launch {
                 HealthEvents.updates.emit(Unit)
             }

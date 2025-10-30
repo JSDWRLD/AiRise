@@ -19,5 +19,15 @@ data class HomeUiState(
     val isFitnessSummaryLoaded: Boolean = false,
     val errorMessage: String? = null,
     val userProfilePicture: String? = "",
-    val hasHealthSyncPermissions: Boolean = false,
-)
+    // Track whether we can successfully read health data from the platform
+    val canReadHealthData: Boolean = false,
+) {
+    /**
+     * Determines if health sync is available.
+     * Returns true only if we can successfully read health data from the device.
+     * This is based solely on canReadHealthData, not on the actual health values,
+     * because health values may come from backend (old data) even if platform access is revoked.
+     */
+    val isHealthSyncAvailable: Boolean
+        get() = canReadHealthData
+}
