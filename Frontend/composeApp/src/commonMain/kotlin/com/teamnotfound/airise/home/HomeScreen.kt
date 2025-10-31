@@ -14,6 +14,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.ui.draw.alpha
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.AppScreen
@@ -71,7 +72,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 },
                 backgroundColor = DeepBlue,
                 contentColor = White,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .alpha(0.75f)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,

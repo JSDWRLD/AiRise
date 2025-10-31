@@ -28,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -81,11 +82,12 @@ fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostControl
             )
         },
         floatingActionButton = {
-            Box(
+            Row(
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ){
                 ExtendedFloatingActionButton(
                     text = { Text("Log") },
@@ -98,15 +100,20 @@ fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostControl
                     icon = { Icon(Icons.Rounded.PlaylistAddCheck, contentDescription = null) },
                     modifier = Modifier
                         .testTag("log_button")
-                        .padding(bottom = 64.dp)
+                        .alpha(0.75f)
                 )
+
+                Spacer(Modifier.width(16.dp))
 
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(AppScreen.AI_CHAT.name)
                     },
                     backgroundColor = DeepBlue,
-                    contentColor = White
+                    contentColor = White,
+                    modifier = Modifier
+                        .testTag("chat_button")
+                        .alpha(0.75f)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Chat,

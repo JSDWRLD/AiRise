@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -111,8 +112,6 @@ fun ChallengesScreen(
         },
         floatingActionButton = {
             Row(
-                modifier = Modifier
-                    .padding(end = 12.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -129,6 +128,7 @@ fun ChallengesScreen(
                         },
                         backgroundColor = Orange,
                         contentColor = BgBlack,
+                        modifier = Modifier.alpha(0.75f)
                     )
                     if (adminState.isAdminModeActive){
                         // Add Challenge FAB (Admin only)
@@ -147,7 +147,8 @@ fun ChallengesScreen(
                                 }
                             },
                             backgroundColor = Orange,
-                            contentColor = BgBlack
+                            contentColor = BgBlack,
+                            modifier = Modifier.alpha(0.75f)
                         )
                     }
                 }
@@ -158,7 +159,9 @@ fun ChallengesScreen(
                     },
                     backgroundColor = DeepBlue,
                     contentColor = White,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .alpha(0.5f)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Chat,
@@ -166,7 +169,8 @@ fun ChallengesScreen(
                     )
                 }
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
         Column(
             modifier = Modifier

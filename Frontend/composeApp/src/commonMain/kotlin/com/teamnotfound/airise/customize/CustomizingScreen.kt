@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +58,9 @@ fun CustomizingScreen(
                     },
                     backgroundColor = DeepBlue,
                     contentColor = White,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .alpha(0.75f)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Chat,
@@ -102,7 +105,9 @@ fun CustomizingScreen(
                 },
                 backgroundColor = DeepBlue,
                 contentColor = White,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .alpha(0.75f)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
