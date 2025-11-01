@@ -52,7 +52,7 @@ fun FitnessSummarySection(
     formattedDate: String,
     healthData: HealthData,
     onHydrationUpdated: (Double) -> Unit,
-    hasHealthSyncPermissions: Boolean,
+    isHealthSyncAvailable: Boolean,
     onEnableHealthSync: () -> Unit
 ) {
     Column(
@@ -85,8 +85,8 @@ fun FitnessSummarySection(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Summary layout for information such as calories, steps, and hydration
-        if (hasHealthSyncPermissions) {
-            // Show normal Steps and Calories cards when permissions are granted
+        if (isHealthSyncAvailable) {
+            // Show normal Steps and Calories cards when health sync is available
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -103,7 +103,7 @@ fun FitnessSummarySection(
                 )
             }
         } else {
-            // Show Enable Health Sync card when permissions are not granted
+            // Show Enable Health Sync card when health data cannot be read
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -124,7 +124,7 @@ fun FitnessSummarySection(
     }
 }
 
-// Enable Health Sync CTA card - shown when permissions are not granted
+// Enable Health Sync CTA card - shown when health data read fails
 @Composable
 fun EnableHealthSyncCard(
     onEnableHealthSync: () -> Unit,
@@ -206,42 +206,27 @@ fun FitnessStatBox(label: String, value: String, unit: String, iconType: ImageVe
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
+        Icon(
+            imageVector = iconType,
+            contentDescription = label,
+            tint = Orange,
+            modifier = Modifier.size(32.dp)
+        )
 
-        // title and icon on the same row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = label, // format title to each section
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Icon(
-                imageVector = iconType, // displays the icons for each section
-                contentDescription = "$label Icon",
-                tint = Orange,
-                modifier = Modifier.size(24.dp)
-            )
-        }
+        Spacer(modifier = Modifier.weight(1f))
 
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // format to display hydration, calories, steps
         Text(
             text = value,
-            fontSize = 26.sp,
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = White)
+            color = White
+        )
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // format to display the unit
         Text(
             text = unit,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             color = Silver
         )
     }
@@ -257,9 +242,9 @@ fun HydrationBox(
     var customInput by remember { mutableStateOf("") }
     var inputError by remember { mutableStateOf<String?>(null) }
 
-    val waterBottleSize = 16.9 // oz per water bottle
-    val totalBottles = 8
-    val maxHydration = 300.0
+    val maxHydration = 128.0
+    val bottleCount = 8
+    val ozPerBottle = maxHydration / bottleCount
 
     Column(
         modifier = modifier
@@ -268,7 +253,6 @@ fun HydrationBox(
             .border(1.dp, Silver, RoundedCornerShape(16.dp))
             .background(Transparent)
             .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start
     ) {
         Row(
@@ -276,54 +260,51 @@ fun HydrationBox(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Hydration",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = White
-            )
             Icon(
                 imageVector = Icons.Outlined.WaterDrop,
-                contentDescription = "Hydration Icon",
-                tint = Color(0xFF4FC3F7)
+                contentDescription = "Hydration",
+                tint = Orange,
+                modifier = Modifier.size(32.dp)
+            )
+
+            Text(
+                text = "${(hydration / maxHydration * 100).toInt()}%",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Silver
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Water bottle visualization with 8 chunks
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
+        // Water bottles visualization
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = "Water Bottles: ${(hydration / waterBottleSize).toInt()}",
-                fontSize = 12.sp,
-                color = Silver,
-                modifier = Modifier.align(Alignment.Start)
-            )
+            repeat(bottleCount) { i ->
+                val bottleStartOz = i * ozPerBottle
+                val bottleEndOz = (i + 1) * ozPerBottle
 
-            Spacer(modifier = Modifier.height(4.dp))
+                val bottleFillPercentage = when {
+                    hydration <= bottleStartOz -> 0.0
+                    hydration >= bottleEndOz -> 1.0
+                    else -> (hydration - bottleStartOz) / ozPerBottle
+                }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                for (i in 0 until totalBottles) {
-                    val bottleFillPercentage = ((hydration - (i * waterBottleSize)) / waterBottleSize).coerceIn(0.0, 1.0)
-
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(DeepBlue.copy(alpha = 0.5f))
+                            .width(24.dp)
+                            .height(60.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.Transparent)
                     ) {
-                        // Water fill for this bottle
-                        if (bottleFillPercentage > 0.0) {
+                        // Filled portion
+                        if (bottleFillPercentage > 0) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxHeight()

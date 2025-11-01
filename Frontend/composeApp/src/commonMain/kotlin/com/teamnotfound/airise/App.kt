@@ -197,7 +197,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     route = AppScreen.HOMESCREEN.name,
                 ) {
                     HomeScreen(
-                        viewModel = HomeViewModel(userRepository, container.userClient, HealthDataProvider(container.kHealth)),
+                        viewModel = sharedHomeVM,
                         navController = navController
                     )
                 }

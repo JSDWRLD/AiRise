@@ -32,7 +32,7 @@ fun DailyProgressSection(
     dailyProgressData: DailyProgressData,
     isLoaded: Boolean,
     lastNightSleepHours: Double? = null,
-    hasHealthSyncPermissions: Boolean
+    isHealthSyncAvailable: Boolean
 ) {
 
     Column(
@@ -77,9 +77,9 @@ fun DailyProgressSection(
                         val strokeWidth = 30f
                         val gap = 8f
 
-                        // Draw background circles based on permissions
-                        if (hasHealthSyncPermissions) {
-                            // Show all three rings when permissions granted
+                        // Draw background circles based on health sync availability
+                        if (isHealthSyncAvailable) {
+                            // Show all three rings when health sync is available
                             listOf(0, 1, 2).forEach { index ->
                                 drawCircle(
                                     color = Silver,
@@ -93,7 +93,7 @@ fun DailyProgressSection(
                             drawProgressArc(Orange, dailyProgressData.caloriesProgress, 1, strokeWidth, gap)
                             drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
                         } else {
-                            // Hide sleep ring when no permissions - only show 2 rings
+                            // Hide sleep ring when health sync not available - only show 2 rings
                             listOf(0, 1).forEach { index ->
                                 drawCircle(
                                     color = Silver,
@@ -122,8 +122,8 @@ fun DailyProgressSection(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                // Only show sleep legend if permissions are granted
-                if (hasHealthSyncPermissions) {
+                // Only show sleep legend if health sync is available
+                if (isHealthSyncAvailable) {
                     Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
                     if (isLoaded && lastNightSleepHours != null) {
                         Spacer(modifier = Modifier.height(2.dp))

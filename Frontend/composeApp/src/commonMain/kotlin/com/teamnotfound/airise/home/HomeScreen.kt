@@ -30,8 +30,14 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     val currentImageUrl = uiState.value.userProfilePicture
 
-    // NOTE: Do NOT auto-sync health data on screen entry
-    // Health sync only occurs after user explicitly grants permissions via the CTA
+    // Refresh health sync status when returning to this screen (e.g., after granting permissions in Health Dashboard)
+    LaunchedEffect(navController.currentBackStackEntry) {
+        // This will trigger when returning to HomeScreen from another screen
+        viewModel.refreshHealthSyncStatus()
+    }
+
+    // NOTE: Health data sync happens automatically in ViewModel init via tryReadHealthDataSilently()
+    // User only needs to explicitly grant permissions if the initial silent read fails
 
     Scaffold(
         backgroundColor = BgBlack,
@@ -106,7 +112,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     dailyProgressData = uiState.value.dailyProgressData,
                     isLoaded = uiState.value.isDailyProgressLoaded,
                     lastNightSleepHours = uiState.value.healthData.sleep,
-                    hasHealthSyncPermissions = uiState.value.hasHealthSyncPermissions
+                    isHealthSyncAvailable = uiState.value.isHealthSyncAvailable
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -115,7 +121,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     formattedDate = uiState.value.formattedDateRange,
                     healthData = uiState.value.healthData,
                     onHydrationUpdated = { newHydration -> viewModel.updateHydration(newHydration) },
-                    hasHealthSyncPermissions = uiState.value.hasHealthSyncPermissions,
+                    isHealthSyncAvailable = uiState.value.isHealthSyncAvailable,
                     onEnableHealthSync = {
                         // Navigate to Health Dashboard screen (Account Settings → Sync)
                         navController.navigate(AppScreen.HEALTH_DASHBOARD.name)

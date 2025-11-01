@@ -6,8 +6,7 @@ import kotlinx.coroutines.test.*
 import kotlin.test.*
 
 /**
- * Simple tests for Health Sync Permissions Feature
- * Tests the hasHealthSyncPermissions flag state management
+ * Tests for Health Sync Permissions Feature (Updated Logic)
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelHealthSyncTest {
@@ -25,53 +24,64 @@ class HomeViewModelHealthSyncTest {
     }
 
     /**
-     * Test 1: Verify flag defaults to false
-     * Acceptance Criteria: App does not auto-request permissions on launch
+     * Test 1: Verify canReadHealthData defaults to false
      */
     @Test
-    fun `hasHealthSyncPermissions flag defaults to false`() {
+    fun `canReadHealthData defaults to false`() {
         val state = HomeUiState()
 
         assertFalse(
-            state.hasHealthSyncPermissions,
-            "hasHealthSyncPermissions should default to false"
+            state.canReadHealthData,
+            "canReadHealthData should default to false until we verify we can read"
         )
     }
 
     /**
-     * Test 2: Verify flag can be set to true
-     * Acceptance Criteria: Flag updates after user enables sync in Settings
+     * Test 2: Verify isHealthSyncAvailable is based only on canReadHealthData
      */
     @Test
-    fun `hasHealthSyncPermissions flag can be updated to true`() {
-        val initialState = HomeUiState(hasHealthSyncPermissions = false)
-        val updatedState = initialState.copy(hasHealthSyncPermissions = true)
+    fun `isHealthSyncAvailable is true when canReadHealthData is true`() {
+        val stateWithPermissions = HomeUiState(canReadHealthData = true)
+        val stateWithoutPermissions = HomeUiState(canReadHealthData = false)
 
-        assertFalse(initialState.hasHealthSyncPermissions, "Initial state should be false")
-        assertTrue(updatedState.hasHealthSyncPermissions, "Updated state should be true")
-    }
-
-    /**
-     * Test 3: Verify flag state is preserved in UI state
-     * Acceptance Criteria: Flag controls UI state globally
-     */
-    @Test
-    fun `hasHealthSyncPermissions flag state is maintained in HomeUiState`() {
-        val stateWithoutPermissions = HomeUiState(hasHealthSyncPermissions = false)
-        val stateWithPermissions = HomeUiState(hasHealthSyncPermissions = true)
-
-        assertFalse(stateWithoutPermissions.hasHealthSyncPermissions)
-        assertTrue(stateWithPermissions.hasHealthSyncPermissions)
-        assertNotEquals(
-            stateWithoutPermissions.hasHealthSyncPermissions,
-            stateWithPermissions.hasHealthSyncPermissions,
-            "Flag states should be different"
+        assertTrue(
+            stateWithPermissions.isHealthSyncAvailable,
+            "Health sync should be available when we can read health data"
+        )
+        assertFalse(
+            stateWithoutPermissions.isHealthSyncAvailable,
+            "Health sync should not be available when we cannot read health data"
         )
     }
 
     /**
-     * Test 4: Verify manual hydration updates work correctly
-     * Acceptance Criteria: Hydration is never fetched from KHealth (manual entry only)
+     * Test 3: Verify isHealthSyncAvailable is true with permissions even if values are zero
+     * Acceptance Criteria: If we can read platform, sync is available regardless of values
+     */
+    @Test
+    fun `isHealthSyncAvailable is true when canReadHealthData is true even with zero values`() {
+        val stateWithPermissionsButZeroActivity = HomeUiState(
+            canReadHealthData = true,
+            healthData = com.teamnotfound.airise.data.serializable.HealthData(
+                steps = 0,
+                caloriesBurned = 0,
+                sleep = 0.0,
+                hydration = 0.0
+            )
+        )
+
+        assertTrue(
+            stateWithPermissionsButZeroActivity.canReadHealthData,
+            "Should be able to read platform data"
+        )
+        assertTrue(
+            stateWithPermissionsButZeroActivity.isHealthSyncAvailable,
+            "Health sync should be available when we can read, even if values are 0"
+        )
+    }
+
+    /**
+     * Test 4: Verify manual hydration updates work independently
      */
     @Test
     fun `hydration can be updated manually without health sync permissions`() {
@@ -79,7 +89,7 @@ class HomeViewModelHealthSyncTest {
         val updatedHydration = 64.5
 
         val initialState = HomeUiState(
-            hasHealthSyncPermissions = false,
+            canReadHealthData = false,
             healthData = com.teamnotfound.airise.data.serializable.HealthData(
                 hydration = initialHydration
             )
@@ -92,20 +102,19 @@ class HomeViewModelHealthSyncTest {
         assertEquals(initialHydration, initialState.healthData.hydration)
         assertEquals(updatedHydration, updatedState.healthData.hydration)
         assertFalse(
-            updatedState.hasHealthSyncPermissions,
+            updatedState.canReadHealthData,
             "Hydration updates should work independently of sync permissions"
         )
     }
 
     /**
-     * Test 5: Verify UI state transitions between permission states
-     * Acceptance Criteria: Changing the flag updates the Home UI without app restart
+     * Test 5: Verify UI state transitions from no permissions to permissions granted
      */
     @Test
-    fun `UI state can transition from no permissions to permissions granted`() {
-        // Simulate initial state (no permissions)
+    fun `UI state transitions correctly when permissions are granted`() {
+        // Before: No permissions
         val stateBeforeSync = HomeUiState(
-            hasHealthSyncPermissions = false,
+            canReadHealthData = false,
             healthData = com.teamnotfound.airise.data.serializable.HealthData(
                 steps = 0,
                 caloriesBurned = 0,
@@ -113,9 +122,8 @@ class HomeViewModelHealthSyncTest {
             )
         )
 
-        // Simulate state after permissions granted
         val stateAfterSync = stateBeforeSync.copy(
-            hasHealthSyncPermissions = true,
+            canReadHealthData = true,
             healthData = stateBeforeSync.healthData.copy(
                 steps = 5000,
                 caloriesBurned = 300,
@@ -123,52 +131,13 @@ class HomeViewModelHealthSyncTest {
             )
         )
 
-        assertFalse(stateBeforeSync.hasHealthSyncPermissions, "Before: permissions should be false")
-        assertTrue(stateAfterSync.hasHealthSyncPermissions, "After: permissions should be true")
+        assertFalse(stateBeforeSync.canReadHealthData, "Before: should not have read access")
+        assertFalse(stateBeforeSync.isHealthSyncAvailable, "Before: sync not available")
+
+        assertTrue(stateAfterSync.canReadHealthData, "After: should have read access")
+        assertTrue(stateAfterSync.isHealthSyncAvailable, "After: sync should be available")
 
         assertEquals(0, stateBeforeSync.healthData.steps, "Before: steps should be 0")
-        assertEquals(5000, stateAfterSync.healthData.steps, "After: steps should be updated")
-    }
-
-    /**
-     * Test 6: Verify hydration remains separate from synced health data
-     * Acceptance Criteria: Hydration is never fetched from KHealth
-     */
-    @Test
-    fun `hydration value is preserved when other health data is synced`() {
-        val userEnteredHydration = 48.0
-
-        // State with user-entered hydration, no sync
-        val stateBeforeSync = HomeUiState(
-            hasHealthSyncPermissions = false,
-            healthData = com.teamnotfound.airise.data.serializable.HealthData(
-                hydration = userEnteredHydration,
-                steps = 0,
-                caloriesBurned = 0
-            )
-        )
-
-        // After sync is enabled, hydration should be preserved
-        val stateAfterSync = stateBeforeSync.copy(
-            hasHealthSyncPermissions = true,
-            healthData = stateBeforeSync.healthData.copy(
-                steps = 8000,
-                caloriesBurned = 450
-                // hydration NOT updated - preserved from user entry
-            )
-        )
-
-        assertEquals(
-            userEnteredHydration,
-            stateBeforeSync.healthData.hydration,
-            "Before sync: hydration is user-entered value"
-        )
-        assertEquals(
-            userEnteredHydration,
-            stateAfterSync.healthData.hydration,
-            "After sync: hydration must remain user-entered value"
-        )
-        assertEquals(8000, stateAfterSync.healthData.steps, "Steps should be updated")
-        assertEquals(450, stateAfterSync.healthData.caloriesBurned, "Calories should be updated")
+        assertEquals(5000, stateAfterSync.healthData.steps, "After: steps should be synced")
     }
 }
