@@ -1,26 +1,19 @@
 package com.teamnotfound.airise.auth.email
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.teamnotfound.airise.auth.general.AuthCard
+import com.teamnotfound.airise.auth.general.AuthHeader
+import com.teamnotfound.airise.auth.general.PrimaryButton
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
@@ -28,6 +21,7 @@ import com.teamnotfound.airise.util.White
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
+
 @Composable
 fun EmailVerificationScreen(
     viewModel: EmailVerificationViewModel,
@@ -36,20 +30,18 @@ fun EmailVerificationScreen(
 ) {
     val isVerified by viewModel.isVerified.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    var timer by remember { mutableStateOf(0) }
-    val firebaseUser = Firebase.auth.currentUser ?: return
     var hasSentVerification by remember { mutableStateOf(false) }
+    val firebaseUser = Firebase.auth.currentUser ?: return
 
     LaunchedEffect(firebaseUser) {
         if (!hasSentVerification) {
             viewModel.sendEmailVerification(firebaseUser)
             hasSentVerification = true
         }
-
+        // Poll every 3s up to ~5 minutes, then rely on manual navigation.
         repeat(300 / 3) {
             delay(3000)
             viewModel.checkEmailVerified(firebaseUser)
-
             if (viewModel.isVerified.value) {
                 onVerified()
                 return@LaunchedEffect
@@ -60,36 +52,67 @@ fun EmailVerificationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgBlack),
-        contentAlignment = Alignment.Center
+            .background(BgBlack)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Verify your Email", color = White, fontSize = 24.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "A verification email has been sent to:\n${firebaseUser.email}",
-                color = Silver,
-                textAlign = TextAlign.Center
+        Column(Modifier.fillMaxSize()) {
+            AuthHeader(
+                title = "Verify your email",
+                subtitle = "We just sent a verification link.",
+                onBackClick = onBackToLogin
             )
-            Spacer(modifier = Modifier.height(24.dp))
 
-            if (errorMessage != null) {
-                Text(
-                    text = errorMessage ?: "",
-                    color = Orange,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            } else {
-                CircularProgressIndicator(color = Orange)
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("Waiting for email verification...", color = White, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            Spacer(Modifier.height(20.dp))
 
-            TextButton(onClick = onBackToLogin) {
-                Text("Back to Login", color = Orange)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AuthCard {
+                    Text(
+                        text = "A verification email has been sent to:\n${firebaseUser.email}",
+                        color = Silver,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage.orEmpty(),
+                            color = Orange,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(color = Orange)
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                "Waiting for email verification...",
+                                color = White,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    PrimaryButton(
+                        text = "Back to Login",
+                        onClick = onBackToLogin
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
             }
         }
     }

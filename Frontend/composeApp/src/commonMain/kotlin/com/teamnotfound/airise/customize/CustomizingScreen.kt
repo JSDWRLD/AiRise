@@ -216,7 +216,6 @@ fun CustomizingScreen(
     }
 }
 
-
 @Composable
 private fun Header(
     title: String,

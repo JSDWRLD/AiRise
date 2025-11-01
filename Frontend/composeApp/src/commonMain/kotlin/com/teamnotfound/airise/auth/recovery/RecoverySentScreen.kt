@@ -2,18 +2,18 @@ package com.teamnotfound.airise.auth.recovery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import com.teamnotfound.airise.util.*
+import com.teamnotfound.airise.auth.general.AuthCard
+import com.teamnotfound.airise.auth.general.AuthHeader
+import com.teamnotfound.airise.auth.general.PrimaryButton
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.White
 
 @Composable
 fun RecoverySentScreen(
@@ -25,63 +25,38 @@ fun RecoverySentScreen(
             .fillMaxSize()
             .background(BgBlack)
     ) {
-        // back arrow
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp)
-                    .align(Alignment.TopStart)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Orange
-                )
-            }
-        }
-
-        // centers the screen
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 50.dp)
-                .padding(24.dp)
-        ) {
-
-            Text("Recovery Email Sent", fontSize = 24.sp, color = Color.White)
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            //description under sent
-            Text(
-                "We've sent you an email.\nFollow the instructions to access your AiRise account.",
-                fontSize = 14.sp,
-                color = Silver,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .wrapContentWidth(Alignment.CenterHorizontally),
-                lineHeight = 18.sp
+        Column(Modifier.fillMaxSize()) {
+            AuthHeader(
+                title = "Recovery Email Sent",
+                subtitle = "Follow the link in your inbox to reset your password.",
+                onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(Modifier.height(20.dp))
 
-            // back to login button
-            Button(
-                onClick = onBackToLoginClick,
+            Column(
                 modifier = Modifier
-                    .width(300.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Back to Login", color = Color.White)
+                AuthCard {
+                    Text(
+                        "We've sent you an email.\nFollow the instructions to access your AiRise account.",
+                        color = Silver,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    PrimaryButton(
+                        text = "Back to Login",
+                        onClick = onBackToLoginClick
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
