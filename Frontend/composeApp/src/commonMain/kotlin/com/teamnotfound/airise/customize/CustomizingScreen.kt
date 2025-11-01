@@ -122,7 +122,6 @@ fun CustomizingScreen(
                 .fillMaxSize()
                 .background(BgBlack)
                 .padding(padding)
-                .statusBarsPadding()
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -236,6 +235,8 @@ private fun Header(
         contentAlignment = Alignment.CenterStart
     ) {
         Column(
+            modifier = Modifier
+                .statusBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
