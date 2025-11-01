@@ -41,7 +41,6 @@ fun MainViewController() = ComposeUIViewController {
                 userClient = remember { UserClient(http) },
                 dataClient = remember { DataClient(http) },
                 kHealth = kHealth,
-                userCache = FakeUserCache(),
                 summaryCache = FakeSummaryCache()
             ),
             reminder = workoutReminder

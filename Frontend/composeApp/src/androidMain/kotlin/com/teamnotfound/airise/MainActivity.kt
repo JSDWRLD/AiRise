@@ -11,9 +11,6 @@ import com.teamnotfound.airise.data.cache.UserCache
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.network.createHttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import com.teamnotfound.airise.cache.UserCacheAndroid
-import com.teamnotfound.airise.room.UserEntity
-import com.teamnotfound.airise.cache.FakeUserCache
 import com.teamnotfound.airise.data.auth.User
 import com.teamnotfound.airise.room.DatabaseProvider
 import com.teamnotfound.airise.cache.SummaryCacheAndroid
@@ -77,7 +74,6 @@ class MainActivity : ComponentActivity() {
         val userClient = UserClient(http)
         val dataClient = DataClient(http)
 
-        val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
         val notifier: LocalNotifier = LocalNotifierAndroid(this)
         val reminder = WorkoutReminderUseCase(notifier)
@@ -89,7 +85,6 @@ class MainActivity : ComponentActivity() {
             userClient = userClient,
             dataClient = dataClient,
             kHealth = kHealth,
-            userCache = userCache,
             summaryCache = summaryCache,
             httpClient = http
         )

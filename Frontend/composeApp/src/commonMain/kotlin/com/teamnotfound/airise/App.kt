@@ -70,17 +70,69 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
     LaunchedEffect(isUserLoggedIn) {
-        if (isUserLoggedIn) {
+        val route = navController.currentBackStackEntry?.destination?.route
+        val user = Firebase.auth.currentUser
+
+        // 1) Not logged in → Welcome (but don't disrupt auth screens)
+        if (!isUserLoggedIn || user == null) {
+            if (route !in listOf(
+                    AppScreen.WELCOME.name,
+                    AppScreen.LOGIN.name,
+                    AppScreen.SIGNUP.name,
+                    AppScreen.RECOVER_ACCOUNT.name,
+                    AppScreen.RECOVERY_SENT.name
+                )
+            ) {
+                navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
+            }
+            return@LaunchedEffect
+        }
+
+        // 2) Email/password must verify before anything else
+        if (!authService.isUsingProvider && !user.isEmailVerified) {
+            if (route != AppScreen.EMAIL_VERIFICATION.name) {
+                navController.navigate(AppScreen.EMAIL_VERIFICATION.name) { popUpTo(0) }
+            }
+            return@LaunchedEffect
+        }
+
+        // 3) Pull server profile to decide if onboarding is needed
+        val needsOnboarding = runCatching {
+            when (val res = container.userClient.getUserData(user)) {
+                is com.teamnotfound.airise.data.network.Result.Success -> {
+                    val u = res.data
+                    // define your “minimum viable profile”
+                    val noName = (u.fullName.isBlank() &&
+                            (u.firstName.isBlank() || u.lastName.isBlank()))
+                    val noWorkoutDays = u.workoutDays.isEmpty()
+                    val noGoal = u.workoutGoal.isBlank()
+                    val noFitness = u.fitnessLevel.isBlank()
+                    noName || noWorkoutDays || noGoal || noFitness
+                }
+                // If we can't load user data (404/500/etc.), treat as not onboarded
+                else -> true
+            }
+        }.getOrDefault(true)
+
+        if (needsOnboarding) {
+            if (route != AppScreen.ONBOARD.name) {
+                navController.navigate(AppScreen.ONBOARD.name) { popUpTo(0) }
+            }
+            return@LaunchedEffect
+        }
+
+        // 4) Profile complete → Home
+        if (route != AppScreen.HOMESCREEN.name) {
             navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
-        } else {
-            navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
         }
     }
+
+
     val userRepository: IUserRepository = UserRepository(
         auth = auth,
         userClient = container.userClient,
-        userCache = container.userCache
     )
+
     val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
     val friendsRepository = remember {
         val friendsClient = FriendsClient(
@@ -91,7 +143,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
     }
 
     val sharedHomeVM: HomeViewModel = viewModel { HomeViewModel(
-        UserRepository(auth = auth, container.userClient, container.userCache),
+        UserRepository(auth = auth, container.userClient),
         container.userClient, HealthDataProvider(container.kHealth)
     )}
 
@@ -115,7 +167,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
 
                 //login screen
                 composable(route = AppScreen.LOGIN.name) {
-                    val loginViewModel = viewModel { LoginViewModel(authService, container.userCache) }
+                    val loginViewModel = viewModel { LoginViewModel(authService) }
                     val loginUiState by loginViewModel.uiState.collectAsState()
 
                     // Navigate to verification screen when flagged
@@ -141,7 +193,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
 
                 // sign up screen
                 composable(route = AppScreen.SIGNUP.name) {
-                    val signUpViewModel = viewModel { SignUpViewModel(authService, container.userCache) }
+                    val signUpViewModel = viewModel { SignUpViewModel(authService) }
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
