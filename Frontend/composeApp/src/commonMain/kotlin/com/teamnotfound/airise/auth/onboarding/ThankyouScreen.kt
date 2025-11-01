@@ -18,6 +18,7 @@ import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.White
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
 
 @Composable
 fun ThankYouScreen(
@@ -26,9 +27,21 @@ fun ThankYouScreen(
     newUser: UserDataUiState
 ) {
     LaunchedEffect(Unit) {
+        // Save user data to backend / cache
         viewModel.saveUserData(newUser)
+
+        val updateTime = Clock.System.now().toEpochMilliseconds()
+        appNavController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.set("user_profile_updated", updateTime)
+
+        // Small delay for UX polish
         delay(2000)
-        appNavController.navigate(AppScreen.HOMESCREEN.name)
+
+        // Go to Home
+        appNavController.navigate(AppScreen.HOMESCREEN.name) {
+            popUpTo(0) // clear the onboarding stack so user can't go back
+        }
     }
 
     Box(

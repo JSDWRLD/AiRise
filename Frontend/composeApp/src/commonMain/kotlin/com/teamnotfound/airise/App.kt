@@ -52,6 +52,7 @@ import com.teamnotfound.airise.meal.FoodLogScreen
 import com.teamnotfound.airise.meal.MealViewModel
 import com.teamnotfound.airise.customize.CustomizingScreen
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
 import com.teamnotfound.airise.auth.general.TermsOfUseScreen
 import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorViewModel
@@ -69,18 +70,23 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
     val appViewModel: AppViewModel = viewModel { AppViewModel(authService) }
     val isUserLoggedIn by appViewModel.isUserLoggedIn.collectAsState()
 
-    LaunchedEffect(isUserLoggedIn) {
+    val userUid = Firebase.auth.currentUser?.uid
+    LaunchedEffect(userUid, isUserLoggedIn) {
         val route = navController.currentBackStackEntry?.destination?.route
         val user = Firebase.auth.currentUser
+        val usingPasswordProvider = user?.providerData?.any { it.providerId == "password" } == true
+        val needsVerification = user != null && usingPasswordProvider && !user.isEmailVerified
 
-        // 1) Not logged in → Welcome (but don't disrupt auth screens)
-        if (!isUserLoggedIn || user == null) {
+        // 1) No user → Welcome (but don’t disrupt auth flows)
+        if (user == null) {
             if (route !in listOf(
                     AppScreen.WELCOME.name,
                     AppScreen.LOGIN.name,
                     AppScreen.SIGNUP.name,
                     AppScreen.RECOVER_ACCOUNT.name,
-                    AppScreen.RECOVERY_SENT.name
+                    AppScreen.RECOVERY_SENT.name,
+                    AppScreen.PRIVACY_POLICY.name,
+                    AppScreen.TERMS.name
                 )
             ) {
                 navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
@@ -88,28 +94,24 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
             return@LaunchedEffect
         }
 
-        // 2) Email/password must verify before anything else
-        if (!authService.isUsingProvider && !user.isEmailVerified) {
+        // 2) Email verification gate (email/password only)
+        if (needsVerification) {
             if (route != AppScreen.EMAIL_VERIFICATION.name) {
                 navController.navigate(AppScreen.EMAIL_VERIFICATION.name) { popUpTo(0) }
             }
             return@LaunchedEffect
         }
 
-        // 3) Pull server profile to decide if onboarding is needed
+        // 3) Onboarding gate (only after verification passes)
         val needsOnboarding = runCatching {
             when (val res = container.userClient.getUserData(user)) {
                 is com.teamnotfound.airise.data.network.Result.Success -> {
                     val u = res.data
-                    // define your “minimum viable profile”
                     val noName = (u.fullName.isBlank() &&
                             (u.firstName.isBlank() || u.lastName.isBlank()))
                     val noWorkoutDays = u.workoutDays.isEmpty()
-                    val noGoal = u.workoutGoal.isBlank()
-                    val noFitness = u.fitnessLevel.isBlank()
-                    noName || noWorkoutDays || noGoal || noFitness
+                    noName || noWorkoutDays
                 }
-                // If we can't load user data (404/500/etc.), treat as not onboarded
                 else -> true
             }
         }.getOrDefault(true)
@@ -121,7 +123,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
             return@LaunchedEffect
         }
 
-        // 4) Profile complete → Home
+        // 4) Otherwise → Home
         if (route != AppScreen.HOMESCREEN.name) {
             navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
         }
@@ -184,8 +186,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         onTermsClick = { navController.navigate(AppScreen.TERMS.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onLoginSuccess = { email ->
-                            navController.navigate(AppScreen.HOMESCREEN.name)
+                        onLoginSuccess = {
                         },
                         onBackClick = { navController.popBackStack() }
                     )
@@ -202,10 +203,13 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccessWithUser = {
-                            if(authService.isUsingProvider){
-                                navController.navigate(AppScreen.ONBOARD.name)
-                            }else {
-                                navController.navigate(AppScreen.EMAIL_VERIFICATION.name)
+                            val user = Firebase.auth.currentUser
+                            val usingPasswordProvider = user?.providerData?.any { it.providerId == "password" } == true
+
+                            if (usingPasswordProvider) {
+                                navController.navigate(AppScreen.EMAIL_VERIFICATION.name) { popUpTo(0) }
+                            } else {
+                                navController.navigate(AppScreen.ONBOARD.name) { popUpTo(0) }
                             }
                         }
                     )
@@ -445,4 +449,13 @@ enum class AppScreen {
     WORKOUT,
     MEAL,
     CUSTOMIZE
+}
+
+
+fun NavHostController.resetTo(route: String) {
+    navigate(route) {
+        popUpTo(0) { inclusive = true } // clear the entire back stack
+        launchSingleTop = true
+        restoreState = false
+    }
 }

@@ -32,6 +32,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val homeSavedStateHandle = remember(navController) {
         navController.getBackStackEntry(AppScreen.HOMESCREEN.name).savedStateHandle
     }
+
     val profileUpdated by homeSavedStateHandle
         .getStateFlow("profile_picture_updated", 0L)
         .collectAsState()
@@ -40,6 +41,14 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         if (profileUpdated != 0L) {
             viewModel.getUserProfilePic()
         }
+    }
+
+    val userProfileUpdatedTs by homeSavedStateHandle
+        .getStateFlow("user_profile_updated", 0L)
+        .collectAsState()
+
+    LaunchedEffect(userProfileUpdatedTs) {
+        if (userProfileUpdatedTs != 0L) viewModel.refreshUserData()
     }
 
     val currentImageUrl = uiState.value.userProfilePicture?.let { url ->
@@ -54,7 +63,6 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     // NOTE: Health data sync happens automatically in ViewModel init via tryReadHealthDataSilently()
     // User only needs to explicitly grant permissions if the initial silent read fails
-
     Scaffold(
         backgroundColor = BgBlack,
         bottomBar = {
@@ -80,7 +88,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         topBar = {
             TopNavBar(
                 greeting = uiState.value.greeting,
-                username = uiState.value.userData.firstName,
+                username = uiState.value.userData.firstName
+                    .ifBlank { uiState.value.userData.fullName }
+                    .ifBlank { "User" },
                 isLoaded = uiState.value.isUserDataLoaded,
                 navController = navController,
                 currentImageUrl = currentImageUrl

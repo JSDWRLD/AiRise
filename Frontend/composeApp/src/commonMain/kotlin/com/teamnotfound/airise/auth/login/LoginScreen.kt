@@ -45,11 +45,7 @@ fun LoginScreen(
         )
         authReady = true
     }
-
-    if (uiState.value.isLoggedIn) {
-        LaunchedEffect(uiState.value.email) { onLoginSuccess(uiState.value.email) }
-    }
-
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
