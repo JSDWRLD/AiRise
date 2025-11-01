@@ -30,6 +30,7 @@ import com.teamnotfound.airise.data.serializable.FoodEntry
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.input.KeyboardType
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
@@ -71,7 +72,9 @@ fun FoodLogScreen(
                 },
                 backgroundColor = DeepBlue,
                 contentColor = White,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .alpha(0.75f)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
