@@ -49,7 +49,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
-    private fun getUserProfilePic() {
+    fun getUserProfilePic() {
         viewModelScope.launch {
             val user = Firebase.auth.currentUser
             if (user == null) {

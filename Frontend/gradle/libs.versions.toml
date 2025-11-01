@@ -53,6 +53,7 @@ kotlinx-coroutines-test = "1.7.3"
 
 
 [libraries]
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-multiplatform" }
 khealth = { module = "io.github.shubhamsinghshubham777:khealth", version.ref = "khealth" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
