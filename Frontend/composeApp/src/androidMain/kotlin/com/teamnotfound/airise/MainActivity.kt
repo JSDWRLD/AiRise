@@ -25,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.khealth.KHealth
-import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.notifications.LocalNotifierAndroid
 import notifications.WorkoutReminderUseCase
 import notifications.MealReminderUseCase
@@ -37,6 +36,10 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
+
+import com.teamnotfound.airise.data.auth.FirebaseTokenManager
+import com.teamnotfound.airise.data.network.clients.DataClient
+import dev.gitlive.firebase.auth.auth
 import notifications.LocalNotifier
 
 class MainActivity : ComponentActivity() {
@@ -63,18 +66,24 @@ class MainActivity : ComponentActivity() {
         //This is REQUIRED for the library to work properly (on Android only)
         kHealth.initialise()
 
-        val userClient = UserClient(createHttpClient(OkHttp.create()))
-        val dataClient = DataClient(createHttpClient(OkHttp.create()))
+        val auth = dev.gitlive.firebase.Firebase.auth
+        val tokenManager = FirebaseTokenManager(auth)
+
+        val http = createHttpClient(
+            OkHttp.create(),
+            tokenManager
+        )
+
+        val userClient = UserClient(http)
+        val dataClient = DataClient(http)
+
         val userCache = UserCacheAndroid(applicationContext)
         val summaryCache = SummaryCacheAndroid(applicationContext)
-        val httpClient = createHttpClient(OkHttp.create())
         val notifier: LocalNotifier = LocalNotifierAndroid(this)
         val reminder = WorkoutReminderUseCase(notifier)
         val mealReminder = MealReminderUseCase(notifier)
         val waterReminder = WaterReminderUseCase(notifier)
         val nudgeReminder = NudgeReminderUseCase(notifier)
-
-
 
         val container = AppContainer(
             userClient = userClient,
@@ -82,7 +91,7 @@ class MainActivity : ComponentActivity() {
             kHealth = kHealth,
             userCache = userCache,
             summaryCache = summaryCache,
-            httpClient = httpClient
+            httpClient = http
         )
         //For debugging
 //        lifecycleScope.launch(Dispatchers.IO) {
