@@ -16,6 +16,14 @@ namespace AiRise.Services
             _col.Indexes.CreateOne(new CreateIndexModel<UserChallenges>(keys, new CreateIndexOptions { Unique = true }));
         }
 
+        // For unit tests
+        public UserChallengesService(IMongoCollection<UserChallenges> collection)
+        {
+            _col = _userChallengesCollection = collection;
+            var keys = Builders<UserChallenges>.IndexKeys.Ascending(x => x.FirebaseUid);
+            _col.Indexes.CreateOne(new CreateIndexModel<UserChallenges>(keys, new CreateIndexOptions { Unique = true }));
+        }
+
         public async Task<string> CreateAsync(string firebaseUid)
         {
             var userChallenges = new UserChallenges { FirebaseUid = firebaseUid };
