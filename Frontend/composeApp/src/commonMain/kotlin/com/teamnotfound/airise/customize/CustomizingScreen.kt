@@ -122,7 +122,6 @@ fun CustomizingScreen(
                 .fillMaxSize()
                 .background(BgBlack)
                 .padding(padding)
-                .statusBarsPadding()
                 .verticalScroll(scroll),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -217,7 +216,6 @@ fun CustomizingScreen(
     }
 }
 
-
 @Composable
 private fun Header(
     title: String,
@@ -236,6 +234,8 @@ private fun Header(
         contentAlignment = Alignment.CenterStart
     ) {
         Column(
+            modifier = Modifier
+                .statusBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(

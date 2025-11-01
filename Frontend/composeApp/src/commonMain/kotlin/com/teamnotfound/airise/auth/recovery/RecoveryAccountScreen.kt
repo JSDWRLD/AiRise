@@ -2,18 +2,23 @@ package com.teamnotfound.airise.auth.recovery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.util.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.ui.graphics.Color
+import com.teamnotfound.airise.auth.general.AuthCard
+import com.teamnotfound.airise.auth.general.AuthField
+import com.teamnotfound.airise.auth.general.AuthHeader
+import com.teamnotfound.airise.auth.general.PrimaryButton
+import com.teamnotfound.airise.util.BgBlack
+import com.teamnotfound.airise.util.Silver
+import com.teamnotfound.airise.util.White
 
 @Composable
 fun RecoverAccountScreen(
@@ -22,91 +27,76 @@ fun RecoverAccountScreen(
     onSendEmailClick: () -> Unit,
 ) {
     var email by remember { mutableStateOf("") }
+    var attempted by remember { mutableStateOf(false) }
+    val isValid = remember(email) { email.contains("@") && email.contains(".") }
 
-    //screen arrangement
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
     ) {
-        // back arrow icon
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp) // space from edges
-        ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Orange
-                )
-            }
-        }
-
-        // password recovery placement
-        Column(
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 50.dp)
-                .padding(24.dp)
-        ) {
-
-            // title of screen
-            Text(
-                "Reset your password",
-                fontSize = 24.sp,
-                color = Color.White
+        Column(Modifier.fillMaxSize()) {
+            AuthHeader(
+                title = "Reset your password",
+                subtitle = "We'll email you a reset link.",
+                onBackClick = onBackClick
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
 
-            // email input
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                //email icon
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Outlined.Email,
-                        contentDescription = "Email",
-                        tint = Silver
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AuthCard {
+                    // Intro
+                    Text(
+                        "Enter the email associated with your account.",
+                        color = Silver,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
                     )
-                },
-                label = { Text("Email Address", color = Silver) },
-                singleLine = true,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(60.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    backgroundColor = White,
-                    focusedBorderColor = Silver,
-                    unfocusedBorderColor = Silver,
-                    textColor = Silver,
-                )
-            )
 
-            Spacer(modifier = Modifier.height(30.dp))
+                    // Email field (matches app style)
+                    AuthField(
+                        value = email,
+                        onValueChange = { email = it },
+                        hint = "Email Address",
+                        leading = { androidx.compose.material.Icon(Icons.Outlined.Email, null, tint = Silver) }
+                    )
 
-            // send email button
-            Button(
-                onClick = {
-                    viewModel.sendEmail(email)
-                    onSendEmailClick()
-                },
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(50.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = DeepBlue)
-            ) {
-                Text("Send Email", color = Color.White)
+                    // Inline validation (optional)
+                    if (attempted && !isValid) {
+                        Text(
+                            "Please enter a valid email address.",
+                            color = Color.Red,
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    // Send button (matches PrimaryButton style)
+                    PrimaryButton(
+                        text = "Send Reset Link",
+                        onClick = {
+                            attempted = true
+                            if (isValid) {
+                                viewModel.sendEmail(email)
+                                onSendEmailClick()
+                            }
+                        }
+                    )
+
+                    // Helper text
+                    Text(
+                        "Check your inbox (and spam folder) for our message.",
+                        color = Silver,
+                        fontSize = 12.sp
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
             }
         }
     }

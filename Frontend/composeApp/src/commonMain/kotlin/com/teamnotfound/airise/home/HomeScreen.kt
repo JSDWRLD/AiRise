@@ -29,7 +29,22 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val uiState = viewModel.uiState.collectAsState()
     val bottomNavController = rememberNavController()
 
-    val currentImageUrl = uiState.value.userProfilePicture
+    val homeSavedStateHandle = remember(navController) {
+        navController.getBackStackEntry(AppScreen.HOMESCREEN.name).savedStateHandle
+    }
+    val profileUpdated by homeSavedStateHandle
+        .getStateFlow("profile_picture_updated", 0L)
+        .collectAsState()
+
+    LaunchedEffect(profileUpdated) {
+        if (profileUpdated != 0L) {
+            viewModel.getUserProfilePic()
+        }
+    }
+
+    val currentImageUrl = uiState.value.userProfilePicture?.let { url ->
+        if (profileUpdated != 0L) "$url?cb=$profileUpdated" else url
+    }
 
     // Refresh health sync status when returning to this screen (e.g., after granting permissions in Health Dashboard)
     LaunchedEffect(navController.currentBackStackEntry) {

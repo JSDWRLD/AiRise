@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -66,6 +69,15 @@ import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.window.DialogProperties
+import io.ktor.util.date.getTimeMillis
+import androidx.compose.material3.Text as M3Text
+import androidx.compose.material3.Button as M3Button
+import androidx.compose.material3.TextButton as M3TextButton
+import androidx.compose.material3.Surface as M3Surface
+import androidx.compose.material3.ButtonDefaults as M3ButtonDefaults
 
 @Composable
 fun AccountSettingScreen(
@@ -85,6 +97,15 @@ fun AccountSettingScreen(
     var showImagePickerDialog by rememberSaveable { mutableStateOf(false) }
     var candidateImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var candidateImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+
+    LaunchedEffect(uiState.userSettings?.profilePictureUrl) {
+        val newUrl = uiState.userSettings?.profilePictureUrl
+        if (!newUrl.isNullOrBlank()) {
+            navController.getBackStackEntry(AppScreen.HOMESCREEN.name)
+                .savedStateHandle
+                .set<Long>("profile_picture_updated", getTimeMillis())
+        }
+    }
 
     // If user is signed out successfully, route to welcome screen
     if (uiState.isSignedOut) {
@@ -207,23 +228,6 @@ fun AccountSettingScreen(
                                     contentScale = ContentScale.Crop
                                 )
                             }
-
-                            // Small floating edit chip
-                            Box(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(DeepBlue)
-                                    .clickable { showImagePickerDialog = true }
-                                    .padding(6.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit",
-                                    tint = White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
                         }
 
                         Spacer(Modifier.width(14.dp))
@@ -246,6 +250,9 @@ fun AccountSettingScreen(
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 text = "Tap photo to update",
+                                modifier = Modifier
+                                    .padding(vertical = 2.dp)
+                                    .clickable { showImagePickerDialog = true },
                                 color = Orange,
                                 fontSize = 12.sp
                             )
@@ -283,78 +290,103 @@ fun AccountSettingScreen(
 
     // Image picker dialog
     if (showImagePickerDialog) {
-        AlertDialog(
-            onDismissRequest = {
+        ProfilePictureDialog(
+            candidateImage = candidateImage,
+            onPick = { singleImagePicker.launch() },
+            onSave = {
+                candidateImageBytes?.let { accountSettingViewModel.uploadProfilePicture(it, firebaseUser) }
                 showImagePickerDialog = false
                 candidateImage = null
                 candidateImageBytes = null
             },
-            title = { Text("Change Profile Picture", color = White) },
-            text = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Pick a new image and preview it below:", color = White)
-                    Spacer(Modifier.size(12.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(Color.DarkGray),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        candidateImage?.let {
-                            Image(
-                                bitmap = it,
-                                contentDescription = "Preview",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        } ?: Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = Silver
-                        )
-                    }
-
-                    Spacer(Modifier.size(16.dp))
-
-                    Button(
-                        onClick = { singleImagePicker.launch() },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Orange)
-                    ) {
-                        Text("Pick Image", color = White)
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        candidateImageBytes?.let {
-                            accountSettingViewModel.uploadProfilePicture(it, firebaseUser)
-                        }
-                        showImagePickerDialog = false
-                        candidateImage = null
-                        candidateImageBytes = null
-                    }
-                ) {
-                    Text("Save", color = Orange)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        showImagePickerDialog = false
-                        candidateImage = null
-                        candidateImageBytes = null
-                    }
-                ) {
-                    Text("Cancel", color = Silver)
-                }
-            },
-            backgroundColor = BgBlack
+            onCancel = {
+                showImagePickerDialog = false
+                candidateImage = null
+                candidateImageBytes = null
+            }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProfilePictureDialog(
+    candidateImage: ImageBitmap?,
+    onPick: () -> Unit,
+    onSave: () -> Unit,
+    onCancel: () -> Unit
+) {
+    // Full-screen overlay inside your current layout tree
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f)) // scrim that truly covers the screen
+            .clickable(
+                // dismiss when tapping outside the card
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null
+            ) { onCancel() },
+        contentAlignment = Alignment.Center
+    ) {
+        // The dialog card
+        M3Surface(
+            shape = RoundedCornerShape(16.dp),
+            tonalElevation = 8.dp,
+            modifier = Modifier
+                .padding(horizontal = 24.dp, vertical = 24.dp)
+                .widthIn(min = 280.dp, max = 420.dp)
+                .clickable( // consume taps so the scrim’s clickable doesn’t fire
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null
+                ) { /* no-op */ }
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .background(BgBlack)
+                    .padding(20.dp)
+            ) {
+                M3Text("Change Profile Picture", color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.size(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(Color.DarkGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (candidateImage != null) {
+                        Image(
+                            bitmap = candidateImage,
+                            contentDescription = "Preview",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(48.dp), tint = Silver)
+                    }
+                }
+
+                Spacer(Modifier.size(16.dp))
+                M3Button(
+                    onClick = onPick,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = M3ButtonDefaults.buttonColors(
+                        containerColor = Orange,
+                        contentColor = White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    M3Text("Pick Image")
+                }
+                Spacer(Modifier.size(8.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    M3TextButton(onClick = onCancel) { M3Text("Cancel", color = Silver) }
+                    M3TextButton(onClick = onSave)   { M3Text("Save",   color = Orange) }
+                }
+            }
+        }
     }
 }
 

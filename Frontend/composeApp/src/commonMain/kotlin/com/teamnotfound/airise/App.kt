@@ -14,7 +14,7 @@ import com.teamnotfound.airise.data.auth.AuthService
 import com.teamnotfound.airise.home.HomeScreen
 import com.teamnotfound.airise.home.AiChat
 import com.teamnotfound.airise.auth.login.LoginViewModel
-import com.teamnotfound.airise.auth.signup.PrivacyPolicyScreen
+import com.teamnotfound.airise.auth.general.PrivacyPolicyScreen
 import com.teamnotfound.airise.auth.recovery.RecoverAccountScreen
 import com.teamnotfound.airise.auth.recovery.RecoverySentScreen
 import com.teamnotfound.airise.navigationBar.NavBar
@@ -53,6 +53,7 @@ import com.teamnotfound.airise.meal.MealViewModel
 import com.teamnotfound.airise.customize.CustomizingScreen
 import androidx.compose.runtime.LaunchedEffect
 import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
+import com.teamnotfound.airise.auth.general.TermsOfUseScreen
 import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorViewModel
 import com.teamnotfound.airise.customize.CustomizationViewModel
 
@@ -128,6 +129,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     LoginScreen(
                         viewModel = loginViewModel,
                         onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
+                        onTermsClick = { navController.navigate(AppScreen.TERMS.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
                         onLoginSuccess = { email ->
@@ -143,6 +145,8 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     SignUpScreen(
                         viewModel = signUpViewModel,
                         onLoginClick = { navController.popBackStack() },
+                        onPrivacyPolicyClick = { navController.navigate(AppScreen.PRIVACY_POLICY.name) },
+                        onTermsClick = { navController.navigate(AppScreen.TERMS.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onBackClick = { navController.popBackStack() },
                         onSignUpSuccessWithUser = {
@@ -223,12 +227,8 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                 }
                 // challenges list
                 composable(route = AppScreen.CHALLENGES.name) {
-                    val parentEntry = remember(navController) {
-                        navController.getBackStackEntry(AppScreen.CHALLENGES.name)
-                    }
-
-                    val vm: ChallengesViewModelImpl = viewModel(parentEntry) {
-                        ChallengesViewModelImpl(container.dataClient, container.userClient) // <-- inject DataClient here
+                    val vm: ChallengesViewModelImpl = viewModel {
+                        ChallengesViewModelImpl(container.dataClient, container.userClient)
                     }
 
                     ChallengesScreen(
@@ -354,6 +354,13 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     )
                 }
 
+                // Terms & Conditions Screen
+                composable(route = AppScreen.TERMS.name) {
+                    TermsOfUseScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
+
                 // Leaderboard Screen
                 composable(route = AppScreen.LEADERBOARD.name) {
                     val leaderboardViewModel = viewModel { LeaderboardViewModel(container.dataClient) }
@@ -370,6 +377,7 @@ enum class AppScreen {
     LOGIN,
     SIGNUP,
     PRIVACY_POLICY,
+    TERMS,
     RECOVER_ACCOUNT,
     RECOVERY_SENT,
     ONBOARD,
