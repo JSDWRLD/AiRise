@@ -29,29 +29,26 @@ class FriendsClient(
     }
     private fun api(path: String) = "$apiBase/${path.trimStart('/')}"
 
-    suspend fun getFriends(idToken: String, meUid: String): UsersEnvelope {
+    suspend fun getFriends(meUid: String): UsersEnvelope {
         val res = http.get {
             url(api("UserFriends/$meUid"))
             contentType(ContentType.Application.Json)
-            bearerAuth(idToken)
         }
         return res.parseOrThrow()
     }
 
-    suspend fun addFriend(idToken: String, meUid: String, friendUid: String) {
+    suspend fun addFriend(meUid: String, friendUid: String) {
         val res = http.post {
             url(api("UserFriends/$meUid?friendFirebaseUid=$friendUid"))
             contentType(ContentType.Application.Json)
-            bearerAuth(idToken)
         }
         res.ensureSuccess()
     }
 
-    suspend fun removeFriend(idToken: String, meUid: String, friendUid: String) {
+    suspend fun removeFriend(meUid: String, friendUid: String) {
         val res = http.delete {
             url(api("UserFriends/$meUid?friendFirebaseUid=$friendUid"))
             contentType(ContentType.Application.Json)
-            bearerAuth(idToken)
         }
         res.ensureSuccess()
     }
