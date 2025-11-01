@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.OnboardingScaffold
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
@@ -27,27 +30,25 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
     val feetRange = (0..11).toList()
     val inchRange = (0..11).toList()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgBlack)
+    OnboardingScaffold(
+        stepTitle = "Fitness Goal (10/13)",
+        onBackClick = { navController.popBackStack() },
+        onSkipClick = { navController.navigate(nextScreen) }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(40.dp))
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgBlack)
+        ) {
             Text(
                 text = "What Is Your Height?",
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    color = White,
-                    fontWeight = FontWeight.Bold
-                ),
+                style = TextStyle(fontSize = 30.sp, color = White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //Metric/Imperial
+            // Metric/Imperial toggle
             Row(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -99,7 +100,7 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //show selected value
+            // Selected value
             if (newUser.heightValue.value != 0) {
                 val displayText = if (newUser.heightMetric.value) {
                     "${newUser.heightValue.value} CM"
@@ -120,18 +121,16 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //scrollables
+            // Scrollables
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                //cm
                 if (newUser.heightMetric.value) {
                     ScrollableColumnSelection(null, cmRange, newUser.heightValue.value) {
                         newUser.heightValue.value = it
                     }
                 } else {
-                    //ft and in
                     ScrollableColumnSelection("FT", feetRange, selectedFeet) {
                         selectedFeet = it
                         newUser.heightValue.value = (selectedFeet * 12) + selectedInches
@@ -146,7 +145,6 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
 
             Spacer(modifier = Modifier.weight(1f))
 
-            //continue button
             Button(
                 onClick = { navController.navigate(nextScreen) },
                 enabled = newUser.heightValue.value != 0,

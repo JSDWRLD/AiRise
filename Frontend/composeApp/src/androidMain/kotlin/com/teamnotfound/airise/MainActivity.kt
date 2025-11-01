@@ -11,9 +11,6 @@ import com.teamnotfound.airise.data.cache.UserCache
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.network.createHttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import com.teamnotfound.airise.cache.UserCacheAndroid
-import com.teamnotfound.airise.room.UserEntity
-import com.teamnotfound.airise.cache.FakeUserCache
 import com.teamnotfound.airise.data.auth.User
 import com.teamnotfound.airise.room.DatabaseProvider
 import com.teamnotfound.airise.cache.SummaryCacheAndroid
@@ -25,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import com.khealth.KHealth
-import com.teamnotfound.airise.data.network.clients.DataClient
 import com.teamnotfound.airise.notifications.LocalNotifierAndroid
 import notifications.WorkoutReminderUseCase
 import notifications.MealReminderUseCase
@@ -37,6 +33,10 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
+
+import com.teamnotfound.airise.data.auth.FirebaseTokenManager
+import com.teamnotfound.airise.data.network.clients.DataClient
+import dev.gitlive.firebase.auth.auth
 import notifications.LocalNotifier
 
 class MainActivity : ComponentActivity() {
@@ -63,26 +63,30 @@ class MainActivity : ComponentActivity() {
         //This is REQUIRED for the library to work properly (on Android only)
         kHealth.initialise()
 
-        val userClient = UserClient(createHttpClient(OkHttp.create()))
-        val dataClient = DataClient(createHttpClient(OkHttp.create()))
-        val userCache = UserCacheAndroid(applicationContext)
+        val auth = dev.gitlive.firebase.Firebase.auth
+        val tokenManager = FirebaseTokenManager(auth)
+
+        val http = createHttpClient(
+            OkHttp.create(),
+            tokenManager
+        )
+
+        val userClient = UserClient(http)
+        val dataClient = DataClient(http)
+
         val summaryCache = SummaryCacheAndroid(applicationContext)
-        val httpClient = createHttpClient(OkHttp.create())
         val notifier: LocalNotifier = LocalNotifierAndroid(this)
         val reminder = WorkoutReminderUseCase(notifier)
         val mealReminder = MealReminderUseCase(notifier)
         val waterReminder = WaterReminderUseCase(notifier)
         val nudgeReminder = NudgeReminderUseCase(notifier)
 
-
-
         val container = AppContainer(
             userClient = userClient,
             dataClient = dataClient,
             kHealth = kHealth,
-            userCache = userCache,
             summaryCache = summaryCache,
-            httpClient = httpClient
+            httpClient = http
         )
         //For debugging
 //        lifecycleScope.launch(Dispatchers.IO) {

@@ -15,7 +15,6 @@ import com.teamnotfound.airise.data.serializable.UserChallenge
 class UserRepository(
     private val auth: FirebaseAuth,
     private val userClient: UserClient,
-    private val userCache: UserCache,
 ) : IUserRepository{
     override suspend fun fetchUserData(): Result<UserData, NetworkError>{
         return try {

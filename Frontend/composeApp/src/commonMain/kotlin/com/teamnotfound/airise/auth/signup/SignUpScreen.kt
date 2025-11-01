@@ -127,9 +127,7 @@ fun SignUpScreen(
                         onClick = {
                             attemptedSubmit = true
                             viewModel.validatePassword(password, confirmPassword)
-                            if (passwordsMatch && uiState.passwordErrors.isEmpty()) {
-                                viewModel.register(RegisterUserDTO(email = email, password = password))
-                            }
+                            viewModel.register(RegisterUserDTO(email = email, password = password))
                         }
                     )
 

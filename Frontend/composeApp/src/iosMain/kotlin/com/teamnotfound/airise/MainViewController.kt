@@ -10,7 +10,10 @@ import io.ktor.client.engine.darwin.Darwin
 import com.khealth.KHealth
 import com.teamnotfound.airise.cache.FakeUserCache
 import com.teamnotfound.airise.cache.FakeSummaryCache
+import com.teamnotfound.airise.data.auth.FirebaseTokenManager
 import com.teamnotfound.airise.data.network.clients.DataClient
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import notifications.TempNotifier
 import notifications.WorkoutReminderUseCase
 import notifications.MealReminderUseCase
@@ -21,28 +24,24 @@ fun MainViewController() = ComposeUIViewController {
     val platformConfig = defaultPlatformConfiguration()
     val kHealth = KHealth()
 
+    val notifier = TempNotifier()
+    val workoutReminder = WorkoutReminderUseCase(notifier)
+    val mealReminder    = MealReminderUseCase(notifier)
+    val waterReminder   = WaterReminderUseCase(notifier)
+    val nudgeReminder   = NudgeReminderUseCase(notifier)
 
-    val temp = TempNotifier()
-    val workoutReminder = WorkoutReminderUseCase(temp)
-    val mealReminder    = MealReminderUseCase(temp)
-    val waterReminder   = WaterReminderUseCase(temp)
-    val nudgeReminder   = NudgeReminderUseCase(temp)
+    val auth = Firebase.auth
+    val tokenManager = remember { FirebaseTokenManager(auth) }
+    val http = remember { createHttpClient(Darwin.create(), tokenManager) }
 
-    CompositionLocalProvider(
-        LocalDensity provides platformConfig.density
-    ) {
+    CompositionLocalProvider(LocalDensity provides platformConfig.density) {
         App(
             container = AppContainer(
-                httpClient = createHttpClient(Darwin.create()),
-                userClient = remember {
-                    UserClient(createHttpClient(Darwin.create()))
-                },
-                dataClient = remember {
-                    DataClient(createHttpClient(Darwin.create()))
-                },
+                httpClient = http,
+                userClient = remember { UserClient(http) },
+                dataClient = remember { DataClient(http) },
                 kHealth = kHealth,
-                userCache = FakeUserCache(),
-                summaryCache = FakeSummaryCache(),
+                summaryCache = FakeSummaryCache()
             ),
             reminder = workoutReminder
         )

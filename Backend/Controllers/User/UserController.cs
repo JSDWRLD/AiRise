@@ -21,6 +21,14 @@ namespace AiRise.Controllers
             _leaderboard = leaderboard;
         }
 
+        // For tests
+        public UserController(UserDataService userData, UserChallengesService challenges)
+        {
+            _userData = userData;
+            _challenges = challenges;
+            _leaderboard = null!; // not used in these tests
+        }
+
         public class CreateUserRequest { public string FirebaseUid { get; set; } = null!; public string? Email { get; set; } }
 
         // matches Android: POST /api/User (expects 201 + a "User"-shaped body)

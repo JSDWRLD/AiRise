@@ -53,10 +53,7 @@ class FriendsViewModel(
         _ui.value = _ui.value.copy(isLoading = true, error = null)
         viewModelScope.launch {
             try {
-                val token = withContext(io) { auth.getIdToken() }
-                    ?: throw IllegalStateException("Missing ID token. Please sign in again.")
-
-                val list = withContext(io) { friendRepo.getFriends(me, token) }
+                val list = withContext(io) { friendRepo.getFriends(me) }
                 _ui.value = _ui.value.copy(isLoading = false, friends = list, error = null)
             } catch (t: Throwable) {
                 _ui.value = _ui.value.copy(
@@ -92,9 +89,7 @@ class FriendsViewModel(
 
         viewModelScope.launch {
             try {
-                val token = withContext(io) { auth.getIdToken() }
-                    ?: throw IllegalStateException("Missing ID token. Please sign in again.")
-                withContext(io) { friendRepo.addFriend(me, friendUid, token) }
+                withContext(io) { friendRepo.addFriend(me, friendUid) }
                 load() // refresh to replace optimistic with real data
             } catch (t: Throwable) {
                 _ui.value = _ui.value.copy(
@@ -119,9 +114,7 @@ class FriendsViewModel(
 
         viewModelScope.launch {
             try {
-                val token = withContext(io) { auth.getIdToken() }
-                    ?: throw IllegalStateException("Missing ID token. Please sign in again.")
-                withContext(io) { friendRepo.removeFriend(me, friendUid, token) }
+                withContext(io) { friendRepo.removeFriend(me, friendUid) }
             } catch (t: Throwable) {
                 _ui.value = _ui.value.copy(
                     friends = before,

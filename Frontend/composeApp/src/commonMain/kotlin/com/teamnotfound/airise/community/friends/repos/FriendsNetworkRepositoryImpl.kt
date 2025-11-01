@@ -10,14 +10,14 @@ import com.teamnotfound.airise.community.friends.data.FriendsClient
 class FriendsNetworkRepositoryImpl(
     private val client: FriendsClient
 ) : FriendsNetworkRepository {
-    override suspend fun getFriends(me: String, idToken: String): List<UserProfile> =
-        client.getFriends(idToken, me).users.map { it.toDomain() }
+    override suspend fun getFriends(me: String): List<UserProfile> =
+        client.getFriends(me).users.map { it.toDomain() }
 
-    override suspend fun addFriend(me: String, friendUid: String, idToken: String) {
-        client.addFriend(idToken, me, friendUid)
+    override suspend fun addFriend(me: String, friendUid: String) {
+        client.addFriend(me, friendUid)
     }
 
-    override suspend fun removeFriend(me: String, friendUid: String, idToken: String) {
-        client.removeFriend(idToken, me, friendUid)
+    override suspend fun removeFriend(me: String, friendUid: String) {
+        client.removeFriend(me, friendUid)
     }
 }

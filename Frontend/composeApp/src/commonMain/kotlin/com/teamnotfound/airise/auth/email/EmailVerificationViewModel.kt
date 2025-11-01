@@ -15,26 +15,26 @@ class EmailVerificationViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    fun sendEmailVerification(firebaseUser: FirebaseUser?) {
+    fun sendEmailVerification(firebaseUser: FirebaseUser) {
         viewModelScope.launch {
             try {
-                firebaseUser?.sendEmailVerification()
+                _errorMessage.value = null
+                firebaseUser.sendEmailVerification()
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "An unexpected error occurred"
+                _errorMessage.value = e.message ?: "Failed to send verification email."
             }
         }
     }
 
     fun checkEmailVerified(firebaseUser: FirebaseUser) {
-        firebaseUser?.let {
-            viewModelScope.launch {
-                try {
-                    it.reload()
-                    _isVerified.value = it.isEmailVerified
-                } catch (e: Exception) {
-                    _errorMessage.value = e.message ?: "Failed to check verification status"
-                }
+        viewModelScope.launch {
+            try {
+                firebaseUser.reload()
+                _isVerified.value = firebaseUser.isEmailVerified
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Failed to check verification status."
             }
         }
     }
 }
+

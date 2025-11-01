@@ -39,15 +39,17 @@ fun LoginScreen(
     var authReady by remember { mutableStateOf(false) }
     val uiState = viewModel.uiState.collectAsState()
 
+    LaunchedEffect(uiState.value.isLoggedIn) {
+        if (uiState.value.isLoggedIn) {
+            onLoginSuccess(uiState.value.email)
+        }
+    }
+
     LaunchedEffect(Unit) {
         GoogleAuthProvider.create(
             credentials = GoogleAuthCredentials(serverId = BuildKonfig.GOOGLE_OAUTH_WEB_CLIENT_ID)
         )
         authReady = true
-    }
-
-    if (uiState.value.isLoggedIn) {
-        LaunchedEffect(uiState.value.email) { onLoginSuccess(uiState.value.email) }
     }
 
     Box(

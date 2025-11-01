@@ -41,6 +41,10 @@ class HomeViewModel(private val userRepository: IUserRepository,
         tryReadHealthDataSilently()
     }
 
+    fun refreshUserData() {
+        getUsername()
+    }
+
     fun onEvent(uiEvent: HomeUiEvent) {
         when (uiEvent) {
             is HomeUiEvent.GenerateOverview -> {

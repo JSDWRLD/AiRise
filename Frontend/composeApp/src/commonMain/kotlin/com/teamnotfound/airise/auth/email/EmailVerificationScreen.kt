@@ -81,6 +81,7 @@ fun EmailVerificationScreen(
 
                     Spacer(Modifier.height(16.dp))
 
+                    /* TODO: Fix firebase error
                     if (errorMessage != null) {
                         Text(
                             text = errorMessage.orEmpty(),
@@ -102,6 +103,20 @@ fun EmailVerificationScreen(
                                 fontSize = 14.sp
                             )
                         }
+                    }
+                     */
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = Orange)
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            "Waiting for email verification...",
+                            color = White,
+                            fontSize = 14.sp
+                        )
                     }
 
                     Spacer(Modifier.height(16.dp))
