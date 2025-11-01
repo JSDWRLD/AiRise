@@ -92,7 +92,6 @@ class LoginScreenTest {
     fun clearing_errorMessage_returns_to_clean_state() {
         var s = LoginUiState(errorMessage = "Invalid password")
         assertTrue(shouldShowError(s))
-
         s = s.copy(errorMessage = null)
         assertFalse(shouldShowError(s))
         assertNull(s.errorMessage)
@@ -121,5 +120,95 @@ class LoginScreenTest {
         assertFalse(shouldShowError(s))
     }
 
+    @Test
+    fun blank_errorMessage_is_not_shown() {
+        val s1 = LoginUiState(errorMessage = "")
+        val s2 = LoginUiState(errorMessage = "   ")
+        assertFalse(shouldShowError(s1))
+        assertFalse(shouldShowError(s2))
+    }
+
+    @Test
+    fun toggling_loading_reenables_button() {
+        var s = LoginUiState(isLoading = true)
+        assertFalse(isLoginButtonEnabled(s))
+        s = s.copy(isLoading = false)
+        assertTrue(isLoginButtonEnabled(s))
+    }
+
+    @Test
+    fun logged_in_does_not_clear_inputs() {
+        val s = LoginUiState(email = "stay@airise.app", password = "KeepMe", isLoggedIn = true)
+        assertEquals("stay@airise.app", s.email)
+        assertEquals("KeepMe", s.password)
+        assertTrue(s.isLoggedIn)
+    }
+
+    @Test
+    fun copying_flags_does_not_change_inputs() {
+        val base = LoginUiState(email = "x@y.com", password = "p1")
+        val changed = base.copy(isLoading = true, isLoggedIn = true)
+        assertEquals("x@y.com", changed.email)
+        assertEquals("p1", changed.password)
+        assertTrue(changed.isLoggedIn)
+        assertTrue(changed.isLoading)
+    }
+
+    @Test
+    fun long_inputs_are_preserved_verbatim() {
+        val longEmail = "a".repeat(128) + "@example.com"
+        val longPass = "P".repeat(512) + "!"
+        val s = LoginUiState(email = longEmail, password = longPass)
+        assertEquals(longEmail, s.email)
+        assertEquals(longPass, s.password)
+    }
+
+    @Test
+    fun inconsistent_state_loggedIn_with_error_is_detectable() {
+        val s = LoginUiState(isLoggedIn = true, errorMessage = "Should not appear when logged in")
+        assertTrue(s.isLoggedIn)
+        assertTrue(shouldShowError(s))
+    }
+
+    @Test
+    fun multiple_copy_chain_preserves_fields() {
+        var s = LoginUiState(email = "chain@airise.app", password = "ChainPass")
+        s = s.copy(isLoading = true).copy(isLoading = false).copy(errorMessage = "x").copy(errorMessage = null)
+        assertEquals("chain@airise.app", s.email)
+        assertEquals("ChainPass", s.password)
+        assertFalse(s.isLoading)
+        assertNull(s.errorMessage)
+    }
+
+    @Test
+    fun login_event_exists_in_sealed_hierarchy() {
+        val e: LoginUiEvent = LoginUiEvent.Login
+        assertTrue(e is LoginUiEvent)
+    }
+
+    @Test
+    fun email_and_password_change_events_exist_in_hierarchy() {
+        val e1: LoginUiEvent = LoginUiEvent.EmailChanged("a@b.com")
+        val e2: LoginUiEvent = LoginUiEvent.PasswordChanged("Zyx123!@#")
+        assertTrue(e1 is LoginUiEvent.EmailChanged)
+        assertTrue(e2 is LoginUiEvent.PasswordChanged)
+    }
+
+    @Test
+    fun loading_with_error_still_disables_button() {
+        val s = LoginUiState(isLoading = true, errorMessage = "err")
+        assertFalse(isLoginButtonEnabled(s))
+        assertTrue(shouldShowError(s))
+    }
+
+    @Test
+    fun copy_does_not_mutate_original_instance() {
+        val original = LoginUiState(email = "orig@airise.app", password = "orig")
+        val modified = original.copy(email = "new@airise.app")
+        assertEquals("orig@airise.app", original.email)
+        assertEquals("new@airise.app", modified.email)
+    }
+
 }
+
 
