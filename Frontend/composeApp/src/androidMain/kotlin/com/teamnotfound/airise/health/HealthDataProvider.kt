@@ -68,6 +68,10 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
      * NOTE: Hydration is NOT fetched from KHealth to avoid overwriting user-entered values.
      */
     actual suspend fun getHealthData(): IHealthData = withContext(Dispatchers.Default) {
+        if (!kHealth.isHealthStoreAvailable || !hasAnyReadPermission()) {
+            throw Exception("Health permissions not granted")
+        }
+
         // Init start and end time when fun is called
         val startTime = Clock.System.now().minus(1.days)
         val endTime = Clock.System.now()
@@ -133,5 +137,22 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         )
         val result = kHealth.writeRecords(sampleSteps, sampleActiveCalories, sampleSleep)
         return@withContext result is com.khealth.KHWriteResponse.Success
+    }
+
+    private suspend fun hasAnyReadPermission(): Boolean {
+        val granted = kHealth.checkPermissions(
+            KHPermission.StepCount(read = true, write = false),
+            KHPermission.ActiveCaloriesBurned(read = true, write = false),
+            KHPermission.SleepSession(read = true, write = false)
+        )
+        // Return true if at least one of the requested read permissions is granted
+        return granted.any { perm ->
+            when (perm) {
+                is KHPermission.StepCount -> perm.read
+                is KHPermission.ActiveCaloriesBurned -> perm.read
+                is KHPermission.SleepSession -> perm.read
+                else -> false
+            }
+        }
     }
 }

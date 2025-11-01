@@ -31,21 +31,26 @@ class HealthDashboardViewModel(
             _error.value = null
 
             try {
-                // Request permissions from the platform
+                // 1) Ask once
                 val granted = provider.requestPermissions()
 
+                // 2) If still missing, stop and guide to Settings
                 if (!granted) {
+                    _healthData.value = null
                     _error.value = "Permissions not granted"
-                    _isLoading.value = false
+                    // Let the UI show a button that calls onOpenSettings()
                     return@launch
                 }
 
-                // Permissions granted - try to read data
-                val data = provider.getHealthData()
-                _healthData.value = data
+                // 3) With permissions, load data (zeros are legitimate)
+                _healthData.value = provider.getHealthData()
 
+            } catch (t: Throwable) {
+                _error.value = t.message
+                _healthData.value = null                       // <-- key: clear it
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error"
+                _healthData.value = null
             } finally {
                 _isLoading.value = false
             }
@@ -67,10 +72,14 @@ class HealthDashboardViewModel(
             try {
                 val data = provider.getHealthData()
                 _healthData.value = data
+            } catch (t: Throwable) {
+                _error.value = t.message
+                _healthData.value = null                       // <-- key: clear it
             } catch (e: Exception) {
                 // Failed to read data - likely no permissions
                 // Don't set error, just leave healthData as null
                 // The UI will detect this and show the permission prompt
+                _error.value = e.message
                 _healthData.value = null
             } finally {
                 _isLoading.value = false
