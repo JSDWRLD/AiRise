@@ -45,179 +45,98 @@ fun OnboardingScreen(viewModel: OnboardingViewModel, appNavController: NavContro
 //Defines different navigation routes for onboarding screens
 @Composable
 fun NavigateQuestions(
-    navController: NavHostController, viewModel: OnboardingViewModel, appNavController: NavController, newUser: UserDataUiState
-){
+    navController: NavHostController,
+    viewModel: OnboardingViewModel,
+    appNavController: NavController,
+    newUser: UserDataUiState
+) {
     NavHost(navController = navController, startDestination = OnboardingScreens.NameInput.route) {
-        composable(OnboardingScreens.NameInput.route) { NameInputScreen(navController, newUser) }
-        composable(OnboardingScreens.WorkoutGoal.route) { WorkoutGoalScreen(navController, newUser) }
-        composable(OnboardingScreens.FitnessLevel.route) { FitnessLevelScreen(navController, newUser) }
-        composable(OnboardingScreens.WorkoutLength.route) { WorkoutLengthScreen(navController, newUser) }
-        composable(OnboardingScreens.EquipmentAccess.route) { EquipmentAccessScreen(navController, newUser) }
-        composable(OnboardingScreens.WorkoutDays.route) { WorkoutDaysScreen(navController, newUser) }
-        composable(OnboardingScreens.WorkoutTime.route) { WorkoutTimeScreen(navController, newUser) }
-        composable(OnboardingScreens.DietaryGoal.route) { DietaryGoalScreen(navController, newUser) }
-        composable(OnboardingScreens.WorkoutRestrictions.route) { WorkoutRestrictionsScreen(navController, newUser) }
+
+        // 1
+        composable(OnboardingScreens.NameInput.route) {
+            NameInputScreen(navController, newUser)
+        }
+
+        // 2
+        composable(OnboardingScreens.WorkoutGoal.route) {
+            WorkoutGoalScreen(navController, newUser)
+        }
+
+        // 3
+        composable(OnboardingScreens.FitnessLevel.route) {
+            FitnessLevelScreen(navController, newUser)
+        }
+
+        // 4 (NOT skippable – handled inside the screen by passing onSkipClick = null)
+        composable(OnboardingScreens.WorkoutLength.route) {
+            WorkoutLengthScreen(navController, newUser)
+        }
+
+        // 5
+        composable(OnboardingScreens.EquipmentAccess.route) {
+            EquipmentAccessScreen(navController, newUser)
+        }
+
+        // 6
+        composable(OnboardingScreens.WorkoutDays.route) {
+            WorkoutDaysScreen(navController, newUser)
+        }
+
+        // 7 (skippable – handled inside the screen by providing onSkipClick)
+        composable(OnboardingScreens.WorkoutTime.route) {
+            WorkoutTimeScreen(navController, newUser)
+        }
+
+        // 8
+        composable(OnboardingScreens.DietaryGoal.route) {
+            DietaryGoalScreen(navController, newUser)
+        }
+
+        // 9
+        composable(OnboardingScreens.WorkoutRestrictions.route) {
+            WorkoutRestrictionsScreen(navController, newUser)
+        }
+
+        // 10
         composable(OnboardingScreens.HeightSelection.route) {
-            Box (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BgBlack)
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    TopAppBar(
-                        backgroundColor = BgBlack,
-                        contentColor = White,
-                        elevation = 0.dp
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp)
-                        ) {
-                            Text(
-                                "Fitness Goal (10/13)",
-                                color = White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-
-                            TextButton(
-                                onClick = { navController.navigate(OnboardingScreens.WeightSelection.route) },
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            ) {
-                                Text(
-                                    "Skip",
-                                    color = Orange,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
-                    HeightSelectionScreen(
-                        navController,
-                        OnboardingScreens.WeightSelection.route,
-                        newUser
-                    )
-                }
-            }
+            // This screen uses your OnboardingScaffold internally with:
+            // stepTitle = "Fitness Goal (10/13)", onSkipClick -> WeightSelection
+            HeightSelectionScreen(
+                navController = navController,
+                nextScreen = OnboardingScreens.WeightSelection.route,
+                newUser = newUser
+            )
         }
+
+        // 11
         composable(OnboardingScreens.WeightSelection.route) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BgBlack)
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    TopAppBar(
-                        backgroundColor = BgBlack,
-                        contentColor = White,
-                        elevation = 0.dp
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp)
-                        ) {
-                            Text(
-                                "Fitness Goal (11/13)",
-                                color = White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-
-                            IconButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier.align(Alignment.CenterStart)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = Orange
-                                )
-                            }
-
-                            TextButton(
-                                onClick = { navController.navigate(OnboardingScreens.AgeSelection.route) },
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            ) {
-                                Text(
-                                    "Skip",
-                                    color = Orange,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
-                    WeightSelectionScreen(
-                        navController,
-                        OnboardingScreens.AgeSelection.route,
-                        newUser
-                    )
-                }
-            }
+            // Uses your OnboardingScaffold with stepTitle = "Fitness Goal (11/13)"
+            // Decide if skip is allowed by setting onSkipClick inside that screen
+            WeightSelectionScreen(
+                navController = navController,
+                nextScreen = OnboardingScreens.AgeSelection.route,
+                newUser = newUser
+            )
         }
+
+        // 12
         composable(OnboardingScreens.AgeSelection.route) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BgBlack)
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    TopAppBar(
-                        backgroundColor = BgBlack,
-                        contentColor = White,
-                        elevation = 0.dp
-                    ) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp)
-                        ) {
-                            Text(
-                                "Fitness Goal (12/13)",
-                                color = White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-
-                            IconButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier.align(Alignment.CenterStart)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = Orange
-                                )
-                            }
-
-                            TextButton(
-                                onClick = { navController.navigate(OnboardingScreens.ActivityLevel.route) },
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            ) {
-                                Text(
-                                    "Skip",
-                                    color = Orange,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
-                    AgeSelectionScreen(
-                        navController,
-                        OnboardingScreens.ActivityLevel.route,
-                        newUser
-                    )
-                }
-            }
+            // Uses your OnboardingScaffold with stepTitle = "Fitness Goal (12/13)", skip -> ActivityLevel
+            AgeSelectionScreen(
+                navController = navController,
+                nextScreen = OnboardingScreens.ActivityLevel.route,
+                newUser = newUser
+            )
         }
-        composable(OnboardingScreens.ActivityLevel.route) { ActivityLevelScreen(navController, newUser) }
-        composable(OnboardingScreens.ThankYou.route) { ThankYouScreen(appNavController, viewModel, newUser = newUser) }
+
+        // 13
+        composable(OnboardingScreens.ActivityLevel.route) {
+            ActivityLevelScreen(navController, newUser)
+        }
+
+        // Done
+        composable(OnboardingScreens.ThankYou.route) {
+            ThankYouScreen(appNavController, viewModel, newUser = newUser)
+        }
     }
 }

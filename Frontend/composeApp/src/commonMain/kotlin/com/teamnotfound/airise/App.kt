@@ -57,6 +57,7 @@ import com.teamnotfound.airise.auth.admin.AdminVerifyViewModel
 import com.teamnotfound.airise.auth.general.TermsOfUseScreen
 import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEditorViewModel
 import com.teamnotfound.airise.customize.CustomizationViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
@@ -149,6 +150,8 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
         container.userClient, HealthDataProvider(container.kHealth)
     )}
 
+    val scope = rememberCoroutineScope()
+
     MaterialTheme {
         Column(
             modifier = Modifier
@@ -186,7 +189,45 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         onTermsClick = { navController.navigate(AppScreen.TERMS.name) },
                         onForgotPasswordClick = { navController.navigate(AppScreen.RECOVER_ACCOUNT.name) },
                         onSignUpClick = { navController.navigate(AppScreen.SIGNUP.name) },
-                        onLoginSuccess = {
+                        onLoginSuccess = { _ ->
+                            scope.launch {
+                                val user = Firebase.auth.currentUser
+                                val usingPasswordProvider =
+                                    user?.providerData?.any { it.providerId == "password" } == true
+                                val needsVerification = user != null && usingPasswordProvider && !(user?.isEmailVerified ?: false)
+
+                                when {
+                                    user == null -> {
+                                        navController.navigate(AppScreen.WELCOME.name) { popUpTo(0) }
+                                    }
+                                    needsVerification -> {
+                                        navController.navigate(AppScreen.EMAIL_VERIFICATION.name) { popUpTo(0) }
+                                    }
+                                    else -> {
+                                        // safe fetch + decide onboarding
+                                        val needsOnboarding = try {
+                                            when (val res = container.userClient.getUserData(user)) {
+                                                is com.teamnotfound.airise.data.network.Result.Success -> {
+                                                    val u = res.data
+                                                    val noName = u.fullName.isBlank() &&
+                                                            (u.firstName.isBlank() || u.lastName.isBlank())
+                                                    // add any other checks (e.g., workoutDays) if you want
+                                                    noName
+                                                }
+                                                else -> false // ✅ don't trap on transient errors
+                                            }
+                                        } catch (_: Exception) {
+                                            false
+                                        }
+
+                                        if (needsOnboarding) {
+                                            navController.navigate(AppScreen.ONBOARD.name) { popUpTo(0) }
+                                        } else {
+                                            navController.navigate(AppScreen.HOMESCREEN.name) { popUpTo(0) }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         onBackClick = { navController.popBackStack() }
                     )

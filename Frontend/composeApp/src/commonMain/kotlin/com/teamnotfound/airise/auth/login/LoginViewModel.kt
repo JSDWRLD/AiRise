@@ -68,7 +68,6 @@ class LoginViewModel(
 
                 when (authResult) {
                     is AuthResult.Success -> {
-
                         // Update UI state to reflect successful login
                         _uiState.value = _uiState.value.copy(
                             isLoggedIn = true,
