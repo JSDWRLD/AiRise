@@ -52,6 +52,7 @@ import coil3.compose.AsyncImage
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import com.preat.peekaboo.image.picker.toImageBitmap
+import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.util.BgBlack
 import com.teamnotfound.airise.util.Cyan
 import com.teamnotfound.airise.util.Orange
@@ -62,7 +63,8 @@ import com.teamnotfound.airise.util.White
 @Composable
 fun ChallengeEditorDialog(
     viewModel: IChallengeEditorViewModel,
-    onAuthorizationError: () -> Unit
+    onAuthorizationError: () -> Unit,
+    onSuccess: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentImageUrl = uiState.challengeUI.imageUrl
@@ -205,7 +207,7 @@ fun ChallengeEditorDialog(
                     }
 
                     Button(
-                        onClick = { viewModel.upsert() },
+                        onClick = { viewModel.upsert(onSuccess) },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Orange),
                         modifier = Modifier.weight(1f)
                     ) {
