@@ -62,11 +62,13 @@ fun HealthDashboardScreen(
 
     val healthData by viewModel.healthData.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val isBlocked by viewModel.isBlocked.collectAsState()
     val error by viewModel.error.collectAsState()
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(Unit) { viewModel.loadData() }
+
 
     val allZero by remember(healthData) {
         mutableStateOf(
@@ -153,13 +155,21 @@ fun HealthDashboardScreen(
                     isLoading -> {
                         item(span = { GridItemSpan(maxLineSpan) }) { LoadingSection() }
                     }
+                    isBlocked -> {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            PermissionsBanner(
+                                isBlocked = true,
+                                onGrant = { /* no-op when blocked */ }
+                            )
+                        }
+                    }
                     needsPermissions -> {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             PermissionsBanner(
+                                isBlocked = false,
                                 onGrant = { viewModel.requestAndLoadData() }
                             )
                         }
-
                     }
                     else -> {
                         // Metrics as grid cells
@@ -292,11 +302,21 @@ private fun LoadingSection() {
 
 @Composable
 private fun PermissionsBanner(
+    isBlocked: Boolean,
     onGrant: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val bg = if (isBlocked) Color(0xFF1A1212) else Color(0xFF0E1D1E)
+    val accent = if (isBlocked) Orange else DeepBlue
+    val title = if (isBlocked) "Health Access Disabled" else "Enable Health Permissions"
+    val subtitle = if (isBlocked) {
+        "Access to steps, calories, hydration and sleep is turned off in system settings."
+    } else {
+        "To show steps, calories, hydration and sleep, grant access to your health provider."
+    }
+
     Card(
-        backgroundColor = Color(0xFF0E1D1E),
+        backgroundColor = bg,
         shape = RoundedCornerShape(20.dp),
         elevation = 0.dp,
         modifier = modifier.fillMaxWidth()
@@ -306,39 +326,62 @@ private fun PermissionsBanner(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 🔧 Removed the Canvas that drew cyan lines
-
-            Text(
-                "Enable Health Permissions",
-                color = White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                "To show steps, calories, hydration and sleep, grant access to your health provider.",
-                color = White.copy(alpha = 0.75f),
-                fontSize = 14.sp
-            )
+            Text(title, color = White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text(subtitle, color = White.copy(alpha = 0.75f), fontSize = 14.sp)
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Bullet(text = "We only read recent activity")
-                Bullet(text = "You can revoke anytime")
+                if (isBlocked) {
+                    // Subtle, non-clickable status chip
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Orange.copy(alpha = 0.18f))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(Orange)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Blocked in Settings",
+                            color = White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                } else {
+                    Bullet(text = "We only read recent activity")
+                    Bullet(text = "You can revoke anytime")
+                }
             }
 
-            PrimaryButton(
-                label = "Grant Permissions",
-                onClick = onGrant,
-                background = DeepBlue,
-                contentColor = White,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (!isBlocked) {
+                PrimaryButton(
+                    label = "Grant Permissions",
+                    onClick = onGrant,
+                    background = accent,
+                    contentColor = White,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                // Small footer hint (no CTA button)
+                Text(
+                    "Re-enable permissions in Settings to continue.",
+                    color = White.copy(alpha = 0.6f),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
     }
 }
-
 
 @Composable
 private fun Bullet(text: String) {

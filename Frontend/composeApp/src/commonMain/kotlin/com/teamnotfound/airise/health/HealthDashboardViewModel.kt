@@ -19,6 +19,10 @@ class HealthDashboardViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    // When the user disables permissions
+    private val _isBlocked = MutableStateFlow(false)
+    val isBlocked: StateFlow<Boolean> = _isBlocked
+
     /**
      * Request permissions from the platform and then load health data.
      * This should be called when the user explicitly wants to grant permissions.
@@ -37,6 +41,7 @@ class HealthDashboardViewModel(
                 // 2) If still missing, stop and guide to Settings
                 if (!granted) {
                     _healthData.value = null
+                    _isBlocked.value = true
                     _error.value = "Permissions not granted"
                     // Let the UI show a button that calls onOpenSettings()
                     return@launch
@@ -47,10 +52,12 @@ class HealthDashboardViewModel(
 
             } catch (t: Throwable) {
                 _error.value = t.message
-                _healthData.value = null                       // <-- key: clear it
+                _healthData.value = null
+                _isBlocked.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error"
                 _healthData.value = null
+                _isBlocked.value = true
             } finally {
                 _isLoading.value = false
             }
@@ -74,7 +81,7 @@ class HealthDashboardViewModel(
                 _healthData.value = data
             } catch (t: Throwable) {
                 _error.value = t.message
-                _healthData.value = null                       // <-- key: clear it
+                _healthData.value = null
             } catch (e: Exception) {
                 // Failed to read data - likely no permissions
                 // Don't set error, just leave healthData as null
