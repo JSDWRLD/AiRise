@@ -29,16 +29,26 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 
+interface IUserClient {
+    suspend fun insertUser(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, email: String): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.User, com.teamnotfound.airise.util.NetworkError>
+    suspend fun getUserData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserData, com.teamnotfound.airise.util.NetworkError>
+    suspend fun insertUserData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, userData: com.teamnotfound.airise.data.serializable.UserData): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserData, com.teamnotfound.airise.util.NetworkError>
+    suspend fun getHealthData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.HealthData, com.teamnotfound.airise.util.NetworkError>
+    suspend fun updateHealthData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, healthData: com.teamnotfound.airise.data.serializable.HealthData): com.teamnotfound.airise.data.network.Result<Boolean, com.teamnotfound.airise.util.NetworkError>
+    suspend fun getUserSettings(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserSettingsData, com.teamnotfound.airise.util.NetworkError>
+    suspend fun upsertUserSettings(userSettings: com.teamnotfound.airise.data.serializable.UserSettingsData, firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<Boolean, com.teamnotfound.airise.util.NetworkError>
+}
+
 class   UserClient(
     private val httpClient: HttpClient
-) {
+) : IUserClient {
     private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
 
     /**
      * API call to register a new user.
      * We simply send the firebaseUid in the createUserRequest.
      */
-    suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError> {
+    override suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val response = try {
             httpClient.post("$baseUrl/User") {
@@ -63,7 +73,7 @@ class   UserClient(
         }
     }
 
-    suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
+    override suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val response = try {
             httpClient.get("$baseUrl/UserData/$firebaseUid") {
@@ -88,7 +98,7 @@ class   UserClient(
         }
     }
 
-    suspend fun insertUserData(
+    override suspend fun insertUserData(
         firebaseUser: FirebaseUser,
         userData: UserData
     ): Result<UserData, NetworkError> {
@@ -121,7 +131,7 @@ class   UserClient(
         }
     }
 
-    suspend fun getHealthData(firebaseUser: FirebaseUser): Result<HealthData, NetworkError>{
+    override suspend fun getHealthData(firebaseUser: FirebaseUser): Result<HealthData, NetworkError>{
         val firebaseUid = firebaseUser.uid
 
         val response = try {
@@ -145,7 +155,7 @@ class   UserClient(
      * API call to insert user health data
      * Sends a PUT request with the health data
      */
-    suspend fun updateHealthData(
+    override suspend fun updateHealthData(
         firebaseUser: FirebaseUser,
         healthData: HealthData
     ): Result<Boolean, NetworkError> {
@@ -170,7 +180,7 @@ class   UserClient(
         }
     }
 
-    suspend fun getUserSettings(firebaseUser: FirebaseUser): Result<UserSettingsData, NetworkError> {
+    override suspend fun getUserSettings(firebaseUser: FirebaseUser): Result<UserSettingsData, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val response = try {
             httpClient.get("$baseUrl/UserSettings/$firebaseUid") {
@@ -195,7 +205,7 @@ class   UserClient(
         }
     }
 
-    suspend fun upsertUserSettings(userSettings: UserSettingsData, firebaseUser: FirebaseUser): Result<Boolean, NetworkError> {
+    override suspend fun upsertUserSettings(userSettings: UserSettingsData, firebaseUser: FirebaseUser): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
 
         val response = try {
