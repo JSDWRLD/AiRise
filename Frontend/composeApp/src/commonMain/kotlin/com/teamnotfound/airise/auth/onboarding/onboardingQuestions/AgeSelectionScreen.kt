@@ -96,7 +96,10 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                         newUser.dobMonth.value in monthRange &&
                         newUser.dobDay.value in dayRange,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = DeepBlue,
+                    backgroundColor = if (
+                        newUser.dobYear.value in yearRange &&
+                        newUser.dobMonth.value in monthRange &&
+                        newUser.dobDay.value in dayRange) Orange else Silver,
                     disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Orange),

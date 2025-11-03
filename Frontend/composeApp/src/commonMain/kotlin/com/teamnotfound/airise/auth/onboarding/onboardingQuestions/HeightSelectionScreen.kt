@@ -149,10 +149,10 @@ fun HeightSelectionScreen(navController: NavController, nextScreen: String, newU
                 onClick = { navController.navigate(nextScreen) },
                 enabled = newUser.heightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = DeepBlue,
+                    backgroundColor = if (newUser.heightValue.value != 0) Orange else DeepBlue,
                     disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Orange),
+                border = BorderStroke(1.dp, if (newUser.heightValue.value != 0) Orange else Silver),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
