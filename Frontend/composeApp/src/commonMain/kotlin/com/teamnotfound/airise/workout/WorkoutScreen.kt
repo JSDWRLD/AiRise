@@ -59,7 +59,7 @@ fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostControl
     val expanded = remember { mutableStateMapOf<String, Boolean>() }
 
     LaunchedEffect(Unit) {
-        viewModel.refresh(force = true)
+        viewModel.refresh(force = false)
     }
 
     Scaffold(
