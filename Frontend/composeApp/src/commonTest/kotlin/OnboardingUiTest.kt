@@ -43,7 +43,7 @@ class OnboardingUiTest {
         val input6 = "12345"
 
         assertEquals(isValidCharacterInput(input), true)
-        assertEquals(isValidCharacterInput(input2), false)
+        assertEquals(isValidCharacterInput(input2), true)
         assertEquals(isValidCharacterInput(input3), true)
         assertEquals(isValidCharacterInput(input4), true)
         assertEquals(isValidCharacterInput(input5), false)
@@ -116,7 +116,7 @@ class OnboardingUiTest {
 
     private fun isValidCharacterInput(input: String): Boolean {
         return input.matches("^[A-Za-zÀ-ÿ\\s'-.]+\$".toRegex())
-                && input.trim().length in 3..49
+                && input.trim().length in 2..50
                 && !input.trim().matches(".*\\d.*".toRegex())
     }
 }
