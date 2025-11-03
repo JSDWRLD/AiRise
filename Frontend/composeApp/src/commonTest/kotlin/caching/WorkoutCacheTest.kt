@@ -37,7 +37,7 @@ class WorkoutCacheTest {
 
 
     @BeforeTest
-    fun setup() {
+    fun setup() = runTest {
         WorkoutCache.clear()
     }
 
