@@ -18,8 +18,8 @@ public class UserHealthDataController_IntegrationTests : IClassFixture<MongoInte
     public UserHealthDataController_IntegrationTests(MongoIntegrationTest<UserHealthData> fixture)
     {
         _fixture = fixture;
-        _collection = _fixture.Collection;
-        _fixture.ClearCollectionAsync().GetAwaiter().GetResult();
+        _collection = _fixture.GetCollection<UserHealthData>("user.health");
+        _fixture.ClearAllCollectionsAsync().GetAwaiter().GetResult();
 
         _svc = new UserHealthDataService(_collection);
         _ctrl = new UserHealthDataController(_svc, new NoopLogger<UserController>());
@@ -79,7 +79,7 @@ public class UserHealthDataController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task UpdateUserHealthData_NotFound_When_NoChange()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.GetUserHealthData("fx-u2");
 
         var current = await _collection.Find(x => x.FirebaseUid == "fx-u2").FirstOrDefaultAsync();
@@ -110,7 +110,7 @@ public class UserHealthDataController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task UpdateUserHealthTargets_Ok_When_Existing()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.GetUserHealthData("fx-u3");
 
         var res = await _ctrl.UpdateUserHealthTargets("fx-u3", caloriesTarget: 2100, hydrationTarget: 95);

@@ -15,8 +15,8 @@ public class UserSettingsController_IntegrationTests : IClassFixture<MongoIntegr
     public UserSettingsController_IntegrationTests(MongoIntegrationTest<UserSettings> fixture)
     {
         _fixture = fixture;
-        _collection = _fixture.Collection;
-        _fixture.ClearCollectionAsync().GetAwaiter().GetResult();
+        _collection = _fixture.GetCollection<UserSettings>("user.settings");
+        _fixture.ClearAllCollectionsAsync().GetAwaiter().GetResult();
 
         _svc = new UserSettingsService(_collection); // <- test-only overload
         _ctrl = new UserSettingsController(_svc, new NoopLogger<UserController>());
@@ -55,7 +55,7 @@ public class UserSettingsController_IntegrationTests : IClassFixture<MongoIntegr
     [Fact]
     public async Task GetUserSettings_WhenExists_ReturnsExisting_NotDefaults()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
 
         // Seed existing settings
         var seeded = new UserSettings
@@ -85,7 +85,7 @@ public class UserSettingsController_IntegrationTests : IClassFixture<MongoIntegr
     [Fact]
     public async Task UpdateUserData_NotFound_When_NoMatchingUser()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
 
         var payload = new UserSettings
         {
@@ -105,7 +105,7 @@ public class UserSettingsController_IntegrationTests : IClassFixture<MongoIntegr
     [Fact]
     public async Task UpdateUserData_Ok_When_UserExists()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
 
         // create an existing settings doc
         await _svc.CreateAsync("u2");

@@ -22,8 +22,8 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     public ChallengeController_IntegrationTests(MongoIntegrationTest<Challenge> fixture)
     {
         _fixture = fixture;
-        _collection = fixture.Collection;
-        _fixture.ClearCollectionAsync().GetAwaiter().GetResult();
+        _collection = fixture.GetCollection<Challenge>("challenge");
+        _fixture.ClearAllCollectionsAsync().GetAwaiter().GetResult();
 
         var service = new ChallengeService(_collection);
         _controller = new ChallengeController(service);
@@ -32,7 +32,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task GetAllChallenges_Returns_Ok_With_Data()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange 
         var challenges = new List<Challenge>
         {
@@ -55,7 +55,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task GetAllChallenges_Returns_EmptyList_When_No_Data()
     {
-        await _fixture.ClearCollectionAsync(); 
+        await _fixture.ClearAllCollectionsAsync(); 
 
         var result = await _controller.GetAllChallenges();
 
@@ -69,7 +69,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task UpsertChallenge_Updates_Existing_Record()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange
         var existing = new Challenge
         {
@@ -95,7 +95,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task UpsertChallenge_Inserts_New_Record()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange
         var challenge = new Challenge
         {
@@ -114,7 +114,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task UpsertChallenge_Returns_BadRequest_On_Empty_Name()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange
         var challenge = new Challenge
         {
@@ -131,7 +131,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task DeleteChallenge_Deletes_Exisiting_Record()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange
         var existing = new Challenge
         {
@@ -152,7 +152,7 @@ public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrati
     [Fact]
     public async Task DeleteChallenge_Fails_When_No_Match()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         // Arrange
         var challenge = new Challenge
         {
