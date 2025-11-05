@@ -8,16 +8,24 @@ namespace AiRise.Services
     {
         private readonly IMongoCollection<UserFriends> _userFriendsCollection;
         private readonly IMongoCollection<UserData> _userDataCollection;
-        private readonly IMongoCollection<UserSettings> _userSettingsCollection;
-        private readonly IMongoCollection<UserChallenges> _userChallengesCollection;
 
         public UserFriendsService(MongoDBService mongoDBService)
         {
             _userFriendsCollection = mongoDBService.GetCollection<UserFriends>("user.friends");
             _userDataCollection = mongoDBService.GetCollection<UserData>("user.data");
-            _userSettingsCollection = mongoDBService.GetCollection<UserSettings>("user.settings");
-            _userChallengesCollection = mongoDBService.GetCollection<UserChallenges>("user.challenges");
 
+            // Ensure each user has at most one friends doc
+            _userFriendsCollection.Indexes.CreateOne(
+                new CreateIndexModel<UserFriends>(
+                    Builders<UserFriends>.IndexKeys.Ascending(x => x.FirebaseUid),
+                    new CreateIndexOptions { Unique = true }));
+        }
+        
+        // For unit tests
+        public UserFriendsService(IMongoCollection<UserFriends> userFriendsCollection, IMongoCollection<UserData> userDataCollection)
+        {
+            _userFriendsCollection = userFriendsCollection;
+            _userDataCollection = userDataCollection;
             // Ensure each user has at most one friends doc
             _userFriendsCollection.Indexes.CreateOne(
                 new CreateIndexModel<UserFriends>(
@@ -106,17 +114,17 @@ namespace AiRise.Services
         public async Task<bool> AddFriend(string firebaseUid, string friendFirebaseUid)
         {
             // Ensure both docs exist
-            await _userFriendsCollection.UpdateOneAsync(
+            var resultUser = await _userFriendsCollection.UpdateOneAsync(
                 Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, firebaseUid),
                 Builders<UserFriends>.Update.AddToSet(u => u.FriendIds, friendFirebaseUid),
                 new UpdateOptions { IsUpsert = true });
 
-            await _userFriendsCollection.UpdateOneAsync(
+            var resultFriend = await _userFriendsCollection.UpdateOneAsync(
                 Builders<UserFriends>.Filter.Eq(u => u.FirebaseUid, friendFirebaseUid),
                 Builders<UserFriends>.Update.AddToSet(u => u.FriendIds, firebaseUid),
                 new UpdateOptions { IsUpsert = true });
 
-            return true;
+            return resultUser.ModifiedCount > 0 || resultFriend.ModifiedCount > 0 || resultUser.UpsertedId != null || resultFriend.UpsertedId != null;
         }
 
         public async Task<bool> DeleteFriend(string firebaseUid, string friendFirebaseUid)

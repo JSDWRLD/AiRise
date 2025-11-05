@@ -23,7 +23,7 @@ import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingWeightSelectionScreen(navController: NavController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()
@@ -36,34 +36,14 @@ fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
-            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            SettingsTopBar(
+                title = "Weight",
+                subtitle = "Select your weight",
+                onBackClick = { navController.popBackStack() }
+            )
 
-            //back button
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = Color.White,
-                elevation = 0.dp,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Orange
-                            )
-                        }
-                    }
-                }
-            }
             Column(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -152,7 +132,10 @@ fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
-                    onClick = { navController.navigate(nextRoute) },
+                    onClick = {
+                        accountSettingViewModel.saveUserData(newUser)
+                        navController.popBackStack()
+                    },
                     enabled = newUser.weightValue.value != 0,
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = DeepBlue,
@@ -162,8 +145,9 @@ fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(82.dp)
                         .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp)
                 ) {
                     Text(
                         "Continue",

@@ -128,10 +128,10 @@ fun WeightSelectionScreen(navController: NavController, nextScreen: String, newU
                 onClick = { navController.navigate(nextScreen) },
                 enabled = newUser.weightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = DeepBlue,
+                    backgroundColor = if (newUser.weightValue.value != 0) Orange else DeepBlue,
                     disabledBackgroundColor = DeepBlue
                 ),
-                border = BorderStroke(1.dp, Orange),
+                border = BorderStroke(1.dp, if (newUser.weightValue.value != 0) Orange else Silver),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()

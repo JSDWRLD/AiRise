@@ -36,7 +36,7 @@ object WorkoutCache {
         }
 
     fun snapshot(): Pair<UserProgramDoc?, UserChallenge?> = program to challenge
-    fun clear() { program = null; challenge = null }
+    suspend fun clear() = lock.withLock { program = null; challenge = null }
 
     suspend fun put(programDoc: UserProgramDoc, challenge: UserChallenge?) = lock.withLock {
         program = programDoc

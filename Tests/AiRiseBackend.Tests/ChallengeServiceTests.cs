@@ -71,7 +71,7 @@ public class ChallengeService_Tests
             new Challenge { Name = "Beta"  }
         };
 
-        coll.SetupFindAsync(expected); // from your MongoMoqHelpers
+        coll.SetupFindAsync(expected); // from MongoMoqHelpers
 
         var svc = new ChallengeService(coll.Object);
 

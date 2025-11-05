@@ -22,7 +22,7 @@ namespace AiRise.Controllers
         }
 
         // For tests
-        public UserController(UserDataService userData, UserChallengesService challenges)
+        internal UserController(UserDataService userData, UserChallengesService challenges)
         {
             _userData = userData;
             _challenges = challenges;

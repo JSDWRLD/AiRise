@@ -17,11 +17,13 @@ import androidx.navigation.NavController
 import com.teamnotfound.airise.auth.onboarding.OnboardingScaffold
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
+import kotlinx.datetime.*
 
 @Composable
 fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser: UserDataUiState) {
     val monthRange = (1..12).toList()
-    val yearRange = (1900..2025).toList().reversed()
+    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+    val yearRange = (currentYear - 150..currentYear).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
         getDayRange(newUser.dobMonth.value, newUser.dobYear.value).toList()
     }
@@ -96,7 +98,10 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                         newUser.dobMonth.value in monthRange &&
                         newUser.dobDay.value in dayRange,
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = DeepBlue,
+                    backgroundColor = if (
+                        newUser.dobYear.value in yearRange &&
+                        newUser.dobMonth.value in monthRange &&
+                        newUser.dobDay.value in dayRange) Orange else Silver,
                     disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Orange),

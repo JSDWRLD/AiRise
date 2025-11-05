@@ -55,7 +55,7 @@ class WorkoutViewModel(
     }
 
     //Need to add swipeRefresh or pullToRefresh module -- for now not used
-    fun manualRefresh() {
+    suspend fun manualRefresh() {
         WorkoutCache.clear()
         refresh(force = true)
     }

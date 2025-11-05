@@ -227,7 +227,6 @@ class AccountSettingsTest {
         assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.DOBSelect.route, "dobSelect")
         assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HeightSelect.route, "heightSelect")
         assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.WeightSelect.route, "weightSelect")
-        assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.AiPersonality.route, "aiPersonality")
         assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HealthDashboard.route, "healthDashboard")
         assertEquals(com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.NameEdit.route, "nameEdit")
     }
@@ -239,7 +238,6 @@ class AccountSettingsTest {
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.DOBSelect.route,
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HeightSelect.route,
         com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.WeightSelect.route,
-        com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.AiPersonality.route,
         com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HealthDashboard.route,
         com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.NameEdit.route
         )
@@ -254,13 +252,12 @@ class AccountSettingsTest {
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.DOBSelect.route,
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HeightSelect.route,
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.WeightSelect.route,
-            com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.AiPersonality.route,
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.HealthDashboard.route,
             com.teamnotfound.airise.home.accountSettings.AccountSettingScreens.NameEdit.route
         )
 
         // There should be 7 routes defined for the AccountSettings screens
-        assertEquals(7, routes.size)
+        assertEquals(6, routes.size)
     }
 
     @Test

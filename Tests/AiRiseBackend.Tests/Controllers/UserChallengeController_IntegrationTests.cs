@@ -17,8 +17,8 @@ public class UserChallengesController_IntegrationTests : IClassFixture<MongoInte
     public UserChallengesController_IntegrationTests(MongoIntegrationTest<UserChallenges> fixture)
     {
         _fixture = fixture;
-        _collection = _fixture.Collection;
-        _fixture.ClearCollectionAsync().GetAwaiter().GetResult();
+        _collection = _fixture.GetCollection<UserChallenges>("user.challenges");
+        _fixture.ClearAllCollectionsAsync().GetAwaiter().GetResult();
 
         _svc = new UserChallengesService(_collection); // test-only overload
         _ctrl = new UserChallengesController(_svc);
@@ -68,7 +68,7 @@ public class UserChallengesController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task SetActive_NoContent_On_Success()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.Create(new UserChallengesController.CreateReq("u2"), CancellationToken.None);
 
         var res = await _ctrl.SetActive(new UserChallengesController.SetActiveReq("u2", "c1"), CancellationToken.None);
@@ -90,7 +90,7 @@ public class UserChallengesController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task CompletedToday_Ok_With_Bool()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.Create(new UserChallengesController.CreateReq("u3"), CancellationToken.None);
 
         var r0 = await _ctrl.CompletedToday("u3", CancellationToken.None);
@@ -114,7 +114,7 @@ public class UserChallengesController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task CompleteToday_Ok_Returns_Doc_And_Clears_Active()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.SetActive(new UserChallengesController.SetActiveReq("u4", "c9"), CancellationToken.None);
 
         var res = await _ctrl.CompleteToday(new UserChallengesController.UidOnly("u4"), CancellationToken.None);
@@ -139,7 +139,7 @@ public class UserChallengesController_IntegrationTests : IClassFixture<MongoInte
     [Fact]
     public async Task ClearCompletion_NoContent_On_Success()
     {
-        await _fixture.ClearCollectionAsync();
+        await _fixture.ClearAllCollectionsAsync();
         await _ctrl.CompleteToday(new UserChallengesController.UidOnly("u5"), CancellationToken.None);
 
         var res = await _ctrl.ClearCompletion(new UserChallengesController.UidOnly("u5"), CancellationToken.None);

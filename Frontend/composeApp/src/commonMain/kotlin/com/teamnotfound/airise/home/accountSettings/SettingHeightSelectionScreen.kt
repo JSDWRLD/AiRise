@@ -23,7 +23,7 @@ import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingHeightSelectionScreen(navController: NavController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     var selectedFeet by remember { mutableStateOf(5) }
     var selectedInches by remember { mutableStateOf(6) }
     val cmRange = (140..210 step 1).toList()
@@ -34,33 +34,14 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
-            .padding(vertical = 24.dp)
     ) {
         //back button
         Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = Color.White,
-                elevation = 0.dp,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Orange
-                            )
-                        }
-                    }
-                }
-            }
+            SettingsTopBar(
+                title = "Height",
+                subtitle = "Select your height",
+                onBackClick = { navController.popBackStack() }
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -178,7 +159,10 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextRoute) },
+                onClick = {
+                    accountSettingViewModel.saveUserData(newUser)
+                    navController.popBackStack()
+                },
                 enabled = newUser.heightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
@@ -188,8 +172,9 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(82.dp)
                     .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp)
             ) {
                 Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
