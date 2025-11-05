@@ -9,6 +9,7 @@ import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.NetworkError
+import com.teamnotfound.airise.workout.WorkoutCache
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -157,6 +158,7 @@ class CustomizationViewModel(
 
             try {
                 val payload = base.toData() // userdata unchanged fields kept
+                WorkoutCache.clear()
                 when (val res = userClient.insertUserData(user, payload)) {
                     is Result.Success -> {
                         summaryCache.cacheSummary(payload)
