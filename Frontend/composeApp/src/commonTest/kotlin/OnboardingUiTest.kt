@@ -1,6 +1,7 @@
 import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.datetime.*
 
 class OnboardingUiTest {
 
@@ -34,7 +35,7 @@ class OnboardingUiTest {
     }
 
     @Test
-    fun test_character_input_validation() {
+    fun test_name_input_validation() {
         val input = "alice"
         val input2 = "al"
         val input3 = "alice-bob"
@@ -66,57 +67,146 @@ class OnboardingUiTest {
 
     @Test
     fun skip_button_should_navigate_to_next_question() {
-        var current = "Question1"
-        val next = "Question2"
+        val screens = listOf("Screen1", "Screen2", "Screen3")
+        var current = "Screen1"
+        var i = 0
 
-        val onSkip: () -> Unit = { current = next}
+        val onSkip: () -> Unit = {
+            current = screens[i + 1]
+            i++
+        }
+
         onSkip()
+        assertEquals(current, "Screen2")
 
-        assertEquals(current, next)
+        onSkip()
+        assertEquals(current, "Screen3")
     }
 
     @Test
     fun back_button_should_navigate_to_previous_question() {
-        var current = "Question2"
-        val prev = "Question1"
+        val screens = listOf("Screen1", "Screen2", "Screen3")
+        var current = "Screen2"
+        var i = 2
 
-        val onBack: () -> Unit = { current = prev}
+        val onBack: () -> Unit = {
+            current = screens[i - 1]
+            i--
+        }
+
         onBack()
+        assertEquals(current, "Screen2")
 
-        assertEquals(current, prev)
+        onBack()
+        assertEquals(current, "Screen1")
     }
 
     @Test
-    fun test_only_single_option_is_selected() {
+    fun test_unit_toggle_should_work_properly() {
+        var current = "Imperial"
+        var alternative = "Metric"
+        var placeHolder = ""
+
+        val onToggle: () -> Unit = {
+            placeHolder = current
+            current = alternative
+            alternative = placeHolder
+        }
+
+        onToggle()
+        assertEquals(current, "Metric")
+
+        onToggle()
+        assertEquals(current, "Imperial")
+    }
+
+    @Test
+    fun test_single_selection_radio_button_function_properly() {
         val options = listOf("Option1", "Option2", "Option3")
         var selected = ""
+        var continueEnable = false
 
-        val onClick: (String) -> Unit = { selected = it}
+        val onClick: (String) -> Unit = {
+            selected = it
+            continueEnable = true
+        }
         options.forEach {
             onClick(it)
         }
 
         assertEquals(selected, "Option3")
+        assertEquals(continueEnable, true)
     }
 
     @Test
     fun test_multi_selection_checkboxes_function_properly() {
         val options = listOf("Option1", "Option2", "Option3")
         val selected = mutableStateOf(setOf<String>())
+        val continueEnable = mutableStateOf(false)
 
-        selected.value += options[0]
+        val onSelect: (String) -> Unit = { option ->
+            selected.value += option
+            continueEnable.value = selected.value.isNotEmpty()
+        }
+
+        val deSelect: (String) -> Unit = { option ->
+            selected.value -= option
+            continueEnable.value = selected.value.isNotEmpty()
+        }
+
+        // Initial state
+        assertEquals(emptySet(), selected.value)
+        assertEquals(false, continueEnable.value)
+
+        // Select first option
+        onSelect(options[0])
         assertEquals(setOf("Option1"), selected.value)
+        assertEquals(true, continueEnable.value)
 
-        selected.value += options[1]
+        // Select second option
+        onSelect(options[1])
         assertEquals(setOf("Option1", "Option2"), selected.value)
+        assertEquals(true, continueEnable.value)
 
-        selected.value -= options[0]
+        // Deselect first option
+        deSelect(options[0])
         assertEquals(setOf("Option2"), selected.value)
+        assertEquals(true, continueEnable.value)
+
+        // Deselect second option
+        deSelect(options[1])
+        assertEquals(emptySet(), selected.value)
+        assertEquals(false, continueEnable.value)
+    }
+
+    @Test
+    fun test_date_of_birth_input_validation() {
+        val testCases = listOf (
+            Triple(0, 1, 2000),
+            Triple(12, 31, 1999),
+            Triple(13, 32, 1800),
+            Triple(1, -3, 2090),
+        )
+
+        testCases.forEach { (month, day, year) ->
+            if (isValidBirthDate(month, day, year)) {
+                assertEquals(isValidBirthDate(month, day, year), true)
+            } else {
+                assertEquals(isValidBirthDate(month, day, year), false)
+            }
+        }
     }
 
     private fun isValidCharacterInput(input: String): Boolean {
         return input.matches("^[A-Za-zÀ-ÿ\\s'-.]+\$".toRegex())
                 && input.trim().length in 2..50
                 && !input.trim().matches(".*\\d.*".toRegex())
+    }
+
+    private fun isValidBirthDate(month: Int, day: Int, year: Int): Boolean {
+        val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+        return month in 1..12
+                && day in 1..31
+                && year in currentYear - 150..currentYear
     }
 }
