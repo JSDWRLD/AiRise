@@ -40,12 +40,10 @@ class   UserClient(
      */
     suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.post("$baseUrl/User") {
                 contentType(ContentType.Application.Json)
                 setBody(CreateUserDTO(firebaseUid, email))
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -67,11 +65,9 @@ class   UserClient(
 
     suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -97,12 +93,10 @@ class   UserClient(
         userData: UserData
     ): Result<UserData, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.put("$baseUrl/UserData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(userData)
             }
         } catch (e: UnresolvedAddressException) {
@@ -129,12 +123,10 @@ class   UserClient(
 
     suspend fun getHealthData(firebaseUser: FirebaseUser): Result<HealthData, NetworkError>{
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.get("$baseUrl/UserHealthData/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -158,12 +150,10 @@ class   UserClient(
         healthData: HealthData
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         healthData.localDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
         val response = try {
             httpClient.put("$baseUrl/UserHealthData/update-health-data/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(healthData)
             }
         } catch (e: UnresolvedAddressException) {
@@ -182,11 +172,9 @@ class   UserClient(
 
     suspend fun getUserSettings(firebaseUser: FirebaseUser): Result<UserSettingsData, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/UserSettings/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -209,12 +197,10 @@ class   UserClient(
 
     suspend fun upsertUserSettings(userSettings: UserSettingsData, firebaseUser: FirebaseUser): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.put("$baseUrl/UserSettings/$firebaseUid") { // Modified URL path
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(userSettings)
             }
         } catch (e: UnresolvedAddressException) {
@@ -235,12 +221,10 @@ class   UserClient(
         firebaseUser: FirebaseUser
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.post("$baseUrl/User/$firebaseUid/streak/reset") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -261,12 +245,10 @@ class   UserClient(
         firebaseUser: FirebaseUser
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.post("$baseUrl/User/$firebaseUid/streak") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -283,12 +265,10 @@ class   UserClient(
     }
     suspend fun searchUsers(firebaseUser: FirebaseUser, query: String): Result<UsersEnvelope, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(false).toString()
 
         val response = try {
             httpClient.get("$baseUrl/UserData/search-user/$firebaseUid?query=$query") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -311,12 +291,10 @@ class   UserClient(
         firebaseUser: FirebaseUser
     ): Result<UserChallenge, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.get("$baseUrl/UserChallenges/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -338,12 +316,10 @@ class   UserClient(
         firebaseUser: FirebaseUser
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.get("$baseUrl/UserChallenges/completed-today/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -365,12 +341,10 @@ class   UserClient(
         challengeId: String
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.post("$baseUrl/UserChallenges/set-active") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(SetActiveReq(firebaseUid = firebaseUid, challengeId = challengeId))
             }
         } catch (e: UnresolvedAddressException) {
@@ -393,12 +367,10 @@ class   UserClient(
         firebaseUser: FirebaseUser
     ): Result<UserChallenge, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.post("$baseUrl/UserChallenges/complete-today") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(UidOnlyReq(firebaseUid = firebaseUid))
             }
         } catch (e: UnresolvedAddressException) {
@@ -424,12 +396,10 @@ class   UserClient(
      */
     suspend fun getUserProgram(firebaseUser: FirebaseUser): Result<UserProgramDoc, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.get("$baseUrl/UserProgram/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -459,12 +429,10 @@ class   UserClient(
         userProgram: UserProgram
     ): Result<Boolean, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
 
         val response = try {
             httpClient.put("$baseUrl/UserProgram/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(userProgram)
             }
         } catch (e: UnresolvedAddressException) {

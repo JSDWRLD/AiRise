@@ -53,19 +53,16 @@ class DataClient(
 
     // Upserts new Challenge (only available to ADMINS)
     suspend fun upsertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
-        val token = firebaseUser.getIdToken(false).toString()
         val response = try {
             httpClient.post("$baseUrl/Challenge"){
                 contentType(ContentType.Application.Json)
                 setBody(challenge)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         }
-        println(response)
         return when (response.status.value) {
             200 -> Result.Success(true)
             400 -> Result.Error(NetworkError.BAD_REQUEST)
@@ -78,11 +75,9 @@ class DataClient(
 
     // Delete a challenge (only for ADMINS)
     suspend fun deleteChallenge(firebaseUser: FirebaseUser, id: String) : Result<Boolean, NetworkError>{
-        val token = firebaseUser.getIdToken(false).toString()
         val response = try {
             httpClient.delete("$baseUrl/Challenge?id=$id") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -99,11 +94,9 @@ class DataClient(
     // Gets a list on entries for the global leaderboard top 10
     // Already in sorted order, highest streak at top
     suspend fun getLeaderboardTop10(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/global/top10") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
@@ -127,11 +120,9 @@ class DataClient(
     // Gets a list on entries for the global leaderboard top 100
     // Already in sorted order, highest streak at top
     suspend fun getLeaderboardTop100(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/global/top100") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
@@ -156,11 +147,9 @@ class DataClient(
     // Already in sorted order, highest streak at top
     suspend fun getLeaderboardFriends(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/friends/$firebaseUid") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
@@ -195,11 +184,9 @@ class DataClient(
      */
     suspend fun getFoodDiaryMonth(firebaseUser: FirebaseUser, year: Int, month: Int): Result<FoodDiaryMonth, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.get("$baseUrl/diary/$firebaseUid/$year/$month") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -238,11 +225,9 @@ class DataClient(
      */
     suspend fun addFoodEntry(firebaseUser: FirebaseUser, year: Int, month: Int, day: Int, meal: String, foodEntry: FoodEntry): Result<Unit, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.post("$baseUrl/diary/$firebaseUid/$year/$month/$day/meal/$meal") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(foodEntry)
             }
         } catch (e: UnresolvedAddressException) {
@@ -275,11 +260,9 @@ class DataClient(
      */
     suspend fun editFoodEntry(firebaseUser: FirebaseUser, entryId: String, updatedEntry: FoodEntry): Result<Unit, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.patch("$baseUrl/diary/$firebaseUid/items/$entryId") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
                 setBody(updatedEntry)
             }
         } catch (e: UnresolvedAddressException) {
@@ -310,11 +293,9 @@ class DataClient(
      */
     suspend fun deleteFoodEntry(firebaseUser: FirebaseUser, entryId: String): Result<Unit, NetworkError> {
         val firebaseUid = firebaseUser.uid
-        val token = firebaseUser.getIdToken(true).toString()
         val response = try {
             httpClient.delete("$baseUrl/diary/$firebaseUid/items/$entryId") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)

@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,11 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.OnboardingScaffold
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun WeightSelectionScreen(navController: NavController,  nextScreen: String, newUser: UserDataUiState) {
+fun WeightSelectionScreen(navController: NavController, nextScreen: String, newUser: UserDataUiState) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()
@@ -29,22 +32,20 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgBlack)
-            .padding(vertical = 24.dp)
+    OnboardingScaffold(
+        stepTitle = "Fitness Goal (11/13)",
+        onBackClick = { navController.popBackStack() },
+        onSkipClick = { navController.navigate(nextScreen) } // keep or remove depending on your flow
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(40.dp))
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgBlack)
+                .padding(vertical = 8.dp)
+        ) {
             Text(
                 text = "What Is Your Weight?",
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    color = White,
-                    fontWeight = FontWeight.Bold
-                ),
+                style = TextStyle(fontSize = 30.sp, color = White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -100,7 +101,6 @@ fun WeightSelectionScreen(navController: NavController,  nextScreen: String, new
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //display selected value
             if (newUser.weightValue.value != 0) {
                 Text(
                     text = "${newUser.weightValue.value} ${if (newUser.weightMetric.value) "KG" else "LB"}",

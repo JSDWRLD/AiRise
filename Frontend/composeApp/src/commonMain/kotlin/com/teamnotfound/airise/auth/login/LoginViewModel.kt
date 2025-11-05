@@ -18,7 +18,6 @@ import dev.gitlive.firebase.auth.auth
 // class LoginViewModel(private val httpClient: HttpClient) : ViewModel() {
 class LoginViewModel(
     private val authService: AuthService,
-    private val userCache: UserCache
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -69,9 +68,6 @@ class LoginViewModel(
 
                 when (authResult) {
                     is AuthResult.Success -> {
-                        // cache the user data similarly to email/password authentication
-                        userCache.cacheUserData(authResult.data)
-
                         // Update UI state to reflect successful login
                         _uiState.value = _uiState.value.copy(
                             isLoggedIn = true,
@@ -113,7 +109,6 @@ class LoginViewModel(
 
             when (authResult) {
                 is AuthResult.Success -> {
-                    userCache.cacheUserData(authResult.data)
                     val firebaseUser = Firebase.auth.currentUser
                     firebaseUser?.reload()
                     if (firebaseUser?.isEmailVerified == true) {

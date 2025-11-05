@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.supabase.storage)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+            implementation(compose.material3)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.android)

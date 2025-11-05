@@ -50,17 +50,13 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
             }
 
     // Request perm logic
-    actual suspend fun requestPermissions(): Boolean {
-
+    actual suspend fun requestPermissions(): Boolean = withContext(Dispatchers.Main) {
         val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
             KHPermission.ActiveCaloriesBurned(read = true, write = true),
             KHPermission.StepCount(read = true, write = true),
             KHPermission.SleepSession(read = true, write = true)
-            // NOTE: Hydration permission removed - hydration is managed manually by user
         )
-
-        // Return true if at least one permission was granted
-        return permissionResponse.isNotEmpty()
+        permissionResponse.isNotEmpty()
     }
 
     /**
@@ -68,6 +64,14 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
      * NOTE: Hydration is NOT fetched from KHealth to avoid overwriting user-entered values.
      */
     actual suspend fun getHealthData(): IHealthData = withContext(Dispatchers.Default) {
+        val hasAccess = withContext(Dispatchers.Main) {
+            kHealth.isHealthStoreAvailable && hasAnyReadPermission()
+        }
+
+        if (!hasAccess) {
+            throw Exception("Health permissions not granted")
+        }
+
         // Init start and end time when fun is called
         val startTime = Clock.System.now().minus(1.days)
         val endTime = Clock.System.now()
@@ -133,5 +137,22 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
         )
         val result = kHealth.writeRecords(sampleSteps, sampleActiveCalories, sampleSleep)
         return@withContext result is com.khealth.KHWriteResponse.Success
+    }
+
+    private suspend fun hasAnyReadPermission(): Boolean {
+        val granted = kHealth.checkPermissions(
+            // Ask for write here because only write can be checked on iOS
+            KHPermission.StepCount(read = false, write = true),
+            KHPermission.ActiveCaloriesBurned(read = false, write = true),
+            KHPermission.SleepSession(read = false, write = true)
+        )
+        return granted.any { perm ->
+            when (perm) {
+                is KHPermission.StepCount -> perm.write
+                is KHPermission.ActiveCaloriesBurned -> perm.write
+                is KHPermission.SleepSession -> perm.write
+                else -> false
+            }
+        }
     }
 }

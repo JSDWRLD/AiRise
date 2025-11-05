@@ -12,6 +12,5 @@ class AppContainer (
     val userClient: UserClient,
     val dataClient: DataClient,
     val kHealth: KHealth,
-    val userCache: UserCache,
     val summaryCache: SummaryCache
 )

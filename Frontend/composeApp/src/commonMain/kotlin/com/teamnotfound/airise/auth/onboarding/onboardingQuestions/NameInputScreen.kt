@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.OnboardingScaffold
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
@@ -98,45 +99,11 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState) {
         lastNameError = validateLastName(filtered)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgBlack)
+    OnboardingScaffold(
+        stepTitle = "Fitness Goal (1/13)",
+        onBackClick = { navController.popBackStack() },
+        onSkipClick = null // no skip on this screen
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = White,
-                elevation = 0.dp
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
-                ) {
-                    Text(
-                        "Fitness Goal (1/13)",
-                        color = White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-
-                    IconButton(
-                        onClick = { navController.popBackStack() },
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .testTag("backButton")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Orange
-                        )
-                    }
-                }
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -294,6 +261,5 @@ fun NameInputScreen(navController: NavController, newUser: UserDataUiState) {
                 fontSize = 12.sp,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
-        }
     }
 }

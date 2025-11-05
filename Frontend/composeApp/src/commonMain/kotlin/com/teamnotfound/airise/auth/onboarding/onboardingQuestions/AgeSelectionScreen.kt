@@ -3,8 +3,9 @@ package com.teamnotfound.airise.auth.onboarding.onboardingQuestions
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.teamnotfound.airise.auth.onboarding.OnboardingScaffold
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
@@ -24,21 +26,19 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
         getDayRange(newUser.dobMonth.value, newUser.dobYear.value).toList()
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BgBlack)
+    OnboardingScaffold(
+        stepTitle = "Fitness Goal (12/13)",
+        onBackClick = { navController.popBackStack() },
+        onSkipClick = { navController.navigate(nextScreen) }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(40.dp))
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BgBlack)
+        ) {
             Text(
                 text = "Select Your Date of Birth",
-                style = TextStyle(
-                    fontSize = 30.sp,
-                    color = White,
-                    fontWeight = FontWeight.Bold
-                ),
+                style = TextStyle(fontSize = 30.sp, color = White, fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -48,74 +48,43 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-
-                //year section
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // selected value
                     Text(
                         text = newUser.dobYear.value.toString(),
                         color = White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    // label
-                    Text(
-                        text = "Year",
-                        color = Silver,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    ScrollableColumnSelection(
-                        null,
-                        yearRange,
-                        newUser.dobYear.value
-                    ) { newUser.dobYear.value = it }
+                    Text("Year", color = Silver, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    ScrollableColumnSelection(null, yearRange, newUser.dobYear.value) {
+                        newUser.dobYear.value = it
+                    }
                 }
 
-                //month section
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // selected value
                     Text(
                         text = newUser.dobMonth.value.toString(),
                         color = White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    // label
-                    Text(
-                        text = "Month",
-                        color = Silver,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    ScrollableColumnSelection(
-                        null,
-                        monthRange,
-                        newUser.dobMonth.value
-                    ) { newUser.dobMonth.value = it }
+                    Text("Month", color = Silver, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    ScrollableColumnSelection(null, monthRange, newUser.dobMonth.value) {
+                        newUser.dobMonth.value = it
+                    }
                 }
 
-                //day section
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // selected value
                     Text(
                         text = newUser.dobDay.value.toString(),
                         color = White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    // label
-                    Text(
-                        text = "Day",
-                        color = Silver,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    ScrollableColumnSelection(
-                        null,
-                        dayRange,
-                        newUser.dobDay.value
-                    ) { newUser.dobDay.value = it }
+                    Text("Day", color = Silver, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    ScrollableColumnSelection(null, dayRange, newUser.dobDay.value) {
+                        newUser.dobDay.value = it
+                    }
                 }
             }
 
@@ -131,7 +100,7 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
                     disabledBackgroundColor = DeepBlue
                 ),
                 border = BorderStroke(1.dp, Orange),
-                shape = RoundedCornerShape(12.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -145,6 +114,7 @@ fun AgeSelectionScreen(navController: NavController, nextScreen: String, newUser
     }
 }
 
+// helpers unchanged
 fun getDayRange(month: Int, year: Int): IntRange {
     return when (month) {
         4, 6, 9, 11 -> 1..30
@@ -152,7 +122,6 @@ fun getDayRange(month: Int, year: Int): IntRange {
         else -> 1..31
     }
 }
-
 fun isLeapYear(year: Int): Boolean {
     return (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
 }

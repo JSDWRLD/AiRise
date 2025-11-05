@@ -37,7 +37,12 @@ class HomeViewModel(private val userRepository: IUserRepository,
         getUsername()
         getHealthDataAndLoadWithData()
         subscribeToHealthEvents()
-        checkHealthSyncPermissions() // Check if permissions are already granted
+        // Try to read health data on init without requesting permissions
+        tryReadHealthDataSilently()
+    }
+
+    fun refreshUserData() {
+        getUsername()
     }
 
     fun onEvent(uiEvent: HomeUiEvent) {
@@ -48,11 +53,11 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
-    private fun getUserProfilePic() {
+    fun getUserProfilePic() {
         viewModelScope.launch {
             val user = Firebase.auth.currentUser
             if (user == null) {
-                // not signed in â€" show default avatar or a message
+                // not signed in – show default avatar or a message
                 _uiState.value = _uiState.value.copy(
                     userProfilePicture = null,
                     errorMessage = "Not signed in"
@@ -193,142 +198,105 @@ class HomeViewModel(private val userRepository: IUserRepository,
             healthData = uiState.value.healthData,
             isFitnessSummaryLoaded = true
         )
-        _uiState.value = _uiState.value.copy(
-            formattedDateRange = formattedDate,
-            isFitnessSummaryLoaded = true
-        )
     }
 
     /**
-     * Check if health sync permissions are already granted without requesting them.
-     * This is called on init to set the initial flag state.
+     * Try to read health data without requesting permissions.
+     * This silently checks if we can access health data and updates the state accordingly.
+     * If read succeeds, canReadHealthData is set to true and data is synced.
+     * If read fails OR returns all zeros (likely revoked permissions), canReadHealthData is set to false.
      */
-    private fun checkHealthSyncPermissions() {
+    private fun tryReadHealthDataSilently() {
         viewModelScope.launch {
             try {
-                // Try to read health data - if successful, permissions are granted
-                val canReadHealth = try {
-                    provider.getHealthData()
-                    true
-                } catch (e: Exception) {
-                    false
-                }
-
-                _uiState.value = _uiState.value.copy(hasHealthSyncPermissions = canReadHealth)
-            } catch (t: Throwable) {
-                _uiState.value = _uiState.value.copy(
-                    hasHealthSyncPermissions = false,
-                    errorMessage = "Unable to check health permissions"
-                )
-            }
-        }
-    }
-
-    /**
-     * Refresh health sync status and sync data if permissions are granted.
-     * Call this when returning to HomeScreen to update UI after permissions may have changed.
-     */
-    fun refreshHealthSyncStatus() {
-        viewModelScope.launch {
-            try {
-                // Try to read health data - if successful, permissions are granted
-                val canReadHealth = try {
-                    provider.getHealthData()
-                    true
-                } catch (e: Exception) {
-                    false
-                }
-
-                val previousState = _uiState.value.hasHealthSyncPermissions
-                _uiState.value = _uiState.value.copy(hasHealthSyncPermissions = canReadHealth)
-
-                // If permissions were just granted, sync the data
-                if (canReadHealth && !previousState) {
-                    syncHealthOnEnter()
-                }
-            } catch (t: Throwable) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Unable to refresh health sync status"
-                )
-            }
-        }
-    }
-
-    /**
-     * Sync health data only if permissions are already granted.
-     * Does NOT request permissions - that should only happen via requestHealthSyncPermissions()
-     */
-    fun syncHealthOnEnter() {
-        viewModelScope.launch {
-            try {
-                // Only sync if we already have permissions
-                if (!uiState.value.hasHealthSyncPermissions) {
-                    return@launch
-                }
-
+                // Try to read health data without requesting permissions
                 val platformHealth = provider.getHealthData()
 
-                // Map platform health into serializable HealthData model
-                // NOTE: Hydration is NOT fetched from KHealth - user-entered hydration remains intact
-                val mapped = HealthData(
-                    caloriesEaten = uiState.value.healthData.caloriesEaten,
-                    caloriesTarget = uiState.value.healthData.caloriesTarget,
-                    hydrationTarget = uiState.value.healthData.hydrationTarget,
-                    hydration = uiState.value.healthData.hydration, // Keep existing user-entered hydration
-                    caloriesBurned = platformHealth.caloriesBurned,
-                    steps = platformHealth.steps,
-                    sleep = platformHealth.sleep
-                )
+                // Check if we got meaningful data (not all zeros)
+                // If all zeros, permissions were likely revoked or never granted
+                val hasMeaningfulData = platformHealth.steps > 0 ||
+                        platformHealth.caloriesBurned > 0 ||
+                        platformHealth.sleep > 0.0
 
-                // Update UI
-                _uiState.value = _uiState.value.copy(
-                    healthData = mapped,
-                    isFitnessSummaryLoaded = true,
-                    errorMessage = null
-                )
-
-                // Recompute progress + overview with fresh health metrics
-                loadDailyProgress()
-                generateOverview()
-
-                // Push to backend (if signed in)
-                Firebase.auth.currentUser?.let { user ->
-                    when (val res = userClient.updateHealthData(user, mapped)) {
-                        is Result.Error -> {
-                            _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
-                        }
-                        else -> Unit
-                    }
+                if (hasMeaningfulData) {
+                    // We successfully read meaningful data - permissions are granted
+                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
+                    syncHealthData(platformHealth)
+                } else {
+                    // All zeros - likely no permissions or no activity
+                    // For safety, assume no permissions and show sync button
+                    // This also handles the case where permissions were just revoked
+                    _uiState.value = _uiState.value.copy(
+                        canReadHealthData = false,
+                        errorMessage = null,
+                        // Reset health data to zeros when we detect no permissions
+                        healthData = _uiState.value.healthData.copy(
+                            steps = 0,
+                            caloriesBurned = 0,
+                            sleep = 0.0
+                        )
+                    )
                 }
-            } catch (t: Throwable) {
-                _uiState.value = _uiState.value.copy(errorMessage = t.message ?: "Health sync failed")
+            } catch (e: Exception) {
+                // Failed to read health data - definitely no permissions
+                _uiState.value = _uiState.value.copy(
+                    canReadHealthData = false,
+                    errorMessage = null,
+                    // Reset health data to zeros
+                    healthData = _uiState.value.healthData.copy(
+                        steps = 0,
+                        caloriesBurned = 0,
+                        sleep = 0.0
+                    )
+                )
             }
         }
     }
 
     /**
-     * Request health sync permissions. This should only be called when user explicitly
-     * taps the "Enable Health Sync" CTA.
+     * Request health sync permissions from the user.
+     * This should only be called when user explicitly taps the "Enable Health Sync" button.
+     * After permissions are granted, automatically syncs health data.
      */
     fun requestHealthSyncPermissions(onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
+                // Request permissions from the platform
                 val granted = provider.requestPermissions()
 
-                _uiState.value = _uiState.value.copy(
-                    hasHealthSyncPermissions = granted,
-                    errorMessage = if (!granted) "Health permissions not granted" else null
-                )
-
-                // If permissions granted, immediately sync data
                 if (granted) {
-                    syncHealthOnEnter()
-                }
+                    // Permissions granted - try to read health data
+                    try {
+                        val platformHealth = provider.getHealthData()
 
-                onComplete(granted)
+                        // Successfully read data after permissions granted
+                        _uiState.value = _uiState.value.copy(
+                            canReadHealthData = true,
+                            errorMessage = null
+                        )
+
+                        // Sync the health data
+                        syncHealthData(platformHealth)
+                        onComplete(true)
+                    } catch (e: Exception) {
+                        // Permissions granted but still can't read data
+                        _uiState.value = _uiState.value.copy(
+                            canReadHealthData = false,
+                            errorMessage = "Unable to read health data: ${e.message}"
+                        )
+                        onComplete(false)
+                    }
+                } else {
+                    // Permissions not granted
+                    _uiState.value = _uiState.value.copy(
+                        canReadHealthData = false,
+                        errorMessage = "Health permissions not granted"
+                    )
+                    onComplete(false)
+                }
             } catch (t: Throwable) {
                 _uiState.value = _uiState.value.copy(
-                    hasHealthSyncPermissions = false,
+                    canReadHealthData = false,
                     errorMessage = t.message ?: "Failed to request health permissions"
                 )
                 onComplete(false)
@@ -336,10 +304,135 @@ class HomeViewModel(private val userRepository: IUserRepository,
         }
     }
 
+    /**
+     * Sync platform health data to our app's health data model.
+     * This updates steps, calories burned, and sleep while preserving user-entered hydration.
+     * Also updates the backend and refreshes the UI.
+     */
+    private suspend fun syncHealthData(platformHealth: com.teamnotfound.airise.health.IHealthData) {
+        try {
+            // Map platform health into serializable HealthData model
+            // NOTE: Hydration is NOT fetched from KHealth - user-entered hydration remains intact
+            val mapped = HealthData(
+                caloriesEaten = uiState.value.healthData.caloriesEaten,
+                caloriesTarget = uiState.value.healthData.caloriesTarget,
+                hydrationTarget = uiState.value.healthData.hydrationTarget,
+                hydration = uiState.value.healthData.hydration, // Keep existing user-entered hydration
+                caloriesBurned = platformHealth.caloriesBurned,
+                steps = platformHealth.steps,
+                sleep = platformHealth.sleep
+            )
+
+            // Update UI
+            _uiState.value = _uiState.value.copy(
+                healthData = mapped,
+                isFitnessSummaryLoaded = true,
+                errorMessage = null
+            )
+
+            // Recompute progress + overview with fresh health metrics
+            loadDailyProgress()
+            generateOverview()
+
+            // Push to backend (if signed in)
+            Firebase.auth.currentUser?.let { user ->
+                when (val res = userClient.updateHealthData(user, mapped)) {
+                    is Result.Error -> {
+                        _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
+                    }
+                    else -> Unit
+                }
+            }
+        } catch (t: Throwable) {
+            _uiState.value = _uiState.value.copy(errorMessage = t.message ?: "Health sync failed")
+        }
+    }
+
+    /**
+     * Manually refresh health data from the platform.
+     * This is called when the user wants to manually sync or when health data changes in the background.
+     * Only syncs if we already have permission to read health data.
+     */
+    fun refreshHealthData() {
+        viewModelScope.launch {
+            // Only try to sync if we can already read health data
+            if (!uiState.value.canReadHealthData) {
+                return@launch
+            }
+
+            try {
+                val platformHealth = provider.getHealthData()
+                syncHealthData(platformHealth)
+            } catch (e: Exception) {
+                // Lost ability to read health data
+                _uiState.value = _uiState.value.copy(
+                    canReadHealthData = false,
+                    errorMessage = "Unable to sync health data: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Refresh health sync status when returning to HomeScreen.
+     * This checks if we can now read health data (e.g., after granting permissions in Health Dashboard).
+     * Call this when HomeScreen resumes or becomes visible.
+     */
+    fun refreshHealthSyncStatus() {
+        viewModelScope.launch {
+            try {
+                // Try to read health data - if successful, permissions are now granted
+                val platformHealth = provider.getHealthData()
+
+                // Check if we got meaningful data (not all zeros)
+                val hasMeaningfulData = platformHealth.steps > 0 ||
+                        platformHealth.caloriesBurned > 0 ||
+                        platformHealth.sleep > 0.0
+
+                val previousState = _uiState.value.canReadHealthData
+
+                if (hasMeaningfulData) {
+                    // Successfully read meaningful data - we have permissions
+                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
+
+                    // If we just gained ability to read data, sync it
+                    if (!previousState) {
+                        syncHealthData(platformHealth)
+                    } else {
+                        // Just refresh the data
+                        syncHealthData(platformHealth)
+                    }
+                } else {
+                    // All zeros - likely no permissions
+                    _uiState.value = _uiState.value.copy(
+                        canReadHealthData = false,
+                        // Reset health data to zeros
+                        healthData = _uiState.value.healthData.copy(
+                            steps = 0,
+                            caloriesBurned = 0,
+                            sleep = 0.0
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                // Still can't read health data
+                _uiState.value = _uiState.value.copy(
+                    canReadHealthData = false,
+                    // Reset health data to zeros
+                    healthData = _uiState.value.healthData.copy(
+                        steps = 0,
+                        caloriesBurned = 0,
+                        sleep = 0.0
+                    )
+                )
+            }
+        }
+    }
+
     fun writeSampleHealth() {
         viewModelScope.launch {
-            // Only write sample health if we have permissions
-            if (!uiState.value.hasHealthSyncPermissions) {
+            // Only write sample health if we can read health data (implies permissions)
+            if (!uiState.value.canReadHealthData) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Health sync permissions required to write sample data"
                 )
@@ -353,7 +446,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
                 return@launch
             }
             // Refresh UI + server with the newest readings
-            syncHealthOnEnter()
+            refreshHealthData()
         }
     }
 
@@ -361,9 +454,9 @@ class HomeViewModel(private val userRepository: IUserRepository,
         viewModelScope.launch {
             HealthEvents.updates.collect {
                 // Re-sync when platform health data changes elsewhere
-                // Only sync if permissions are already granted
-                if (uiState.value.hasHealthSyncPermissions) {
-                    syncHealthOnEnter()
+                // Only sync if we can already read health data
+                if (uiState.value.canReadHealthData) {
+                    refreshHealthData()
                 }
             }
         }

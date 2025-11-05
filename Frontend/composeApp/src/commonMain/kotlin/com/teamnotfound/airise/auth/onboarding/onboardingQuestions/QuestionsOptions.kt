@@ -64,7 +64,8 @@ fun WorkoutLengthScreen(navController: NavController, newUser: UserDataUiState){
                 else -> 0
             }
             newUser.workoutLength.value = minutes
-        }
+        },
+        canSkip = false
     )
 }
 
@@ -105,7 +106,7 @@ fun WorkoutDaysScreen(navController: NavController, newUser: UserDataUiState){
     val selectedOptions = remember { mutableStateOf(setOf<String>()) }
 
     MultiSelectQuestionScreen(
-        questionText = "What days do you prefer to workout on?",
+        questionText = "Which 3 to 6 days of the week do you prefer to work out?",
         options = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"),
         selectedOptions = selectedOptions,
         nextScreen = OnboardingScreens.WorkoutTime,
@@ -128,7 +129,6 @@ fun WorkoutTimeScreen(navController: NavController, newUser: UserDataUiState){
         navController = navController,
         questionCount = 7,
         onSelection = { selection -> newUser.workoutTime.value = selection.joinToString(", ") },
-        canSkip = false
     )
 }
 

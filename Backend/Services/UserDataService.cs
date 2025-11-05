@@ -23,6 +23,22 @@ namespace AiRise.Services
                     new CreateIndexOptions { Unique = true }));
         }
 
+        // for tests
+        public UserDataService(
+            IMongoCollection<UserData> userDataCollection,
+            IMongoCollection<UserChallenges> challengesCollection,
+            IUserProgramService userProgramService)
+        {
+            _userDataCollection = userDataCollection;
+            _challenges = challengesCollection;
+            _userProgramService = userProgramService;
+
+            _userDataCollection.Indexes.CreateOne(
+                new CreateIndexModel<UserData>(
+                    Builders<UserData>.IndexKeys.Ascending(x => x.FirebaseUid),
+                    new CreateIndexOptions { Unique = true }));
+        }
+
         public async Task<string> CreateAsync(string firebaseUid, string? email = null)
         {
             var userData = new UserData { FirebaseUid = firebaseUid, Email = email ?? string.Empty };
