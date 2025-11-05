@@ -161,8 +161,8 @@ class CustomizationViewModel(
                 WorkoutCache.clear()
                 when (val res = userClient.insertUserData(user, payload)) {
                     is Result.Success -> {
-                        summaryCache.cacheSummary(payload)
                         _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true, error = null)
+                        // summaryCache.cacheSummary(payload) <- Bug on this
                     }
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
