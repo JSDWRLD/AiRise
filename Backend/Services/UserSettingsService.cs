@@ -85,7 +85,10 @@ namespace AiRise.Services
         public async Task<Dictionary<string, string>> GetPictureUrlMapAsync(IEnumerable<string> firebaseUids, CancellationToken ct = default)
         {
             var settings = await GetManyAsync(firebaseUids, ct);
-            return settings.ToDictionary(s => s.FirebaseUid, s => s.PictureUrl ?? string.Empty, StringComparer.Ordinal);
+            // Handle duplicate FirebaseUid by grouping and taking the first
+            return settings
+                .GroupBy(s => s.FirebaseUid)
+                .ToDictionary(g => g.Key, g => g.First().PictureUrl ?? string.Empty, StringComparer.Ordinal);
         }
     }
 }
