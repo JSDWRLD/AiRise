@@ -6,10 +6,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.khealth.KHealth
+import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.health.HealthDashboardScreen
 
@@ -17,9 +15,9 @@ import com.teamnotfound.airise.health.HealthDashboardScreen
 fun AccountSettings(
     navController: NavHostController,
     accountSettingViewModel: AccountSettingsViewModel,
-    kHealth: KHealth
+    kHealth: KHealth,
+    startScreen: String
 ) {
-    val localNavController = rememberNavController()  // Use a local NavController for account settings
     val uiState by accountSettingViewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -54,31 +52,13 @@ fun AccountSettings(
         }
     }
 
-    NavHost(
-        navController = localNavController,
-        startDestination = AccountSettingScreens.AccountSettings.route
-    ) {
-        composable(AccountSettingScreens.AccountSettings.route) {
-            // Pass parent navController
-            AccountSettingScreen(user, navController, localNavController, accountSettingViewModel)
-        }
-        composable(AccountSettingScreens.DOBSelect.route) {
-            SettingAgeSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
-        }
-        composable(AccountSettingScreens.WeightSelect.route) {
-            SettingWeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
-        }
-        composable(AccountSettingScreens.HeightSelect.route) {
-            SettingHeightSelectionScreen(localNavController, AccountSettingScreens.AccountSettings.route, user)
-        }
-        composable(AccountSettingScreens.AiPersonality.route) {
-            AiPersonalityScreen(user, localNavController)
-        }
-        composable(AccountSettingScreens.HealthDashboard.route) {
-            HealthDashboardScreen(kHealth, onBackClick = { localNavController.popBackStack() })
-        }
-        composable(AccountSettingScreens.NameEdit.route){
-            NameEditScreen(localNavController, user, accountSettingViewModel)
-        }
+    when (startScreen) {
+        AccountSettingScreens.AccountSettings.route -> AccountSettingScreen(user, navController, accountSettingViewModel)
+        AccountSettingScreens.DOBSelect.route -> SettingAgeSelectionScreen(navController, accountSettingViewModel, user)
+        AccountSettingScreens.WeightSelect.route -> SettingWeightSelectionScreen(navController, accountSettingViewModel, user)
+        AccountSettingScreens.HeightSelect.route -> SettingHeightSelectionScreen(navController, accountSettingViewModel, user)
+        AccountSettingScreens.AiPersonality.route -> AiPersonalityScreen(user, navController)
+        AccountSettingScreens.HealthDashboard.route -> HealthDashboardScreen(kHealth, onBackClick = { navController.popBackStack() })
+        AccountSettingScreens.NameEdit.route -> NameEditScreen(navController, user, accountSettingViewModel)
     }
 }

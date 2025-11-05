@@ -16,12 +16,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingAgeSelectionScreen(navController: NavHostController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     val monthRange = (1..12).toList()
     val yearRange = (1900..2025).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
@@ -152,7 +153,10 @@ fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, n
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextRoute) },
+                onClick = {
+                    accountSettingViewModel.saveUserData(newUser)
+                    navController.popBackStack()
+                },
                 enabled = newUser.dobYear.value in yearRange &&
                         newUser.dobMonth.value in monthRange &&
                         newUser.dobDay.value in dayRange,

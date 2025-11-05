@@ -58,7 +58,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
@@ -83,7 +82,6 @@ import androidx.compose.material3.ButtonDefaults as M3ButtonDefaults
 fun AccountSettingScreen(
     user: UserDataUiState,
     navController: NavController,
-    localNavController: NavHostController,
     accountSettingViewModel: AccountSettingsViewModel
 ) {
     val firebaseUser = Firebase.auth.currentUser
@@ -136,32 +134,32 @@ fun AccountSettingScreen(
         SettingItem(
             title = "Name",
             subtitle = "${user.firstName.value} ${user.middleName.value} ${user.lastName.value}".replace(Regex("\\s+"), " ").trim(),
-            onClick = { localNavController.navigate(AccountSettingScreens.NameEdit.route) }
+            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_NAME_EDIT.name) }
         ),
         SettingItem(
             title = "Date of Birth",
             subtitle = dobSubtitle ?: "Add your birth date",
-            onClick = { localNavController.navigate(AccountSettingScreens.DOBSelect.route) }
+            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_DOB.name) }
         ),
             SettingItem(
             title = "Height",
             subtitle = heightSubtitle ?: "Add your height",
-            onClick = { localNavController.navigate(AccountSettingScreens.HeightSelect.route) }
+            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_HEIGHT.name) }
         ),
         SettingItem(
             title = "Weight",
             subtitle = weightSubtitle ?: "Add your weight",
-            onClick = { localNavController.navigate(AccountSettingScreens.WeightSelect.route) }
+            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_WEIGHT.name) }
         ),
         SettingItem(
             title = "Connect a New Smart Device",
             subtitle = "Link wearables and health apps",
-            onClick = { localNavController.navigate(AccountSettingScreens.HealthDashboard.route) }
+            onClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD.name) }
         ),
         SettingItem(
             title = "Customize AI Personality",
             subtitle = "Tone, style, and behavior",
-            onClick = { localNavController.navigate(AccountSettingScreens.AiPersonality.route) }
+            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_AI_PERSONALITY.name) }
         )
     )
 

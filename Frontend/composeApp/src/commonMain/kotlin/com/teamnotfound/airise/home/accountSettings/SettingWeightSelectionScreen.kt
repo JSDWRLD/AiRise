@@ -23,7 +23,7 @@ import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingWeightSelectionScreen(navController: NavController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     val weightRange = remember(newUser.weightMetric.value) {
         if (newUser.weightMetric.value) {
             (45..150 step 5).toList()
@@ -152,7 +152,10 @@ fun SettingWeightSelectionScreen(navController: NavController, nextRoute: String
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
-                    onClick = { navController.navigate(nextRoute) },
+                    onClick = {
+                        accountSettingViewModel.saveUserData(newUser)
+                        navController.popBackStack()
+                    },
                     enabled = newUser.weightValue.value != 0,
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = DeepBlue,

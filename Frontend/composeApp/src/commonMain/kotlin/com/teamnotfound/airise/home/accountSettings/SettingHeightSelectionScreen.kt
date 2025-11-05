@@ -23,7 +23,7 @@ import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
 
 @Composable
-fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingHeightSelectionScreen(navController: NavController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     var selectedFeet by remember { mutableStateOf(5) }
     var selectedInches by remember { mutableStateOf(6) }
     val cmRange = (140..210 step 1).toList()
@@ -178,7 +178,10 @@ fun SettingHeightSelectionScreen(navController: NavController, nextRoute: String
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextRoute) },
+                onClick = {
+                    accountSettingViewModel.saveUserData(newUser)
+                    navController.popBackStack()
+                },
                 enabled = newUser.heightValue.value != 0,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = DeepBlue,
