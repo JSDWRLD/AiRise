@@ -155,12 +155,12 @@ fun AccountSettingScreen(
             title = "Connect a New Smart Device",
             subtitle = "Link wearables and health apps",
             onClick = { navController.navigate(AppScreen.HEALTH_DASHBOARD.name) }
-        ),
-        SettingItem(
-            title = "Customize AI Personality",
-            subtitle = "Tone, style, and behavior",
-            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_AI_PERSONALITY.name) }
         )
+//        SettingItem(
+//            title = "Customize AI Personality",
+//            subtitle = "Tone, style, and behavior",
+//            onClick = { navController.navigate(AppScreen.ACCOUNT_SETTINGS_AI_PERSONALITY.name) }
+//        )
     )
 
     // Body

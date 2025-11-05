@@ -112,205 +112,191 @@ fun NameEditScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
+            SettingsTopBar(
+                title = "Edit Name",
+                subtitle = "Update your profile name",
+                onBackClick = { localNavController.popBackStack() }
+            )
+
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                // Back button
-                IconButton(onClick = { localNavController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
+
+                Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = "Edit Name",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    text = "Current Name",
+                    fontSize = 16.sp,
+                    color = Silver,
+                    modifier = Modifier.align(Alignment.Start)
                 )
 
-                Spacer(modifier = Modifier.size(48.dp))
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text(
-                text = "Current Name",
-                fontSize = 16.sp,
-                color = Silver,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Text(
-                text = "${user.firstName.value} ${user.middleName.value} ${user.lastName.value}",
-                fontSize = 18.sp,
-                color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(bottom = 32.dp)
-            )
-
-            Text(
-                text = "Edit Your Name",
-                fontSize = 16.sp,
-                color = Silver,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // First Name (Mandatory)
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = newFirstName,
-                    onValueChange = ::onFirstNameChange,
-                    label = {
-                        Text("First Name *", color = Silver)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = Color.White,
-                        cursorColor = Orange,
-                        focusedBorderColor = if (firstNameError != null) Color.Red else Orange,
-                        unfocusedBorderColor = if (firstNameError != null) Color.Red else DeepBlue,
-                        focusedLabelColor = if (firstNameError != null) Color.Red else Orange,
-                        unfocusedLabelColor = Silver
-                    ),
-                    isError = firstNameError != null,
-                    singleLine = true
-                )
-                firstNameError?.let { error ->
-                    Text(
-                        text = error,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-                    )
-                }
-            }
-
-            // Middle Name (Optional)
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = newMiddleName,
-                    onValueChange = ::onMiddleNameChange,
-                    label = {
-                        Text("Middle Name", color = Silver)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = Color.White,
-                        cursorColor = Orange,
-                        focusedBorderColor = if (middleNameError != null) Color.Red else Orange,
-                        unfocusedBorderColor = if (middleNameError != null) Color.Red else DeepBlue,
-                        focusedLabelColor = if (middleNameError != null) Color.Red else Orange,
-                        unfocusedLabelColor = Silver
-                    ),
-                    isError = middleNameError != null,
-                    singleLine = true
-                )
-                middleNameError?.let { error ->
-                    Text(
-                        text = error,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-                    )
-                }
-            }
-
-            // Last Name (Mandatory)
-            Column(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = newLastName,
-                    onValueChange = ::onLastNameChange,
-                    label = {
-                        Text("Last Name *", color = Silver)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = Color.White,
-                        cursorColor = Orange,
-                        focusedBorderColor = if (lastNameError != null) Color.Red else Orange,
-                        unfocusedBorderColor = if (lastNameError != null) Color.Red else DeepBlue,
-                        focusedLabelColor = if (lastNameError != null) Color.Red else Orange,
-                        unfocusedLabelColor = Silver
-                    ),
-                    isError = lastNameError != null,
-                    singleLine = true
-                )
-                lastNameError?.let { error ->
-                    Text(
-                        text = error,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-                    )
-                }
-            }
-
-            // Help text
-            Text(
-                text = "• Names should only contain letters, spaces, hyphens (-), apostrophes ('), and periods (.)\n" +
-                        "• First and last names are required (2-50 characters)\n" +
-                        "• Middle name is optional (2-50 characters if provided)",
-                color = Silver,
-                fontSize = 12.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 8.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Continue Button
-            Button(
-                onClick = {
-                    // Final validation before saving
-                    firstNameError = validateFirstName(newFirstName)
-                    lastNameError = validateLastName(newLastName)
-                    middleNameError = validateMiddleName(newMiddleName)
-
-                    if (isFormValid()) {
-                        user.firstName.value = newFirstName.trim()
-                        user.middleName.value = newMiddleName.trim()
-                        user.lastName.value = newLastName.trim()
-                        user.fullName.value = "$newFirstName $newMiddleName $newLastName".trim()
-
-                        accountSettingViewModel.saveUserData(user)
-
-                        localNavController.popBackStack()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (isFormValid()) Orange else DeepBlue
-                ),
-                enabled = isFormValid()
-            ) {
                 Text(
-                    text = "Confirm Changes",
+                    text = "${user.firstName.value} ${user.middleName.value} ${user.lastName.value}",
+                    fontSize = 18.sp,
                     color = Color.White,
-                    fontSize = 18.sp
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(bottom = 32.dp)
                 )
+
+                Text(
+                    text = "Edit Your Name",
+                    fontSize = 16.sp,
+                    color = Silver,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // First Name (Mandatory)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = newFirstName,
+                        onValueChange = ::onFirstNameChange,
+                        label = {
+                            Text("First Name *", color = Silver)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = Color.White,
+                            cursorColor = Orange,
+                            focusedBorderColor = if (firstNameError != null) Color.Red else Orange,
+                            unfocusedBorderColor = if (firstNameError != null) Color.Red else DeepBlue,
+                            focusedLabelColor = if (firstNameError != null) Color.Red else Orange,
+                            unfocusedLabelColor = Silver
+                        ),
+                        isError = firstNameError != null,
+                        singleLine = true
+                    )
+                    firstNameError?.let { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                        )
+                    }
+                }
+
+                // Middle Name (Optional)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = newMiddleName,
+                        onValueChange = ::onMiddleNameChange,
+                        label = {
+                            Text("Middle Name", color = Silver)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = Color.White,
+                            cursorColor = Orange,
+                            focusedBorderColor = if (middleNameError != null) Color.Red else Orange,
+                            unfocusedBorderColor = if (middleNameError != null) Color.Red else DeepBlue,
+                            focusedLabelColor = if (middleNameError != null) Color.Red else Orange,
+                            unfocusedLabelColor = Silver
+                        ),
+                        isError = middleNameError != null,
+                        singleLine = true
+                    )
+                    middleNameError?.let { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                        )
+                    }
+                }
+
+                // Last Name (Mandatory)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = newLastName,
+                        onValueChange = ::onLastNameChange,
+                        label = {
+                            Text("Last Name *", color = Silver)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            textColor = Color.White,
+                            cursorColor = Orange,
+                            focusedBorderColor = if (lastNameError != null) Color.Red else Orange,
+                            unfocusedBorderColor = if (lastNameError != null) Color.Red else DeepBlue,
+                            focusedLabelColor = if (lastNameError != null) Color.Red else Orange,
+                            unfocusedLabelColor = Silver
+                        ),
+                        isError = lastNameError != null,
+                        singleLine = true
+                    )
+                    lastNameError?.let { error ->
+                        Text(
+                            text = error,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                        )
+                    }
+                }
+
+                // Help text
+                Text(
+                    text = "• Names should only contain letters, spaces, hyphens (-), apostrophes ('), and periods (.)\n" +
+                            "• First and last names are required (2-50 characters)\n" +
+                            "• Middle name is optional (2-50 characters if provided)",
+                    color = Silver,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Continue Button
+                Button(
+                    onClick = {
+                        // Final validation before saving
+                        firstNameError = validateFirstName(newFirstName)
+                        lastNameError = validateLastName(newLastName)
+                        middleNameError = validateMiddleName(newMiddleName)
+
+                        if (isFormValid()) {
+                            user.firstName.value = newFirstName.trim()
+                            user.middleName.value = newMiddleName.trim()
+                            user.lastName.value = newLastName.trim()
+                            user.fullName.value = "$newFirstName $newMiddleName $newLastName".trim()
+
+                            accountSettingViewModel.saveUserData(user)
+
+                            localNavController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (isFormValid()) Orange else DeepBlue
+                    ),
+                    enabled = isFormValid()
+                ) {
+                    Text(
+                        text = "Confirm Changes",
+                        color = Color.White,
+                        fontSize = 18.sp
+                    )
+                }
             }
         }
     }
