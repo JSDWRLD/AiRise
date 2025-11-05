@@ -95,10 +95,10 @@ fun QuestionScreen(
             },
             enabled = selectedOption != null,
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = DeepBlue,
+                backgroundColor = if (selectedOption != null) Orange else DeepBlue,
                 disabledBackgroundColor = DeepBlue
             ),
-            border = BorderStroke(1.dp, Orange),
+            border = BorderStroke(1.dp, if (selectedOption != null) Orange else Silver),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -199,10 +199,10 @@ fun MultiSelectQuestionScreen(
             },
             enabled = enabled,
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = DeepBlue,
+                backgroundColor = if (enabled) Orange else DeepBlue,
                 disabledBackgroundColor = DeepBlue
             ),
-            border = BorderStroke(1.dp, Orange),
+            border = BorderStroke(1.dp, if (enabled) Orange else Silver),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()

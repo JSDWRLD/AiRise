@@ -31,6 +31,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import com.teamnotfound.airise.health.HealthDashboardScreen
 import com.teamnotfound.airise.home.accountSettings.AccountSettings
+import com.teamnotfound.airise.home.accountSettings.AccountSettingScreens
 import com.teamnotfound.airise.home.accountSettings.AccountSettingsViewModel
 import com.teamnotfound.airise.auth.onboarding.OnboardingViewModel
 import com.teamnotfound.airise.data.serializable.DailyProgressData
@@ -396,9 +397,69 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                 // Account Settings Screen
                 composable(route = AppScreen.ACCOUNT_SETTINGS.name) {
                     val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
-                    // TODO: Fill with actual user data
-                    AccountSettings(navController = navController, accountSettingViewModel, kHealth = container.kHealth)
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.AccountSettings.route
+                    )
+                }
 
+                // Account Settings - DOB
+                composable(route = AppScreen.ACCOUNT_SETTINGS_DOB.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.DOBSelect.route
+                    )
+                }
+
+                // Account Settings - Weight
+                composable(route = AppScreen.ACCOUNT_SETTINGS_WEIGHT.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.WeightSelect.route
+                    )
+                }
+
+                // Account Settings - Height
+                composable(route = AppScreen.ACCOUNT_SETTINGS_HEIGHT.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.HeightSelect.route
+                    )
+                }
+
+                /*
+                // Account Settings - AI Personality
+                composable(route = AppScreen.ACCOUNT_SETTINGS_AI_PERSONALITY.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.AiPersonality.route
+                    )
+                }
+                 */
+
+                // Account Settings - Name Edit
+                composable(route = AppScreen.ACCOUNT_SETTINGS_NAME_EDIT.name) {
+                    val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
+                    AccountSettings(
+                        navController = navController,
+                        accountSettingViewModel = accountSettingViewModel,
+                        kHealth = container.kHealth,
+                        startScreen = AccountSettingScreens.NameEdit.route
+                    )
                 }
 
                 // Ai Chat Screen
@@ -482,6 +543,11 @@ enum class AppScreen {
     NAVBAR,
     HEALTH_DASHBOARD,
     ACCOUNT_SETTINGS,
+    ACCOUNT_SETTINGS_DOB,
+    ACCOUNT_SETTINGS_WEIGHT,
+    ACCOUNT_SETTINGS_HEIGHT,
+    ACCOUNT_SETTINGS_AI_PERSONALITY,
+    ACCOUNT_SETTINGS_NAME_EDIT,
     AI_CHAT,
     EMAIL_VERIFICATION,
     FRIENDS_LIST,

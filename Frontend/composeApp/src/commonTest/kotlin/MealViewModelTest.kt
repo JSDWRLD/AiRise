@@ -5,6 +5,83 @@ import kotlin.test.*
 
 class MealViewModelTest {
 
+    //  past days are reachable and independent
+    @Test
+    fun `navigate to past date keeps data separate`() = runTest {
+        val vm = MealViewModel.fake(startOffset = 1)
+        vm.addQuickFood(MealType.Breakfast, 150, "Today", "1", 1.0, 1.0, 1.0)
+        assertEquals(150, vm.totalFood)
+
+        vm.setDayOffset(-7)
+        assertEquals(-7, vm.uiState.dayOffset)
+        assertEquals(0, vm.totalFood)
+
+        vm.setDayOffset(1)
+        assertEquals(150, vm.totalFood)
+    }
+
+    // multiple categories reduce remaining correctly
+    @Test
+    fun `adding food across categories deducts from goal`() = runTest {
+        val vm = MealViewModel.fake() // goal = 2000
+        vm.addQuickFood(MealType.Breakfast, 300, "A", "1", 0.0, 0.0, 0.0)
+        vm.addQuickFood(MealType.Dinner, 700, "B", "1", 0.0, 0.0, 0.0)
+
+        assertEquals(1000, vm.totalFood)
+        assertEquals(1000, vm.remaining) // 2000 - 1000
+    }
+
+    // Edge value 1234: handled without errors and totals correct
+    @Test
+    fun `large input 1234 is handled correctly`() = runTest {
+        val vm = MealViewModel.fake(startGoal = 2000)
+        vm.addQuickFood(MealType.Breakfast, 1234, "Big", "1", 1.0, 1.0, 1.0)
+        vm.addQuickFood(MealType.Lunch, 200, "Small", "1", 1.0, 1.0, 1.0)
+
+        assertEquals(1434, vm.totalFood)
+        assertEquals(566, vm.remaining)
+        assertEquals(1, vm.uiState.day.meals.breakfast.size)
+        assertEquals(1, vm.uiState.day.meals.lunch.size)
+    }
+
+    // Remaining floors at 0 when total exceeds goal
+    @Test
+    fun `remaining is floored at zero when over goal`() = runTest {
+        val vm = MealViewModel.fake() // goal = 2000
+        vm.addQuickFood(MealType.Lunch, 1500, "L", "1", 0.0, 0.0, 0.0)
+        vm.addQuickFood(MealType.Dinner, 600, "D", "1", 0.0, 0.0, 0.0)
+
+        assertEquals(2100, vm.totalFood)
+        assertEquals(0, vm.remaining) // max(2000 - 2100, 0)
+    }
+
+    // Tomorrow empty, today preserved after roundtrip
+    @Test
+    fun `switching days preserves each days data`() = runTest {
+        val vm = MealViewModel.fake(startOffset = 1)
+        vm.addQuickFood(MealType.Breakfast, 250, "Today", "1", 0.0, 0.0, 0.0)
+        assertEquals(250, vm.totalFood)
+
+        vm.nextDay()
+        assertEquals(2, vm.uiState.dayOffset)
+        assertEquals(0, vm.totalFood)
+
+        vm.previousDay()
+        assertEquals(1, vm.uiState.dayOffset)
+        assertEquals(250, vm.totalFood)
+    }
+
+    // Extreme offsets do not crash and yield a valid day
+    @Test
+    fun `extreme offsets produce valid empty days`() = runTest {
+        val vm = MealViewModel.fake(startOffset = 1)
+
+        vm.setDayOffset(Int.MIN_VALUE / 2)
+        assertEquals(0, vm.totalFood)
+
+        vm.setDayOffset(Int.MAX_VALUE / 2)
+        assertEquals(0, vm.totalFood)
+    }
 
     @Test
     fun `adding food increases total calories`() = runTest {

@@ -2,17 +2,22 @@ package com.teamnotfound.airise.auth.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teamnotfound.airise.auth.general.AuthHeader
-import com.teamnotfound.airise.util.BgBlack
-import com.teamnotfound.airise.util.Orange
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.teamnotfound.airise.auth.general.BackChip
+import com.teamnotfound.airise.util.*
 
 @Composable
 fun OnboardingScaffold(
@@ -26,32 +31,57 @@ fun OnboardingScaffold(
             .fillMaxSize()
             .background(BgBlack)
     ) {
-        // Header box lets us overlay the Skip button inside the same visual area
-        Box(
+        Surface(
+            color = Color.Transparent,
+            elevation = 6.dp,
+            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
         ) {
-            AuthHeader(
-                title = stepTitle,
-                subtitle = "",
-                onBackClick = onBackClick
-            )
-
-            // Skip sits on the right INSIDE the header
-            if (onSkipClick != null) {
-                TextButton(
-                    onClick = onSkipClick,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 4.dp) // slightly tucked in for balance
-                ) {
-                    Text(
-                        text = "Skip",
-                        color = Orange,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 0.2.sp
+            Column(
+                modifier = Modifier
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                DeepBlue.copy(alpha = 0.98f),
+                                DeepBlue.copy(alpha = 0.78f)
+                            )
+                        )
                     )
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    BackChip(onClick = onBackClick, showLabel = false)
+                    Spacer(Modifier.width(10.dp))
+
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stepTitle,
+                            color = White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    if (onSkipClick != null) {
+                        TextButton(
+                            onClick = onSkipClick,
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                text = "Skip",
+                                color = Orange,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                letterSpacing = 0.2.sp
+                            )
+                        }
+                    }
                 }
             }
         }

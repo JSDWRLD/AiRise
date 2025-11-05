@@ -27,7 +27,7 @@ class AuthService(
     override val currentUser: Flow<User> =
         auth.authStateChanged.map { it?.let { User(it.uid, it.email) } ?: User()  }
 
-    val firebaseUser: FirebaseUser?
+    override val firebaseUser: FirebaseUser?
         get() = auth.currentUser
 
     var isNewUser = false

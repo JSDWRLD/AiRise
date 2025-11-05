@@ -1,4 +1,5 @@
 using Mongo2Go;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Linq;
@@ -6,57 +7,60 @@ using System.Linq;
 public class MongoIntegrationTest<TDocument> : IDisposable
 {
     private readonly string _dbName;
+    private readonly IMongoClient _client;
+    private readonly HashSet<string> _collectionNames;
 
     public MongoDbRunner Runner { get; }
     public IMongoDatabase Database { get; }
-    public IMongoCollection<TDocument> Collection { get; }
+    public IMongoClient Client => _client;
 
     public MongoIntegrationTest()
     {
-        // Build a SAFE database name (Mongo forbids ".", " ", "/", "\", "$", "\"")
-        var typeName = typeof(TDocument).Name;            // e.g., "UserChallenges" (no dots)
-        var guid = Guid.NewGuid().ToString("N");          // 32 hex chars, no dashes
-        _dbName = $"IntegrationTest_{typeName}_{guid}";   // e.g., IntegrationTest_UserChallenges_a1b2...
-
-        // Extra safety: replace any stray illegal chars just in case
-        _dbName = SanitizeForMongoDbName(_dbName);
+        var typeName = typeof(TDocument).Name;
+        _dbName = $"IntegrationTest_{typeName}_{Guid.NewGuid():N}";  
 
         Runner = MongoDbRunner.Start();
-        var client = new MongoClient(Runner.ConnectionString);
+        _client = new MongoClient(Runner.ConnectionString);
 
-        Database = client.GetDatabase(_dbName);
-        Collection = Database.GetCollection<TDocument>("TestCollection");
+        Database = _client.GetDatabase(_dbName);
+        _collectionNames = new HashSet<string>();
     }
 
-    public async System.Threading.Tasks.Task ClearCollectionAsync()
+    public IMongoCollection<T> GetCollection<T>(string name)
     {
-        // Drop & recreate collection to guarantee a clean slate, avoiding namespace weirdness
-        try
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Collection name cannot be null or empty.", nameof(name));
+
+        if (!_collectionNames.Contains(name))
         {
-            await Database.DropCollectionAsync("TestCollection");
-        }
-        catch
-        {
-            // ignore if it doesn't exist
+            // Auto-create on first access
+            Database.CreateCollectionAsync(name).GetAwaiter().GetResult();
+            _collectionNames.Add(name);
         }
 
-        // Recreate collection explicitly so DeleteManyAsync never targets a non-existent namespace
-        await Database.CreateCollectionAsync("TestCollection");
+        return Database.GetCollection<T>(name);
+    }
 
-        // No-op delete (kept for parity with your other tests; safe because the collection exists)
-        await Collection.DeleteManyAsync(FilterDefinition<TDocument>.Empty);
+    public async Task ClearAllCollectionsAsync()
+    {
+        foreach (var name in _collectionNames)
+        {
+            try
+            {
+                await Database.DropCollectionAsync(name);
+            }
+            catch 
+            {
+                // ignore missing collections
+            }
+
+            await Database.CreateCollectionAsync(name);
+        }
     }
 
     public void Dispose()
     {
+        _client.DropDatabase(_dbName);
         Runner?.Dispose();
-    }
-
-    private static string SanitizeForMongoDbName(string name)
-    {
-        // Mongo DB name cannot contain: / \ . " $ space and must be <= 63 bytes (we’re safely under that)
-        var illegal = new[] { '/', '\\', '.', '"', '$', ' ' };
-        var chars = name.Select(ch => illegal.Contains(ch) ? '_' : ch).ToArray();
-        return new string(chars);
     }
 }

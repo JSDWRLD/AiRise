@@ -16,14 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.teamnotfound.airise.auth.onboarding.onboardingQuestions.ScrollableColumnSelection
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.util.*
+import kotlinx.datetime.*
 
 @Composable
-fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, newUser: UserDataUiState) {
+fun SettingAgeSelectionScreen(navController: NavHostController, accountSettingViewModel: AccountSettingsViewModel, newUser: UserDataUiState) {
     val monthRange = (1..12).toList()
-    val yearRange = (1900..2025).toList().reversed()
+    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+    val yearRange = (currentYear - 150..currentYear).toList().reversed()
     val dayRange = remember(newUser.dobMonth.value, newUser.dobYear.value) {
         getDayRange(newUser.dobMonth.value, newUser.dobYear.value).toList()
     }
@@ -32,33 +35,13 @@ fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, n
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
-            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = Color.White,
-                elevation = 0.dp,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Orange
-                            )
-                        }
-                    }
-                }
-            }
+            SettingsTopBar(
+                title = "Date of Birth",
+                subtitle = "Select your birth date",
+                onBackClick = { navController.popBackStack() }
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -152,7 +135,10 @@ fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, n
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(nextRoute) },
+                onClick = {
+                    accountSettingViewModel.saveUserData(newUser)
+                    navController.popBackStack()
+                },
                 enabled = newUser.dobYear.value in yearRange &&
                         newUser.dobMonth.value in monthRange &&
                         newUser.dobDay.value in dayRange,
@@ -164,8 +150,9 @@ fun SettingAgeSelectionScreen(navController: NavController, nextRoute: String, n
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(82.dp)
                     .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp)
             ) {
                 Text("Continue", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }

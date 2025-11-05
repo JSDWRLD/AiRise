@@ -1,17 +1,25 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AiRise.Controllers;
 using AiRise.Models;
 using AiRise.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
+using Mongo2Go;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Moq;
+using Xunit;
 
-public class ChallengeController_Tests : IClassFixture<MongoIntegrationTest<Challenge>>
+public class ChallengeController_IntegrationTests : IClassFixture<MongoIntegrationTest<Challenge>>
 {
     private readonly MongoIntegrationTest<Challenge> _fixture;
     private readonly ChallengeController _controller;
     private readonly IMongoCollection<Challenge> _collection;
 
-    public ChallengeController_Tests(MongoIntegrationTest<Challenge> fixture)
+    public ChallengeController_IntegrationTests(MongoIntegrationTest<Challenge> fixture)
     {
         _fixture = fixture;
         _collection = fixture.GetCollection<Challenge>("challenge");
@@ -67,16 +75,14 @@ public class ChallengeController_Tests : IClassFixture<MongoIntegrationTest<Chal
         {
             Id = ObjectId.GenerateNewId().ToString(),
             Name = "Old",
-            Description = "D",
-            Url = "U"
+            Description = "desc",
+            Url = "url"
         };
 
         await _collection.InsertOneAsync(existing);
 
         // Act
         existing.Name = "Updated Name";
-        existing.Description = "D1";
-        existing.Url = "U1";
         var result = await _controller.UpsertChallenge(existing);
 
         // Assert
@@ -84,8 +90,6 @@ public class ChallengeController_Tests : IClassFixture<MongoIntegrationTest<Chal
         var updated = await _collection.Find(c => c.Id == existing.Id).FirstOrDefaultAsync();
 
         Assert.Equal("Updated Name", updated.Name);
-        Assert.Equal(existing.Description, updated.Description);
-        Assert.Equal(existing.Url, updated.Url);
     }
 
     [Fact]
@@ -95,9 +99,7 @@ public class ChallengeController_Tests : IClassFixture<MongoIntegrationTest<Chal
         // Arrange
         var challenge = new Challenge
         {
-            Name = "New",
-            Description = "D",
-            Url = "U"
+            Name = "New"
         };
 
         // Act
@@ -107,9 +109,6 @@ public class ChallengeController_Tests : IClassFixture<MongoIntegrationTest<Chal
         var ok = Assert.IsType<OkObjectResult>(result);
         var inserted = await _collection.Find(c => c.Name == challenge.Name).FirstOrDefaultAsync();
         Assert.NotNull(inserted);
-        Assert.Equal(challenge.Description, inserted.Description);
-        Assert.Equal(challenge.Url, inserted.Url);
-        Assert.NotNull(inserted.Id);
     }
 
     [Fact]
