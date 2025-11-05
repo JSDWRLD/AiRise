@@ -45,7 +45,7 @@ class ChallengeEditorViewModel(
         )
     }
 
-    override fun upsert() {
+    override fun upsert(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val challenge: Challenge = _uiState.value.challengeUI.toData()
             val user = Firebase.auth.currentUser
@@ -56,6 +56,7 @@ class ChallengeEditorViewModel(
             when (val res = dataClient.upsertChallenge(user, challenge)) {
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(isEditing = false)
+                    onSuccess()
                     return@launch
                 }
                 is Result.Error -> {
@@ -70,7 +71,7 @@ class ChallengeEditorViewModel(
         }
     }
 
-    override fun delete(id: String) {
+    override fun delete(id: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
 //            val id = _uiState.value.challengeUI.id
             if (id.isBlank()) {
@@ -84,7 +85,7 @@ class ChallengeEditorViewModel(
             }
             when (dataClient.deleteChallenge(user, id)) {
                 is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(isEditing = false)
+                    onSuccess()
                     return@launch
                 }
                 is Result.Error -> _uiState.value = _uiState.value.copy(error = "Unable to delete the challenge due to a server error")

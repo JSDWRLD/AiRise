@@ -231,7 +231,8 @@ fun ChallengesScreen(
                                 },
                                 adminState = adminState,
                                 adminVerifyViewModel = adminVerifyViewModel,
-                                editorViewModel = editorViewModel
+                                editorViewModel = editorViewModel,
+                                onEditSuccess = { viewModel.refresh(true) }
                             )
                         }
                     }
@@ -247,7 +248,8 @@ fun ChallengesScreen(
                             viewModel = editorViewModel,
                             onAuthorizationError = {
                                 adminVerifyViewModel.resetVerification()
-                            }
+                            },
+                            onSuccess = { viewModel.refresh(true) }
                         )
                     }
                 }
@@ -268,7 +270,8 @@ private fun ChallengeCard(
     onCompleteToday: () -> Unit,
     adminState: AdminVerifyUiState,
     adminVerifyViewModel : AdminVerifyViewModel,
-    editorViewModel: ChallengeEditorViewModel
+    editorViewModel: ChallengeEditorViewModel,
+    onEditSuccess: () -> Unit
 ) {
     val shape = RoundedCornerShape(18.dp)
 
@@ -329,7 +332,7 @@ private fun ChallengeCard(
                             IconButton(
                                 onClick = {
                                     if (adminState.isAdminModeActive && adminState.isVerified) {
-                                        editorViewModel.delete(challengeUI.id)
+                                        editorViewModel.delete(id = challengeUI.id, onSuccess = onEditSuccess)
                                     } else {
                                         // Not verified, show password dialog
                                         adminVerifyViewModel.showPasswordPrompt()
