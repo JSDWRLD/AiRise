@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -208,7 +209,7 @@ fun FoodLogScreen(
         }
     }
 
-    // Dialogs
+    // Dialogs (now in-tree, iOS-safe)
     if (showMealPicker) {
         MealPickerDialog(
             onDismiss = { showMealPicker = false },
@@ -499,23 +500,24 @@ private fun EditNumberDialog(
         unfocusedLabelColor = Silver
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title, color = White) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { v -> text = v.filter { it.isDigit() }.take(5) },
-                label = { Text("Calories") },
-                singleLine = true,
-                colors = fieldColors
-            )
-        },
-        confirmButton = { TextButton(onClick = { onConfirm(text.toIntOrNull() ?: 0) }) { Text("Save", color = White) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack,
-        shape = MaterialTheme.shapes.large
-    )
+    AppDialog(onDismissRequest = onDismiss) {
+        Text(title, color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = text,
+            onValueChange = { v -> text = v.filter { it.isDigit() }.take(5) },
+            label = { Text("Calories") },
+            singleLine = true,
+            colors = fieldColors,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = { onConfirm(text.toIntOrNull() ?: 0) }) { Text("Save", color = White) }
+        }
+    }
 }
 
 @Composable
@@ -523,21 +525,19 @@ private fun MealPickerDialog(
     onDismiss: () -> Unit,
     onPick: (MealType) -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Log to", color = White) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                MealPickRow("Breakfast") { onPick(MealType.Breakfast) }
-                MealPickRow("Lunch") { onPick(MealType.Lunch) }
-                MealPickRow("Dinner") { onPick(MealType.Dinner) }
-            }
-        },
-        confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack,
-        shape = MaterialTheme.shapes.large
-    )
+    AppDialog(onDismissRequest = onDismiss) {
+        Text("Log to", color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            MealPickRow("Breakfast") { onPick(MealType.Breakfast) }
+            MealPickRow("Lunch") { onPick(MealType.Lunch) }
+            MealPickRow("Dinner") { onPick(MealType.Dinner) }
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
+        }
+    }
 }
 
 @Composable
@@ -554,6 +554,88 @@ private fun MealPickRow(label: String, onClick: () -> Unit) {
         Box(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(label, color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
+    }
+}
+
+@Composable
+private fun AppDialog(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: RoundedCornerShape = RoundedCornerShape(16.dp),
+    content: @Composable ColumnScope.() -> Unit
+) {
+    // Full-screen scrim that actually covers the screen on iOS (inside layout tree)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismissRequest() },
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            color = BgBlack,
+            shape = shape,
+            elevation = 0.dp,
+            modifier = modifier
+                .padding(24.dp)
+                .widthIn(min = 280.dp, max = 520.dp)
+                .clickable( // consume taps
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { /* no-op */ }
+                .imePadding()
+        ) {
+            Column(
+                modifier = Modifier.padding(18.dp),
+                content = content
+            )
+        }
+    }
+}
+
+@Composable
+private fun InlineMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    anchorAlignment: Alignment = Alignment.TopEnd,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    if (!expanded) return
+    // This Box is scoped to the parent container (e.g., the FoodRow Box), so the menu appears
+    // near the row rather than the whole screen. Clicks outside dismiss.
+    Box(
+        modifier = Modifier
+            .background(Color.Black.copy(alpha = 0.001f)) // transparent tap-catcher
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { onDismiss() }
+    ) {
+        Column(
+            modifier = Modifier
+                .align(anchorAlignment)
+                .padding(top = 6.dp, end = 6.dp)
+                .background(BgBlack, RoundedCornerShape(12.dp))
+                .border(1.dp, Cyan.copy(alpha = .35f), RoundedCornerShape(12.dp))
+                .padding(vertical = 6.dp)
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun InlineMenuItem(text: String, tint: Color, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 10.dp)
+    ) {
+        Text(text, color = tint, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -586,62 +668,70 @@ private fun QuickAddDialog(
         unfocusedLabelColor = Silver
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Quick Add — ${meal.name}", color = White) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = calories,
-                    onValueChange = { calories = it.filter(Char::isDigit).take(5) },
-                    label = { Text("Calories") },
-                    singleLine = true,
-                    colors = fieldColors
-                )
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    singleLine = true,
-                    colors = fieldColors
-                )
-                OutlinedTextField(
-                    value = serving,
-                    onValueChange = { serving = it },
-                    label = { Text("Serving") },
-                    singleLine = true,
-                    colors = fieldColors
-                )
-                Divider(color = DeepBlue.copy(alpha = 0.35f))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = fats,
-                        onValueChange = { fats = numericDecimal(it) },
-                        label = { Text("Fat   (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                    OutlinedTextField(
-                        value = carbs,
-                        onValueChange = { carbs = numericDecimal(it) },
-                        label = { Text("Carbs (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                    OutlinedTextField(
-                        value = proteins,
-                        onValueChange = { proteins = numericDecimal(it) },
-                        label = { Text("Protein (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                }
-            }
-        },
-        confirmButton = {
+    AppDialog(onDismissRequest = onDismiss) {
+        Text("Quick Add — ${meal.name}", color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = calories,
+            onValueChange = { calories = it.filter(Char::isDigit).take(5) },
+            label = { Text("Calories") },
+            singleLine = true,
+            colors = fieldColors,
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") },
+            singleLine = true,
+            colors = fieldColors,
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = serving,
+            onValueChange = { serving = it },
+            label = { Text("Serving") },
+            singleLine = true,
+            colors = fieldColors,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Divider(color = DeepBlue.copy(alpha = 0.35f))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = fats,
+                onValueChange = { fats = numericDecimal(it) },
+                label = { Text("Fat   (g)") },
+                singleLine = true,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                colors = fieldColors,
+            )
+            OutlinedTextField(
+                value = carbs,
+                onValueChange = { carbs = numericDecimal(it) },
+                label = { Text("Carbs (g)") },
+                singleLine = true,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                colors = fieldColors
+            )
+            OutlinedTextField(
+                value = proteins,
+                onValueChange = { proteins = numericDecimal(it) },
+                label = { Text("Protein (g)") },
+                singleLine = true,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                colors = fieldColors
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
+            Spacer(Modifier.width(8.dp))
             TextButton(onClick = {
                 onAdd(
                     calories.toIntOrNull() ?: 0,
@@ -652,11 +742,8 @@ private fun QuickAddDialog(
                     proteins.toDoubleOrNull() ?: 0.0
                 )
             }) { Text("Add", color = White) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack,
-        shape = MaterialTheme.shapes.large
-    )
+        }
+    }
 }
 
 @Composable
@@ -687,55 +774,54 @@ private fun EditFoodDialog(
         unfocusedLabelColor = Silver
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Food", color = White) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = calories,
-                    onValueChange = { calories = it.filter(Char::isDigit).take(5) },
-                    label = { Text("Calories") },
-                    singleLine = true,
-                    colors = fieldColors
-                )
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    singleLine = true,
-                    colors = fieldColors
-                )
-                Divider(color = DeepBlue.copy(alpha = 0.35f))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = fats,
-                        onValueChange = { fats = numericDecimal(it) },
-                        label = { Text("Fat   (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                    OutlinedTextField(
-                        value = carbs,
-                        onValueChange = { carbs = numericDecimal(it) },
-                        label = { Text("Carbs (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                    OutlinedTextField(
-                        value = proteins,
-                        onValueChange = { proteins = numericDecimal(it) },
-                        label = { Text("Protein (g)") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = fieldColors
-                    )
-                }
-            }
-        },
-        confirmButton = {
+    AppDialog(onDismissRequest = onDismiss) {
+        Text("Edit Food", color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = calories,
+            onValueChange = { calories = it.filter(Char::isDigit).take(5) },
+            label = { Text("Calories") },
+            singleLine = true,
+            colors = fieldColors
+        )
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") },
+            singleLine = true,
+            colors = fieldColors
+        )
+        Divider(color = DeepBlue.copy(alpha = 0.35f))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = fats,
+                onValueChange = { fats = numericDecimal(it) },
+                label = { Text("Fat   (g)") },
+                singleLine = true,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                colors = fieldColors
+            )
+            OutlinedTextField(
+                value = carbs,
+                onValueChange = { carbs = numericDecimal(it) },
+                label = { Text("Carbs (g)") },
+                singleLine = true,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                colors = fieldColors
+            )
+            OutlinedTextField(
+                value = proteins,
+                onValueChange = { proteins = numericDecimal(it) },
+                label = { Text("Protein (g)") },
+                singleLine = true,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                colors = fieldColors
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
+            Spacer(Modifier.width(8.dp))
             TextButton(onClick = {
                 val updated = entry.copy(
                     calories = calories.toDoubleOrNull() ?: 0.0,
@@ -746,11 +832,8 @@ private fun EditFoodDialog(
                 )
                 onSave(updated)
             }) { Text("Save", color = White) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack,
-        shape = MaterialTheme.shapes.large
-    )
+        }
+    }
 }
 
 @Composable
@@ -890,59 +973,57 @@ private fun DateInputDialog(
         placeholderColor = Silver
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Enter date", color = White) },
-        text = {
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = year,
-                        onValueChange = { year = digitsOnly(it, 4) },
-                        label = { Text("YYYY") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = fieldColors,
-                        modifier = Modifier.weight(1.2f)
-                    )
-                    OutlinedTextField(
-                        value = month,
-                        onValueChange = { month = digitsOnly(it, 2) },
-                        label = { Text("MM") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = fieldColors,
-                        modifier = Modifier.weight(0.9f)
-                    )
-                    OutlinedTextField(
-                        value = day,
-                        onValueChange = { day = digitsOnly(it, 2) },
-                        label = { Text("DD") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = fieldColors,
-                        modifier = Modifier.weight(0.9f)
-                    )
-                }
-
-                Spacer(Modifier.height(6.dp))
-                if (error != null) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(error!!, color = White, fontSize = 12.sp)
-                }
+    AppDialog(onDismissRequest = onDismiss) {
+        Text("Enter date", color = White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = year,
+                    onValueChange = { year = digitsOnly(it, 4) },
+                    label = { Text("YYYY") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = fieldColors,
+                    modifier = Modifier.weight(1.2f).fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = month,
+                    onValueChange = { month = digitsOnly(it, 2) },
+                    label = { Text("MM") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = fieldColors,
+                    modifier = Modifier.weight(0.9f).fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = day,
+                    onValueChange = { day = digitsOnly(it, 2) },
+                    label = { Text("DD") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = fieldColors,
+                    modifier = Modifier.weight(0.9f).fillMaxWidth(),
+                )
             }
-        },
-        confirmButton = {
+
+            Spacer(Modifier.height(6.dp))
+            if (error != null) {
+                Spacer(Modifier.height(4.dp))
+                Text(error!!, color = White, fontSize = 12.sp)
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            TextButton(onClick = onDismiss) { Text("Cancel", color = White) }
+            Spacer(Modifier.width(8.dp))
             TextButton(onClick = { validateAndConfirm() }) { Text("Go", color = White) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = White) } },
-        backgroundColor = BgBlack,
-        shape = MaterialTheme.shapes.large
-    )
+        }
+    }
 }
 
 private fun dateToOffset(
