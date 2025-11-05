@@ -1,11 +1,8 @@
-using System.Text.Json;
 using AiRise.Controllers;
 using AiRise.Models;
 using AiRise.Models.User;
 using AiRise.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 
@@ -115,7 +112,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserData_Updates_And_Returns_True(){
+    public async Task UpdateUserData_Ok(){
         await _fixture.ClearAllCollectionsAsync();
 
         var user = UserDataFactory.Create();
@@ -135,7 +132,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserData_Returns_NotFound_When_NoMatch()
+    public async Task UpdateUserData_NotFound()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -146,7 +143,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserDOB_Updates_And_Returns_True()
+    public async Task UpdateUserDOB_Ok()
     {
         await _fixture.ClearAllCollectionsAsync();
         var user = UserDataFactory.Create();
@@ -158,7 +155,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserDOB_Returns_NotFound_When_NoMatch()
+    public async Task UpdateUserDOB_NotFound()
     {
         await _fixture.ClearAllCollectionsAsync();
         
@@ -169,7 +166,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserName_Updates_And_Returns_True()
+    public async Task UpdateUserName_Ok()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -188,7 +185,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserName_Returns_NotFound_When_NoMatch()
+    public async Task UpdateUserName_NotFound()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -198,7 +195,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserHeight_Updates_And_Returns_True()
+    public async Task UpdateUserHeight_Ok()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -216,7 +213,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserHeight_Returns_NotFound_When_NoMatch()
+    public async Task UpdateUserHeight_NotFound()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -227,7 +224,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserWeight_Updates_And_Returns_True()
+    public async Task UpdateUserWeight_Ok()
     {
         await _fixture.ClearAllCollectionsAsync();
 
@@ -245,7 +242,7 @@ public class UserDataController_IntegrationTests : IClassFixture<MongoIntegratio
     }
 
     [Fact]
-    public async Task UpdateUserWeight_Returns_NotFound_When_NoMatch()
+    public async Task UpdateUserWeight_NotFound()
     {
         await _fixture.ClearAllCollectionsAsync();
 

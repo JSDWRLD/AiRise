@@ -1,11 +1,8 @@
 using AiRise.Models;
-using AiRise.Models.DTOs;
 using AiRise.Models.User;
 using AiRise.Services;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
-using Xunit;
 
 public class UserDataService_Tests
 {
@@ -102,7 +99,7 @@ public class UserDataService_Tests
     }
 
     [Fact]
-    public async Task UpdateUserDataAsync_Updates_And_Returns_True()
+    public async Task UpdateUserDataAsync_Ok()
     {
         var userDataColl = CreateUserDataCollectionMock();
         var challengesColl = CreateUserChallengesCollectionMock();
@@ -138,7 +135,7 @@ public class UserDataService_Tests
     }
 
     [Fact]
-    public async Task UpdateUserDataAsync_Returns_False_When_NoMatch(){
+    public async Task UpdateUserDataAsync_Notfound_When_NoMatch(){
         var userDataColl = CreateUserDataCollectionMock();
         var challengesColl = CreateUserChallengesCollectionMock();
         var programService = CreateUserProgramServiceMock();
