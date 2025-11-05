@@ -2,20 +2,20 @@ package com.teamnotfound.airise.home.accountSettings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teamnotfound.airise.data.auth.AuthService
+import com.teamnotfound.airise.data.auth.IAuthService
 import com.teamnotfound.airise.util.NetworkError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.network.clients.UserClient
+import com.teamnotfound.airise.data.network.clients.IUserClient
 import com.teamnotfound.airise.data.serializable.UserDataUiState
 import com.teamnotfound.airise.data.serializable.UserSettingsData
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 
-class AccountSettingsViewModel(private val authService: AuthService,private val userClient: UserClient) : ViewModel() {
+class AccountSettingsViewModel(private val authService: IAuthService, private val userClient: IUserClient) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountSettingsUiState())
     val uiState: StateFlow<AccountSettingsUiState> = _uiState
