@@ -36,34 +36,14 @@ fun SettingWeightSelectionScreen(navController: NavController, accountSettingVie
         modifier = Modifier
             .fillMaxSize()
             .background(BgBlack)
-            .padding(vertical = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            SettingsTopBar(
+                title = "Weight",
+                subtitle = "Select your weight",
+                onBackClick = { navController.popBackStack() }
+            )
 
-            //back button
-            TopAppBar(
-                backgroundColor = BgBlack,
-                contentColor = Color.White,
-                elevation = 0.dp,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Orange
-                            )
-                        }
-                    }
-                }
-            }
             Column(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -165,8 +145,9 @@ fun SettingWeightSelectionScreen(navController: NavController, accountSettingVie
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
+                        .height(82.dp)
                         .padding(horizontal = 16.dp)
+                        .padding(bottom = 32.dp)
                 ) {
                     Text(
                         "Continue",

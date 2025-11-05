@@ -19,13 +19,13 @@ class UserClientWorkoutTest {
     private val testDispatcher = StandardTestDispatcher()
 
     @BeforeTest
-    fun setup() {
+    fun setup() = runTest {
         Dispatchers.setMain(testDispatcher)
         WorkoutCache.clear()
     }
 
     @AfterTest
-    fun tearDown() {
+    fun tearDown() = runTest {
         Dispatchers.resetMain()
         WorkoutCache.clear()
     }
