@@ -54,7 +54,7 @@ class DataClient(
     // Upserts new Challenge (only available to ADMINS)
     suspend fun upsertChallenge(firebaseUser: FirebaseUser, challenge: Challenge) : Result<Boolean, NetworkError>{
         val response = try {
-            httpClient.post("$baseUrl/Challenge/upsert"){
+            httpClient.post("$baseUrl/Challenge"){
                 contentType(ContentType.Application.Json)
                 setBody(challenge)
             }
@@ -76,7 +76,7 @@ class DataClient(
     // Delete a challenge (only for ADMINS)
     suspend fun deleteChallenge(firebaseUser: FirebaseUser, id: String) : Result<Boolean, NetworkError>{
         val response = try {
-            httpClient.delete("$baseUrl/Challenge/delete?id=$id") {
+            httpClient.delete("$baseUrl/Challenge?id=$id") {
                 contentType(ContentType.Application.Json)
             }
         } catch (e: UnresolvedAddressException) {
