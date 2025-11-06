@@ -33,6 +33,16 @@ import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.navigationBar.BottomNavigationBar
 import com.teamnotfound.airise.util.*
 
+/**
+ * Data class for workout customization updates.
+ * Used to pass partial updates to the CustomizationViewModel.
+ */
+data class OnboardingDataUpdate(
+    val workoutDays: List<String>? = null,
+    val workoutLength: Int? = null,
+    val workoutEquipment: String? = null
+)
+
 @Composable
 fun CustomizingScreen(
     appNavController: NavHostController,
@@ -502,10 +512,4 @@ private val EQUIPMENT_LABEL_TO_KEY = mapOf(
     "Bodyweight" to "bodyweight",
     "Home" to "home",
     "Gym" to "gym"
-)
-
-data class OnboardingDataUpdate(
-    val workoutDays: List<String>? = null,
-    val workoutLength: Int? = null,
-    val workoutEquipment: String? = null
 )
