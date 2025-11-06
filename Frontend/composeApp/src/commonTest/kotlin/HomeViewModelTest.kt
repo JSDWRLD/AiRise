@@ -25,7 +25,7 @@ class HomeViewModelKHealthTest {
 
     @Test
     fun syncHealthOnEnter_usesMappedValues_fromOverrides() = runTest(dispatcher) {
-        val overrides = HomeViewModel.ProviderOverrides(
+        HomeViewModel.ProviderOverrides(
             requestPermissions = { true },
             getMappedHealthData = {
                 HealthData(

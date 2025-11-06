@@ -42,7 +42,7 @@ class AuthService(
 
             if (firebaseUser != null) {
                 // Check if this is a new user
-                isNewUser = result.additionalUserInfo?.isNewUser ?: false
+                isNewUser = result.additionalUserInfo?.isNewUser == true
 
                 if (isNewUser) {
                     // Create a new user record in DB

@@ -79,7 +79,7 @@ class ChallengesCacheTest {
     @Test
     fun `returns error when fetch fails and no cache`() = runTest {
         val dataClient = FakeDataClient(Result.Error(NetworkError.NO_INTERNET))
-        val userClient = FakeUserClient()
+        FakeUserClient()
 
         // Since cache is empty and fetch fails, emulate Result.Error
         val result = dataClient.getChallenges()

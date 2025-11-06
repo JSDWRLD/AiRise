@@ -25,7 +25,6 @@ class WorkoutViewModelTest {
     fun test_number_field_updates_value_correctly() {
         // Arrange
         var capturedValue: Int? = null
-        val initialValue = 5
         val newValue = 10
 
         // Act
@@ -43,7 +42,6 @@ class WorkoutViewModelTest {
     fun test_decimal_number_field_updates_value_correctly() {
         // Arrange
         var capturedValue: Double? = null
-        val initialValue = 135.0
         val newValue = 145.5
 
         // Act
@@ -63,7 +61,7 @@ class WorkoutViewModelTest {
         var capturedReps: Int? = null
         var capturedWeight: Double? = null
         val repsValue = 15
-        val initialExercise = UserExerciseEntry(
+        UserExerciseEntry(
             name = "Test Exercise",
             sets = 3,
             targetReps = "10-12",

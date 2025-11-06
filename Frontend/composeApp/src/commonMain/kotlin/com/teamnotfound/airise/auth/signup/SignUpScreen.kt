@@ -55,7 +55,7 @@ fun SignUpScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    val passwordsMatch = password == confirmPassword
+    password == confirmPassword
 
     Box(
         modifier = Modifier

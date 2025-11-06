@@ -211,7 +211,7 @@ fun AiChat(
                 scope.launch {
                     val bytes = onPickImageBytes() ?: return@launch
                     messageHistory += Message("📷 Image attached", ai = false)
-                    val prior = mapUiHistoryToAiMessages()
+                    mapUiHistoryToAiMessages()
                     val reply = try {
                         api.visionReplyWithContext(
                             userMsg = messageText.text,

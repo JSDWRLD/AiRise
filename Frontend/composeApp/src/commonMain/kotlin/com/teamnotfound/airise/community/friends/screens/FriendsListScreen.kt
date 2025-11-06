@@ -60,7 +60,6 @@ fun FriendsListScreen(
     val bottomNavController = rememberNavController()
 
     var searchQuery by remember { mutableStateOf("") }
-    var testFriendUid by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.load()
@@ -118,7 +117,7 @@ fun FriendsListScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Filter friends based on search query
-            val filteredFriends = uiState.friends.filter { friend ->
+            uiState.friends.filter { friend ->
                 friend.displayName.contains(searchQuery, ignoreCase = true) ||
                         friend.firebaseUid.contains(searchQuery, ignoreCase = true)
             }

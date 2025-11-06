@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.data.network.clients
 
+import com.teamnotfound.airise.baseUrl
 import com.teamnotfound.airise.data.DTOs.LeaderboardEntryDTO
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.Challenge
@@ -24,29 +25,27 @@ import kotlinx.serialization.SerializationException
 class DataClient(
     private val httpClient: HttpClient
 ) {
-    private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
-
     // Gets Challenges list, has 3 strings name, description, url
-    suspend fun getChallenges(): com.teamnotfound.airise.data.network.Result<List<Challenge>, NetworkError> {
+    suspend fun getChallenges(): Result<List<Challenge>, NetworkError> {
         val response = try {
             httpClient.get("$baseUrl/Challenge") {
                 contentType(ContentType.Application.Json)
             }
         } catch (e: UnresolvedAddressException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
+            return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERIALIZATION)
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
         return when (response.status.value) {
             200 -> {
                 val challenges = response.body<List<Challenge>>()
-                com.teamnotfound.airise.data.network.Result.Success(challenges)
+                Result.Success(challenges)
             }
 
-            400 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.BAD_REQUEST)
-            409 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.CONFLICT)
-            500-> com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERVER_ERROR)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
@@ -93,79 +92,79 @@ class DataClient(
 
     // Gets a list on entries for the global leaderboard top 10
     // Already in sorted order, highest streak at top
-    suspend fun getLeaderboardTop10(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
+    suspend fun getLeaderboardTop10(firebaseUser: FirebaseUser): Result<List<LeaderboardEntryDTO>, NetworkError> {
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/global/top10") {
                 contentType(ContentType.Application.Json)
             }
         } catch (e: UnresolvedAddressException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
+            return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERIALIZATION)
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
         return when (response.status.value) {
             200 -> {
                 val entries = response.body<List<LeaderboardEntryDTO>>()
-                com.teamnotfound.airise.data.network.Result.Success(entries)
+                Result.Success(entries)
             }
 
-            400 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.BAD_REQUEST)
-            409 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.CONFLICT)
-            500-> com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERVER_ERROR)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 
     // Gets a list on entries for the global leaderboard top 100
     // Already in sorted order, highest streak at top
-    suspend fun getLeaderboardTop100(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
+    suspend fun getLeaderboardTop100(firebaseUser: FirebaseUser): Result<List<LeaderboardEntryDTO>, NetworkError> {
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/global/top100") {
                 contentType(ContentType.Application.Json)
             }
         } catch (e: UnresolvedAddressException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
+            return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERIALIZATION)
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
         return when (response.status.value) {
             200 -> {
                 val entries = response.body<List<LeaderboardEntryDTO>>()
-                com.teamnotfound.airise.data.network.Result.Success(entries)
+                Result.Success(entries)
             }
 
-            400 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.BAD_REQUEST)
-            409 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.CONFLICT)
-            500-> com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERVER_ERROR)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
 
     // Gets a list on entries for the friend leaderboard
     // Already in sorted order, highest streak at top
-    suspend fun getLeaderboardFriends(firebaseUser: FirebaseUser): com.teamnotfound.airise.data.network.Result<List<LeaderboardEntryDTO>, NetworkError> {
+    suspend fun getLeaderboardFriends(firebaseUser: FirebaseUser): Result<List<LeaderboardEntryDTO>, NetworkError> {
         val firebaseUid = firebaseUser.uid
         val response = try {
             httpClient.get("$baseUrl/User/leaderboard/friends/$firebaseUid") {
                 contentType(ContentType.Application.Json)
             }
         } catch (e: UnresolvedAddressException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.NO_INTERNET)
+            return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
-            return com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERIALIZATION)
+            return Result.Error(NetworkError.SERIALIZATION)
         }
 
         return when (response.status.value) {
             200 -> {
                 val entries = response.body<List<LeaderboardEntryDTO>>()
-                com.teamnotfound.airise.data.network.Result.Success(entries)
+                Result.Success(entries)
             }
 
-            400 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.BAD_REQUEST)
-            409 -> com.teamnotfound.airise.data.network.Result.Error(NetworkError.CONFLICT)
-            500-> com.teamnotfound.airise.data.network.Result.Error(NetworkError.SERVER_ERROR)
+            400 -> Result.Error(NetworkError.BAD_REQUEST)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            500-> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }

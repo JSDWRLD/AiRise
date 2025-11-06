@@ -28,8 +28,6 @@ fun EmailVerificationScreen(
     onVerified: () -> Unit,
     onBackToLogin: () -> Unit
 ) {
-    val isVerified by viewModel.isVerified.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
     var hasSentVerification by remember { mutableStateOf(false) }
     val firebaseUser = Firebase.auth.currentUser ?: return
 
