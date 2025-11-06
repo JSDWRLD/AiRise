@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>GIDClientID</key>
-	<string>1049520954348-1tngdf05mhqc85ugtkd95hkomf225oa5.apps.googleusercontent.com</string>
+	<string>867161153841-21rspth2bs8o1alp5tf0k01u974b8olh.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
     <array>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.googleusercontent.apps.1049520954348-1tngdf05mhqc85ugtkd95hkomf225oa5</string>
+          <string>com.googleusercontent.apps.867161153841-21rspth2bs8o1alp5tf0k01u974b8olh</string>
         </array>
       </dict>
     </array>

@@ -47,13 +47,13 @@ public class Program
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = "https://securetoken.google.com/not-found-airise";
+                options.Authority = "https://securetoken.google.com/airise-org";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = "https://securetoken.google.com/not-found-airise",
+                    ValidIssuer = "https://securetoken.google.com/airise-org",
                     ValidateAudience = true,
-                    ValidAudience = "not-found-airise",
+                    ValidAudience = "airise-org",
                     ValidateLifetime = true
                 };
             });
