@@ -61,14 +61,14 @@ fun TDEEWidget(
                 state = uiState,
                 onStateChange = { uiState = it },
                 onCalculate = {
-                    // Convert imperial units to metric for calculation
-                    val heightCm = feetInchesToCm(
+                    // Convert imperial units to metric for calculation using TDEECalculator
+                    val heightCm = TDEECalculator.feetInchesToCm(
                         uiState.heightFeet.toIntOrNull() ?: 0,
                         uiState.heightInches.toIntOrNull() ?: 0
                     )
-                    val weightKg = lbsToKg(uiState.weightLbs.toDoubleOrNull() ?: 0.0)
+                    val weightKg = TDEECalculator.lbsToKg(uiState.weightLbs.toDoubleOrNull() ?: 0.0)
                     
-                    val tdee = calculateTDEE(
+                    val tdee = TDEECalculator.calculateTDEE(
                         gender = uiState.gender,
                         goalType = uiState.goalType,
                         heightCm = heightCm,
@@ -341,14 +341,16 @@ private fun InputMode(
             onLevelSelected = { onStateChange(state.copy(activityLevel = it)) }
         )
 
-        // Calculate Button
-        val isValid = state.gender.isNotBlank() &&
-                state.goalType.isNotBlank() &&
-                state.age.isNotBlank() &&
-                state.heightFeet.isNotBlank() &&
-                state.heightInches.isNotBlank() &&
-                state.weightLbs.isNotBlank() &&
-                state.activityLevel.isNotBlank()
+        // Calculate Button - using TDEECalculator for validation
+        val isValid = TDEECalculator.isCalculateButtonEnabled(
+            gender = state.gender,
+            goalType = state.goalType,
+            age = state.age,
+            heightFeet = state.heightFeet,
+            heightInches = state.heightInches,
+            weightLbs = state.weightLbs,
+            activityLevel = state.activityLevel
+        )
 
         Button(
             onClick = onCalculate,
@@ -631,56 +633,6 @@ private fun ActivityLevelDropdown(
             }
         }
     }
-}
-
-// Unit Conversion Functions
-private fun feetInchesToCm(feet: Int, inches: Int): Double {
-    val totalInches = (feet * 12) + inches
-    return totalInches * 2.54
-}
-
-private fun lbsToKg(lbs: Double): Double {
-    return lbs * 0.453592
-}
-
-// TDEE Calculation Logic
-private fun calculateTDEE(
-    gender: String,
-    goalType: String,
-    heightCm: Double,
-    weightKg: Double,
-    age: Int,
-    activityLevel: String
-): Int {
-    // Calculate BMR using Mifflin-St Jeor Equation
-    val bmr = if (gender == "Male") {
-        (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5
-    } else {
-        (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161
-    }
-
-    // Activity multipliers
-    val activityMultiplier = when (activityLevel) {
-        "Sedentary" -> 1.2
-        "Lightly Active" -> 1.375
-        "Moderately Active" -> 1.55
-        "Very Active" -> 1.725
-        "Extremely Active" -> 1.9
-        else -> 1.2
-    }
-
-    // Calculate TDEE
-    val tdee = bmr * activityMultiplier
-
-    // Adjust for goal
-    val targetCalories = when (goalType) {
-        "Bulk" -> tdee + 300  // Surplus for muscle gain
-        "Cut" -> tdee - 500   // Deficit for fat loss
-        "Maintain" -> tdee    // Maintenance
-        else -> tdee
-    }
-
-    return targetCalories.toInt()
 }
 
 // UI State
