@@ -39,7 +39,7 @@ class LoginViewModelTest {
         val e1: LoginUiEvent = LoginUiEvent.EmailChanged("a@b.com")
         val e2: LoginUiEvent = LoginUiEvent.PasswordChanged("Secret1!")
         val e3: LoginUiEvent = LoginUiEvent.Login
-        val e4: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("token-xyz")
+        val e4: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("token-xyz", "token-2")
         assertTrue(e1 is LoginUiEvent.EmailChanged)
         assertTrue(e2 is LoginUiEvent.PasswordChanged)
         assertTrue(e3 is LoginUiEvent)
@@ -195,7 +195,7 @@ class LoginViewModelTest {
 
     @Test
     fun google_event_exists_in_hierarchy_even_without_token_checks() {
-        val e: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("any-token")
+        val e: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("any-token", "token-2")
         assertTrue(e is LoginUiEvent.GoogleSignInSuccess)
     }
 

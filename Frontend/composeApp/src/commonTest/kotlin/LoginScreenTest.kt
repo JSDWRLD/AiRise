@@ -72,7 +72,7 @@ class LoginScreenTest {
 
     @Test
     fun google_sign_in_success_event_is_recognized() {
-        val event: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("token123")
+        val event: LoginUiEvent = LoginUiEvent.GoogleSignInSuccess("token123", "token-2")
         assertTrue(event is LoginUiEvent.GoogleSignInSuccess)
     }
 
