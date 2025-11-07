@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.teamnotfound.airise.data.cache.UserCache
 import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 
 class SignUpViewModel(private val authService: AuthService): ViewModel() {
 
@@ -93,29 +94,25 @@ class SignUpViewModel(private val authService: AuthService): ViewModel() {
         }
     }
     // This function is to be uncommented & ran once Firebase keys are configured
-    fun authenticateWithGoogle(idToken: String) {
-        // Set loading state
+    fun authenticateWithGoogle(idToken: String, accessToken: String?) {
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             try {
-                // Call the AuthService to handle the Firebase authentication with Google
-                val authResult = authService.authenticateWithGoogle(idToken)
-
+                val authResult = authService.authenticateWithGoogle(idToken, accessToken)
                 _uiState.value = _uiState.value.copy(isLoading = false)
 
                 when (authResult) {
                     is AuthResult.Success -> {
-                        // Update UI state to reflect successful login
                         if(authService.isNewUser){
                             _uiState.value = _uiState.value.copy(isSuccess = true, errorMessage = null)
                         }else{
                             _uiState.value = _uiState.value.copy(errorMessage = "Google Account already linked to an AiRise account")
                         }
                     }
-
                     is AuthResult.Failure -> {
                         _uiState.value = _uiState.value.copy(
+                            isSuccess = false,
                             errorMessage = "Google Sign-In failed: ${authResult.errorMessage}"
                         )
                     }
@@ -123,6 +120,7 @@ class SignUpViewModel(private val authService: AuthService): ViewModel() {
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    isSuccess = false,
                     errorMessage = "Google Sign-In failed: ${e.message}"
                 )
             }

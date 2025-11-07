@@ -108,7 +108,10 @@ fun LoginScreen(
                     if (authReady) {
                         GoogleButtonUiContainer(
                             onGoogleSignInResult = { user ->
-                                user?.idToken?.let { viewModel.onEvent(LoginUiEvent.GoogleSignInSuccess(it)) }
+                                user?.idToken?.let { viewModel.onEvent(LoginUiEvent.GoogleSignInSuccess(
+                                    idToken = user.idToken ?: "",
+                                    accessToken = user.accessToken
+                                )) }
                             }
                         ) {
                             PrimaryButton(

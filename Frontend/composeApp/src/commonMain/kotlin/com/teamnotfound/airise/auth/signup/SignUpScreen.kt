@@ -140,7 +140,7 @@ fun SignUpScreen(
                     if (authReady) {
                         GoogleButtonUiContainer(
                             onGoogleSignInResult = { googleUser ->
-                                googleUser?.idToken?.let { viewModel.authenticateWithGoogle(it) }
+                                googleUser?.idToken?.let { viewModel.authenticateWithGoogle(googleUser.idToken ?: "", googleUser.accessToken) }
                             }
                         ) {
                             PrimaryButton(
