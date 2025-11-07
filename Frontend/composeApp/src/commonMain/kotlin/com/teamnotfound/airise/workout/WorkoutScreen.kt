@@ -159,8 +159,8 @@ fun WorkoutScreen(userRepository: IUserRepository, navController: NavHostControl
                                 day = day.dayName,
                                 focus = day.focus,
                                 count = day.exercises.size,
-                                expanded = expanded[day.dayName] ?: false,
-                                onToggle = { expanded[day.dayName] = !(expanded[day.dayName] ?: false) },
+                                expanded = expanded[day.dayName] == true,
+                                onToggle = { expanded[day.dayName] = expanded[day.dayName] != true },
                                 items = day.exercises,
                                 onChange = { exerciseName, reps, weight ->
                                     viewModel.changeSet(day.dayIndex, exerciseName, reps, weight)

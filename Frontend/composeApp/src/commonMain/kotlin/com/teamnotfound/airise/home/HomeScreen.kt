@@ -15,6 +15,9 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.ui.draw.alpha
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.teamnotfound.airise.AppScreen
@@ -36,6 +39,20 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val profileUpdated by homeSavedStateHandle
         .getStateFlow("profile_picture_updated", 0L)
         .collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshUserData()       // pulls latest username
+                viewModel.getUserProfilePic()     // optional: keep avatar fresh, too
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
 
     LaunchedEffect(profileUpdated) {
         if (profileUpdated != 0L) {

@@ -26,9 +26,9 @@ fun MainViewController() = ComposeUIViewController {
 
     val notifier = TempNotifier()
     val workoutReminder = WorkoutReminderUseCase(notifier)
-    val mealReminder    = MealReminderUseCase(notifier)
-    val waterReminder   = WaterReminderUseCase(notifier)
-    val nudgeReminder   = NudgeReminderUseCase(notifier)
+    MealReminderUseCase(notifier)
+    WaterReminderUseCase(notifier)
+    NudgeReminderUseCase(notifier)
 
     val auth = Firebase.auth
     val tokenManager = remember { FirebaseTokenManager(auth) }

@@ -147,11 +147,11 @@ class WorkoutViewModel(
         viewModelScope.launch {
             try {
                 when (val result = userRepository.updateUserProgram(programDoc.program)) {
-                    is com.teamnotfound.airise.data.network.Result.Success -> {
+                    is Result.Success -> {
                         println("Program saved successfully")
                         // Optionally show success message to user
                     }
-                    is com.teamnotfound.airise.data.network.Result.Error -> {
+                    is Result.Error -> {
                         println("Failed to save program: ${result.error}")
                         // Handle error - maybe show error message to user
                     }

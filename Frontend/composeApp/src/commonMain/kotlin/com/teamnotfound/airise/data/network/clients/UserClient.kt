@@ -1,20 +1,22 @@
 package com.teamnotfound.airise.data.network.clients
 
+import com.teamnotfound.airise.baseUrl
 import com.teamnotfound.airise.data.DTOs.CreateUserDTO
 import com.teamnotfound.airise.data.DTOs.UsersEnvelope
 import com.teamnotfound.airise.data.network.Result
-import com.teamnotfound.airise.data.serializable.User
-import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.HealthData
 import com.teamnotfound.airise.data.serializable.SetActiveReq
 import com.teamnotfound.airise.data.serializable.UidOnlyReq
+import com.teamnotfound.airise.data.serializable.User
 import com.teamnotfound.airise.data.serializable.UserChallenge
+import com.teamnotfound.airise.data.serializable.UserData
+import com.teamnotfound.airise.data.serializable.UserProgram
 import com.teamnotfound.airise.data.serializable.UserProgramDoc
+import com.teamnotfound.airise.data.serializable.UserSettingsData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.auth.FirebaseUser
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
@@ -22,28 +24,24 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
-import kotlinx.serialization.SerializationException
-import com.teamnotfound.airise.data.serializable.UserSettingsData
-import com.teamnotfound.airise.data.serializable.UserProgram
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import kotlinx.serialization.SerializationException
 
 interface IUserClient {
-    suspend fun insertUser(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, email: String): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.User, com.teamnotfound.airise.util.NetworkError>
-    suspend fun getUserData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserData, com.teamnotfound.airise.util.NetworkError>
-    suspend fun insertUserData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, userData: com.teamnotfound.airise.data.serializable.UserData): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserData, com.teamnotfound.airise.util.NetworkError>
-    suspend fun getHealthData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.HealthData, com.teamnotfound.airise.util.NetworkError>
-    suspend fun updateHealthData(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser, healthData: com.teamnotfound.airise.data.serializable.HealthData): com.teamnotfound.airise.data.network.Result<Boolean, com.teamnotfound.airise.util.NetworkError>
-    suspend fun getUserSettings(firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<com.teamnotfound.airise.data.serializable.UserSettingsData, com.teamnotfound.airise.util.NetworkError>
-    suspend fun upsertUserSettings(userSettings: com.teamnotfound.airise.data.serializable.UserSettingsData, firebaseUser: dev.gitlive.firebase.auth.FirebaseUser): com.teamnotfound.airise.data.network.Result<Boolean, com.teamnotfound.airise.util.NetworkError>
+    suspend fun insertUser(firebaseUser: FirebaseUser, email: String): Result<User, NetworkError>
+    suspend fun getUserData(firebaseUser: FirebaseUser): Result<UserData, NetworkError>
+    suspend fun insertUserData(firebaseUser: FirebaseUser, userData: UserData): Result<UserData, NetworkError>
+    suspend fun getHealthData(firebaseUser: FirebaseUser): Result<HealthData, NetworkError>
+    suspend fun updateHealthData(firebaseUser: FirebaseUser, healthData: HealthData): Result<Boolean, NetworkError>
+    suspend fun getUserSettings(firebaseUser: FirebaseUser): Result<UserSettingsData, NetworkError>
+    suspend fun upsertUserSettings(userSettings: UserSettingsData, firebaseUser: FirebaseUser): Result<Boolean, NetworkError>
 }
 
 class   UserClient(
     private val httpClient: HttpClient
 ) : IUserClient {
-    private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
-
     /**
      * API call to register a new user.
      * We simply send the firebaseUid in the createUserRequest.

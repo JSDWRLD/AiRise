@@ -37,7 +37,7 @@ class AccountSettingsTest {
             override suspend fun updateEmail(newEmail: String) = throw NotImplementedError()
             override suspend fun updatePassword(newPassword: String) = throw NotImplementedError()
             override suspend fun signOut() = com.teamnotfound.airise.data.auth.AuthResult.Success(com.teamnotfound.airise.data.auth.User())
-            override suspend fun authenticateWithGoogle(idToken: String) = throw NotImplementedError()
+            override suspend fun authenticateWithGoogle(idToken: String, accessToken: String?) = throw NotImplementedError()
             override suspend fun getIdToken() = null
         }
 
@@ -73,7 +73,7 @@ class AccountSettingsTest {
             override suspend fun updateEmail(newEmail: String) = throw NotImplementedError()
             override suspend fun updatePassword(newPassword: String) = throw NotImplementedError()
             override suspend fun signOut() = com.teamnotfound.airise.data.auth.AuthResult.Success(com.teamnotfound.airise.data.auth.User())
-            override suspend fun authenticateWithGoogle(idToken: String) = throw NotImplementedError()
+            override suspend fun authenticateWithGoogle(idToken: String, accessToken: String?) = throw NotImplementedError()
             override suspend fun getIdToken() = null
         }
 

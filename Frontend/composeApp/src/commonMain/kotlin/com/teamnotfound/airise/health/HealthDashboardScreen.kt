@@ -74,7 +74,7 @@ fun HealthDashboardScreen(
         mutableStateOf(
             healthData?.let {
                 it.caloriesBurned == 0 && it.steps == 0 && it.hydration == 0.0 && it.sleep == 0.0
-            } ?: true
+            } != false
         )
     }
 

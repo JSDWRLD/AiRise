@@ -60,6 +60,8 @@ import com.teamnotfound.airise.community.challenges.challengeEditor.ChallengeEdi
 import com.teamnotfound.airise.customize.CustomizationViewModel
 import kotlinx.coroutines.launch
 
+const val baseUrl = "https://airise-org-cqczdtd2gehpaden.westus3-01.azurewebsites.net/api"
+
 @Composable
 fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase) {
     val navController = rememberNavController()
@@ -137,7 +139,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
         userClient = container.userClient,
     )
 
-    val apiBase = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
+    val apiBase = "https://airise-org-cqczdtd2gehpaden.westus3-01.azurewebsites.net/api"
     val friendsRepository = remember {
         val friendsClient = FriendsClient(
             container.httpClient,
@@ -195,7 +197,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                                 val user = Firebase.auth.currentUser
                                 val usingPasswordProvider =
                                     user?.providerData?.any { it.providerId == "password" } == true
-                                val needsVerification = user != null && usingPasswordProvider && !(user?.isEmailVerified ?: false)
+                                val needsVerification = user != null && usingPasswordProvider && user?.isEmailVerified != true
 
                                 when {
                                     user == null -> {
@@ -499,7 +501,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         viewModel = emailVerificationViewModel,
                         onVerified = {
                             // Decide dynamically where to go
-                            val user = Firebase.auth.currentUser
+                            Firebase.auth.currentUser
                             navController.navigate(AppScreen.ONBOARD.name) {
                                 popUpTo(0)
                             }

@@ -1,5 +1,6 @@
 package com.teamnotfound.airise.data.network.clients
 
+import com.teamnotfound.airise.baseUrl
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.data.serializable.UserSettingsData
@@ -36,8 +37,6 @@ import kotlin.test.assertTrue
  */
 
 class UserClientCoreTest {
-
-    private val baseUrl = "https://airise-b6aqbuerc0ewc2c5.westus-01.azurewebsites.net/api"
     private val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true

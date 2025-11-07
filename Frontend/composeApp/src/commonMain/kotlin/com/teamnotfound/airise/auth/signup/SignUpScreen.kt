@@ -55,7 +55,7 @@ fun SignUpScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    val passwordsMatch = password == confirmPassword
+    password == confirmPassword
 
     Box(
         modifier = Modifier
@@ -140,7 +140,7 @@ fun SignUpScreen(
                     if (authReady) {
                         GoogleButtonUiContainer(
                             onGoogleSignInResult = { googleUser ->
-                                googleUser?.idToken?.let { viewModel.authenticateWithGoogle(it) }
+                                googleUser?.idToken?.let { viewModel.authenticateWithGoogle(googleUser.idToken ?: "", googleUser.accessToken) }
                             }
                         ) {
                             PrimaryButton(

@@ -4,14 +4,17 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>GIDServerClientID</key>
+    <string>867161153841-a1l06nn8e44jj5p17epaksdhjed15egf.apps.googleusercontent.com</string>
+
 	<key>GIDClientID</key>
-	<string>867161153841-21rspth2bs8o1alp5tf0k01u974b8olh.apps.googleusercontent.com</string>
+	<string>867161153841-8sm3diojqam8v2e19j0lhh2rsumjp7vv.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
     <array>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.googleusercontent.apps.867161153841-21rspth2bs8o1alp5tf0k01u974b8olh</string>
+          <string>com.googleusercontent.apps.867161153841-8sm3diojqam8v2e19j0lhh2rsumjp7vv</string>
         </array>
       </dict>
     </array>

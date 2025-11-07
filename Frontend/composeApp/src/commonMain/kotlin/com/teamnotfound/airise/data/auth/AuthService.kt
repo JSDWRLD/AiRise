@@ -31,27 +31,28 @@ class AuthService(
         get() = auth.currentUser
 
     var isNewUser = false
-
     var isUsingProvider = false
 
-    override suspend fun authenticateWithGoogle(idToken: String): AuthResult {
+    override suspend fun authenticateWithGoogle(idToken: String, accessToken: String?): AuthResult {
         return try {
-            val credential = dev.gitlive.firebase.auth.GoogleAuthProvider.credential(idToken,null)
+            val credential = dev.gitlive.firebase.auth.GoogleAuthProvider.credential(
+                idToken = idToken,
+                accessToken = accessToken
+            )
+
             val result = auth.signInWithCredential(credential)
             val firebaseUser = result.user
+            val isNew = result.additionalUserInfo?.isNewUser == true
 
             if (firebaseUser != null) {
-                // Check if this is a new user
-                isNewUser = result.additionalUserInfo?.isNewUser ?: false
+                isNewUser = isNew
+                isUsingProvider = true
 
                 if (isNewUser) {
-                    // Create a new user record in DB
-                    userClient.insertUser(firebaseUser, firebaseUser.email?: "")
+                    userClient.insertUser(firebaseUser, firebaseUser.email ?: "")
                 }
 
-                val user = User(id = firebaseUser.uid, email = firebaseUser.email)
-                isUsingProvider = true
-                AuthResult.Success(user)
+                AuthResult.Success(User(id = firebaseUser.uid, email = firebaseUser.email))
             } else {
                 AuthResult.Failure("Google authentication failed: user is null")
             }
@@ -59,7 +60,6 @@ class AuthService(
             AuthResult.Failure(e.message ?: "Google authentication failed")
         }
     }
-
 
     override suspend fun authenticate(email: String, password: String): AuthResult {
         return try {

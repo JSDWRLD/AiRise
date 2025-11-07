@@ -149,7 +149,7 @@ class UserClientWorkoutTest {
         val fakeNotifier = FakeLocalNotifier()
         val reminderUseCase = WorkoutReminderUseCase(fakeNotifier)
 
-        val viewModel = WorkoutViewModel(mockRepo, reminderUseCase)
+        WorkoutViewModel(mockRepo, reminderUseCase)
 
         // Act
         testDispatcher.scheduler.advanceUntilIdle()

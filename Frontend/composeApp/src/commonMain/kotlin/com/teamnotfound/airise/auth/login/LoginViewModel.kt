@@ -47,37 +47,40 @@ class LoginViewModel(
             }
 
             is LoginUiEvent.GoogleSignInSuccess -> {
-               authenticateWithGoogle(uiEvent.token)
+                authenticateWithGoogle(uiEvent.idToken, uiEvent.accessToken)
             }
         }
 
     }
 
-
     // This function is to be uncommented & ran once Firebase keys are configured
-    fun authenticateWithGoogle(idToken: String) {
-        // Set loading state
+    fun authenticateWithGoogle(idToken: String, accessToken: String?) {
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
             try {
-                // Call the AuthService to handle the Firebase authentication with Google
-                val authResult = authService.authenticateWithGoogle(idToken)
+                if (idToken.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = "Google Sign-In failed: missing ID token"
+                    )
+                    return@launch
+                }
 
+                val authResult = authService.authenticateWithGoogle(idToken, accessToken)
                 _uiState.value = _uiState.value.copy(isLoading = false)
 
                 when (authResult) {
                     is AuthResult.Success -> {
-                        // Update UI state to reflect successful login
                         _uiState.value = _uiState.value.copy(
                             isLoggedIn = true,
                             email = authResult.data.email ?: "",
                             errorMessage = null
                         )
                     }
-
                     is AuthResult.Failure -> {
                         _uiState.value = _uiState.value.copy(
+                            isLoggedIn = false,
                             errorMessage = "Google Sign-In failed: ${authResult.errorMessage}"
                         )
                     }
@@ -85,6 +88,7 @@ class LoginViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    isLoggedIn = false,
                     errorMessage = "Google Sign-In failed: ${e.message}"
                 )
             }

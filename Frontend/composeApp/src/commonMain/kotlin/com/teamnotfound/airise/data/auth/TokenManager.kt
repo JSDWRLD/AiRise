@@ -19,18 +19,18 @@ interface TokenProvider {
 }
 
 class FirebaseTokenManager(
-    private val auth: dev.gitlive.firebase.auth.FirebaseAuth
+    private val auth: FirebaseAuth
 ) : TokenProvider {
     private data class Cache(val token: String, val exp: Long)
     private var cache: Cache? = null
-    private val mutex = kotlinx.coroutines.sync.Mutex()
+    private val mutex = Mutex()
     private val earlyRefreshSeconds = 120L
 
     override fun currentUid(): String? = auth.currentUser?.uid
     override fun invalidate() { cache = null }
 
     override suspend fun cachedOrFresh(): String = mutex.withLock {
-        val now = kotlinx.datetime.Clock.System.now().epochSeconds
+        val now = Clock.System.now().epochSeconds
         cache?.let { if (now < it.exp - earlyRefreshSeconds) return it.token }
         return refreshInternal(force = false)
     }
@@ -41,20 +41,20 @@ class FirebaseTokenManager(
 
     private suspend fun refreshInternal(force: Boolean): String {
         val jwt = auth.currentUser?.getIdToken(force) ?: error("No authenticated user")
-        val exp = decodeExp(jwt) ?: (kotlin.math.max(0, kotlinx.datetime.Clock.System.now().epochSeconds) + 55 * 60)
+        val exp = decodeExp(jwt) ?: (kotlin.math.max(0, Clock.System.now().epochSeconds) + 55 * 60)
         cache = Cache(jwt, exp)
         return jwt
     }
 
     // --- minimal JWT exp decoder (no network) ---
-    @OptIn(kotlin.io.encoding.ExperimentalEncodingApi::class)
+    @OptIn(ExperimentalEncodingApi::class)
     private fun decodeExp(jwt: String): Long? {
         val parts = jwt.split(".")
         if (parts.size < 2) return null
         val payload = parts[1]
         val padded = when (payload.length % 4) { 2 -> payload + "=="; 3 -> payload + "="; else -> payload }
-        val json = kotlin.io.encoding.Base64.UrlSafe.decode(padded).decodeToString()
-        val obj = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject
+        val json = Base64.UrlSafe.decode(padded).decodeToString()
+        val obj = Json.parseToJsonElement(json).jsonObject
         return obj["exp"]?.jsonPrimitive?.longOrNull
     }
 }
