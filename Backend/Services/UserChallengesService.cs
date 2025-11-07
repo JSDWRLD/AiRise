@@ -65,15 +65,23 @@ namespace AiRise.Services
             var doc = await GetOrCreateAsync(firebaseUid, ct);
 
             if (doc.LastCompletionEpochDay == today)
-                return doc; // already marked today
+                return doc; // idempotent
+
+            var newStreak = (doc.LastCompletionEpochDay == today - 1)
+                ? Math.Max(0, doc.StreakCount) + 1
+                : 1;
 
             var filter = Builders<UserChallenges>.Filter.Eq(x => x.FirebaseUid, firebaseUid);
             var update = Builders<UserChallenges>.Update
                 .Set(x => x.LastCompletionEpochDay, today)
+                .Set(x => x.StreakCount, newStreak)
                 .Unset(x => x.ActiveChallengeId);
 
             await _col.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true }, ct);
+
             doc.LastCompletionEpochDay = today;
+            doc.StreakCount = newStreak;
+            doc.ActiveChallengeId = null;
             return doc;
         }
 
