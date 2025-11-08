@@ -50,7 +50,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-private const val SHOWCASE_MODE = true // flip for demos
+private const val SHOWCASE_MODE = false // flip for demos
 
 @Composable
 fun HealthDashboardScreen(

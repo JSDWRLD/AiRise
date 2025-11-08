@@ -65,51 +65,59 @@ fun DailyProgressSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(70.dp)
         ) {
-            if(!isLoaded){
-                CircularProgressIndicator(
-                    color = DeepBlue
-                )
-            }else{
-                Box(
-                    modifier = Modifier.size(140.dp)
-                ) {
+            if (!isLoaded) {
+                CircularProgressIndicator(color = DeepBlue)
+            } else {
+                Box(modifier = Modifier.size(140.dp)) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
-                        val strokeWidth = 30f
-                        val gap = 8f
+                        val strokeWidth = 30f  // px
+                        val gap = 8f          // px
 
                         // Draw background circles based on health sync availability
                         if (isHealthSyncAvailable) {
                             // Show all three rings when health sync is available
                             listOf(0, 1, 2).forEach { index ->
-                                drawCircle(
-                                    color = Silver,
-                                    radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
-                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                                )
+                                val radius = (size.minDimension / 2f) -
+                                        (strokeWidth * (index + 1)) -
+                                        (gap * index)
+
+                                if (radius > 0f) {
+                                    drawCircle(
+                                        color = Silver,
+                                        radius = radius,
+                                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt) // caps don't matter on closed circle
+                                    )
+                                }
                             }
 
                             // Draw progress arcs
-                            drawProgressArc(NeonGreen, dailyProgressData.sleepProgress, 0, strokeWidth, gap)
-                            drawProgressArc(Orange, dailyProgressData.caloriesProgress, 1, strokeWidth, gap)
-                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 2, strokeWidth, gap)
+                            drawProgressArc(NeonGreen, dailyProgressData.sleepProgress.safePercent(), 0, strokeWidth, gap)
+                            drawProgressArc(Orange, dailyProgressData.caloriesProgress.safePercent(), 1, strokeWidth, gap)
+                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress.safePercent(), 2, strokeWidth, gap)
                         } else {
                             // Hide sleep ring when health sync not available - only show 2 rings
                             listOf(0, 1).forEach { index ->
-                                drawCircle(
-                                    color = Silver,
-                                    radius = (size.minDimension / 2) - (strokeWidth * (index + 1)) - (gap * index),
-                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                                )
+                                val radius = (size.minDimension / 2f) -
+                                        (strokeWidth * (index + 1)) -
+                                        (gap * index)
+
+                                if (radius > 0f) {
+                                    drawCircle(
+                                        color = Silver,
+                                        radius = radius,
+                                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+                                    )
+                                }
                             }
 
                             // Draw only calorie intake and hydration arcs
-                            drawProgressArc(Orange, dailyProgressData.caloriesProgress, 0, strokeWidth, gap)
-                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress, 1, strokeWidth, gap)
+                            drawProgressArc(Orange, dailyProgressData.caloriesProgress.safePercent(), 0, strokeWidth, gap)
+                            drawProgressArc(Cyan, dailyProgressData.hydrationProgress.safePercent(), 1, strokeWidth, gap)
                         }
                     }
 
                     Text(
-                        text = "${dailyProgressData.totalProgress.toInt()}%",
+                        text = "${dailyProgressData.totalProgress.safePercent().toInt()}%",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Silver,
@@ -124,7 +132,7 @@ fun DailyProgressSection(
             ) {
                 // Only show sleep legend if health sync is available
                 if (isHealthSyncAvailable) {
-                    Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.toInt())
+                    Legend(NeonGreen, "Sleep: ", dailyProgressData.sleepProgress.safePercent().toInt())
                     if (isLoaded && lastNightSleepHours != null) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
@@ -136,9 +144,9 @@ fun DailyProgressSection(
                     Spacer(modifier = Modifier.height(6.dp))
                 }
 
-                Legend(Orange, "Calorie Intake: ", dailyProgressData.caloriesProgress.toInt())
+                Legend(Orange, "Calorie Intake: ", dailyProgressData.caloriesProgress.safePercent().toInt())
                 Spacer(modifier = Modifier.height(6.dp))
-                Legend(Cyan, "Hydration: ", dailyProgressData.hydrationProgress.toInt())
+                Legend(Cyan, "Hydration: ", dailyProgressData.hydrationProgress.safePercent().toInt())
             }
         }
     }
@@ -165,7 +173,7 @@ fun Legend(color: Color, label: String, percentage: Int) {
     }
 }
 
-// Helper function to draw the progress arcs
+// Helper function to draw the progress arcs (ORIGINAL geometry, just safer)
 fun DrawScope.drawProgressArc(
     color: Color,
     percentage: Float,
@@ -173,15 +181,21 @@ fun DrawScope.drawProgressArc(
     strokeWidth: Float,
     gap: Float
 ) {
+    val pct = percentage.safePercent()
+
     val radiusOffset = (strokeWidth * (index + 1)) + (gap * index)
+    val w = size.width - radiusOffset * 2f
+    val h = size.height - radiusOffset * 2f
+    if (w <= 0f || h <= 0f || pct <= 0f) return
+
     drawArc(
         color = color,
         startAngle = -90f,
-        sweepAngle = (percentage / 100f) * 360f,
+        sweepAngle = (pct / 100f) * 360f,
         useCenter = false,
         style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
         topLeft = Offset(radiusOffset, radiusOffset),
-        size = Size(size.width - radiusOffset * 2, size.height - radiusOffset * 2)
+        size = Size(w, h)
     )
 }
 
@@ -191,3 +205,7 @@ private fun formatHours(hours: Double): String {
     val m = ((hours - h) * 60).roundToInt().coerceIn(0, 59)
     return if (h > 0) "${h}h ${m}m" else "${m}m"
 }
+
+// Clamp+clean: avoid NaN/Infinity/overflows that can render as full 360°
+private fun Float.safePercent(): Float =
+    if (!this.isFinite()) 0f else this.coerceIn(0f, 100f)
