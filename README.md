@@ -10,306 +10,171 @@
 
 ---
 
-<h2>📱 Overview</h2>
+## 📖 About the Project
 
-<p>
-AiRise bridges the gap between convenience and results. Built with full-stack flexibility and mobile optimization in mind, it empowers users to take control of their health with personalized routines, meal planning, progress tracking, and smart-device integrations—all driven by AI.
-</p>
+**AiRise** bridges the gap between convenience and results. It’s a smart, AI-driven health and fitness app that empowers users to take control of their wellness journey through personalized routines, nutrition plans, and adaptive goal tracking.
 
-<h3>✨ Key Features</h3>
+### 💡 Why AiRise?
 
-<ul>
-  <li><b>AI-Powered Coaching:</b> Personalized workouts, meal plans, and goal tracking.</li>
-  <li><b>Smart Progress Tracker:</b> Visual analytics and adaptive goal scaling.</li>
-  <li><b>Meal Planner & Nutrition Tracker:</b> Daily intake tracking and meal suggestions.</li>
-  <li><b>Gamification & Social Engagement:</b> Leaderboards, streaks, and community challenges.</li>
-  <li><b>Smart Device Integration:</b> Connect with fitness trackers and health apps.</li>
-  <li><b>Push & Email Notifications:</b> Stay on track with timely alerts and weekly summaries.</li>
-</ul>
+Most people struggle with consistency, motivation, or understanding what works best for their body. AiRise was created to bring personalized fitness and nutrition to everyone, guided by AI insights, backed by data, and enhanced by community support.
 
 ---
 
-<h2>📂 Project Structure</h2>
+## ✨ Key Features
+
+- 🤖 **AI-Powered Coaching:** Personalized workouts, meal plans, and fitness insights.  
+- 📊 **Smart Progress Tracker:** Visual analytics and adaptive goal scaling.  
+- 🍽️ **Meal Planner & Nutrition Tracker:** Daily intake tracking and smart meal suggestions.  
+- 🕹️ **Gamification & Community:** Leaderboards, challenges, and social engagement.  
+- ⌚ **Smart Device Integration:** Connect with wearables and health platforms like Google Fit or Apple Health.  
+- 🔔 **Notifications & Reminders:** Push alerts to keep users on track.  
+
+---
+
+## 📸 Features & Screenshots
+
+Below are visual highlights of AiRise’s core experience. Add or replace screenshots in the `Media/` folder as your project evolves.
+
+### 🏠 Core Experience
+| Screen | Description |
+|---------|--------------|
+| <img src="Media/home.png" width="250"/> | **Home Screen** – Displays user stats, goals, and daily summaries. |
+| <img src="Media/chat.png" width="250"/> | **AI Coach Chat** – Personalized fitness and nutrition guidance through chat. |
+| <img src="Media/workout.png" width="250"/> | **Workout Screen** – Suggested routines with AI-driven adjustments. |
+
+### ⚙️ Onboarding & Settings
+| Screen | Description |
+|---------|--------------|
+| <img src="Media/onboard.png" width="250"/> | **Onboarding Flow** – Smooth setup experience for new users. |
+
+---
+
+## 🧠 Architecture Overview
+
+<p align="center">
+  <img src="Media/erd.png" alt="Architecture Diagram" width="75%">
+</p>
+
+<p align="center"><i>Architecture showing interaction between mobile frontend, backend API, and databases.</i></p>
+
+---
+
+## 🛠️ Technologies Used
+
+| Frontend | Backend | AI/ML | Database | Integrations |
+|-----------|----------|--------|-----------|---------------|
+| Kotlin Multiplatform | .NET 9, Firebase Auth | Google Gemini | MongoDB, SupaBase | Google Fit, Apple Health, Wearables |
+
+---
+
+## 📂 Project Structure
 
 ```
 /frontend   # (Kotlin Multiplatform) mobile application
 /backend    # RESTful backend API (.NET 9)
 ```
 
-<p>Each folder contains its own README with setup details and architecture.</p>
+Each folder contains its own README with detailed setup and architecture information.
 
 ---
 
-<h2>🚀 Deployment</h2>
+## ⚙️ Getting Started
 
-<p>
-Deployment for this project is currently manual.
-</p>
+### ✅ Prerequisites
+- .NET 9 SDK  
+- Android Studio  
+- Kotlin Multiplatform  
 
-<ul>
-  <li><b>Mobile (Frontend):</b> Built in Android Studio → deployed to APK / Play Store</li>
-  <li><b>Backend API:</b> Deployed on Azure or local server for demo</li>
-  <li><b>Database:</b> SupaBase & MongoDB Atlas (cloud-hosted)</li>
-</ul>
-
----
-
-<h2>🚀 Getting Started</h2>
-
-<h3>✅ Prerequisites</h3>
-
-<ul>
-  <li>.NET 9 SDK</li>
-  <li>Android Studio</li>
-  <li>Kotlin Multiplatform</li>
-</ul>
-
----
-
-<h3>⚙️ Environment Setup</h3>
+### 🧩 Installation
 
 ```bash
 git clone https://github.com/JSDWRLD/AiRise
 cd airise
 ```
 
-<b>Frontend (Mobile App):</b>
-
+#### 📱 Frontend (Mobile App)
 ```bash
 cd frontend
-# Open in Android Studio
+# Open in Android Studio and run on emulator or physical device
 ```
 
-<b>Backend (API):</b>
-
+#### 🖥️ Backend (API)
 ```bash
 cd backend
-# Open in Visual Studio
+# Open in Visual Studio and run
 ```
 
 ---
 
-<h2>📸 Visuals</h2>
+## 🚀 Deployment
 
-Click the dropdown menus to view images!
-
-<details>
-  <summary>📱 Core Features</summary>
-  <table>
-    <tr>
-      <td align="center"><b>Homescreen</b><br><img src="Media/home.png" width="250"/></td>
-      <td align="center"><b>AI Coach Chat</b><br><img src="Media/chat.png" width="250"/></td>
-    </tr>
-    <tr>
-      <td align="center"><b>Workouts</b><br><img src="Media/workout.png" width="250"/></td>
-      <td></td>
-    </tr>
-  </table>
-</details>
-
-<details>
-  <summary>⚙️ Onboarding & Settings</summary>
-  <table>
-    <tr>
-      <td align="center"><b>Onboarding UI</b><br><img src="Media/onboard.png" width="250"/></td>
-      <td></td>
-    </tr>
-  </table>
-</details>
+- **Mobile:** Build with Android Studio → Deploy APK or publish to Play Store  
+- **Backend:** Host on Azure or local server for demo  
+- **Database:** SupaBase & MongoDB Atlas (cloud-hosted)
 
 ---
 
-<h2>🧠 Architecture</h2>
+## 🧪 Testing
 
-<p align="center">
-  <img src="Media/erd.png" alt="Architecture Diagram" width="75%">
-</p>
+We use both **manual** and **automated testing** to ensure stability across devices.
 
-<p align="center"><i>An overview of the system: mobile frontend ↔ backend services ↔ database</i></p>
+### 🧩 Frontend Testing
+- Manual QA testing on Android devices  
+- Automated UI tests using Espresso  
 
----
+### 🧩 Backend Testing
+- xUnit test suite for .NET APIs  
+- Mock data for simulated user workflows  
 
-<h2>🛠️ Technologies</h2>
-
-<table>
-  <tr>
-    <th>Frontend</th>
-    <th>Backend</th>
-    <th>AI & ML</th>
-    <th>Database</th>
-    <th>Integrations</th>
-  </tr>
-  <tr>
-    <td>Kotlin, KMP</td>
-    <td>.NET 9, Firebase Auth</td>
-    <td>Google Gemini, Image Processor</td>
-    <td>MongoDB, SupaBase</td>
-    <td>Google Fit, Apple Health, Wearables</td>
-  </tr>
-</table>
-
----
-
-<h2>📌 Rules & Guidelines</h2>
-
-<h3>👨‍💻 Developer Instructions</h3>
-
-<ol>
-  <li>Clone the repo and check the correct branch.</li>
-  <li>Follow README setup instructions inside <code>/frontend</code> and <code>/backend</code>.</li>
-  <li>Update your feature branch often with <code>main</code> to avoid conflicts.</li>
-  <li>Write clear commits & keep PRs small for fast reviews.</li>
-</ol>
-
-<h3>🔀 Branching Strategy</h3>
-
-- Always use feature branches: `git checkout -b feature/my-feature`
-- Never push directly to `main`
-
-<h3>✅ Pull Request Protocol</h3>
-
-- At least <b>2 reviewers</b> must approve before merging.
-- Ping the team on Discord (`@everyone`) for visibility.
-- Keep PRs <b>small, atomic, and focused</b>.
-
-<h3>✍️ Commit Format</h3>
-
+Run tests:
 ```bash
-type: short description
-```
-
-> Example: `feat: add AI meal suggestion endpoint`
-
-<h3>🔐 Security</h3>
-
-- Do <b>not</b> commit `.env` files or secrets.
-- Use `.gitignore` to protect sensitive data.
-
----
-
-<h2>🧪 Feature Checklist</h2>
-
-<h3>✅ Core Features</h3>
-
-- [x] AI-powered workout suggestions  
-- [x] Nutrition and meal tracking  
-- [x] Progress analytics  
-- [x] Community and gamification  
-- [x] Smart device integration  
-
-<h3>🚧 Stretch Goals</h3>
-
-- [ ] 📷 <b>Computer Vision</b> for form checking  
-- [ ] 🥗 Meal image analysis for macronutrient estimation  
-
----
-
-<h2>🗓️ Project Timeline</h2>
-
-<p>Below is a rough breakdown of our milestones and deadlines, based on our JIRA sprint planning:</p>
-
-<table>
-  <tr>
-    <th>Milestone</th>
-    <th>Due Date</th>
-    <th>Status</th>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 0 Project Approval</td>
-    <td>Jan 28, 2025</td>
-    <td>Completed</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 1 UI Prototype</td>
-    <td>Feb 17, 2025</td>
-    <td>Completed</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 2 User Registration and Onboarding</td>
-    <td>Mar 03, 2025</td>
-    <td>Completed</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 3 Homescreen</td>
-    <td>Mar 17, 2025</td>
-    <td>Completed</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 4 User Onboarding Fix and Profile Integration</td>
-    <td>Apr 26, 2025</td>
-    <td>Completed</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 5 Community Engagement</td>
-    <td>Aug 27, 2025</td>
-    <td>In Progress</td>
-  </tr>
-  <tr>
-    <td>✅  SPRINT 6 Workout Plan & Screen</td>
-    <td>Sep 17, 2025</td>
-    <td>Upcoming</td>
-  </tr>
-  <tr>
-    <td>✅  SPRINT 7 Meal Plan</td>
-    <td>Oct 1, 2025</td>
-    <td>Upcoming</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 8 Customization & Stretch Goals</td>
-    <td>Oct 15, 2025</td>
-    <td>Upcoming</td>
-  </tr>
-  <tr>
-    <td>✅ SPRINT 9 Handoff</td>
-    <td>Oct 29, 2025</td>
-    <td>Upcoming</td>
-  </tr>
-  <tr>
-    <td>🎓 Final Presentation & Demo Day</td>
-    <td>Nov 19, 2025</td>
-    <td>Upcoming</td>
-  </tr>
-</table>
-
----
-
-<h2>🧪 Testing: FOR CSC 191 </h2>
-
-<p>
-We use manual and automated testing to ensure application stability and reliability across devices.
-</p>
-
-<ul>
-  <li><b>Frontend Testing:</b> Manual QA on Android devices + Espresso tests</li>
-  <li><b>Backend Testing:</b> xUnit test suite for .NET APIs</li>
-  <li><b>Mock Data:</b> Fake users and exercise logs to simulate workflows</li>
-</ul>
-
-```bash
-# Run backend tests
+# Backend tests
 cd backend
 dotnet test
 
-# Run frontend unit tests (if applicable)
+# Frontend tests
 cd frontend
 ./gradlew test
 ```
 
----
-
-<h2>🤝 Contributing</h2>
-
-Please read the <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines.
+> Test results are stored in `/backend/TestResults` and `/frontend/test-results`.
 
 ---
 
-<h2>🙌 Credits</h2>
+## 🤝 Contributing
 
-Made with ❤️ by <b>404 Not Found</b> at <b>California State University Sacramento</b>.  
-Special thanks to our mentors, professors, and testers who supported development.
+Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file before contributing.  
+Follow branching and PR guidelines to ensure clean collaboration.
 
 ---
 
-<blockquote>
-  <p><i>"The only bad workout is the one that didn’t happen."</i><br>— Random Dude</p>
-</blockquote>
+## 👥 Team & Credits
+
+**Developed by Team 404 Not Found**  
+**California State University, Sacramento – CSC 191 / 192 Capstone Project**
+
+| Name | Role | Contact |
+|------|------|----------|
+| **John Dong** | Project Lead / Full Stack Developer | [johndong@csus.edu](mailto:johndong@csus.edu) |
+| **Nicholas Duong** | Frontend Developer | [nicholasduong@csus.edu](mailto:nicholasduong@csus.edu) |
+| **Alec Ferguson** | Frontend Developer | [alecferguson@csus.edu](mailto:alecferguson@csus.edu) |
+| **Illya Gordyy** | Frontend Developer | [igordyy@csus.edu](mailto:igordyy@csus.edu) |
+| **Octavio Hernandez** | Full Stack Developer | [octaviohernandez2@csus.edu](mailto:octaviohernandez2@csus.edu) |
+| **Xiangxin Lin** | Frontend Developer | [xiangxinlin@csus.edu](mailto:xiangxinlin@csus.edu) |
+| **Kai McKenzie** | Frontend Developer | [kaimckenzie@csus.edu](mailto:kaimckenzie@csus.edu) |
+| **Bahran Temesgen** | Frontend Developer | [bahrantemesgen@csus.edu](mailto:bahrantemesgen@csus.edu) |
+
+**Faculty Mentor:** Dr. Peng Kang & Professor Siddique Maryam
+
+**Course Instructor:** Prof. Kenneth Elliott
+
+---
+
+<p align="center">
+  <img src="Media/logo.png" alt="AiRise Logo" width="120"><br>
+  <i>"The only bad workout is the one that didn’t happen."</i>
+</p>
+
+**© 2025 AiRise | Team 404 Not Found**
+
+---
