@@ -151,7 +151,7 @@ Follow branching and PR guidelines to ensure clean collaboration.
 ## 👥 Team & Credits
 
 **Developed by Team 404 Not Found**  
-**California State University, Sacramento – CSC 191 / 192 Capstone Project**
+**California State University, Sacramento – CSC 190 / 191 Capstone Project**
 
 | Name | Role | Contact |
 |------|------|----------|
