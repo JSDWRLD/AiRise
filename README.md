@@ -119,8 +119,9 @@ cd backend
 We use both **manual** and **automated testing** to ensure stability across devices.
 
 ### 🧩 Frontend Testing
-- Manual QA testing on Android devices  
-- Automated UI tests using Espresso  
+- Manual QA testing on Android devices
+- Mocked API calls using Ktor’s `MockEngine`.
+- Automated UI/Viewmodel/Service tests using KUnit  
 
 ### 🧩 Backend Testing
 - xUnit test suite for .NET APIs  
