@@ -54,16 +54,16 @@ class WaterUiTest {
 
     @Test
     fun isHydrationInputValid_should_validate_input_range_correctly() {
-        val maxHydration = 200.0
+        val original  = 30.5
+        val maxHydration = 128.0
 
         // Valid inputs
-        assertEquals(isHydrationInputValid(50.0, maxHydration), true)
-        assertEquals(isHydrationInputValid(135.2, maxHydration), true)
+        assertEquals(isHydrationInputValid(50.0, original, maxHydration), true)
+        assertEquals(isHydrationInputValid(15.2, original, maxHydration), true)
 
         // Invalid inputs
-        assertEquals(isHydrationInputValid(-1.0, maxHydration), false)
-        assertEquals(isHydrationInputValid(0.0, maxHydration), false)
-        assertEquals(isHydrationInputValid(300.1, maxHydration), false)
+        assertEquals(isHydrationInputValid(-1.0, original, maxHydration), false)
+        assertEquals(isHydrationInputValid(200.1, original, maxHydration), false)
     }
 
     @Test
@@ -110,8 +110,8 @@ class WaterUiTest {
         assertEquals(expectedValue, displayedValue)
     }
 
-    private fun isHydrationInputValid(input: Double, maxHydration: Double): Boolean {
-        return input > 0 && input <= maxHydration
+    private fun isHydrationInputValid(input: Double, original: Double, maxHydration: Double): Boolean {
+        return input > 0 && input + original <= maxHydration
     }
 
     private fun isValidHydrationInput(input: String): Boolean {
