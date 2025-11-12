@@ -152,6 +152,7 @@ fun AiChat(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .padding(12.dp),
             horizontalArrangement = Arrangement.End
         ) {

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.teamnotfound.airise.data.network.Result
 import com.teamnotfound.airise.data.network.clients.UserClient
 import com.teamnotfound.airise.data.serializable.HealthData
+import com.teamnotfound.airise.meal.MealCache
 import com.teamnotfound.airise.util.*
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
@@ -114,11 +115,15 @@ fun TDEEWidget(
                             }
                             
                             uiState = when (result) {
-                                is Result.Success -> uiState.copy(
-                                    isLoading = false,
-                                    successMessage = "Calorie goal set successfully!",
-                                    errorMessage = null
-                                )
+                                is Result.Success -> {
+                                    MealCache.clearHealth()
+
+                                    uiState.copy(
+                                        isLoading = false,
+                                        successMessage = "Calorie goal set successfully!",
+                                        errorMessage = null
+                                    )
+                                }
                                 is Result.Error -> uiState.copy(
                                     isLoading = false,
                                     errorMessage = "Failed to set goal. Please try again.",

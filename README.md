@@ -1,7 +1,7 @@
 <h1 align="center">🏋️‍♀️ AiRise – The Smart Personal Health Companion</h1>
 
 <p align="center">
-  <i>An AI-powered fitness and wellness platform designed to provide personalized coaching, real-time progress tracking, smart nutrition advice, and gamified motivation.</i>
+  <i>Your all-in-one AI-powered fitness and wellness app — personalized workouts, smart nutrition, community challenges, and adaptive goal tracking.</i>
 </p>
 
 <p align="center">
@@ -10,64 +10,92 @@
 
 ---
 
-## 📖 About the Project
+## 📖 About AiRise
 
-**AiRise** bridges the gap between convenience and results. It’s a smart, AI-driven health and fitness app that empowers users to take control of their wellness journey through personalized routines, nutrition plans, and adaptive goal tracking.
+**AiRise** is a next-generation fitness and wellness platform built to help you achieve your goals — smarter.  
+Combining artificial intelligence with your real-world health data, AiRise personalizes your training, nutrition, and motivation to deliver a truly connected fitness experience.
 
-### 💡 Why AiRise?
-
-Most people struggle with consistency, motivation, or understanding what works best for their body. AiRise was created to bring personalized fitness and nutrition to everyone, guided by AI insights, backed by data, and enhanced by community support.
-
----
-
-## ✨ Key Features
-
-- 🤖 **AI-Powered Coaching:** Personalized workouts, meal plans, and fitness insights.  
-- 📊 **Smart Progress Tracker:** Visual analytics and adaptive goal scaling.  
-- 🍽️ **Meal Planner & Nutrition Tracker:** Daily intake tracking and smart meal suggestions.  
-- 🕹️ **Gamification & Community:** Leaderboards, challenges, and social engagement.  
-- ⌚ **Smart Device Integration:** Connect with wearables and health platforms like Google Fit or Apple Health.  
-- 🔔 **Notifications & Reminders:** Push alerts to keep users on track.  
+### 💡 Our Mission
+To make personal training, nutrition tracking, and health optimization **accessible, intelligent, and motivating** — powered by data, enhanced by AI, and supported by community.
 
 ---
 
-## 📸 Features & Screenshots
+## ✨ Core Features
 
-Below are visual highlights of AiRise’s core experience. Add or replace screenshots in the `Media/` folder as your project evolves.
+- 🤖 **AI-Powered Coaching** – Chat with your virtual coach for personalized workout & nutrition guidance.  
+- 🏠 **Smart Home Dashboard** – Track calories, workouts, sleep, and daily health stats in real time.  
+- 💪 **Workout Hub** – Access AI-recommended exercises and see progress across your fitness journey.  
+- 🍽️ **Food Logger & Nutrition** – Log meals, track macros, and get intelligent suggestions.  
+- 👥 **Community & Challenges** – Join challenges, connect with friends, and climb leaderboards.  
+- ⚙️ **Customize Workouts** – Build routines to match your goals and calculate your TDEE.  
+- 🧠 **Health Dashboard** – Integrate Apple Health / Google Fit for accurate, synced data.  
+- 🔔 **Reminders & Insights** – Stay consistent with notifications and weekly progress summaries.
 
-### 🏠 Core Experience
+---
+
+## 🖼️ App Screens & Experience
+
+<details>
+<summary>🏠 <b>Core Experience</b> (click to expand)</summary>
+
 | Screen | Description |
-|---------|--------------|
-| <img src="Media/home.png" width="250"/> | **Home Screen** – Displays user stats, goals, and daily summaries. |
-| <img src="Media/chat.png" width="250"/> | **AI Coach Chat** – Personalized fitness and nutrition guidance through chat. |
-| <img src="Media/workout.png" width="250"/> | **Workout Screen** – Suggested routines with AI-driven adjustments. |
+|-------|-------------|
+| <img src="Media/home.png" width="250"/> | **Home Screen** – View goals, stats, and daily summaries. |
+| <img src="Media/workout.png" width="250"/> | **Workout Screen** – Follow AI-recommended routines. |
+| <img src="Media/chat.png" width="250"/> | **AI Coach Chat** – Ask questions and get tailored advice. |
+| <img src="Media/food.png" width="250"/> | **Food Logger** – Track meals, calories, and macros. |
 
-### ⚙️ Onboarding & Settings
+</details>
+
+<details>
+<summary>👥 <b>Community & Social</b> (click to expand)</summary>
+
 | Screen | Description |
-|---------|--------------|
-| <img src="Media/onboard.png" width="250"/> | **Onboarding Flow** – Smooth setup experience for new users. |
+|-------|-------------|
+| <img src="Media/challenges.png" width="250"/> | **Challenges** – Compete in weekly challenges. |
+| <img src="Media/friends.png" width="250"/> | **Friends** – Keep up with your fitness circle. |
+| <img src="Media/leaderboard.png" width="250"/> | **Leaderboards** – Track your rank and push your limits. |
+
+</details>
+
+<details>
+<summary>⚙️ <b>Personalization & Settings</b> (click to expand)</summary>
+
+| Screen | Description |
+|-------|-------------|
+| <img src="Media/customize.png" width="250"/> | **Customize Workouts** – Build personalized routines. |
+| <img src="Media/tdee.png" width="250"/> | **TDEE Calculator** – Find your daily calorie target. |
+| <img src="Media/settings.png" width="250"/> | **Settings** – Manage preferences & sync. |
+| <img src="Media/health_dashboard.png" width="250"/> | **Health Dashboard** – Connect Apple Health / Google Fit. |
+
+</details>
+
+<details>
+<summary>🚀 <b>Auth & Onboarding</b> (click to expand)</summary>
+
+| Screen | Description |
+|-------|-------------|
+| <img src="Media/login.png" width="250"/> | **Login** – Sign in quickly and securely. |
+| <img src="Media/onboard.png" width="250"/> | **Onboarding Flow** – Personalized first-time setup. |
+| <img src="Media/signup.png" width="250"/> | **Sign-Up** – Create your account and set fitness goals. |
+
+</details>
 
 ---
 
-## 🧠 Architecture Overview
+## 🧠 Tech Stack
 
-<p align="center">
-  <img src="Media/erd.png" alt="Architecture Diagram" width="75%">
-</p>
-
-<p align="center"><i>Architecture showing interaction between mobile frontend, backend API, and databases.</i></p>
-
----
-
-## 🛠️ Technologies Used
-
-| Frontend | Backend | AI/ML | Database | Integrations |
-|-----------|----------|--------|-----------|---------------|
-| Kotlin Multiplatform | .NET 9, Firebase Auth | Google Gemini | MongoDB, SupaBase | Google Fit, Apple Health, Wearables |
+| Layer | Technologies |
+|------|--------------|
+| **App** | Kotlin Multiplatform Mobile (KMM), Jetpack Compose, SwiftUI integration |
+| **Backend** | Firebase Authentication, Firestore, Cloud Functions |
+| **AI** | Google Gemini API (Generative AI for insights & coaching) |
+| **Health** | Apple HealthKit & Google Fit |
+| **Architecture** | MVVM + Repository Pattern with Coroutines & Flows |
 
 ---
 
-## 📂 Project Structure
+## 🧩 Project Structure
 
 ```
 /frontend   # (Kotlin Multiplatform) mobile application

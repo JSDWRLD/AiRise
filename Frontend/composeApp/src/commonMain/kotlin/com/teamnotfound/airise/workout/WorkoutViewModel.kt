@@ -16,6 +16,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import com.teamnotfound.airise.data.serializable.UserChallenge
+import kotlinx.datetime.DayOfWeek
 
 
 class WorkoutViewModel(
@@ -78,7 +79,20 @@ class WorkoutViewModel(
                 when (val r = WorkoutCache.getOrFetch(userRepository, force = force)) {
                     is Result.Success -> {
                         val (programDoc, challenge) = r.data
-                        _uiState.value = WorkoutUiState.Success(programDoc)
+
+                        val sorted = programDoc.program.schedule
+                            .sortedWith(
+                                compareBy(
+                                    { parseDayOfWeek(it.dayName)?.let(::mondayFirstIndex) ?: Int.MAX_VALUE },
+                                    { it.dayIndex } // tiebreaker if name couldn't be parsed
+                                )
+                            )
+
+                        val normalizedDoc = programDoc.copy(
+                            program = programDoc.program.copy(schedule = sorted)
+                        )
+
+                        _uiState.value = WorkoutUiState.Success(normalizedDoc)
                         _userChallenge.value = challenge
 
                         if (!hasScheduledDaily) {
@@ -250,9 +264,20 @@ class WorkoutViewModel(
         }
     }
 
-
-
     fun onWorkoutLogged() {
         reminder.cancelActive()
     }
+
+    private fun parseDayOfWeek(name: String): DayOfWeek? = when (name.trim().lowercase()) {
+        "mon", "monday" -> DayOfWeek.MONDAY
+        "tue", "tues", "tuesday" -> DayOfWeek.TUESDAY
+        "wed", "weds", "wednesday" -> DayOfWeek.WEDNESDAY
+        "thu", "thur", "thurs", "thursday" -> DayOfWeek.THURSDAY
+        "fri", "friday" -> DayOfWeek.FRIDAY
+        "sat", "saturday" -> DayOfWeek.SATURDAY
+        "sun", "sunday" -> DayOfWeek.SUNDAY
+        else -> null
+    }
+
+    private fun mondayFirstIndex(dow: DayOfWeek): Int = (dow.ordinal + 6) % 7
 }

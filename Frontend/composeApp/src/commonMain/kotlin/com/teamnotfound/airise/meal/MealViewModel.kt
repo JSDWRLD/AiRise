@@ -157,6 +157,7 @@ class MealViewModel private constructor(
             val res = userClient.updateHealthData(firebaseUser, HealthData(caloriesTarget = goal))
             _ui = when (res) {
                 is Result.Success -> {
+                    MealCache.clearHealth()
                     _ui.copy(goal = goal, isLoading = false, errorMessage = null)
                 }
 

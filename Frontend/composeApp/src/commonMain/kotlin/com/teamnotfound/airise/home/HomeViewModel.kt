@@ -11,6 +11,7 @@ import com.teamnotfound.airise.data.serializable.UserData
 import com.teamnotfound.airise.generativeAi.GeminiApi
 import com.teamnotfound.airise.health.HealthDataProvider
 import com.teamnotfound.airise.health.HealthEvents
+import com.teamnotfound.airise.health.IHealthData
 import com.teamnotfound.airise.util.NetworkError
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -309,40 +310,34 @@ class HomeViewModel(private val userRepository: IUserRepository,
      * This updates steps, calories burned, and sleep while preserving user-entered hydration.
      * Also updates the backend and refreshes the UI.
      */
-    private suspend fun syncHealthData(platformHealth: com.teamnotfound.airise.health.IHealthData) {
+    private suspend fun syncHealthData(platformHealth: IHealthData) {
         try {
-            // Map platform health into serializable HealthData model
-            // NOTE: Hydration is NOT fetched from KHealth - user-entered hydration remains intact
-            val mapped = HealthData(
-                caloriesEaten = uiState.value.healthData.caloriesEaten,
-                caloriesTarget = uiState.value.healthData.caloriesTarget,
-                hydrationTarget = uiState.value.healthData.hydrationTarget,
-                hydration = uiState.value.healthData.hydration, // Keep existing user-entered hydration
+            val user = Firebase.auth.currentUser ?: return
+            val server = when (val res = userClient.getHealthData(user)) {
+                is Result.Success -> res.data
+                is Result.Error   -> _uiState.value.healthData // fall back to local
+            }
+
+            val merged = server.copy(
+                // keep targets from server
+                // caloriesTarget = server.caloriesTarget,
+                // hydrationTarget = server.hydrationTarget,
+
+                // keep user-entered hydration from UI, if that’s your source of truth
+                hydration = _uiState.value.healthData.hydration,
+                caloriesEaten = _uiState.value.healthData.caloriesEaten,
+
+                // update live metrics from platform
                 caloriesBurned = platformHealth.caloriesBurned,
                 steps = platformHealth.steps,
                 sleep = platformHealth.sleep
             )
 
-            // Update UI
-            _uiState.value = _uiState.value.copy(
-                healthData = mapped,
-                isFitnessSummaryLoaded = true,
-                errorMessage = null
-            )
-
-            // Recompute progress + overview with fresh health metrics
+            _uiState.value = _uiState.value.copy(healthData = merged)
             loadDailyProgress()
             generateOverview()
 
-            // Push to backend (if signed in)
-            Firebase.auth.currentUser?.let { user ->
-                when (val res = userClient.updateHealthData(user, mapped)) {
-                    is Result.Error -> {
-                        _uiState.value = _uiState.value.copy(errorMessage = res.error.toString())
-                    }
-                    else -> Unit
-                }
-            }
+            userClient.updateHealthData(user, merged)
         } catch (t: Throwable) {
             _uiState.value = _uiState.value.copy(errorMessage = t.message ?: "Health sync failed")
         }
