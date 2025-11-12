@@ -166,8 +166,6 @@ cd frontend
 ./gradlew test
 ```
 
-> Test results are stored in `/backend/TestResults` and `/frontend/test-results`.
-
 ---
 
 ## 🤝 Contributing
