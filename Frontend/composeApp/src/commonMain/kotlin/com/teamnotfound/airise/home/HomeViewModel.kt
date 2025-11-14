@@ -314,8 +314,8 @@ class HomeViewModel(private val userRepository: IUserRepository,
                 // hydrationTarget = server.hydrationTarget,
 
                 // keep user-entered hydration from UI, if that’s your source of truth
-                hydration = _uiState.value.healthData.hydration,
-                caloriesEaten = _uiState.value.healthData.caloriesEaten,
+                // hydration = _uiState.value.healthData.hydration,
+                // caloriesEaten = _uiState.value.healthData.caloriesEaten,
 
                 // update live metrics from platform
                 caloriesBurned = platformHealth.caloriesBurned,

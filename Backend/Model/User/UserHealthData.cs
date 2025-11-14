@@ -21,31 +21,31 @@ namespace AiRise.Models.User
 
         [BsonElement("caloriesBurned")]
         [JsonPropertyName("caloriesBurned")]
-        public int CaloriesBurned { get; set; } = 0;
+        public int? CaloriesBurned { get; set; } = 0;
 
         [BsonElement("caloriesEaten")]
         [JsonPropertyName("caloriesEaten")]
-        public int CaloriesEaten { get; set; } = 0;
+        public int? CaloriesEaten { get; set; } = 0;
 
         [BsonElement("caloriesTarget")]
         [JsonPropertyName("caloriesTarget")]
-        public int CaloriesTarget { get; set; } = 2000;
+        public int? CaloriesTarget { get; set; } = 2000;
 
         [BsonElement("steps")]
         [JsonPropertyName("steps")]
-        public int Steps { get; set; } = 0;
+        public int? Steps { get; set; } = 0;
 
         [BsonElement("sleep")]
         [JsonPropertyName("sleep")]
-        public double Sleep { get; set; } = 0;
+        public double? Sleep { get; set; } = 0;
 
         [BsonElement("hydration")]
         [JsonPropertyName("hydration")]
-        public double Hydration { get; set; } = 0;
+        public double? Hydration { get; set; } = 0;
 
         [BsonElement("hydrationTarget")]
         [JsonPropertyName("hydrationTarget")]
-        public double HydrationTarget { get; set; } = 104; // ounces
+        public double? HydrationTarget { get; set; } = 104; // ounces
 
         [BsonElement("localDate")]
         [JsonPropertyName("localDate")]

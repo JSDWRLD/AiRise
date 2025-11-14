@@ -234,6 +234,10 @@ class MealViewModel private constructor(
                 force = force
             )) {
                 is Result.Success -> {
+                    val day = readDay(date)
+                    if (date == today()){
+                        userClient?.updateHealthData(firebaseUser, HealthData(caloriesEaten = day.totalCalories.toInt()))
+                    }
                     _ui = _ui.copy(day = readDay(date), isLoading = false, errorMessage = null)
                 }
                 is Result.Error -> {
