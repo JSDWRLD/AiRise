@@ -84,7 +84,7 @@ class WorkoutViewModel(
                             .sortedWith(
                                 compareBy(
                                     { parseDayOfWeek(it.dayName)?.let(::mondayFirstIndex) ?: Int.MAX_VALUE },
-                                    { it.dayIndex } // tiebreaker if name couldn't be parsed
+                                    { it.dayIndex } // only used as a tiebreaker if name can't be parsed
                                 )
                             )
 
@@ -279,5 +279,5 @@ class WorkoutViewModel(
         else -> null
     }
 
-    private fun mondayFirstIndex(dow: DayOfWeek): Int = (dow.ordinal + 6) % 7
+    private fun mondayFirstIndex(dow: DayOfWeek): Int = dow.ordinal
 }
