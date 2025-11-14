@@ -34,7 +34,7 @@ To make personal training, nutrition tracking, and health optimization **accessi
 ---
 
 ## 🖼️ App Screens & Experience
-
+Click on the Dropdown to View Images!
 <details>
 <summary>🏠 <b>Core Experience</b> (click to expand)</summary>
 
@@ -90,7 +90,7 @@ To make personal training, nutrition tracking, and health optimization **accessi
 | **App** | Kotlin Multiplatform Mobile (KMM), Jetpack Compose, SwiftUI integration |
 | **Backend** | Firebase Authentication, Firestore, Cloud Functions |
 | **AI** | Google Gemini API (Generative AI for insights & coaching) |
-| **Health** | Apple HealthKit & Google Fit |
+| **Health** | Apple HealthKit & Google Health Connect |
 | **Architecture** | MVVM + Repository Pattern with Coroutines & Flows |
 
 ---
@@ -136,10 +136,11 @@ cd backend
 
 ## 🚀 Deployment
 
-- **Mobile:** Build with Android Studio → Deploy APK or publish to Play Store  
-- **Backend:** Host on Azure or local server for demo  
+- **Mobile:** Build with Android Studio → Deploy Apps 
+- **Backend:** Host on Azure App Service
 - **Database:** SupaBase & MongoDB Atlas (cloud-hosted)
-
+- **Auth:** Firebase
+- **AI:** Gemini
 ---
 
 ## 🧪 Testing
