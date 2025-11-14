@@ -150,17 +150,19 @@ class HomeViewModel(private val userRepository: IUserRepository,
     }
 
     private fun generateFallbackOverview(data: HealthData): String {
-        val stepsComment = when {
-            data.steps > 10000 -> "Fantastic job on your steps today! You're crushing it."
-            data.steps > 5000 -> "Great work staying active! You're well on your way to your step goal."
-            data.steps > 0 -> "A good start to the day. Let's keep that momentum going!"
+        val steps = data.steps ?: 0
+        val stepsComment = when  {
+            steps > 10000 -> "Fantastic job on your steps today! You're crushing it."
+            steps > 5000 -> "Great work staying active! You're well on your way to your step goal."
+            steps > 0 -> "A good start to the day. Let's keep that momentum going!"
             else -> "Ready to get moving? Every step counts towards your goal!"
         }
 
+        val caloriesBurned = data.caloriesBurned ?: 0
         val caloriesComment = when {
-            data.caloriesBurned > 500 -> "You've been burning a lot of energy. Excellent effort!"
-            data.caloriesBurned > 200 -> "You're making solid progress on your calorie burn. Keep it up!"
-            data.caloriesBurned > 0 -> "You've started the day strong. Let's see what else you can do!"
+            caloriesBurned > 500 -> "You've been burning a lot of energy. Excellent effort!"
+            caloriesBurned > 200 -> "You're making solid progress on your calorie burn. Keep it up!"
+            caloriesBurned > 0 -> "You've started the day strong. Let's see what else you can do!"
             else -> "Your body is fueled and ready for a great workout today."
         }
 
@@ -173,10 +175,13 @@ class HomeViewModel(private val userRepository: IUserRepository,
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
         val healthData = uiState.value.healthData
-        val sleepPercentage = min(healthData.sleep.toFloat() / 8f, 1f) * 100
-        val caloriesPercentage = min(healthData.caloriesEaten / healthData.caloriesTarget.toFloat(), 1f ) * 100
-        val hydrationPercentage = min(healthData.hydration.toFloat() / healthData.hydrationTarget.toFloat(), 1f) * 100
+
+        val sleepPercentage = safePercentage(healthData.sleep, 8f, 8f)
+        val caloriesPercentage = safePercentage(healthData.caloriesEaten, healthData.caloriesTarget, 2000f)
+        val hydrationPercentage = safePercentage(healthData.hydration, healthData.hydrationTarget, 128f)
+
         val totalPercentage = (sleepPercentage + caloriesPercentage + hydrationPercentage) / 3f
+
         val progressData = DailyProgressData(
             sleepProgress = sleepPercentage,
             caloriesProgress = caloriesPercentage,
@@ -188,6 +193,12 @@ class HomeViewModel(private val userRepository: IUserRepository,
             isDailyProgressLoaded = true
         )
     }
+    private fun safePercentage(value: Number?, target: Number?, targetDefault: Float = 1f): Float {
+        val v = value?.toFloat() ?: 0f
+        val t = target?.toFloat() ?: targetDefault
+        return if (v <= 0f || t <= 0f) 0f else min(v / t, 1f) * 100
+    }
+
 
     private fun loadFitnessSummary() {
         // date Formatting based on date

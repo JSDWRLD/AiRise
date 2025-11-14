@@ -5,12 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class HealthData(
-    val sleep: Double = 0.0, //hours
-    val steps: Int = 0,
-    val caloriesBurned: Int = 0,
-    val caloriesEaten: Int = 0,
-    val caloriesTarget: Int = 0,
-    val hydration: Double = 0.0,
-    val hydrationTarget: Double = 0.0, //ounces
+    val sleep: Double? = null, //hours
+    val steps: Int? = null,
+    val caloriesBurned: Int? = null,
+    val caloriesEaten: Int? = null,
+    val caloriesTarget: Int? = null,
+    val hydration: Double? = null,
+    val hydrationTarget: Double? = null, //ounces
     var localDate: LocalDate? = null
 )
