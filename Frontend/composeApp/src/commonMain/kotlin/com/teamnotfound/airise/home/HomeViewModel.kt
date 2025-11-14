@@ -221,40 +221,18 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun tryReadHealthDataSilently() {
         viewModelScope.launch {
             try {
-                // Try to read health data without requesting permissions
                 val platformHealth = provider.getHealthData()
-
-                // Check if we got meaningful data (not all zeros)
-                // If all zeros, permissions were likely revoked or never granted
-                val hasMeaningfulData = platformHealth.steps > 0 ||
-                        platformHealth.caloriesBurned > 0 ||
-                        platformHealth.sleep > 0.0
-
-                if (hasMeaningfulData) {
-                    // We successfully read meaningful data - permissions are granted
-                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
-                    syncHealthData(platformHealth)
-                } else {
-                    // All zeros - likely no permissions or no activity
-                    // For safety, assume no permissions and show sync button
-                    // This also handles the case where permissions were just revoked
-                    _uiState.value = _uiState.value.copy(
-                        canReadHealthData = false,
-                        errorMessage = null,
-                        // Reset health data to zeros when we detect no permissions
-                        healthData = _uiState.value.healthData.copy(
-                            steps = 0,
-                            caloriesBurned = 0,
-                            sleep = 0.0
-                        )
-                    )
-                }
+                // If we got here, permissions are granted (zeros are legit)
+                _uiState.value = _uiState.value.copy(
+                    canReadHealthData = true,
+                    errorMessage = null
+                )
+                syncHealthData(platformHealth)
             } catch (e: Exception) {
-                // Failed to read health data - definitely no permissions
+                // Only treat as no-permission/unavailable when an exception occurs
                 _uiState.value = _uiState.value.copy(
                     canReadHealthData = false,
                     errorMessage = null,
-                    // Reset health data to zeros
                     healthData = _uiState.value.healthData.copy(
                         steps = 0,
                         caloriesBurned = 0,
@@ -264,6 +242,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
         }
     }
+
 
     /**
      * Request health sync permissions from the user.
@@ -387,44 +366,19 @@ class HomeViewModel(private val userRepository: IUserRepository,
     fun refreshHealthSyncStatus() {
         viewModelScope.launch {
             try {
-                // Try to read health data - if successful, permissions are now granted
                 val platformHealth = provider.getHealthData()
+                // Success ⇒ we have access (even if all zeros)
+                val previously = _uiState.value.canReadHealthData
+                _uiState.value = _uiState.value.copy(canReadHealthData = true, errorMessage = null)
 
-                // Check if we got meaningful data (not all zeros)
-                val hasMeaningfulData = platformHealth.steps > 0 ||
-                        platformHealth.caloriesBurned > 0 ||
-                        platformHealth.sleep > 0.0
+                // Always sync (so UI shows fresh values, even zeros)
+                syncHealthData(platformHealth)
 
-                val previousState = _uiState.value.canReadHealthData
-
-                if (hasMeaningfulData) {
-                    // Successfully read meaningful data - we have permissions
-                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
-
-                    // If we just gained ability to read data, sync it
-                    if (!previousState) {
-                        syncHealthData(platformHealth)
-                    } else {
-                        // Just refresh the data
-                        syncHealthData(platformHealth)
-                    }
-                } else {
-                    // All zeros - likely no permissions
-                    _uiState.value = _uiState.value.copy(
-                        canReadHealthData = false,
-                        // Reset health data to zeros
-                        healthData = _uiState.value.healthData.copy(
-                            steps = 0,
-                            caloriesBurned = 0,
-                            sleep = 0.0
-                        )
-                    )
-                }
+                // (Optional) if you want to detect a new grant, you could compare `previously`
+                // but logic above already refreshes the data either way.
             } catch (e: Exception) {
-                // Still can't read health data
                 _uiState.value = _uiState.value.copy(
                     canReadHealthData = false,
-                    // Reset health data to zeros
                     healthData = _uiState.value.healthData.copy(
                         steps = 0,
                         caloriesBurned = 0,

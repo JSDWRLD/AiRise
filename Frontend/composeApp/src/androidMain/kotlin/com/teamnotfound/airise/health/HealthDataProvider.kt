@@ -10,15 +10,32 @@ import com.khealth.KHSleepStageSample
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.minutes
 import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-import kotlin.time.Duration.Companion.hours
+
+// Optional: lets your ViewModel distinguish "no access" from other errors
+class HealthAccessException(message: String) : Exception(message)
 
 actual class HealthDataProvider actual constructor(private val kHealth: KHealth) {
 
+    // ---- Permissions (require ALL) ----
+    private val REQUIRED_PERMS = arrayOf(
+        KHPermission.ActiveCaloriesBurned(read = true, write = true),
+        KHPermission.StepCount(read = true, write = true),
+        KHPermission.SleepSession(read = true, write = true)
+        // NOTE: Hydration intentionally excluded (managed manually)
+    )
+    private val REQUIRED_READ_PERMS = arrayOf(
+        KHPermission.ActiveCaloriesBurned(read = true, write = false),
+        KHPermission.StepCount(read = true, write = false),
+        KHPermission.SleepSession(read = true, write = false)
+    )
+
+    // ---- Sleep helpers ----
     private val SLEEPING_STAGES = setOf(
         KHSleepStage.Sleeping,
         KHSleepStage.REM,
@@ -49,65 +66,49 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
                 sess.samples.maxOfOrNull { it.endTime } ?: Instant.DISTANT_PAST
             }
 
-    // Request perm logic
+    // ---- Permission APIs (actuals) ----
     actual suspend fun requestPermissions(): Boolean {
-
-        val permissionResponse: Set<KHPermission> = kHealth.requestPermissions(
-            KHPermission.ActiveCaloriesBurned(read = true, write = true),
-            KHPermission.StepCount(read = true, write = true),
-            KHPermission.SleepSession(read = true, write = true)
-            // NOTE: Hydration permission removed - hydration is managed manually by user
-        )
-
-        // Return true if at least one permission was granted
-        return permissionResponse.isNotEmpty()
+        val granted: Set<KHPermission> = kHealth.requestPermissions(*REQUIRED_PERMS)
+        // success ONLY if every required permission was granted
+        return granted.containsAll(REQUIRED_PERMS.toSet())
     }
 
-    /**
-     * Fetches health data from KHealth.
-     * NOTE: Hydration is NOT fetched from KHealth to avoid overwriting user-entered values.
-     */
+    // ---- Read API (actual) ----
     actual suspend fun getHealthData(): IHealthData = withContext(Dispatchers.Default) {
-        if (!kHealth.isHealthStoreAvailable || !hasAnyReadPermission()) {
-            throw Exception("Health permissions not granted")
+        if (!kHealth.isHealthStoreAvailable) {
+            throw HealthAccessException("Health store unavailable on this device")
+        }
+        if (!hasAllReadPermissions()) {
+            throw HealthAccessException("Health permissions not granted")
         }
 
-        // Init start and end time when fun is called
-        val startTime = Clock.System.now().minus(1.days)
-        val endTime = Clock.System.now()
-        val sleepStart = Clock.System.now() - 36.hours
+        val now = Clock.System.now()
+        val startTime = now.minus(1.days)
+        val endTime = now
+        val sleepStart = now - 36.hours
 
-        // Reading records - NOTE: Hydration is NOT fetched
-        val activeCaloriesRecord = kHealth.readRecords(KHReadRequest.ActiveCaloriesBurned(KHUnit.Energy.Calorie, startTime, endTime))
+        // NOTE: Hydration is NOT fetched (kept manual)
+        val activeCaloriesRecord = kHealth.readRecords(
+            KHReadRequest.ActiveCaloriesBurned(KHUnit.Energy.Calorie, startTime, endTime)
+        )
         val stepRecord = kHealth.readRecords(KHReadRequest.StepCount(startTime, endTime))
         val sleepRecord = kHealth.readRecords(KHReadRequest.SleepSession(sleepStart, endTime))
 
-        // Calculating Steps
-        val steps = stepRecord.sumOf {
-            (it as? KHRecord.StepCount)?.count?.toInt() ?: 0
-        }
-
-        // Calculating active calories
-        val activeCalories = activeCaloriesRecord.sumOf {
-            (it as? KHRecord.ActiveCaloriesBurned)?.value?.toInt() ?: 0
-        }
-
-        // Last night's sleep hours
+        val steps = stepRecord.sumOf { (it as? KHRecord.StepCount)?.count?.toInt() ?: 0 }
+        val activeCalories = activeCaloriesRecord.sumOf { (it as? KHRecord.ActiveCaloriesBurned)?.value?.toInt() ?: 0 }
         val mostRecentSession = sleepRecord.mostRecentSleepSessionOrNull()
         val sleepHours = mostRecentSession?.totalSleepHours() ?: 0.0
 
-        // Passing to Health Data object for UI
         object : IHealthData {
             override val caloriesBurned = activeCalories
             override val steps = steps
             override val sleep = sleepHours
-            override val hydration = 0.0 // Not fetched from KHealth
+            override val hydration = 0.0 // manual
         }
     }
 
-    // Writing health data using Health Connect
+    // ---- Write API (actual) ----
     actual suspend fun writeHealthData(): Boolean = withContext(Dispatchers.Default) {
-
         val sampleActiveCalories = KHRecord.ActiveCaloriesBurned(
             unit = KHUnit.Energy.Calorie,
             value = 3.0,
@@ -127,7 +128,6 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
 
         val sampleSleep = KHRecord.SleepSession(
             samples = listOf(
-                // Just 30 minutes of sleep for small increment testing
                 KHSleepStageSample(
                     stage = KHSleepStage.Light,
                     startTime = sleepStartTime,
@@ -135,24 +135,14 @@ actual class HealthDataProvider actual constructor(private val kHealth: KHealth)
                 )
             ),
         )
+
         val result = kHealth.writeRecords(sampleSteps, sampleActiveCalories, sampleSleep)
-        return@withContext result is com.khealth.KHWriteResponse.Success
+        result is com.khealth.KHWriteResponse.Success
     }
 
-    private suspend fun hasAnyReadPermission(): Boolean {
-        val granted = kHealth.checkPermissions(
-            KHPermission.StepCount(read = true, write = false),
-            KHPermission.ActiveCaloriesBurned(read = true, write = false),
-            KHPermission.SleepSession(read = true, write = false)
-        )
-        // Return true if at least one of the requested read permissions is granted
-        return granted.any { perm ->
-            when (perm) {
-                is KHPermission.StepCount -> perm.read
-                is KHPermission.ActiveCaloriesBurned -> perm.read
-                is KHPermission.SleepSession -> perm.read
-                else -> false
-            }
-        }
+    // ---- Helpers ----
+    private suspend fun hasAllReadPermissions(): Boolean {
+        val granted = kHealth.checkPermissions(*REQUIRED_READ_PERMS)
+        return granted.containsAll(REQUIRED_READ_PERMS.toSet())
     }
 }
