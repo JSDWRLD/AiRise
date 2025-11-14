@@ -216,7 +216,4 @@ Follow branching and PR guidelines to ensure clean collaboration.
   <b>© 2025 AiRise | Team 404 Not Found</b>
 </p>
 
-
-**© 2025 AiRise | Team 404 Not Found**
-
 ---
