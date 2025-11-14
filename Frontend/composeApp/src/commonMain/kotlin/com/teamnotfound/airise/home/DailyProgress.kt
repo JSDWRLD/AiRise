@@ -207,5 +207,8 @@ private fun formatHours(hours: Double): String {
 }
 
 // Clamp+clean: avoid NaN/Infinity/overflows that can render as full 360°
-private fun Float.safePercent(): Float =
-    if (!this.isFinite()) 0f else this.coerceIn(0f, 100f)
+private fun Float.safePercent(): Float {
+    if (!isFinite()) return 0f
+    val v = if (this in 0f..1f) this * 100f else this
+    return v.coerceIn(0f, 100f)
+}

@@ -134,14 +134,14 @@ namespace AiRise.Services
                 throw new ArgumentException("Health data values cannot be negative.");
             }
 
-            // If any field is null or 0, retain the old value
-            if (data.CaloriesBurned == null || data.CaloriesBurned == 0) data.CaloriesBurned = oldData.CaloriesBurned;
-            if (data.CaloriesEaten == null || data.CaloriesEaten == 0) data.CaloriesEaten = oldData.CaloriesEaten;
-            if (data.CaloriesTarget == null || data.CaloriesTarget == 0) data.CaloriesTarget = oldData.CaloriesTarget;
-            if (data.Steps == null || data.Steps == 0) data.Steps = oldData.Steps;
-            if (data.Sleep == null || data.Sleep == 0) data.Sleep = oldData.Sleep;
-            if (data.Hydration == null || data.Hydration == 0) data.Hydration = oldData.Hydration;
-            if (data.HydrationTarget == null || data.HydrationTarget == 0) data.HydrationTarget = oldData.HydrationTarget;
+            // If any field is nul, retain the old value
+            if (data.CaloriesBurned == null) data.CaloriesBurned = oldData.CaloriesBurned;
+            if (data.CaloriesEaten == null) data.CaloriesEaten = oldData.CaloriesEaten;
+            if (data.CaloriesTarget == null) data.CaloriesTarget = oldData.CaloriesTarget;
+            if (data.Steps == null) data.Steps = oldData.Steps;
+            if (data.Sleep == null) data.Sleep = oldData.Sleep;
+            if (data.Hydration == null) data.Hydration = oldData.Hydration;
+            if (data.HydrationTarget == null) data.HydrationTarget = oldData.HydrationTarget;
 
             return data;
         }

@@ -85,15 +85,6 @@ fun HealthDashboardScreen(
         mutableStateOf(!isLoading && healthData == null)
     }
 
-    LaunchedEffect(error) {
-        error?.let {
-            scaffoldState.snackbarHostState.showSnackbar(
-                message = "Error: $it",
-                duration = SnackbarDuration.Short
-            )
-        }
-    }
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {

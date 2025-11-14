@@ -150,17 +150,19 @@ class HomeViewModel(private val userRepository: IUserRepository,
     }
 
     private fun generateFallbackOverview(data: HealthData): String {
-        val stepsComment = when {
-            data.steps > 10000 -> "Fantastic job on your steps today! You're crushing it."
-            data.steps > 5000 -> "Great work staying active! You're well on your way to your step goal."
-            data.steps > 0 -> "A good start to the day. Let's keep that momentum going!"
+        val steps = data.steps ?: 0
+        val stepsComment = when  {
+            steps > 10000 -> "Fantastic job on your steps today! You're crushing it."
+            steps > 5000 -> "Great work staying active! You're well on your way to your step goal."
+            steps > 0 -> "A good start to the day. Let's keep that momentum going!"
             else -> "Ready to get moving? Every step counts towards your goal!"
         }
 
+        val caloriesBurned = data.caloriesBurned ?: 0
         val caloriesComment = when {
-            data.caloriesBurned > 500 -> "You've been burning a lot of energy. Excellent effort!"
-            data.caloriesBurned > 200 -> "You're making solid progress on your calorie burn. Keep it up!"
-            data.caloriesBurned > 0 -> "You've started the day strong. Let's see what else you can do!"
+            caloriesBurned > 500 -> "You've been burning a lot of energy. Excellent effort!"
+            caloriesBurned > 200 -> "You're making solid progress on your calorie burn. Keep it up!"
+            caloriesBurned > 0 -> "You've started the day strong. Let's see what else you can do!"
             else -> "Your body is fueled and ready for a great workout today."
         }
 
@@ -173,10 +175,13 @@ class HomeViewModel(private val userRepository: IUserRepository,
         /* Needs to use respective goal to determine percentage,
          * instead of hard coded value */
         val healthData = uiState.value.healthData
-        val sleepPercentage = min(healthData.sleep.toFloat() / 8f, 1f) * 100
-        val caloriesPercentage = min(healthData.caloriesEaten / healthData.caloriesTarget.toFloat(), 1f ) * 100
-        val hydrationPercentage = min(healthData.hydration.toFloat() / healthData.hydrationTarget.toFloat(), 1f) * 100
+
+        val sleepPercentage = safePercentage(healthData.sleep, 8f, 8f)
+        val caloriesPercentage = safePercentage(healthData.caloriesEaten, healthData.caloriesTarget, 2000f)
+        val hydrationPercentage = safePercentage(healthData.hydration, healthData.hydrationTarget, 128f)
+
         val totalPercentage = (sleepPercentage + caloriesPercentage + hydrationPercentage) / 3f
+
         val progressData = DailyProgressData(
             sleepProgress = sleepPercentage,
             caloriesProgress = caloriesPercentage,
@@ -188,6 +193,12 @@ class HomeViewModel(private val userRepository: IUserRepository,
             isDailyProgressLoaded = true
         )
     }
+    private fun safePercentage(value: Number?, target: Number?, targetDefault: Float = 1f): Float {
+        val v = value?.toFloat() ?: 0f
+        val t = target?.toFloat() ?: targetDefault
+        return if (v <= 0f || t <= 0f) 0f else min(v / t, 1f) * 100
+    }
+
 
     private fun loadFitnessSummary() {
         // date Formatting based on date
@@ -210,40 +221,18 @@ class HomeViewModel(private val userRepository: IUserRepository,
     private fun tryReadHealthDataSilently() {
         viewModelScope.launch {
             try {
-                // Try to read health data without requesting permissions
                 val platformHealth = provider.getHealthData()
-
-                // Check if we got meaningful data (not all zeros)
-                // If all zeros, permissions were likely revoked or never granted
-                val hasMeaningfulData = platformHealth.steps > 0 ||
-                        platformHealth.caloriesBurned > 0 ||
-                        platformHealth.sleep > 0.0
-
-                if (hasMeaningfulData) {
-                    // We successfully read meaningful data - permissions are granted
-                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
-                    syncHealthData(platformHealth)
-                } else {
-                    // All zeros - likely no permissions or no activity
-                    // For safety, assume no permissions and show sync button
-                    // This also handles the case where permissions were just revoked
-                    _uiState.value = _uiState.value.copy(
-                        canReadHealthData = false,
-                        errorMessage = null,
-                        // Reset health data to zeros when we detect no permissions
-                        healthData = _uiState.value.healthData.copy(
-                            steps = 0,
-                            caloriesBurned = 0,
-                            sleep = 0.0
-                        )
-                    )
-                }
+                // If we got here, permissions are granted (zeros are legit)
+                _uiState.value = _uiState.value.copy(
+                    canReadHealthData = true,
+                    errorMessage = null
+                )
+                syncHealthData(platformHealth)
             } catch (e: Exception) {
-                // Failed to read health data - definitely no permissions
+                // Only treat as no-permission/unavailable when an exception occurs
                 _uiState.value = _uiState.value.copy(
                     canReadHealthData = false,
                     errorMessage = null,
-                    // Reset health data to zeros
                     healthData = _uiState.value.healthData.copy(
                         steps = 0,
                         caloriesBurned = 0,
@@ -253,6 +242,7 @@ class HomeViewModel(private val userRepository: IUserRepository,
             }
         }
     }
+
 
     /**
      * Request health sync permissions from the user.
@@ -324,8 +314,8 @@ class HomeViewModel(private val userRepository: IUserRepository,
                 // hydrationTarget = server.hydrationTarget,
 
                 // keep user-entered hydration from UI, if that’s your source of truth
-                hydration = _uiState.value.healthData.hydration,
-                caloriesEaten = _uiState.value.healthData.caloriesEaten,
+                // hydration = _uiState.value.healthData.hydration,
+                // caloriesEaten = _uiState.value.healthData.caloriesEaten,
 
                 // update live metrics from platform
                 caloriesBurned = platformHealth.caloriesBurned,
@@ -376,44 +366,19 @@ class HomeViewModel(private val userRepository: IUserRepository,
     fun refreshHealthSyncStatus() {
         viewModelScope.launch {
             try {
-                // Try to read health data - if successful, permissions are now granted
                 val platformHealth = provider.getHealthData()
+                // Success ⇒ we have access (even if all zeros)
+                val previously = _uiState.value.canReadHealthData
+                _uiState.value = _uiState.value.copy(canReadHealthData = true, errorMessage = null)
 
-                // Check if we got meaningful data (not all zeros)
-                val hasMeaningfulData = platformHealth.steps > 0 ||
-                        platformHealth.caloriesBurned > 0 ||
-                        platformHealth.sleep > 0.0
+                // Always sync (so UI shows fresh values, even zeros)
+                syncHealthData(platformHealth)
 
-                val previousState = _uiState.value.canReadHealthData
-
-                if (hasMeaningfulData) {
-                    // Successfully read meaningful data - we have permissions
-                    _uiState.value = _uiState.value.copy(canReadHealthData = true)
-
-                    // If we just gained ability to read data, sync it
-                    if (!previousState) {
-                        syncHealthData(platformHealth)
-                    } else {
-                        // Just refresh the data
-                        syncHealthData(platformHealth)
-                    }
-                } else {
-                    // All zeros - likely no permissions
-                    _uiState.value = _uiState.value.copy(
-                        canReadHealthData = false,
-                        // Reset health data to zeros
-                        healthData = _uiState.value.healthData.copy(
-                            steps = 0,
-                            caloriesBurned = 0,
-                            sleep = 0.0
-                        )
-                    )
-                }
+                // (Optional) if you want to detect a new grant, you could compare `previously`
+                // but logic above already refreshes the data either way.
             } catch (e: Exception) {
-                // Still can't read health data
                 _uiState.value = _uiState.value.copy(
                     canReadHealthData = false,
-                    // Reset health data to zeros
                     healthData = _uiState.value.healthData.copy(
                         steps = 0,
                         caloriesBurned = 0,

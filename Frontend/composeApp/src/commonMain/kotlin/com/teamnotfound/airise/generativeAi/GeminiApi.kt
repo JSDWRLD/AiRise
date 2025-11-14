@@ -110,13 +110,13 @@ open class GeminiApi {
     private fun healthSnapshot(h: HealthData?): String? {
         if (h == null) return null
         val parts = buildList {
-            if (h.steps > 0) add("steps=${h.steps}")
-            if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
-            if (h.caloriesEaten > 0) add("kcal_eaten = ${h.caloriesEaten}")
-            if (h.caloriesTarget > 0) add("kcal_eaten_target = ${h.caloriesTarget}")
-            if (h.sleep > 0f) add("sleep_h=${h.sleep}")
-            if (h.hydration > 0f) add("water_oz=${h.hydration}")
-            if (h.hydrationTarget > 0f) add("water_oz_target=${h.hydrationTarget}")
+            if (h.steps != null && h.steps > 0) add("steps=${h.steps}")
+            if (h.caloriesBurned != null && h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
+            if (h.caloriesEaten != null && h.caloriesEaten > 0) add("kcal_eaten = ${h.caloriesEaten}")
+            if (h.caloriesTarget != null && h.caloriesTarget > 0) add("kcal_eaten_target = ${h.caloriesTarget}")
+            if (h.sleep != null && h.sleep > 0f) add("sleep_h=${h.sleep}")
+            if (h.hydration != null && h.hydration > 0f) add("water_oz=${h.hydration}")
+            if (h.hydrationTarget != null && h.hydrationTarget > 0f) add("water_oz_target=${h.hydrationTarget}")
         }
         return parts.takeIf { it.isNotEmpty() }?.joinToString("; ")
     }

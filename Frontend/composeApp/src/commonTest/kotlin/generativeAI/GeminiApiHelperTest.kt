@@ -147,11 +147,11 @@ class GeminiApiTestHelper {
     fun testHealthSnapshot(h: HealthData?): String? {
         if (h == null) return null
         val parts = buildList {
-            if (h.steps > 0) add("steps=${h.steps}")
-            if (h.caloriesBurned > 0) add("kcal_burned=${h.caloriesBurned}")
-            if (h.caloriesEaten > 0) add ("kcal_eaten=${h.caloriesEaten}")
-            if (h.sleep > 0.0) add("sleep_h=${h.sleep}")
-            if (h.hydration > 0f) add("water_oz=${h.hydration}")
+            if ((h.steps ?: 0) > 0) add("steps=${h.steps}")
+            if ((h.caloriesBurned ?: 0) > 0) add("kcal_burned=${h.caloriesBurned}")
+            if ((h.caloriesEaten ?: 0) > 0) add ("kcal_eaten=${h.caloriesEaten}")
+            if ((h.sleep ?: 0.0) > 0.0) add("sleep_h=${h.sleep}")
+            if ((h.hydration ?: 0.0) > 0f) add("water_oz=${h.hydration}")
         }
         return parts.takeIf { it.isNotEmpty() }?.joinToString("; ")
     }

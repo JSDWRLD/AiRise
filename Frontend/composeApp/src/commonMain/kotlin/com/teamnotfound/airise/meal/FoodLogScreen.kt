@@ -9,11 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.zIndex
 import com.teamnotfound.airise.AppScreen
 import com.teamnotfound.airise.util.*
 import kotlinx.datetime.*
@@ -54,6 +51,7 @@ fun FoodLogScreen(
     var showDateInput by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var editingEntry by remember { mutableStateOf<FoodEntry?>(null) }
+    val menuController = remember { InlineMenuController() }
 
     val bottomNavController = rememberNavController()
 
@@ -102,7 +100,8 @@ fun FoodLogScreen(
                     onPrev = vm::previousDay,
                     onNext = vm::nextDay,
                     onSelect = vm::setDayOffset,
-                    onOpenManual = { showDateInput = true }
+                    onOpenManual = { showDateInput = true },
+                    menuController = menuController
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -155,7 +154,8 @@ fun FoodLogScreen(
                             },
                             onDeleteFood = { entryId ->
                                 vm.deleteEntry(entryId)
-                            }
+                            },
+                            menuController = menuController
                         )
                     }
                     item {
@@ -172,7 +172,8 @@ fun FoodLogScreen(
                             },
                             onDeleteFood = { entryId ->
                                 vm.deleteEntry(entryId)
-                            }
+                            },
+                            menuController = menuController
                         )
                     }
                     item {
@@ -189,7 +190,8 @@ fun FoodLogScreen(
                             },
                             onDeleteFood = { entryId ->
                                 vm.deleteEntry(entryId)
-                            }
+                            },
+                            menuController = menuController
                         )
                     }
                 }
@@ -206,6 +208,11 @@ fun FoodLogScreen(
                     CircularProgressIndicator(color = Cyan)
                 }
             }
+
+            InlineMenuHost(
+                controller = menuController,
+                screenPadding = padding
+            )
         }
     }
 
@@ -373,7 +380,8 @@ private fun MealSection(
     items: List<FoodEntry>,
     onAddFood: () -> Unit,
     onEditFood: (FoodEntry) -> Unit,
-    onDeleteFood: (String) -> Unit
+    onDeleteFood: (String) -> Unit,
+    menuController: InlineMenuController
 ) {
     val shape = RoundedCornerShape(18.dp)
 
@@ -408,7 +416,8 @@ private fun MealSection(
                 FoodRow(
                     item = item,
                     onEdit = { onEditFood(item) },
-                    onDelete = { onDeleteFood(item.id) }
+                    onDelete = { onDeleteFood(item.id) },
+                    menuController = menuController // ← pass down
                 )
             }
 
@@ -432,10 +441,12 @@ private fun MealSection(
 private fun FoodRow(
     item: FoodEntry,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    menuController: InlineMenuController
 ) {
     var showMenu by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(14.dp)
+    val anchor = rememberInlineMenuAnchor()
 
     Surface(
         color = DeepBlue.copy(alpha = 0.20f),
@@ -443,41 +454,26 @@ private fun FoodRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp)
-            .clickable { showMenu = true },
+            .inlineMenuAnchor(anchor)
+            .clickable {
+                menuController.show(anchor) {
+                    InlineMenuItem("Edit") { menuController.hide(); onEdit() }
+                    InlineMenuItem("Delete") { menuController.hide(); onDelete() }
+                }
+            },
         elevation = 0.dp
     ) {
-        Box {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    Text("1 item", color = Silver, fontSize = 12.sp)
-                }
-                Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(item.name, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text("1 item", color = Silver, fontSize = 12.sp)
             }
-
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(BgBlack)
-            ) {
-                DropdownMenuItem(onClick = {
-                    showMenu = false
-                    onEdit()
-                }) {
-                    Text("Edit", color = White)
-                }
-                DropdownMenuItem(onClick = {
-                    showMenu = false
-                    onDelete()
-                }) {
-                    Text("Delete", color = Color.Red.copy(alpha = 0.8f))
-                }
-            }
+            Text(item.calories.toInt().toString(), color = White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -593,49 +589,6 @@ private fun AppDialog(
                 content = content
             )
         }
-    }
-}
-
-@Composable
-private fun InlineMenu(
-    expanded: Boolean,
-    onDismiss: () -> Unit,
-    anchorAlignment: Alignment = Alignment.TopEnd,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    if (!expanded) return
-    // This Box is scoped to the parent container (e.g., the FoodRow Box), so the menu appears
-    // near the row rather than the whole screen. Clicks outside dismiss.
-    Box(
-        modifier = Modifier
-            .background(Color.Black.copy(alpha = 0.001f)) // transparent tap-catcher
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { onDismiss() }
-    ) {
-        Column(
-            modifier = Modifier
-                .align(anchorAlignment)
-                .padding(top = 6.dp, end = 6.dp)
-                .background(BgBlack, RoundedCornerShape(12.dp))
-                .border(1.dp, Cyan.copy(alpha = .35f), RoundedCornerShape(12.dp))
-                .padding(vertical = 6.dp)
-        ) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun InlineMenuItem(text: String, tint: Color, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 10.dp)
-    ) {
-        Text(text, color = tint, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -842,10 +795,10 @@ private fun DateSelectorDropdown(
     onPrev: () -> Unit,
     onNext: () -> Unit,
     onSelect: (Int) -> Unit,
-    onOpenManual: () -> Unit
+    onOpenManual: () -> Unit,
+    menuController: InlineMenuController
 ) {
     val shape = RoundedCornerShape(18.dp)
-    var expanded by remember { mutableStateOf(false) }
 
     val tz = remember { TimeZone.currentSystemDefault() }
     val today = remember { Clock.System.todayIn(tz) }
@@ -858,6 +811,12 @@ private fun DateSelectorDropdown(
     val canPrev = currentOffset > minOffsetExclusive
     val canNext = currentOffset < maxOffsetExclusive
 
+    val anchor = rememberInlineMenuAnchor()
+
+    val arrowTouch = 40.dp
+    val arrowFont  = 20.sp
+    val dateFont   = 18.sp
+
     Surface(
         color = BgBlack,
         contentColor = White,
@@ -867,50 +826,63 @@ private fun DateSelectorDropdown(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .border(
-                BorderStroke(1.5.dp, Brush.linearGradient(listOf(Silver.copy(.35f), Cyan.copy(.25f)))),
+                BorderStroke(1.5.dp, Brush.linearGradient(listOf(Silver.copy(alpha = .35f), Cyan.copy(alpha = .25f)))),
                 shape
             )
+            .inlineMenuAnchor(anchor)
     ) {
-        Box {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Left arrow
+            Box(
+                modifier = Modifier
+                    .size(arrowTouch)
+                    .let { if (canPrev) it.clickable { onPrev() } else it },
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "←",
+                    text = "←",
                     color = if (canPrev) White else Silver,
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .let { if (canPrev) it.clickable { onPrev() } else it }
-                )
-                Text(
-                    text = dateLabel,
-                    color = White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { expanded = !expanded }
-                )
-                Text(
-                    "→",
-                    color = if (canNext) White else Silver,
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .let { if (canNext) it.clickable { onNext() } else it }
+                    fontSize = arrowFont,
+                    fontWeight = FontWeight.Medium
                 )
             }
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth().background(BgBlack)
+            // Date label (center)
+            Text(
+                text = dateLabel,
+                color = White,
+                fontSize = dateFont,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .clickable {
+                        menuController.show(anchor, matchAnchorWidth = true) {
+                            InlineMenuItem("Enter Date") {
+                                menuController.hide()
+                                onOpenManual()
+                            }
+                        }
+                    }
+            )
+
+            // Right arrow
+            Box(
+                modifier = Modifier
+                    .size(arrowTouch)
+                    .let { if (canNext) it.clickable { onNext() } else it },
+                contentAlignment = Alignment.Center
             ) {
-                DropdownMenuItem(onClick = {
-                    expanded = false
-                    onOpenManual()
-                }) {
-                    Text("Enter Date", color = White)
-                }
+                Text(
+                    text = "→",
+                    color = if (canNext) White else Silver,
+                    fontSize = arrowFont,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }

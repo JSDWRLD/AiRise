@@ -97,7 +97,7 @@ fun FitnessSummarySection(
                     FitnessStatBox("Steps", healthData.steps.toString(), "Steps", Icons.AutoMirrored.Outlined.DirectionsRun)
                 }
                 HydrationBox(
-                    hydration = healthData.hydration,
+                    hydration = healthData.hydration ?: 0.0,
                     onHydrationUpdated = onHydrationUpdated,
                     modifier = Modifier.weight(1.2f)
                 )
@@ -113,7 +113,7 @@ fun FitnessSummarySection(
                     modifier = Modifier.weight(1f)
                 )
                 HydrationBox(
-                    hydration = healthData.hydration,
+                    hydration = healthData.hydration ?: 0.0,
                     onHydrationUpdated = onHydrationUpdated,
                     modifier = Modifier.weight(1.2f)
                 )
