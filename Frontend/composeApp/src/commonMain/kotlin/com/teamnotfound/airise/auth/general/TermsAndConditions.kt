@@ -16,9 +16,6 @@ import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 
-/**
- * NOTE: Template T&C for product description only; have counsel review before release.
- */
 @Composable
 fun TermsOfUseScreen(
     onBackClick: () -> Unit
@@ -90,13 +87,18 @@ fun TermsOfUseScreen(
                     Body("To the maximum extent permitted by law, AiRise and its affiliates won’t be liable for indirect, incidental, special, consequential, or punitive damages, or any loss of data, profits, or revenues, arising from or related to your use of the Service.")
 
                     SectionTitle("12. Governing Law; Dispute Resolution")
-                    Body("These Terms are governed by the laws of your primary operating jurisdiction (to be specified). Disputes will be resolved in the courts or arbitration forum specified by AiRise (to be specified).")
+                    // Filled-in governing jurisdiction and venue
+                    Body("These Terms are governed by the laws of the State of California, United States. Any disputes arising out of or relating to the Service shall be resolved exclusively in the state or federal courts located in Sacramento County, California, unless both parties agree to an alternative resolution process such as arbitration.")
 
                     SectionTitle("13. Changes to Terms")
                     Body("We may update these Terms from time to time. Updates will be posted in-app with a revised “Last updated” date. Material changes will be communicated more prominently.")
 
                     SectionTitle("14. Contact")
-                    Body("Questions? Email support@airise.app")
+                    Body("Questions? Email support@airise.app or write to: AiRise — Attn: Terms & Legal, Sacramento, CA, USA")
+
+                    // Prototype / Non-commercial notice
+                    Spacer(Modifier.height(12.dp))
+                    Body("Prototype notice: This app is provided for testing and demonstration purposes only and is not intended for commercial use.")
                 }
 
                 Spacer(Modifier.height(24.dp))

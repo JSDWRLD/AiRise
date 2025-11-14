@@ -21,11 +21,6 @@ import com.teamnotfound.airise.util.Orange
 import com.teamnotfound.airise.util.Silver
 import com.teamnotfound.airise.util.White
 
-/**
- * NOTE: This privacy policy is a product description/template and not legal advice.
- * Have a qualified attorney review before shipping.
- */
-
 @Composable
 fun PrivacyPolicyScreen(
     onBackClick: () -> Unit
@@ -70,21 +65,11 @@ fun PrivacyPolicyScreen(
                     )
 
                     SectionTitle("1. What We Collect")
-                    Bullet(
-                        "Account & Contact Info: email address, display name, and authentication identifiers."
-                    )
-                    Bullet(
-                        "Profile & Goals (optional): age range, height/weight ranges, goals, training preferences."
-                    )
-                    Bullet(
-                        "App & Workout Activity: plan selections, workout completions, sets/reps/time, streaks, and app interactions."
-                    )
-                    Bullet(
-                        "AI Prompts & Outputs: questions you ask the coach and the model’s responses."
-                    )
-                    Bullet(
-                        "Device & Usage Data: device type, app version, crash logs, and diagnostics."
-                    )
+                    Bullet("Account & Contact Info: email address, display name, and authentication identifiers.")
+                    Bullet("Profile & Goals (optional): age range, height/weight ranges, goals, training preferences.")
+                    Bullet("App & Workout Activity: plan selections, workout completions, sets/reps/time, streaks, and app interactions.")
+                    Bullet("AI Prompts & Outputs: questions you ask the coach and the model’s responses.")
+                    Bullet("Device & Usage Data: device type, app version, crash logs, and diagnostics.")
 
                     SectionTitle("2. How We Use Your Data")
                     Bullet("Personalize training plans, coaching tips, and content.")
@@ -96,9 +81,7 @@ fun PrivacyPolicyScreen(
                     SectionTitle("3. AI Processing & Third Parties")
                     Text(
                         "To provide AI features, we may send relevant data (like your prompts, workout context, and preferences) to trusted AI providers for processing, such as the Google Gemini API. We take steps to minimize personally identifiable information in these requests when possible.",
-                        color = Silver,
-                        fontSize = 14.sp,
-                        lineHeight = 20.sp
+                        color = Silver, fontSize = 14.sp, lineHeight = 20.sp
                     )
                     Spacer(Modifier.height(6.dp))
                     Bullet("We restrict providers’ use of your data to performing our requested services.")
@@ -147,8 +130,20 @@ fun PrivacyPolicyScreen(
 
                     SectionTitle("10. Contact Us")
                     Text(
-                        "Questions or requests? Email support@airise.app",
+                        "Questions, feedback, or privacy requests? Email support@airise.app or write to:",
                         color = Silver, fontSize = 14.sp, lineHeight = 20.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "AiRise — Attn: Privacy Team, Sacramento, CA, USA",
+                        color = Silver, fontSize = 14.sp, lineHeight = 20.sp
+                    )
+
+                    // Prototype / Non-commercial notice
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "Prototype notice: This app is provided for testing and demonstration purposes only and is not intended for commercial use.",
+                        color = Silver, fontSize = 12.sp, lineHeight = 18.sp
                     )
                 }
 
@@ -173,7 +168,6 @@ fun AuthErrorBanner(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Small accent dot
             Box(
                 modifier = Modifier
                     .size(8.dp)
@@ -194,9 +188,7 @@ fun AuthErrorBanner(
 fun friendlyAuthError(raw: String?): String? {
     if (raw.isNullOrBlank()) return null
     val s = raw.lowercase()
-
     return when {
-        // common auth cases (Firebase / custom)
         "user" in s && "not" in s && "found" in s -> "We couldn’t find an account with that email."
         "wrong password" in s || "invalid password" in s -> "That password doesn’t look right."
         "invalid email" in s || "badly formatted" in s -> "Please enter a valid email address."
@@ -207,23 +199,15 @@ fun friendlyAuthError(raw: String?): String? {
     }
 }
 
-@Composable
-private fun SectionTitle(text: String) {
+@Composable private fun SectionTitle(text: String) {
     Spacer(Modifier.height(14.dp))
     Text(text, color = White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(6.dp))
 }
 
-@Composable
-private fun Bullet(text: String) {
+@Composable private fun Bullet(text: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text("•", color = Orange, fontSize = 14.sp, modifier = Modifier.padding(end = 6.dp))
-        Text(
-            text,
-            color = Silver,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            modifier = Modifier.weight(1f)
-        )
+        Text(text, color = Silver, fontSize = 14.sp, lineHeight = 20.sp, modifier = Modifier.weight(1f))
     }
 }

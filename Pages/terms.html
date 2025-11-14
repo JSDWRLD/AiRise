@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,25 +18,103 @@
       --border: #242634;
       --maxw: 860px;
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
-    a { color: var(--link); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    header { background: linear-gradient(180deg, #0f1117, var(--panel)); border-bottom: 1px solid var(--border); }
-    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 24px; }
-    h1 { font-size: 28px; margin: 0 0 4px; }
-    h2 { font-size: 20px; margin: 28px 0 8px; }
-    p { color: var(--muted); margin: 8px 0 0; }
-    ul { color: var(--muted); padding-left: 20px; margin: 8px 0; }
-    li + li { margin-top: 6px; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
-    .meta { color: var(--muted); font-size: 14px; }
-    nav { margin-top: 8px; }
-    nav a { margin-right: 12px; font-size: 14px; }
-    footer { border-top: 1px solid var(--border); margin-top: 32px; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #1a1d26; border: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    header {
+      background: linear-gradient(180deg, #0f1117, var(--panel));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin: 0 0 4px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 28px 0 8px;
+    }
+
+    p {
+      color: var(--muted);
+      margin: 8px 0 0;
+    }
+
+    ul {
+      color: var(--muted);
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    li+li {
+      margin-top: 6px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    nav {
+      margin-top: 8px;
+    }
+
+    nav a {
+      margin-right: 12px;
+      font-size: 14px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #1a1d26;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
   </style>
 </head>
+
 <body>
   <header>
     <div class="wrap">
@@ -62,13 +141,16 @@
 
   <main class="wrap">
     <div class="panel">
-      <p>By creating an account or using <strong>AiRise</strong> (the “Service”), you agree to these Terms and our <a href="privacy.html">Privacy Policy</a>. This template is for product communication and is not legal advice.</p>
+      <p>By creating an account or using <strong>AiRise</strong> (the “Service”), you agree to these Terms and our <a
+          href="privacy.html">Privacy Policy</a>. This template is for product communication and is not legal advice.
+      </p>
 
       <h2 id="acceptance">1. Acceptance of Terms</h2>
       <p>These Terms govern your access to and use of the Service.</p>
 
       <h2 id="eligibility">2. Eligibility</h2>
-      <p>You must be at least 13 years old (or older if required by local law). If you’re under the age of majority, you must have a parent/guardian’s consent.</p>
+      <p>You must be at least 13 years old (or older if required by local law). If you’re under the age of majority, you
+        must have a parent/guardian’s consent.</p>
 
       <h2 id="accounts">3. Accounts &amp; Security</h2>
       <ul>
@@ -85,46 +167,70 @@
       </ul>
 
       <h2 id="ai">5. AI Features &amp; External Providers</h2>
-      <p>To deliver coaching and recommendations, we may send prompts and relevant context to trusted AI providers (e.g., Google Gemini API). We minimize personal data when possible and restrict providers’ use to the requested services. AI outputs may be imperfect—use discretion and verify advice.</p>
+      <p>To deliver coaching and recommendations, we may send prompts and relevant context to trusted AI providers
+        (e.g., Google Gemini API). We minimize personal data when possible and restrict providers’ use to the requested
+        services. AI outputs may be imperfect—use discretion and verify advice.</p>
 
       <h2 id="health">6. Health &amp; Safety Notice (Not Medical Advice)</h2>
-      <p>AiRise provides general fitness information and is not a medical service. Consult a qualified professional before starting any exercise program, especially if you have injuries, conditions, or concerns. Stop activity if you feel pain, dizziness, or discomfort.</p>
+      <p>AiRise provides general fitness information and is not a medical service. Consult a qualified professional
+        before starting any exercise program, especially if you have injuries, conditions, or concerns. Stop activity if
+        you feel pain, dizziness, or discomfort.</p>
 
       <h2 id="user-content">7. User Content &amp; License</h2>
       <ul>
         <li>You retain ownership of content you submit (e.g., notes, custom plans).</li>
-        <li>You grant us a worldwide, non-exclusive license to host, process, and display that content solely to operate and improve the Service.</li>
+        <li>You grant us a worldwide, non-exclusive license to host, process, and display that content solely to operate
+          and improve the Service.</li>
         <li>You represent you have rights to the content you submit.</li>
       </ul>
 
       <h2 id="ip">8. Intellectual Property</h2>
-      <p>The Service and all related materials are owned by AiRise or its licensors and are protected by IP laws. Except as allowed by these Terms, you may not copy, modify, or distribute our content.</p>
+      <p>The Service and all related materials are owned by AiRise or its licensors and are protected by IP laws. Except
+        as allowed by these Terms, you may not copy, modify, or distribute our content.</p>
 
       <h2 id="termination">9. Termination</h2>
-      <p>We may suspend or terminate accounts for violations of these Terms or risk to users/services. You may stop using the Service at any time. Certain sections survive termination (e.g., IP, disclaimers, limitation of liability).</p>
+      <p>We may suspend or terminate accounts for violations of these Terms or risk to users/services. You may stop
+        using the Service at any time. Certain sections survive termination (e.g., IP, disclaimers, limitation of
+        liability).</p>
 
       <h2 id="disclaimers">10. Disclaimers</h2>
       <ul>
         <li>THE SERVICE IS PROVIDED “AS IS” AND “AS AVAILABLE.”</li>
-        <li>WE DISCLAIM WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT TO THE MAXIMUM EXTENT PERMITTED BY LAW.</li>
+        <li>WE DISCLAIM WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT TO THE
+          MAXIMUM EXTENT PERMITTED BY LAW.</li>
       </ul>
 
       <h2 id="liability">11. Limitation of Liability</h2>
-      <p>To the maximum extent permitted by law, AiRise and its affiliates won’t be liable for indirect, incidental, special, consequential, or punitive damages, or any loss of data, profits, or revenues, arising from or related to your use of the Service.</p>
+      <p>To the maximum extent permitted by law, AiRise and its affiliates won’t be liable for indirect, incidental,
+        special, consequential, or punitive damages, or any loss of data, profits, or revenues, arising from or related
+        to your use of the Service.</p>
 
       <h2 id="law">12. Governing Law; Dispute Resolution</h2>
-      <p>These Terms are governed by the laws of <em>[Your Governing Jurisdiction]</em>. Disputes will be resolved in the courts or arbitration forum specified by AiRise (<em>[Specify forum]</em>).</p>
+      <p>These Terms are governed by the laws of the <strong>State of California, United States</strong>. Any disputes
+        arising out of or relating to the Service shall be resolved exclusively in the state or federal courts located
+        in <strong>Sacramento County, California</strong>, unless both parties agree to an alternative resolution
+        process such as arbitration.</p>
 
       <h2 id="changes">13. Changes to Terms</h2>
-      <p>We may update these Terms from time to time. Updates will be posted here with a revised “Last updated” date. Material changes will be communicated more prominently.</p>
+      <p>We may update these Terms from time to time. Updates will be posted here with a revised “Last updated” date.
+        Material changes will be communicated more prominently.</p>
 
       <h2 id="contact">14. Contact</h2>
-      <p>Questions? Email <a href="mailto:support@airise.app">support@airise.app</a>.</p>
+      <p>Questions? Email <a href="mailto:support@airise.app">support@airise.app</a> or write to:</p>
+      <p>
+        <strong>AiRise</strong><br>
+        Attn: Terms &amp; Legal<br>
+        Sacramento, CA, USA
+      </p>
+
+      <p class="meta">This is a test application provided for demonstration purposes only. It is not a commercial
+        product and does not generate revenue.</p>
     </div>
 
     <footer class="wrap">
-      <p class="meta">© 2025 AiRise. All rights reserved.</p>
+      <p class="meta">© 2025 AiRise. All rights reserved. Sacramento, CA.</p>
     </footer>
   </main>
 </body>
+
 </html>
