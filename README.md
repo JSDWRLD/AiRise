@@ -1,7 +1,7 @@
 <h1 align="center">🏋️‍♀️ AiRise – The Smart Personal Health Companion</h1>
 
 <p align="center">
-  <i>Your all-in-one AI-powered fitness and wellness app — personalized workouts, smart nutrition, community challenges, and adaptive goal tracking.</i>
+  <i>Your all-in-one AI-powered fitness and wellness app, personalized workouts, smart nutrition, community challenges, and adaptive goal tracking.</i>
 </p>
 
 <p align="center">
