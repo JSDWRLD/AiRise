@@ -211,8 +211,8 @@ Follow branching and PR guidelines to ensure clean collaboration.
 <p align="center">
   <img src="Media/logo.png" alt="AiRise Logo" width="120"><br>
   <i>"The only bad workout is the one that didn’t happen."</i><br><br>
-  <a href="Pages/privacy.html">Privacy Policy</a> •
-  <a href="Pages/terms.html">Terms & Conditions</a><br>
+  <a href="https://jsdwrld.github.io/AiRise/Pages/privacy.html">Privacy Policy</a> •
+  <a href="https://jsdwrld.github.io/AiRise/Pages/terms.html">Terms & Conditions</a><br>
   <b>© 2025 AiRise | Team 404 Not Found</b>
 </p>
 
