@@ -102,7 +102,17 @@ Click on the Dropdown to View Images!
 /backend    # RESTful backend API (.NET 9)
 ```
 
+
 Each folder contains its own README with detailed setup and architecture information.
+
+### 📚 Detailed Documentation
+
+Each major component has its own dedicated documentation:
+
+| Folder | Description |
+|--------|--------------|
+| [`/Frontend/README.md`](Frontend/README.md) | Full setup guide and architecture for the Kotlin Multiplatform mobile app. |
+| [`/Backend/README.md`](Backend/README.MD) | Detailed documentation for the .NET backend API, deployment, and testing. |
 
 ---
 
