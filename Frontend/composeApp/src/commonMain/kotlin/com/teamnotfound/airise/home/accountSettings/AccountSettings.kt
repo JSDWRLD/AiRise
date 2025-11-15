@@ -57,7 +57,7 @@ fun AccountSettings(
         AccountSettingScreens.DOBSelect.route -> SettingAgeSelectionScreen(navController, accountSettingViewModel, user)
         AccountSettingScreens.WeightSelect.route -> SettingWeightSelectionScreen(navController, accountSettingViewModel, user)
         AccountSettingScreens.HeightSelect.route -> SettingHeightSelectionScreen(navController, accountSettingViewModel, user)
-        // AccountSettingScreens.AiPersonality.route -> AiPersonalityScreen(user, navController)
+        AccountSettingScreens.AiPersonality.route -> AiPersonalityScreen(user, navController)
         AccountSettingScreens.HealthDashboard.route -> HealthDashboardScreen(kHealth, onBackClick = { navController.popBackStack() })
         AccountSettingScreens.NameEdit.route -> NameEditScreen(navController, user, accountSettingViewModel)
     }

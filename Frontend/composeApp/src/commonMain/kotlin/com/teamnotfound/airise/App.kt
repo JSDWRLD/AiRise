@@ -440,7 +440,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                     )
                 }
 
-                /*
+
                 // Account Settings - AI Personality
                 composable(route = AppScreen.ACCOUNT_SETTINGS_AI_PERSONALITY.name) {
                     val accountSettingViewModel = viewModel { AccountSettingsViewModel(authService,container.userClient) }
@@ -451,7 +451,7 @@ fun App(container: AppContainer, reminder: notifications.WorkoutReminderUseCase)
                         startScreen = AccountSettingScreens.AiPersonality.route
                     )
                 }
-                 */
+
 
                 // Account Settings - Name Edit
                 composable(route = AppScreen.ACCOUNT_SETTINGS_NAME_EDIT.name) {
